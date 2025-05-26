@@ -4,6 +4,10 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.ciphers import vigenere_decrypt
 import unittest
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load configuration from config.json
 config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../config/config.json'))
@@ -26,11 +30,11 @@ class TestCiphers(unittest.TestCase):
         decrypted_text_k1 = vigenere_decrypt(ciphertext_k1, key_k1, preserve_non_alpha=False)
         
         # Debugging output
-        print(f"Test K1:")
-        print(f"Ciphertext: {ciphertext_k1}")
-        print(f"Key: {key_k1}")
-        print(f"Decrypted Text: {decrypted_text_k1}")
-        print(f"Expected Plaintext: {expected_plaintext_k1}")
+        logging.info(f"Test K1:")
+        logging.debug(f"Cipher: {ciphertext_k1}")
+        logging.info(f"Key: {key_k1}")
+        logging.debug(f"Decrypted Text: {decrypted_text_k1}")
+        logging.debug(f"Expected Plaintext: {expected_plaintext_k1}")
         
         # Assert the decrypted text matches the expected plaintext
         self.assertEqual(decrypted_text_k1, expected_plaintext_k1)
@@ -41,11 +45,7 @@ class TestCiphers(unittest.TestCase):
         """
         # Get the modified K2 ciphertext and key from config
         ciphertext_k2 = config["ciphertexts"]["K2"]  # The modified ciphertext already includes the 'S'
-        
-        # Strip spaces from the ciphertext
-        adjusted_ciphertext_k2 = ciphertext_k2.replace(" ", "")
-        print(f"Original Ciphertext (modified): {ciphertext_k2}")
-        print(f"Adjusted Ciphertext (after removing spaces): {adjusted_ciphertext_k2}")
+        logging.debug(f"Original Ciphertext (with spaces): {ciphertext_k2}")
 
         # Get the key for K2
         key_k2 = config["parameters"]["vigenere_keys"][1]  # Use the second key from vigenere_keys for K2
@@ -60,16 +60,18 @@ class TestCiphers(unittest.TestCase):
             "SEVENTYSEVENDEGREESEIGHTMINUTESFORTYFOURSECONDSWESTXLAYERTWO"
         )
 
-        # Decrypt the adjusted ciphertext
-        decrypted_text_k2 = vigenere_decrypt(adjusted_ciphertext_k2, key_k2, preserve_non_alpha=True)
+        # Decrypt the ciphertext without removing spaces
+        decrypted_text_k2 = vigenere_decrypt(ciphertext_k2, key_k2, preserve_non_alpha=True)
 
         # Debugging output
-        print(f"Test K2:")
-        print(f"Key: {key_k2}")
-        print(f"Decrypted Text: {decrypted_text_k2}")
-        print(f"Expected Plaintext: {expected_plaintext_k2}")
+        logging.info(f"Test K2:")
+        logging.debug(f"Cipher: {ciphertext_k2}")
+        logging.info(f"Key: {key_k2}")
+        logging.debug(f"Decrypted Text (with spaces): {decrypted_text_k2}")
+        logging.debug(f"Expected Plaintext: {expected_plaintext_k2}")
 
         # Assert the decrypted text matches the expected plaintext
-        self.assertEqual(decrypted_text_k2, expected_plaintext_k2)
+        self.assertEqual(decrypted_text_k2.replace(" ", ""), expected_plaintext_k2)
+
 if __name__ == "__main__":
     unittest.main()
