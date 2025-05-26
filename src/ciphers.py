@@ -1,6 +1,6 @@
 import string
 
-def vigenere_decrypt(ciphertext, key):
+def vigenere_decrypt(ciphertext, key, preserve_non_alpha=False):
     """
     Decrypts a Vigenère cipher using the provided key and a keyed alphabet.
     Uses the KRYPTOS keyed alphabet: KRYPTOSABCDEFGHIJLMNQUVWXZ.
@@ -9,23 +9,25 @@ def vigenere_decrypt(ciphertext, key):
     keyed_alphabet = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
     
     # Ensure ciphertext and key are uppercase and alphabetic
-    ciphertext = ''.join(c for c in ciphertext.upper() if c.isalpha())
     key = ''.join(c for c in key.upper() if c.isalpha())
     
     plaintext = []
-    # Repeat the key to match the length of the ciphertext
-    key_repeated = (key * (len(ciphertext) // len(key) + 1))[:len(ciphertext)]
-    
-    # Decrypt the ciphertext using the keyed alphabet
-    for c, k in zip(ciphertext, key_repeated):
-        # Find indices in the keyed alphabet
-        c_num = keyed_alphabet.index(c)
-        k_num = keyed_alphabet.index(k)
-        # Decrypt using modular arithmetic: P = (C - K) mod 26
-        p_num = (c_num - k_num) % 26
-        # Convert back to character using the keyed alphabet
-        plaintext.append(keyed_alphabet[p_num])
-    
+    key_index = 0  # Track the position in the key
+
+    for i, c in enumerate(ciphertext):
+        if c.isalpha():  # Only decrypt alphabetic characters
+            c_index = keyed_alphabet.index(c)
+            k_index = keyed_alphabet.index(key[key_index % len(key)])
+            p_index = (c_index - k_index) % len(keyed_alphabet)
+            decrypted_char = keyed_alphabet[p_index]
+            plaintext.append(decrypted_char)
+            print(f"[{i}] Ciphertext char: {c}, Key char: {key[key_index % len(key)]}, "
+                  f"Decrypted char: {decrypted_char}, C-Index: {c_index}, K-Index: {k_index}, P-Index: {p_index}")
+            key_index += 1
+        elif preserve_non_alpha:
+            plaintext.append(c)  # Preserve non-alphabetic characters as-is
+            print(f"[{i}] Non-alphabetic char preserved: {c}")
+
     return ''.join(plaintext)
 
 def transposition_decrypt(ciphertext, key_length):
