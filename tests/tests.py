@@ -2,7 +2,7 @@ import sys
 import os
 import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.ciphers import vigenere_decrypt
+from src.ciphers import vigenere_decrypt, transposition_decrypt
 import unittest
 import logging
 
@@ -73,5 +73,36 @@ class TestCiphers(unittest.TestCase):
         # Assert the decrypted text matches the expected plaintext
         self.assertEqual(decrypted_text_k2.replace(" ", ""), expected_plaintext_k2)
 
+    def test_transposition_k3(self):
+        """
+        Test the transposition decryption for K3.
+        """
+        ciphertext_k3 = config["ciphertexts"]["K3"]
+        key = "KRYPTOS"
+
+        # Debug: Log ciphertext length and content
+        logging.info(f"TEST K3:")
+        logging.info(f"Key: {key}")
+        logging.debug(f"K3 Ciphertext: {ciphertext_k3}")
+        logging.debug(f"K3 Ciphertext Length: {len(ciphertext_k3)}")
+        logging.debug(f"K3 Ciphertext Hex: {ciphertext_k3.encode().hex()}")
+
+        expected_plaintext_k3 = (
+            "SLOWLYDESPARATLYSLOWLYTHEREMAINSOFPASSAGEDEBRISTHATENCUMBEREDTHELOWERPARTOFTHEDOORWAY"
+            "WASREMOVEDWITHTREMBLINGHANDSIMADEATINYBREACHINTHEUPPERLEFTHANDCORNERANDTHENWIDENINGTHEHOLEALITTLE"
+            "IINSERTEDTHECANDLEANDPEEREDINTHEHOTAIRESCAPINGFROMTHECHAMBERCAUSEDTHEFLAMETOFLICKER"
+            "BUTPRESENTLYDETAILSOFTHEROOMWITHINEMERGEDFROMTHEMISTXCANYOUSEEANYTHINGQ"
+        )
+        
+        # Decrypt the ciphertext using the transposition decryption function
+        decrypted_text_k3 = transposition_decrypt(ciphertext_k3, key)
+
+        # Debugging output
+        logging.info(f"Decrypted Text: {decrypted_text_k3}")
+        logging.info(f"Expected Plaintext: {expected_plaintext_k3}")
+
+        # Assertion
+        self.assertEqual(decrypted_text_k3.replace(" ", ""), expected_plaintext_k3, 
+                        "K3 decryption failed")
 if __name__ == "__main__":
     unittest.main()
