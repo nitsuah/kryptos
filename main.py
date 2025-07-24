@@ -14,7 +14,7 @@ def main():
 
     # Decrypt K1
     k1_ciphertext = ciphertexts["K1"]
-    k1_keyword = "PALIMPSEST"  # Known keyword for K1
+    k1_keyword = parameters["vigenere_keys"][0]  # Keyword for K1 from config
     print(f"Decrypting K1 with keyword '{k1_keyword}'...")
 
     k1_plaintext = vigenere_decrypt(k1_ciphertext, k1_keyword)
