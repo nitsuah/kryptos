@@ -96,5 +96,32 @@ def transposition_decrypt(ciphertext, key=None):
         return plaintext
 
 def polybius_decrypt(ciphertext, key_square):
-    # Placeholder for Polybius square decryption
-    pass
+    """
+    Decrypts a Polybius cipher using the provided key square.
+
+    Args:
+        ciphertext (str): The encrypted message, consisting of pairs of digits.
+        key_square (list of list of str): A 5x5 grid representing the Polybius square.
+
+    Returns:
+        str: The decrypted plaintext message.
+    """
+    # Ensure the key square is a 5x5 grid
+    if len(key_square) != 5 or any(len(row) != 5 for row in key_square):
+        raise ValueError("Key square must be a 5x5 grid.")
+
+    # Split ciphertext into pairs of digits
+    if len(ciphertext) % 2 != 0:
+        raise ValueError("Ciphertext length must be even.")
+
+    pairs = [ciphertext[i:i+2] for i in range(0, len(ciphertext), 2)]
+    plaintext = []
+
+    for pair in pairs:
+        try:
+            row, col = int(pair[0]) - 1, int(pair[1]) - 1
+            plaintext.append(key_square[row][col])
+        except (IndexError, ValueError):
+            raise ValueError(f"Invalid pair in ciphertext: {pair}")
+
+    return ''.join(plaintext)
