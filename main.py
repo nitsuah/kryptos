@@ -28,16 +28,16 @@ def main():
         print("No crib matches found in K1.")
 
     for cipher_name, ciphertext in ciphertexts.items():
-        results = {}
+        results = {"frequencies": {}, "cribs": {}}
         for key in parameters["vigenere_keys"]:
             plaintext = vigenere_decrypt(ciphertext, key)
             frequencies = frequency_analysis(plaintext)
             matches = check_cribs(plaintext, cribs)
 
-            results["frequencies"] = frequencies
-            results["cribs"] = matches
+            results["frequencies"][key] = frequencies
+            results["cribs"][key] = matches
 
-            generate_report(results, cipher_name)
+        generate_report(results, cipher_name)
 
 if __name__ == "__main__":
     main()
