@@ -25,12 +25,14 @@ def vigenere_decrypt(ciphertext, key, preserve_non_alpha=False):
             p_index = (c_index - k_index) % len(keyed_alphabet)
             decrypted_char = keyed_alphabet[p_index]
             plaintext.append(decrypted_char)
-            logging.debug(f"[{i}] Ciphertext char: {c}, Key char: {key[key_index % len(key)]}, "
-                  f"Decrypted char: {decrypted_char}, C-Index: {c_index}, K-Index: {k_index}, P-Index: {p_index}")
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                logging.debug(f"[{i}] Ciphertext char: {c}, Key char: {key[key_index % len(key)]}, "
+                              f"Decrypted char: {decrypted_char}, C-Index: {c_index}, K-Index: {k_index}, P-Index: {p_index}")
             key_index += 1
         elif preserve_non_alpha:
             plaintext.append(c)  # Preserve non-alphabetic characters as-is
-            logging.debug(f"[{i}] Non-alphabetic char preserved: {c}")
+            if logging.getLogger().isEnabledFor(logging.DEBUG):
+                logging.debug(f"[{i}] Non-alphabetic char preserved: {c}")
 
     return ''.join(plaintext)
 
