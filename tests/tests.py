@@ -2,7 +2,7 @@ import sys
 import os
 import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.ciphers import vigenere_decrypt, transposition_decrypt
+from src.ciphers import vigenere_decrypt, kryptos_k3_decrypt  # removed transposition_decrypt import
 import unittest
 import logging
 
@@ -75,34 +75,22 @@ class TestCiphers(unittest.TestCase):
 
     def test_transposition_k3(self):
         """
-        Test the transposition decryption for K3.
+        Test the K3 decryption (double rotational transposition / 24x14 -> rotate -> 8-col -> rotate).
+        Notes:
+        - This section does NOT use an additional Vigenère step in this implementation.
+        - Deliberate sculpture misspelling retained: DESPARATLY (cf. K1 IQLUSION).
         """
         ciphertext_k3 = config["ciphertexts"]["K3"]
-        key = "KRYPTOS"
-
-        # Debug: Log ciphertext length and content
-        logging.info(f"TEST K3:")
-        logging.info(f"Key: {key}")
-        logging.debug(f"K3 Ciphertext: {ciphertext_k3}")
+        logging.info("TEST K3:")
         logging.debug(f"K3 Ciphertext Length: {len(ciphertext_k3)}")
-        logging.debug(f"K3 Ciphertext Hex: {ciphertext_k3.encode().hex()}")
-
         expected_plaintext_k3 = (
-            "SLOWLYDESPERATELYSLOWLYTHEREMAINSOFPASSAGEDEBRISTHATENCUMBEREDTHELOWERPARTOFTHEDOORWAY"
+            "SLOWLYDESPARATLYSLOWLYTHEREMAINSOFPASSAGEDEBRISTHATENCUMBEREDTHELOWERPARTOFTHEDOORWAY"
             "WASREMOVEDWITHTREMBLINGHANDSIMADEATINYBREACHINTHEUPPERLEFTHANDCORNERANDTHENWIDENINGTHEHOLEALITTLE"
             "IINSERTEDTHECANDLEANDPEEREDINTHEHOTAIRESCAPINGFROMTHECHAMBERCAUSEDTHEFLAMETOFLICKER"
             "BUTPRESENTLYDETAILSOFTHEROOMWITHINEMERGEDFROMTHEMISTXCANYOUSEEANYTHINGQ"
         )
-        
-        # Decrypt the ciphertext using the transposition decryption function
-        decrypted_text_k3 = transposition_decrypt(ciphertext_k3, key)
-
-        # Debugging output
+        decrypted_text_k3 = kryptos_k3_decrypt(ciphertext_k3)
         logging.info(f"Decrypted Text: {decrypted_text_k3}")
-        logging.info(f"Expected Plaintext: {expected_plaintext_k3}")
-
-        # Assertion
-        self.assertEqual(decrypted_text_k3.replace(" ", ""), expected_plaintext_k3, 
-                        "K3 decryption failed")
+        self.assertEqual(decrypted_text_k3.replace(" ", ""), expected_plaintext_k3, "K3 decryption failed")
 if __name__ == "__main__":
     unittest.main()
