@@ -36,7 +36,7 @@ def vigenere_decrypt(ciphertext, key, preserve_non_alpha=False):
 
     return ''.join(plaintext)
 
-def kryptos_k3_decrypt(ciphertext, vigenere_key="KRYPTOS"):
+def kryptos_k3_decrypt(ciphertext):
     """
     Decrypts Kryptos K3 using the historically verified double rotational transposition method.
     
