@@ -1,10 +1,12 @@
-import sys
-import os
+"""
+Unit tests for cipher decryption functions.
+"""
 import json
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.ciphers import vigenere_decrypt, kryptos_k3_decrypt  # removed transposition_decrypt import
+import os
 import unittest
 import logging
+
+from src import vigenere_decrypt, kryptos_k3_decrypt  # direct package import
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
