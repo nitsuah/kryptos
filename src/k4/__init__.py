@@ -7,6 +7,11 @@ from .scoring import (
 from .substitution_solver import solve_substitution
 from .pipeline import Pipeline, Stage, StageResult
 from .transposition import apply_columnar_permutation, search_columnar
+from .hill_cipher import (
+    mod_inv, matrix_det, matrix_inv_mod,
+    hill_encrypt_block, hill_decrypt_block, hill_encrypt, hill_decrypt
+)
+from .cribs import normalize_cipher, annotate_cribs
 
 __all__ = [
     'generate_partitions', 'partitions_for_k4', 'slice_by_partition',
@@ -15,3 +20,9 @@ __all__ = [
     'solve_substitution', 'Pipeline', 'Stage', 'StageResult',
     'apply_columnar_permutation', 'search_columnar'
 ]
+
+__all__ += [
+    'mod_inv','matrix_det','matrix_inv_mod','hill_encrypt_block','hill_decrypt_block','hill_encrypt','hill_decrypt'
+]
+
+__all__ += ['normalize_cipher','annotate_cribs']
