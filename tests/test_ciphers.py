@@ -5,6 +5,10 @@ import json
 import os
 import unittest
 import logging
+import sys
+
+# Ensure project root on path for IDE import resolution
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src import vigenere_decrypt, kryptos_k3_decrypt  # direct package import
 

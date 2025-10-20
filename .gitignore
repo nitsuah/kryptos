@@ -1,3 +1,11 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
 src/__pycache__/
 tests/__pycache__/
+# Ignore all Python cache dirs
+**/__pycache__/
+# Ignore compiled bytecode
+*.py[cod]
+# Ignore distribution/build artifacts
+build/
+dist/
+*.egg-info/
