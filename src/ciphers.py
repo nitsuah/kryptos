@@ -36,13 +36,100 @@ def vigenere_decrypt(ciphertext, key, preserve_non_alpha=False):
 
     return ''.join(plaintext)
 
+def kryptos_k3_decrypt(ciphertext, vigenere_key="KRYPTOS"):
+    """
+    Decrypts Kryptos K3 using the historically verified double rotational transposition method.
+    
+    Method (from kryptosfan.wordpress.com):
+    1. Remove the leading '?' 
+    2. Grid into 24×14 matrix (24 columns, 14 rows)
+    3. Rotate right 90 degrees  
+    4. Change column width to 8 and rotate right 90 degrees again
+    5. This gives the final plaintext
+    
+    This is pure transposition - no Vigenère cipher needed for K3!
+    """
+    # Step 1: Clean the ciphertext - remove spaces and leading '?'
+    clean_text = ''.join(ciphertext.split())
+    if clean_text.startswith('?'):
+        clean_text = clean_text[1:]
+    
+    # Step 2: Apply the double rotational transposition
+    return double_rotational_transposition(clean_text)
+
+def double_rotational_transposition(text):
+    """
+    Apply the K3 double rotational transposition method:
+    1. Grid into 24×14 matrix
+    2. Rotate right 90 degrees
+    3. Change to 8-column width and rotate right 90 degrees again
+    """
+    # Step 1: Create 24×14 grid (24 columns, 14 rows)
+    cols1, rows1 = 24, 14
+    
+    if len(text) != cols1 * rows1:
+        # Pad if necessary, but K3 should be exactly 336 characters
+        text = text.ljust(cols1 * rows1, 'X')
+    
+    # Fill the 24×14 matrix row by row
+    matrix1 = []
+    for i in range(rows1):
+        row = text[i * cols1:(i + 1) * cols1]
+        matrix1.append(list(row))
+    
+    # Step 2: Rotate right 90 degrees
+    # After rotation: 14 columns, 24 rows
+    matrix2 = rotate_matrix_right_90(matrix1)
+    
+    # Convert rotated matrix to string
+    rotated_text = ''
+    for row in matrix2:
+        rotated_text += ''.join(row)
+    
+    # Step 3: Change column width to 8 and rotate right 90 degrees again
+    cols3 = 8
+    rows3 = len(rotated_text) // cols3
+    
+    # Fill the 8-column matrix row by row
+    matrix3 = []
+    for i in range(rows3):
+        row = rotated_text[i * cols3:(i + 1) * cols3]
+        matrix3.append(list(row))
+    
+    # Rotate right 90 degrees again
+    matrix4 = rotate_matrix_right_90(matrix3)
+    
+    # Convert final matrix to string
+    result = ''
+    for row in matrix4:
+        result += ''.join(row)
+    
+    return result
+
+def rotate_matrix_right_90(matrix):
+    """
+    Rotate a matrix 90 degrees clockwise (right)
+    Original: matrix[row][col]
+    After rotation: new_matrix[col][num_rows - 1 - row]
+    """
+    rows = len(matrix)
+    cols = len(matrix[0])
+    
+    # New matrix dimensions: original cols become new rows, original rows become new cols
+    new_matrix = [[''] * rows for _ in range(cols)]
+    
+    for row in range(rows):
+        for col in range(cols):
+            new_row = col
+            new_col = rows - 1 - row
+            new_matrix[new_row][new_col] = matrix[row][col]
+    
+    return new_matrix
+
 def transposition_decrypt(ciphertext, key=None):
     """
-    Decrypts Kryptos K3 using route transposition:
-    1. Remove spaces from ciphertext.
-    2. Remove leading '?' if present (not part of the grid).
-    3. Fill a 4-row x 86-column grid row-wise (left-to-right, top-to-bottom).
-    4. Read the grid column-wise (top-to-bottom, left-to-right) to get the plaintext.
+    Legacy transposition function - kept for compatibility.
+    For K3, use kryptos_k3_decrypt() instead.
     """
     # Step 1: Remove spaces
     ciphertext = ''.join(ciphertext.split())
@@ -82,18 +169,8 @@ def transposition_decrypt(ciphertext, key=None):
                 plaintext += grid[row][col]
         return plaintext
     else:
-        # Default: read columns left-to-right
-        grid = [[''] * width for _ in range(height)]
-        idx = 0
-        for row in range(height):
-            for col in range(width):
-                grid[row][col] = ciphertext[idx]
-                idx += 1
-        plaintext = ''
-        for col in range(width):
-            for row in range(height):
-                plaintext += grid[row][col]
-        return plaintext
+        # Use the K3-specific method
+        return kryptos_k3_decrypt(ciphertext)
 
 def polybius_decrypt(ciphertext, key_square):
     """

@@ -1,50 +1,66 @@
 # KRYPTOS
 
-Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos using Python! This project focuses on implementing cryptographic techniques, specifically the Vigenère cipher, to decrypt the famous Kryptos sculpture.
+Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos using Python! This project focuses on implementing cryptographic techniques, specifically the Vigenère cipher and structural transposition analysis, to decrypt the famous Kryptos sculpture.
 
 ## Current Progress
 
 ### K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"
-- **Status**: Successfully decrypted.
-- **Details**: K1 was decrypted using the Vigenère cipher with the KRYPTOS keyed alphabet. The plaintext reveals a poetic phrase with a deliberate misspelling of "illusion" as "iqlusion."
+
+- **Status**: Solved.
+- **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional misspelling preserved: `IQLUSION`.
 
 ### K2: "It was totally invisible. How's that possible?"
-- **Status**: Successfully decrypted.
-- **Details**: K2 was decrypted using the Vigenère cipher. Adjustments were made to the ciphertext to include a null character (`'S'`) for proper alignment. The plaintext describes the use of Earth's magnetic field to transmit information.
+
+- **Status**: Solved.
+- **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for historical alignment. Contains geospatial coordinates and narrative text.
 
 ### K3: "Slowly, desperately slowly, the remains of passage debris..."
-- **Status**: In progress.
-- **Details**: Work on K3 is ongoing. This section is believed to use a similar cipher but may include additional complexities, such as transposition.
+
+- **Status**: Solved (double rotational transposition method).
+- **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid → second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling `DESPARATLY` (analogous to `IQLUSION` in K1).
 
 ### K4: The unsolved mystery
-- **Status**: Not yet solved.
-- **Details**: K4 remains one of the greatest cryptographic challenges. Efforts will focus on advanced cryptographic techniques and pattern analysis to uncover its secrets. Where there is a will, there is a way!
+
+- **Status**: Unsolved.
+- **Next Focus**: Research masking techniques, positional/overlay hypotheses, layered transposition, and potential null insertion strategies (see Kryptosfan blog & CIA hints: `BERLIN`, `CLOCK`).
+
+## Deliberate Misspellings / Anomalies
+
+| Section | Cipher Plaintext Form | Expected Modern Spelling | Note |
+|---------|-----------------------|---------------------------|------|
+| K1      | IQLUSION              | ILLUSION                  | Intentional artistic alteration |
+| K3      | DESPARATLY            | DESPERATELY               | Preserved from sculpture transcription |
 
 ## Features
 
-- **Vigenère Cipher Implementation**: A robust implementation of the Vigenère cipher, supporting keyed alphabets and configurable options for preserving non-alphabetic characters.
-- **Configurable Inputs**: Ciphertext and keys are loaded dynamically from a configuration file (`config.json`), allowing for easy updates and experimentation.
-- **Debugging Tools**: Detailed logging and debugging outputs to trace decryption steps and identify issues.
+- **Vigenère Cipher** with keyed alphabet handling
+- **K3 Double Rotational Transposition** implementation
+- **Config Driven** (`config/config.json`) for ciphertexts, keys, and parameters
+- **Test Suite** validating K1–K3 solutions
+- **Exploratory Utilities** for frequency & crib analysis
 
-## Next Steps
+## Roadmap Toward K4
 
-- Finalize the decryption of K3 and K4.
-- Explore potential solutions for the unsolved K4 section using advanced cryptographic techniques and pattern analysis.
-- Refactor and optimize the codebase for better performance and readability.
+Planned analytical modules:
+
+- Layered transposition brute-force scaffolding
+- Probable word / crib placement scoring (BERLIN, CLOCK, EASTNORTHEAST)
+- Recursive masking / null removal heuristics
+- N-gram fitness ranking over candidate decrypts
+- Overlay & spiral path experiments (grid-based)
 
 ## How to Run
 
-1. Clone the repository:
+```bash
+git clone https://github.com/nitsuah/kryptos.git
+cd kryptos
+pip install -r requirements.txt
+python -m unittest discover -s tests
+```
 
-   ```bash
-   git clone https://github.com/yourusername/kryptos.git
-   cd kryptos
-   pip install -r requirements.txt
-   python -m unittest discover -s tests
-    ```
-
-## Works Cited
+## References & Research
 
 - [UCSD Crypto Project by Karl Wang](https://mathweb.ucsd.edu/~crypto/Projects/KarlWang/index2.html)
 - [Kryptos Wiki](https://en.wikipedia.org/wiki/Kryptos)
 - [Vigenère Cipher Explanation](https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher)
+- [Kryptosfan Blog](https://kryptosfan.wordpress.com/k3/k3-solution-3/)
