@@ -2,7 +2,8 @@
 from .segmentation import generate_partitions, partitions_for_k4, slice_by_partition
 from .scoring import (
     combined_plaintext_score, segment_plaintext_scores,
-    chi_square_stat, trigram_score, bigram_score, crib_bonus
+    chi_square_stat, trigram_score, bigram_score, crib_bonus,
+    index_of_coincidence, vowel_ratio, letter_coverage, baseline_stats
 )
 from .substitution_solver import solve_substitution
 from .pipeline import Pipeline, Stage, StageResult
@@ -12,6 +13,8 @@ from .hill_cipher import (
     hill_encrypt_block, hill_decrypt_block, hill_encrypt, hill_decrypt
 )
 from .cribs import normalize_cipher, annotate_cribs
+from .berlin_clock import berlin_clock_shifts, apply_clock_shifts
+from .transposition_constraints import invert_columnar, search_with_crib
 
 __all__ = [
     'generate_partitions', 'partitions_for_k4', 'slice_by_partition',
@@ -26,3 +29,9 @@ __all__ += [
 ]
 
 __all__ += ['normalize_cipher','annotate_cribs']
+
+__all__ += ['berlin_clock_shifts','apply_clock_shifts']
+
+__all__ += ['invert_columnar','search_with_crib']
+
+__all__ += ['index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats']

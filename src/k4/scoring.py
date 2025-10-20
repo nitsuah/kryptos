@@ -135,8 +135,47 @@ def segment_plaintext_scores(segments: Iterable[str]) -> Dict[str, float]:
     """Compute combined plaintext scores for multiple segments."""
     return {seg: combined_plaintext_score(seg) for seg in segments}
 
+def index_of_coincidence(text: str) -> float:
+    """Compute index of coincidence (IC)."""
+    letters = [c for c in text.upper() if c.isalpha()]
+    n = len(letters)
+    if n < 2:
+        return 0.0
+    counts = Counter(letters)
+    num = sum(v * (v - 1) for v in counts.values())
+    den = n * (n - 1)
+    return num / den if den else 0.0
+
+def vowel_ratio(text: str) -> float:
+    """Return proportion of letters that are vowels (AEIOUY)."""
+    letters = [c for c in text.upper() if c.isalpha()]
+    if not letters:
+        return 0.0
+    vowels = set('AEIOUY')
+    vcount = sum(1 for c in letters if c in vowels)
+    return vcount / len(letters)
+
+def letter_coverage(text: str) -> float:
+    """Return fraction of alphabet present in text."""
+    letters = {c for c in text.upper() if c.isalpha()}
+    return len(letters) / 26.0
+
+def baseline_stats(text: str) -> Dict[str, float]:
+    """Return dictionary of baseline scoring metrics for a candidate plaintext."""
+    return {
+        'chi_square': chi_square_stat(text),
+        'bigram_score': bigram_score(text),
+        'trigram_score': trigram_score(text),
+        'crib_bonus': crib_bonus(text),
+        'combined_score': combined_plaintext_score(text),
+        'index_of_coincidence': index_of_coincidence(text),
+        'vowel_ratio': vowel_ratio(text),
+        'letter_coverage': letter_coverage(text),
+    }
+
 __all__ = [
     'LETTER_FREQ','BIGRAMS','TRIGRAMS','CRIBS',
     'chi_square_stat','bigram_score','trigram_score','crib_bonus',
-    'combined_plaintext_score','segment_plaintext_scores'
+    'combined_plaintext_score','segment_plaintext_scores',
+    'index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats'
 ]

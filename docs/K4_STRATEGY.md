@@ -99,6 +99,7 @@ Berlin Clock encodes time via lamps (hours/5, hours, minutes/5, minutes, seconds
 ## 11. Testing Infrastructure
 
 Add `tests/test_k4_hypotheses.py` skeleton with parametrized tests:
+
 - hill_cipher_candidate (assert cribs appear)
 - transposition_candidate (assert placement alignment)
 - berlin_clock_vigenere_candidate (assert substring matches)
