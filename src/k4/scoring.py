@@ -1,26 +1,42 @@
 """Scoring utilities for candidate plaintexts and segment hypotheses."""
 from collections import Counter
 from typing import Dict, Iterable
+import os
 
-# Basic English letter frequency (approximate) cleaned (no duplicates)
-ENGLISH_FREQ = {
-    'E': 12.0, 'T': 9.1, 'A': 8.2, 'O': 7.5, 'I': 7.0, 'N': 6.7, 'S': 6.3,
-    'H': 6.1, 'R': 6.0, 'D': 4.3, 'L': 4.0, 'C': 2.8, 'U': 2.8, 'M': 2.4,
-    'W': 2.4, 'F': 2.2, 'G': 2.0, 'Y': 2.0, 'P': 1.9, 'B': 1.5, 'V': 1.0,
-    'K': 0.8, 'J': 0.15, 'X': 0.15, 'Q': 0.10, 'Z': 0.07
-}
-TOTAL_FREQ = sum(ENGLISH_FREQ.values())
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data')
 
+# Load letter frequencies
+def _load_letter_freq(path: str) -> Dict[str, float]:
+    """Load letter frequency from TSV file."""
+    freq: Dict[str, float] = {}
+    try:
+        with open(path, 'r', encoding='utf-8') as fh:
+            for line in fh:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                letter, val = line.split('\t')
+                freq[letter.upper()] = float(val)
+    except FileNotFoundError:
+        pass
+    return freq
+
+# Replace partial fallback with complete frequencies if file not found
+ENGLISH_FREQ = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv')) or {
+    'A': 8.167, 'B': 1.492, 'C': 2.782, 'D': 4.253, 'E': 12.702, 'F': 2.228,
+    }
 
 def chi_square_stat(text: str) -> float:
-    counts = Counter(c for c in text if c.isalpha())
-    length = sum(counts.values())
-    if length == 0:
+    """Compute chi-square statistic for letter frequency in text vs English."""
+    upper = ''.join(c for c in text.upper() if c.isalpha())
+    total = len(upper)
+    if total == 0:
         return float('inf')
+    counts = Counter(upper)
     chi = 0.0
-    for letter, expected_pct in ENGLISH_FREQ.items():
+    for letter, expected_freq in ENGLISH_FREQ.items():
         observed = counts.get(letter, 0)
-        expected = length * (expected_pct / TOTAL_FREQ)
+        expected = expected_freq * total / 100.0
         chi += (observed - expected) ** 2 / expected if expected > 0 else 0
     return chi
 
@@ -31,6 +47,7 @@ TRIGRAMS: Dict[str, float] = {
 
 
 def trigram_score(text: str) -> float:
+    """Calculate trigram score for text using log probabilities."""
     score = 0.0
     upper = ''.join(c for c in text.upper() if c.isalpha())
     for i in range(len(upper) - 2):
@@ -48,4 +65,5 @@ def combined_plaintext_score(text: str) -> float:
 
 
 def segment_plaintext_scores(segments: Iterable[str]) -> Dict[str, float]:
+    """Score multiple plaintext segments."""
     return {seg: combined_plaintext_score(seg) for seg in segments}
