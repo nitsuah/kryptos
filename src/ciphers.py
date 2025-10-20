@@ -68,8 +68,8 @@ def double_rotational_transposition(text):
     cols1, rows1 = 24, 14
     
     if len(text) != cols1 * rows1:
-        # Pad if necessary, but K3 should be exactly 336 characters
-        text = text.ljust(cols1 * rows1, 'X')
+        raise ValueError(f"K3 ciphertext must be exactly {cols1 * rows1} characters (got {len(text)}).")
+    
     
     # Fill the 24×14 matrix row by row
     matrix1 = []
