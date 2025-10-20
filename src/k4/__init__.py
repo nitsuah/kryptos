@@ -15,6 +15,8 @@ from .hill_cipher import (
 from .cribs import normalize_cipher, annotate_cribs
 from .berlin_clock import berlin_clock_shifts, apply_clock_shifts
 from .transposition_constraints import invert_columnar, search_with_crib
+from .hill_search import score_decryptions
+from .hill_constraints import KNOWN_CRIBS, derive_candidate_keys, decrypt_and_score
 
 __all__ = [
     'generate_partitions', 'partitions_for_k4', 'slice_by_partition',
@@ -35,3 +37,7 @@ __all__ += ['berlin_clock_shifts','apply_clock_shifts']
 __all__ += ['invert_columnar','search_with_crib']
 
 __all__ += ['index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats']
+
+__all__ += ['score_decryptions']
+
+__all__ += ['KNOWN_CRIBS','derive_candidate_keys','decrypt_and_score']

@@ -4,6 +4,8 @@ Defines modular transformation stages and execution framework.
 """
 from dataclasses import dataclass
 from typing import Callable, List, Dict, Any
+from .hill_constraints import decrypt_and_score
+from .scoring import combined_plaintext_score
 
 @dataclass
 class StageResult:
@@ -29,3 +31,12 @@ class Pipeline:
             results.append(res)
             current = res.output
         return results
+
+# New helper to build a Hill constraint stage
+
+def make_hill_constraint_stage(name: str = 'hill-constraint') -> Stage:
+    def _run(ct: str) -> StageResult:
+        candidates = decrypt_and_score(ct)
+        best = candidates[0] if candidates else {'text': ct, 'score': combined_plaintext_score(ct), 'key': None}
+        return StageResult(name=name, output=best['text'], metadata={'key': best.get('key'), 'candidates': candidates}, score=best['score'])
+    return Stage(name=name, func=_run)

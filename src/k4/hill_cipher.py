@@ -54,14 +54,17 @@ def matrix_inv_mod(mat: List[List[int]], m: int = MOD) -> List[List[int]] | None
         c,d = mat[1]
         adj = [[d, -b], [-c, a]]
     elif n == 3:
-        a,b,c = mat[0]; d,e,f = mat[1]; g,h,i = mat[2]
+        a,b,c = mat[0]
+        d,e,f = mat[1]
+        g,h,i = mat[2]
+        # Full adjugate (transpose of cofactor matrix) for 3x3
         adj = [
             [ (e*i - f*h), -(b*i - c*h), (b*f - c*e) ],
+            [ -(d*i - f*g), (a*i - c*g), -(a*f - c*d) ],
             [ (d*h - e*g), -(a*h - b*g), (a*e - b*d) ]
         ]
     else:
         raise ValueError("Only 2x2 or 3x3 supported")
-    # Multiply adjugate by inverse determinant mod m
     inv = [[(inv_det * val) % m for val in row] for row in adj]
     return inv
 
@@ -102,6 +105,7 @@ def hill_decrypt(text: str, key: List[List[int]]) -> str | None:
     return ''.join(_int_to_char(n) for n in out)
 
 def invertible_2x2_keys() -> List[List[List[int]]]:
+    """Generate all invertible 2x2 Hill cipher keys mod 26."""
     keys: List[List[List[int]]] = []
     for a in range(26):
         for b in range(26):
@@ -113,6 +117,7 @@ def invertible_2x2_keys() -> List[List[List[int]]]:
     return keys
 
 def solve_2x2_key(plain: str, cipher: str) -> List[List[int]] | None:
+    """Solve for 2x2 Hill cipher key mapping plain to cipher (first 4 letters each)."""
     p = ''.join(ch for ch in plain.upper() if ch.isalpha())
     ct = ''.join(ch for ch in cipher.upper() if ch.isalpha())
     if len(p) < 4 or len(ct) < 4:
@@ -125,15 +130,20 @@ def solve_2x2_key(plain: str, cipher: str) -> List[List[int]] | None:
         return None
     adjP = [[P[1][1], -P[0][1]], [-P[1][0], P[0][0]]]
     Pinv = [[(inv_detP * v) % 26 for v in row] for row in adjP]
-    K = [
-        [ (C[0][0]*Pinv[0][0] + C[0][1]*Pinv[1][0]) % 26, (C[0][0]*Pinv[0][1] + C[0][1]*Pinv[1][1]) % 26 ],
-        [ (C[1][0]*Pinv[0][0] + C[1][1]*Pinv[1][0]) % 26, (C[1][0]*Pinv[0][1] + C[1][1]*Pinv[1][1]) % 26 ]
-    ]
+    K = [[
+        (C[0][0]*Pinv[0][0] + C[0][1]*Pinv[1][0]) % 26,
+        (C[0][0]*Pinv[0][1] + C[0][1]*Pinv[1][1]) % 26
+          ],
+        [
+        (C[1][0]*Pinv[0][0] + C[1][1]*Pinv[1][0]) % 26,
+        (C[1][0]*Pinv[0][1] + C[1][1]*Pinv[1][1]) % 26
+        ]]
     if mod_inv((K[0][0]*K[1][1] - K[0][1]*K[1][0]) % 26) is None:
         return None
     return K
 
 def brute_force_crib(cipher_segment: str, plain_segment: str, limit: int = 1000) -> List[dict]:
+    """Brute-force search for 2x2 Hill cipher keys mapping plain_segment to cipher_segment."""
     p = ''.join(ch for ch in plain_segment.upper() if ch.isalpha())[:4]
     ct = ''.join(ch for ch in cipher_segment.upper() if ch.isalpha())[:4]
     if len(p) < 4 or len(ct) < 4:
@@ -150,6 +160,7 @@ def brute_force_crib(cipher_segment: str, plain_segment: str, limit: int = 1000)
     return results
 
 __all__ = [
-    'mod_inv','matrix_det','matrix_inv_mod','hill_encrypt_block','hill_decrypt_block','hill_encrypt','hill_decrypt',
+    'mod_inv','matrix_det','matrix_inv_mod','hill_encrypt_block',
+    'hill_decrypt_block','hill_encrypt','hill_decrypt',
     'invertible_2x2_keys','solve_2x2_key','brute_force_crib'
 ]
