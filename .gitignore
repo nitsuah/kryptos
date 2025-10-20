@@ -9,3 +9,30 @@ tests/__pycache__/
 build/
 dist/
 *.egg-info/
+# Virtual environments
+.venv/
+venv/
+.env
+# Coverage and test artifacts
+.coverage*
+htmlcov/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+# Type checking caches
+.mypy_cache/
+.pyre/
+# Logs
+*.log
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# Packaging
+MANIFEST
+# Temporary data
+*.tmp
+# Ignore generated data files if any
+/data/*.generated

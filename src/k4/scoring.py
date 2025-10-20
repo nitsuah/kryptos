@@ -1,14 +1,19 @@
-"""Scoring utilities for candidate plaintexts and segment hypotheses."""
+"""Scoring utilities for K4 analysis (file-driven frequencies)."""
+from __future__ import annotations
+import os
+import json
 from collections import Counter
 from typing import Dict, Iterable
-import os
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data')
+# Paths
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+DATA_DIR = os.path.join(ROOT_DIR, 'data')
+CONFIG_PATH = os.path.join(ROOT_DIR, 'config', 'config.json')
 
 # ---------------- Loaders ----------------
 
 def _load_letter_freq(path: str) -> Dict[str, float]:
-    """Load letter frequency data from a tab-separated values file."""
+    """Load letter frequency table from file."""
     freq: Dict[str, float] = {}
     try:
         with open(path, 'r', encoding='utf-8') as fh:
@@ -28,7 +33,7 @@ def _load_letter_freq(path: str) -> Dict[str, float]:
 
 
 def _load_ngrams(path: str) -> Dict[str, float]:
-    """Load n-gram frequency data from a tab-separated values file."""
+    """Load n-gram frequency table from file."""
     grams: Dict[str, float] = {}
     try:
         with open(path, 'r', encoding='utf-8') as fh:
@@ -47,57 +52,91 @@ def _load_ngrams(path: str) -> Dict[str, float]:
         pass
     return grams
 
+
+def _load_config_cribs(path: str) -> list[str]:
+    """Load cribs from config file."""
+    try:
+        with open(path, 'r', encoding='utf-8') as fh:
+            data = json.load(fh)
+            return [c.upper() for c in data.get('cribs', [])]
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
 # ---------------- Data ----------------
-ENGLISH_FREQ = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv')) or {
-    'A': 8.167, 'B': 1.492, 'C': 2.782, 'D': 4.253, 'E': 12.702, 'F': 2.228,
-}
+LETTER_FREQ: Dict[str, float] = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv'))
+BIGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'bigrams.tsv'))
+TRIGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'trigrams.tsv'))
+CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
+
+# Fallback minimal frequency if file missing
+if not LETTER_FREQ:
+    LETTER_FREQ = {
+        'E': 12.702,'T': 9.056,'A':8.167,'O':7.507,'N':6.749,'I':6.966,
+        'S':6.327,'R':5.987,'H':6.094,'L':4.025,'D':4.253,'C':2.782,
+        'U':2.758,'M':2.406,'F':2.228,'Y':1.974,'W':2.360,'G':2.015,
+        'P':1.929,'B':1.492,'V':0.978,'K':0.772,'X':0.150,'J':0.153,
+        'Q':0.095,'Z':0.074
+    }
+
+_UNKNOWN_BIGRAM = -2.0
+_UNKNOWN_TRIGRAM = -2.5
+
+# ---------------- Metrics ----------------
 
 def chi_square_stat(text: str) -> float:
-    """Compute chi-square statistic for letter frequency in text."""
-    upper = ''.join(c for c in text.upper() if c.isalpha())
-    n = len(upper)
+    """Chi-square statistic vs English letter frequencies (lower is better)."""
+    filtered = [c for c in text.upper() if c.isalpha()]
+    n = len(filtered)
     if n == 0:
         return float('inf')
-    counts = Counter(upper)
+    counts = Counter(filtered)
     chi = 0.0
-    for letter, exp in ENGLISH_FREQ.items():
+    for letter, exp in LETTER_FREQ.items():
         obs = counts.get(letter, 0)
         expected = exp * n / 100.0
         if expected > 0:
             chi += (obs - expected) ** 2 / expected
     return chi
 
-TRIGRAMS: Dict[str, float] = {
-    'THE': -1.0, 'AND': -1.2, 'ING': -1.3, 'ION': -1.4,
-}
-_UNKNOWN_TRIGRAM = -8.0
+def _score_ngrams(text: str, table: Dict[str, float], size: int, unknown: float) -> float:
+    """Generic n-gram scoring function."""
+    seq = ''.join(c for c in text.upper() if c.isalpha())
+    total = 0.0
+    for i in range(len(seq) - size + 1):
+        gram = seq[i:i+size]
+        total += table.get(gram, unknown)
+    return total
+
+def bigram_score(text: str) -> float:
+    """Score text based on bigram frequencies."""
+    return _score_ngrams(text, BIGRAMS, 2, _UNKNOWN_BIGRAM)
 
 def trigram_score(text: str) -> float:
     """Score text based on trigram frequencies."""
+    return _score_ngrams(text, TRIGRAMS, 3, _UNKNOWN_TRIGRAM)
+
+def crib_bonus(text: str) -> float:
+    """Bonus score for presence of known cribs."""
     upper = ''.join(c for c in text.upper() if c.isalpha())
-    score = 0.0
-    for i in range(len(upper) - 2):
-        tri = upper[i:i+3]
-        score += TRIGRAMS.get(tri, _UNKNOWN_TRIGRAM)
-    return score
+    bonus = 0.0
+    for crib in CRIBS:
+        if crib and crib in upper:
+            bonus += 5.0 * len(crib)
+    return bonus
 
 def combined_plaintext_score(text: str) -> float:
-    """Combine chi-square (lower better) and trigram (higher better)."""
+    """Higher is better: n-gram scores minus weighted chi-square plus crib bonus."""
     chi = chi_square_stat(text)
+    bi = bigram_score(text)
     tri = trigram_score(text)
-    # Normalize roughly: invert chi component
-    return tri - 0.05 * chi
-
+    return bi + tri - 0.05 * chi + crib_bonus(text)
 
 def segment_plaintext_scores(segments: Iterable[str]) -> Dict[str, float]:
-    """Score multiple plaintext segments."""
+    """Compute combined plaintext scores for multiple segments."""
     return {seg: combined_plaintext_score(seg) for seg in segments}
 
 __all__ = [
-    'ENGLISH_FREQ',
-    'TRIGRAMS',
-    'chi_square_stat',
-    'trigram_score',
-    'combined_plaintext_score',
-    'segment_plaintext_scores'
+    'LETTER_FREQ','BIGRAMS','TRIGRAMS','CRIBS',
+    'chi_square_stat','bigram_score','trigram_score','crib_bonus',
+    'combined_plaintext_score','segment_plaintext_scores'
 ]
