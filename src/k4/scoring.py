@@ -59,7 +59,6 @@ def _load_ngrams(path: str) -> Dict[str, float]:
             'Y': 1.974, 'Z': 0.074,
         }
     return grams
-def _load_config_cribs(path: str) -> List[str]:
     """Load cribs from config file."""
     try:
         with open(path, 'r', encoding='utf-8') as fh:
