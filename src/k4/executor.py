@@ -7,8 +7,10 @@ fast for iterative tuning.
 
 from __future__ import annotations
 
+import csv
 import json
 import os
+import statistics
 import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -154,6 +156,7 @@ class PipelineExecutor:
         pruned_total = 0
         start_wall = time.perf_counter()
         current_text = ciphertext
+        stage_perf: list[dict[str, Any]] = []
 
         for stage in self.config.ordering:
             stage_start = time.perf_counter()
@@ -171,6 +174,41 @@ class PipelineExecutor:
             result.metadata['candidate_count'] = len(candidates)
             result.metadata['pruned_count'] = len(pruned)
             all_stage_results.append(result)
+
+            # Performance counters per stage
+            cps = len(candidates) / duration if duration > 0 else 0.0  # candidates per second raw
+            pps = len(pruned) / duration if duration > 0 else 0.0  # pruned candidates per second
+            # Score bucket distribution (simple histogram of candidate scores)
+            raw_scores = [c.get('score', 0.0) for c in candidates]
+            if raw_scores:
+                mean_score = statistics.fmean(raw_scores)
+                stdev_score = statistics.pstdev(raw_scores)
+                min_score = min(raw_scores)
+                max_score = max(raw_scores)
+            else:
+                mean_score = stdev_score = min_score = max_score = 0.0
+            bucket_edges = [-2000, -1000, -500, -250, -100, 0, 100, 250, 500, 1000, 2000]
+            bucket_counts: list[int] = [0] * (len(bucket_edges) - 1)
+            for s in raw_scores:
+                for i in range(len(bucket_edges) - 1):
+                    if bucket_edges[i] <= s < bucket_edges[i + 1]:
+                        bucket_counts[i] += 1
+                        break
+            stage_perf.append(
+                {
+                    'name': stage.name,
+                    'duration': duration,
+                    'candidate_count': len(candidates),
+                    'pruned_count': len(pruned),
+                    'candidates_per_sec': cps,
+                    'pruned_per_sec': pps,
+                    'score_mean': mean_score,
+                    'score_stdev': stdev_score,
+                    'score_min': min_score,
+                    'score_max': max_score,
+                    'score_bucket_counts': bucket_counts,
+                },
+            )
 
             # Attempt log lines
             if attempt_fh and pruned:
@@ -206,6 +244,32 @@ class PipelineExecutor:
         # Compute best aggregated score among stage outputs & pruned candidates
         best_score = max((r.score for r in all_stage_results), default=float('-inf'))
         # summary
+        # Export per-stage top candidates to CSV for quick inspection
+        csv_path = os.path.join(artifact_dir, 'stage_top_candidates.csv')
+        with open(csv_path, 'w', newline='', encoding='utf-8') as csvfh:
+            writer = csv.writer(csvfh)
+            writer.writerow(
+                [
+                    'stage',
+                    'rank',
+                    'score',
+                    'crib_bonus',
+                    'text_prefix',
+                ],
+            )
+            for r in all_stage_results:
+                pruned = r.metadata.get('pruned_candidates', []) or []
+                for rank, cand in enumerate(pruned, start=1):
+                    writer.writerow(
+                        [
+                            r.name,
+                            rank,
+                            cand.get('score'),
+                            cand.get('crib_bonus'),
+                            (cand.get('text', '')[:60]).replace('\n', ' '),
+                        ],
+                    )
+
         summary = {
             'label': self.config.label,
             'generated_at': datetime.utcnow().isoformat() + 'Z',
@@ -224,6 +288,9 @@ class PipelineExecutor:
             'total_candidates_raw': total_candidates,
             'total_candidates_pruned': pruned_total,
             'best_stage_score': best_score,
+            'performance': stage_perf,
+            'score_bucket_edges': bucket_edges,
+            'artifact_csv': os.path.basename(csv_path),
         }
         with open(os.path.join(artifact_dir, 'summary.json'), 'w', encoding='utf-8') as fh:
             json.dump(summary, fh, indent=2)

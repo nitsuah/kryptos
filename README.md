@@ -2,6 +2,18 @@
 
 Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos using Python! This project focuses on implementing cryptographic techniques, specifically the Vigenère cipher and structural transposition analysis, to decrypt the famous Kryptos sculpture.
 
+## TL;DR
+
+**K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in copper that nobody has cracked in 30+ years. We're using Python to systematically try every reasonable decryption method – techniques that cryptanalysts may have attempted manually but couldn't exhaustively explore. Our approach combines automated testing with intelligent scoring to measure how "English-like" each result appears:
+
+1. **Hill Cipher** - Matrix-based substitution where letters become numbers, transform through matrix multiplication, then convert back
+2. **Transposition** - Systematic letter rearrangement (write in columns, read in rows, or more complex patterns)
+3. **Masking** - Identifying and removing dummy letters that serve as padding or obfuscation
+4. **Berlin Clock** - Using the iconic clock's binary time pattern as a cryptographic key
+5. **Combo Attacks** - Chaining multiple methods together (K4 likely uses 2-3 techniques layered in sequence)
+
+We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real word detection – to identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic intuition rather than brute force. After all, humans design puzzles with intention, not randomness!
+
 ## Current Progress
 
 ### ✅ K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"

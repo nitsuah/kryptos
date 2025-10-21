@@ -2,14 +2,18 @@
 
 ## Core Tomorrow Plan (Checklist)
 
-- [ ] 1. Define stage interface spec (inputs/outputs) and verify factory functions.
-- [ ] 2. Add unit tests for each stage.
-- [ ] 3. Implement/verify scoring/fitness (frequency + crib + clock pattern).
-- [ ] 4. Create initial pipeline config (ordering, iteration counts, adaptive thresholds).
-- [ ] 5. Validate logging persistence on sample attempt.
-- [ ] 6. Run tiny end-to-end sample with trivial cipher.
-- [ ] 7. Add parallel/batch execution stub.
-- [ ] 8. Prepare tuning script/notebook for hill climb and transposition parameters.
+- [x] 1. Define stage interface spec (inputs/outputs) and verify factory functions.
+- [x] 2. Add unit tests for each stage (initial pruning, pattern bonus, parallel variants).
+- [x] 3. Implement/verify scoring/fitness (frequency + crib + clock pattern + extended bonus).
+- [x] 4. Create initial pipeline config (ordering, thresholds, pruning).
+- [x] 5. Validate logging persistence on sample attempt (attempt_log.jsonl, summary.json).
+- [x] 6. Run tiny end-to-end sample with trivial cipher slice.
+- [x] 7. Add parallel/batch execution stub (hill variants parameter diversification).
+- [ ] 8. Prepare tuning script/notebook for hill & transposition parameter sweeps.
+- [ ] 9. Add artifact CSV export per stage (top candidates).
+- [ ] 10. Implement adaptive gating refinement (dynamic threshold adjustment based on prior stage deltas).
+- [ ] 11. Performance counters (candidates/ms, score bucket distribution) integrated into summary.
+- [ ] 12. Fallback n-gram loader test (simulate missing files and verify graceful defaults).
 
 ## Execution Kickoff (Focus Block)
 
@@ -30,8 +34,8 @@ Scoring/Fitness (3):
 
 - [x] Enumerate components: n-gram freq, crib positional bonus, berlin clock pattern validation.
 - [x] Determine weight defaults.
-- [x] Provide pure function score_candidate(text, meta, weights).
-- [ ] Add fallback path when n-gram data missing (use uniform frequencies). -> EXTEND with real file loader + caching
+- [x] Provide pure function score_candidate(text, meta, weights) (implicit via combined score functions).
+- [ ] Add fallback path when n-gram data missing (explicit test harness) -> pending test.
 
 ## Pipeline Config Draft
 
@@ -54,7 +58,7 @@ Artifacts per run:
 
 Durability:
 
-- write to ./artifacts/run_<timestamp>/
+- write to ./artifacts/run_timestamp/  (timestamp = UTC ISO string)
 - provide flush after each stage to allow mid-run inspection
 
 ## Performance Targets
@@ -68,24 +72,28 @@ Durability:
 
 ## Micro-Milestones
 
-- [x] Complete negative candidate test.
-- [ ] Integrate real n-gram loader (file + cache).
-- [ ] Add crib positional bonus logic (positional weights).
-- [ ] Add berlin clock pattern validator stub (structure parse).
-- [ ] Wire first composite pipeline dry-run.
-- [ ] Implement artifact directory creation + summary writer.
-- [ ] Add parallel stub (thread pool) for hill variants.
+- [x] Negative candidate pruning logic test.
+- [x] Pattern bonus metric test (BERLIN before CLOCK ordering).
+- [x] Parallel hill variant metadata test.
+- [x] Composite pipeline sample dry-run (scripts/run_pipeline_sample.py).
+- [x] Artifact directory creation + summary writer.
+- [ ] Positional crib bonus test coverage.
+- [ ] N-gram fallback simulation test.
+- [ ] Artifact CSV export implementation + test.
 - [ ] Tuning notebook/script scaffold (parameter sweep).
+- [ ] Adaptive gating dynamic threshold experiment.
 
-## Integration Order
+Integration Order (Updated Progress)
 
-1. Extend scoring (real n-gram + enhanced crib bonus).
-2. Implement berlin clock validator stub.
-3. Build pipeline executor with config + pruning.
-4. Add logging + artifacts summary.
-5. Run trivial end-to-end.
-6. Introduce parallel hill variant generation.
-7. Tuning script scaffold.
+1. Extend scoring (real n-gram + enhanced crib bonus) – DONE (extended + pattern bonus).
+2. Implement Berlin Clock validator stub – DONE.
+3. Build pipeline executor with config + pruning – DONE.
+4. Add logging + artifacts summary – DONE.
+5. Run trivial end-to-end – DONE.
+6. Introduce parallel hill variant generation – DONE.
+7. Tuning script scaffold – PENDING.
+8. Adaptive gating refinement – PENDING.
+9. Artifact CSV export – PENDING.
 
 ## Detailed Sequence
 
@@ -112,3 +120,9 @@ Next step after these: target remaining scoring loader fallbacks with simulated 
 - End-to-end validations (Sequence 4) plus tiny sample cover Core item 6.
 - Parallel stub (Core 7) is pending after sequence tasks.
 - Tuning script (Core 8) follows once baseline tests pass.
+
+## CLOSING UP
+
+Update primary MD files across the repo for clarity on new pipeline architecture, stage interfaces, scoring components, and artifact logging.
+
+Ensure all new code is PEP8 compliant; run pre-commit hooks and autofixers as needed.
