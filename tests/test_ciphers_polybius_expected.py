@@ -1,19 +1,18 @@
-"""Unit tests for Polybius cipher decryption with expected outputs."""
+"""Polybius cipher expected output test (fixed formatting)."""
 import unittest
 from src.ciphers import polybius_decrypt
 
 
-class TestPolybiusExpected(unittest.TestCase):
-    """Test Polybius decryption with expected outputs."""
+class TestPolybiusExpectedFixed(unittest.TestCase):
     def test_polybius_expected_match(self):
-        """Test Polybius decryption with expected output."""
         square = [
             ["A", "B", "C", "D", "E"],
             ["F", "G", "H", "I", "K"],
+            ["L", "M", "N", "O", "P"],
+            ["Q", "R", "S", "T", "U"],
             ["V", "W", "X", "Y", "Z"],
         ]
         pt = polybius_decrypt("111213", square)
-        # Expectation: pairs 11->A, 12->B, 13->C
         self.assertEqual(pt, "ABC")
 
 
