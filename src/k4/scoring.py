@@ -51,14 +51,11 @@ def _load_ngrams(path: str) -> Dict[str, float]:
                 if gram.isalpha():
                     grams[gram] = float(val)
     except FileNotFoundError:
-        return {
-            'A': 8.167, 'B': 1.492, 'C': 2.782, 'D': 4.253, 'E': 12.702, 'F': 2.228,
-            'G': 2.015, 'H': 6.094, 'I': 6.966, 'J': 0.153, 'K': 0.772, 'L': 4.025,
-            'M': 2.406, 'N': 6.749, 'O': 7.507, 'P': 1.929, 'Q': 0.095, 'R': 5.987,
-            'S': 6.327, 'T': 9.056, 'U': 2.758, 'V': 0.978, 'W': 2.360, 'X': 0.150,
-            'Y': 1.974, 'Z': 0.074,
-        }
+        # Missing n-gram file: return empty; letter freq fallback handled separately.
+        return {}
     return grams
+
+
 def _load_config_cribs(path: str) -> List[str]:
     """Load cribs from config file."""
     try:
@@ -251,7 +248,7 @@ def bigram_gap_variance(text: str) -> float:
     for i in range(len(seq)-2+1):
         gram = seq[i:i+2]
         positions.setdefault(gram, []).append(i)
-    vars: List[float] = []
+    gap_vars: List[float] = []
     for gram, pos_list in positions.items():
         if len(pos_list) < 2:
             continue
@@ -260,10 +257,10 @@ def bigram_gap_variance(text: str) -> float:
             continue
         mean_gap = sum(gaps) / len(gaps)
         var = sum((g - mean_gap) ** 2 for g in gaps) / len(gaps)
-        vars.append(var)
-    if not vars:
+        gap_vars.append(var)
+    if not gap_vars:
         return 0.0
-    return sum(vars) / len(vars)
+    return sum(gap_vars) / len(gap_vars)
 
 # ---------------- Baseline stats ----------------
 
