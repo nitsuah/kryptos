@@ -63,7 +63,7 @@ High payoff/feasibility first:
 
 Implement in `analysis.py` expansions:
 
-- English frequency log-likelihood (unigram + bigram).
+- English frequency log-likelihood (unigram + bigram + trigram + quadgram where available).
 - Crib satisfaction score (proportion of cribs placed correctly).
 - Positional penalty (distance if crib misaligned but present).
 - Entropy measure post-decryption (expect moderate natural language entropy).

@@ -60,7 +60,7 @@ Added optional partial segment scoring (parameters: prune, partial_length, parti
 
 ## Metrics Expansion (Status: PARTIAL)
 
-Positional crib weighting implemented (`positional_crib_bonus`, `combined_plaintext_score_with_positions`). Future metrics: quadgrams, spacing analysis.
+Positional crib weighting implemented (`positional_crib_bonus`, `combined_plaintext_score_with_positions`). Quadgram support added (`quadgram_score`). Future metrics: spacing analysis, entropy refinement.
 
 ## Status Tracking
 

@@ -66,6 +66,7 @@ def _load_config_cribs(path: str) -> list[str]:
 LETTER_FREQ: Dict[str, float] = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv'))
 BIGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'bigrams.tsv'))
 TRIGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'trigrams.tsv'))
+QUADGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'quadgrams.tsv'))
 CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
 
 # Fallback minimal frequency if file missing
@@ -80,6 +81,7 @@ if not LETTER_FREQ:
 
 _UNKNOWN_BIGRAM = -2.0
 _UNKNOWN_TRIGRAM = -2.5
+_UNKNOWN_QUADGRAM = -3.5
 
 # ---------------- Metrics ----------------
 
@@ -114,6 +116,10 @@ def bigram_score(text: str) -> float:
 def trigram_score(text: str) -> float:
     """Score text based on trigram frequencies."""
     return _score_ngrams(text, TRIGRAMS, 3, _UNKNOWN_TRIGRAM)
+
+def quadgram_score(text: str) -> float:
+    """Score text based on quadgram frequencies."""
+    return _score_ngrams(text, QUADGRAMS, 4, _UNKNOWN_QUADGRAM)
 
 def crib_bonus(text: str) -> float:
     """Bonus score for presence of known cribs."""
@@ -158,7 +164,8 @@ def combined_plaintext_score(text: str) -> float:
     chi = chi_square_stat(text)
     bi = bigram_score(text)
     tri = trigram_score(text)
-    return bi + tri - 0.05 * chi + crib_bonus(text)
+    quad = quadgram_score(text) if QUADGRAMS else 0.0
+    return bi + tri + quad - 0.05 * chi + crib_bonus(text)
 
 def combined_plaintext_score_with_positions(text: str, positional: Dict[str, Sequence[int]], window: int = 5) -> float:
     """Extended combined score including positional crib bonus."""
@@ -209,8 +216,8 @@ def baseline_stats(text: str) -> Dict[str, float]:
     }
 
 __all__ = [
-    'LETTER_FREQ','BIGRAMS','TRIGRAMS','CRIBS',
-    'chi_square_stat','bigram_score','trigram_score','crib_bonus',
+    'LETTER_FREQ','BIGRAMS','TRIGRAMS','CRIBS','QUADGRAMS',
+    'chi_square_stat','bigram_score','trigram_score','crib_bonus','quadgram_score',
     'combined_plaintext_score','segment_plaintext_scores',
     'index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats',
     'positional_crib_bonus','combined_plaintext_score_with_positions'

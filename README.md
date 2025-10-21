@@ -47,7 +47,7 @@ K2 contains systematic X (and some Y) insertions serving as alignment/null separ
 - **Constrained Hill key derivation** from `BERLIN` / `CLOCK` cribs (single & pairwise) with caching
 - **Modular pipeline architecture** (stage factory for Hill constraints)
 - **Columnar transposition** search (with optional partial-score pruning) and crib-constrained inversion utilities
-- **Extended scoring metrics**: chi-square, bigram/trigram totals, index of coincidence, vowel ratio, letter coverage, baseline metrics
+- **Extended scoring metrics**: chi-square, bigram/trigram/quadgram totals, index of coincidence, vowel ratio, letter coverage, baseline metrics
 - **Positional crib weighting** (distance-window bonus)
 - **Berlin Clock shift hypothesis** scaffolding (now with full lamp enumeration utilities + pipeline stage factory `make_berlin_clock_stage`)
 - **Candidate reporting artifacts** (JSON + optional CSV summaries)
@@ -56,7 +56,7 @@ K2 contains systematic X (and some Y) insertions serving as alignment/null separ
 
 Located under `src/k4/` (see full roadmap in `roadmap.md`):
 
-- `scoring.py` – frequencies, composite scoring, positional crib bonus
+- `scoring.py` – frequencies, composite scoring, positional crib bonus, quadgram support
 - `hill_cipher.py` – Hill math & crib-based key solving
 - `hill_constraints.py` – constrained 2x2 key derivation + caching
 - `hill_search.py` – candidate batch scoring

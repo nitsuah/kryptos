@@ -3,7 +3,8 @@ from .segmentation import generate_partitions, partitions_for_k4, slice_by_parti
 from .scoring import (
     combined_plaintext_score, segment_plaintext_scores,
     chi_square_stat, trigram_score, bigram_score, crib_bonus,
-    index_of_coincidence, vowel_ratio, letter_coverage, baseline_stats
+    index_of_coincidence, vowel_ratio, letter_coverage, baseline_stats,
+    QUADGRAMS, quadgram_score
 )
 from .substitution_solver import solve_substitution
 from .pipeline import Pipeline, Stage, StageResult, make_hill_constraint_stage, make_berlin_clock_stage
@@ -48,3 +49,5 @@ __all__ += ['make_hill_constraint_stage', 'make_berlin_clock_stage']
 __all__ += ['write_candidates_json','write_candidates_csv','generate_candidate_artifacts']
 
 __all__ += ['full_clock_state','encode_clock_state','full_berlin_clock_shifts','enumerate_clock_shift_sequences']
+
+__all__ += ['QUADGRAMS','quadgram_score']
