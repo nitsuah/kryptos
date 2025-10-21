@@ -30,8 +30,8 @@ except ImportError:  # fallback for direct script execution without install
         )
     except ImportError as e:
         raise ImportError(
-            "Failed to import 'src.k4' even after adding PROJECT_ROOT to sys.path. "
-            "Ensure the package is installed or the source is available at '{}'.\nOriginal error: {}".format(PROJECT_ROOT, e)
+            f"Failed to import 'src.k4' even after adding PROJECT_ROOT to sys.path. "
+            f"Ensure the package is installed or the source is available at '{PROJECT_ROOT}'.\nOriginal error: {e}"
         ) from e
 from collections.abc import Sequence
 
