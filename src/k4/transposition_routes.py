@@ -89,7 +89,7 @@ def generate_route_variants(
         ciphertext (str): The input ciphertext to be arranged and read out.
         cols_min (int, optional): Minimum number of columns for the grid. Defaults to 5.
         cols_max (int, optional): Maximum number of columns for the grid. Defaults to 8.
-        routes (Tuple[str, ...], optional): Traversal patterns to use. Defaults to
+        routes (tuple[str, ...], optional): Traversal patterns to use. Defaults to
             ('spiral', 'boustrophedon', 'diagonal').
 
     Returns:
