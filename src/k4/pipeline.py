@@ -8,6 +8,7 @@ from .hill_constraints import decrypt_and_score
 from .scoring import combined_plaintext_score
 from .berlin_clock import enumerate_clock_shift_sequences, apply_clock_shifts
 from .transposition import search_columnar, search_columnar_adaptive  # updated import
+from .masking import score_mask_variants  # new import
 
 @dataclass
 class StageResult:
@@ -134,4 +135,12 @@ def make_transposition_adaptive_stage(
         return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
     return Stage(name=name, func=_run)
 
-__all__ = ['Stage','StageResult','Pipeline','make_hill_constraint_stage','make_berlin_clock_stage','make_transposition_stage','make_transposition_adaptive_stage']
+def make_masking_stage(name: str = 'masking', null_chars=None, limit: int = 25) -> Stage:
+    """Create a stage that generates and scores masking/null-removal variants."""
+    def _run(ct: str) -> StageResult:
+        cands = score_mask_variants(ct, null_chars)
+        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct)}
+        return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
+    return Stage(name=name, func=_run)
+
+__all__ = ['Stage','StageResult','Pipeline','make_hill_constraint_stage','make_berlin_clock_stage','make_transposition_stage','make_transposition_adaptive_stage','make_masking_stage']
