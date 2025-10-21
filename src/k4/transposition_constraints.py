@@ -95,9 +95,9 @@ def search_with_multiple_cribs_positions(
     if not positional_cribs:
         return []
     ct = normalize_cipher(ciphertext)
+    crib_norm_map: Dict[str, str] = {crib.upper(): normalize_cipher(crib) for crib in positional_cribs}
     perms_iter = itertools.permutations(range(n_cols))
     results: List[Dict] = []
-    crib_norm_map: Dict[str, str] = {crib.upper(): normalize_cipher(crib) for crib in positional_cribs}
     for count, perm in enumerate(perms_iter):
         if count >= max_perms:
             break
