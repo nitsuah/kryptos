@@ -111,7 +111,7 @@ def search_with_multiple_cribs_positions(
             if not target:
                 continue
             # find all occurrences
-            starts: list[int] = []  # ensure spacing after commas when appending
+            starts: list[int] = []  # start indices of all occurrences of the crib in the plaintext
             idx = pt.find(target)
             while idx != -1:
                 starts.append(idx)
