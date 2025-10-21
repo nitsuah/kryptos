@@ -4,6 +4,26 @@ import itertools
 import random
 from .scoring import combined_plaintext_score_cached as combined_plaintext_score  # cached
 
+# Attempt log storage
+_attempt_log: List[Dict] = []
+
+def _log_attempt(cols: int, perm: Tuple[int, ...], partial: float | None, final: float | None, pruned: bool) -> None:
+    if len(_attempt_log) < 10000:  # cap to avoid runaway memory
+        _attempt_log.append({
+            'cols': cols,
+            'perm': perm,
+            'partial_score': partial,
+            'final_score': final,
+            'pruned': pruned
+        })
+
+def get_transposition_attempt_log(clear: bool = False) -> List[Dict]:
+    """Return collected attempt log (permutation evaluations). Optionally clear after retrieval."""
+    out = list(_attempt_log)
+    if clear:
+        _attempt_log.clear()
+    return out
+
 def apply_columnar_permutation(ciphertext: str, n_cols: int, perm: Tuple[int, ...]) -> str:
     """Attempt to invert a columnar transposition given a permutation of column indices.
     Assumes ciphertext produced by reading columns top-to-bottom after permuting columns.
@@ -59,16 +79,20 @@ def search_columnar(
     """
     results: List[Dict] = []
     for n_cols in range(min_cols, max_cols + 1):
-        all_perms_iter: Iterable[Tuple[int,...]] = itertools.permutations(range(n_cols))
+        all_perms_iter: Iterable[Tuple[int, ...]] = itertools.permutations(range(n_cols))
         for count, perm in enumerate(all_perms_iter):
             if count >= max_perms_per_width:
                 break
             pt = apply_columnar_permutation(ciphertext, n_cols, perm)
+            pruned_flag = False
             if prune:
                 ps = _partial_score(pt, partial_length)
                 if ps < partial_min_score:
+                    _log_attempt(n_cols, perm, ps, None, pruned=True)
+                    pruned_flag = True
                     continue
             score = combined_plaintext_score(pt)
+            _log_attempt(n_cols, perm, None if not prune else ps, score, pruned_flag)
             results.append({'cols': n_cols, 'perm': perm, 'score': score, 'text': pt})
     results.sort(key=lambda r: r['score'], reverse=True)
     return results[:50]
@@ -95,7 +119,7 @@ def search_columnar_adaptive(
     rng = random.Random(42)
     ct = ''.join(c for c in ciphertext if c.isalpha())
     all_results: List[Dict] = []
-    prefix_cache: Dict[Tuple[int,...], float] = {}
+    prefix_cache: Dict[Tuple[int, ...], float] = {}
     for n_cols in range(min_cols, max_cols + 1):
         perms = list(itertools.permutations(range(n_cols)))
         if len(perms) > sample_perms:
@@ -105,13 +129,16 @@ def search_columnar_adaptive(
             partial = _partial_score(pt, partial_length)
             pref = perm[:prefix_len]
             best_pref = prefix_cache.get(pref)
+            pruned_flag = False
             if best_pref is None or partial > best_pref:
                 prefix_cache[pref] = partial
             else:
-                # If partial too low compared to best prefix score, skip
                 if partial < (best_pref - abs(best_pref) * 0.25):
+                    _log_attempt(n_cols, perm, partial, None, pruned=True)
+                    pruned_flag = True
                     continue
             score = combined_plaintext_score(pt)
+            _log_attempt(n_cols, perm, partial, score, pruned_flag)
             all_results.append({'cols': n_cols, 'perm': perm, 'score': score, 'partial': partial, 'text': pt})
             if score > early_stop_threshold:
                 # Could log or flag; keep collecting for breadth
@@ -124,4 +151,4 @@ def search_columnar_adaptive(
     all_results.sort(key=lambda r: r['score'], reverse=True)
     return all_results[:50]
 
-__all__ = ['apply_columnar_permutation', 'search_columnar', 'search_columnar_adaptive']
+__all__ = ['apply_columnar_permutation', 'search_columnar', 'search_columnar_adaptive', 'get_transposition_attempt_log']

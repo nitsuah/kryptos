@@ -3,9 +3,9 @@ from __future__ import annotations
 import os
 import json
 from collections import Counter
-from typing import Dict, Iterable, Sequence
-import math  # added
-from functools import lru_cache  # new import
+from typing import Dict, Iterable, Sequence, Set, List  # added List
+import math
+from functools import lru_cache
 
 # Paths
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -64,6 +64,19 @@ def _load_config_cribs(path: str) -> list[str]:
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
+def _load_wordlist(path: str) -> Set[str]:
+    """Load wordlist (one word per line) into uppercase set. Only keep length >=3."""
+    words: Set[str] = set()
+    try:
+        with open(path, 'r', encoding='utf-8') as fh:
+            for line in fh:
+                w = line.strip().upper()
+                if len(w) >= 3 and w.isalpha():
+                    words.add(w)
+    except FileNotFoundError:
+        pass
+    return words
+
 # ---------------- Data ----------------
 LETTER_FREQ: Dict[str, float] = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv'))
 BIGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'bigrams.tsv'))
@@ -75,6 +88,7 @@ if os.path.exists(_quad_hi_path):
 else:
     QUADGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'quadgrams.tsv'))
 CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
+WORDLIST: Set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
 
 # Fallback minimal frequency if file missing
 if not LETTER_FREQ:
@@ -85,6 +99,10 @@ if not LETTER_FREQ:
         'P':1.929,'B':1.492,'V':0.978,'K':0.772,'X':0.150,'J':0.153,
         'Q':0.095,'Z':0.074
     }
+
+# Minimal fallback wordlist (placeholder)
+if not WORDLIST:
+    WORDLIST = { 'THE','AND','YOU','THAT','FOR','WITH','HAVE','THIS','FROM','CLOCK','BERLIN','TIME','CODE','DATA','NEXT','OVER','PART','TEXT' }
 
 _UNKNOWN_BIGRAM = -2.0
 _UNKNOWN_TRIGRAM = -2.5
@@ -179,11 +197,91 @@ def combined_plaintext_score(text: str) -> float:
 def combined_plaintext_score_cached(text: str) -> float:
     return combined_plaintext_score(text)
 
-def combined_plaintext_score_with_positions(text: str, positional: Dict[str, Sequence[int]], window: int = 5) -> float:
-    """Extended combined score including positional crib bonus."""
-    base = combined_plaintext_score(text)
-    pos_bonus = positional_crib_bonus(text, positional, window)
-    return base + pos_bonus
+# --- Advanced linguistic metrics -------------------------------------------
+
+def wordlist_hit_rate(text: str, min_len: int = 3, max_len: int = 8) -> float:
+    """Approximate word-likeness: ratio of substring windows that appear in WORDLIST.
+    Iterates all windows length in [min_len, max_len]; caps total windows at 5000 for performance.
+    """
+    seq = ''.join(c for c in text.upper() if c.isalpha())
+    n = len(seq)
+    if n < min_len:
+        return 0.0
+    total = 0
+    hits = 0
+    for L in range(min_len, max_len + 1):
+        if L > n:
+            break
+        for i in range(n - L + 1):
+            if total >= 5000:
+                break
+            total += 1
+            if seq[i:i+L] in WORDLIST:
+                hits += 1
+        if total >= 5000:
+            break
+    return hits / total if total else 0.0
+
+def trigram_entropy(text: str) -> float:
+    """Shannon entropy over trigram distribution (A-Z only)."""
+    seq = ''.join(c for c in text.upper() if c.isalpha())
+    if len(seq) < 3:
+        return 0.0
+    trigrams = [seq[i:i+3] for i in range(len(seq)-3+1)]
+    counts = Counter(trigrams)
+    n = sum(counts.values())
+    ent = 0.0
+    for v in counts.values():
+        p = v / n
+        ent -= p * math.log2(p)
+    return ent
+
+def bigram_gap_variance(text: str) -> float:
+    """Average variance of gaps between repeated bigram occurrences.
+    For each bigram occurring >=2 times, compute gaps between each start indices.
+    Return average variance across such bigrams (0 if none).
+    """
+    seq = ''.join(c for c in text.upper() if c.isalpha())
+    if len(seq) < 4:
+        return 0.0
+    positions: Dict[str, List[int]] = {}
+    for i in range(len(seq)-2+1):
+        gram = seq[i:i+2]
+        positions.setdefault(gram, []).append(i)
+    vars: List[float] = []
+    for gram, pos_list in positions.items():
+        if len(pos_list) < 2:
+            continue
+        gaps = [pos_list[i+1] - pos_list[i] for i in range(len(pos_list)-1)]
+        if not gaps:
+            continue
+        mean_gap = sum(gaps) / len(gaps)
+        var = sum((g - mean_gap) ** 2 for g in gaps) / len(gaps)
+        vars.append(var)
+    if not vars:
+        return 0.0
+    return sum(vars) / len(vars)
+
+# ---------------- Baseline stats ----------------
+
+def baseline_stats(text: str) -> Dict[str, float]:
+    """Return dictionary of baseline scoring metrics for a candidate plaintext."""
+    return {
+        'chi_square': chi_square_stat(text),
+        'bigram_score': bigram_score(text),
+        'trigram_score': trigram_score(text),
+        'quadgram_score': quadgram_score(text) if QUADGRAMS else 0.0,
+        'crib_bonus': crib_bonus(text),
+        'combined_score': combined_plaintext_score(text),
+        'index_of_coincidence': index_of_coincidence(text),
+        'vowel_ratio': vowel_ratio(text),
+        'letter_coverage': letter_coverage(text),
+        'letter_entropy': letter_entropy(text),
+        'repeating_bigram_fraction': repeating_bigram_fraction(text),
+        'wordlist_hit_rate': wordlist_hit_rate(text),
+        'trigram_entropy': trigram_entropy(text),
+        'bigram_gap_variance': bigram_gap_variance(text),
+    }
 
 def segment_plaintext_scores(segments: Iterable[str]) -> Dict[str, float]:
     """Compute combined plaintext scores for multiple segments."""
@@ -239,27 +337,18 @@ def repeating_bigram_fraction(text: str) -> float:
     repeats = sum(v for v in counts.values() if v > 1)
     return repeats / len(bigrams)
 
-def baseline_stats(text: str) -> Dict[str, float]:
-    """Return dictionary of baseline scoring metrics for a candidate plaintext."""
-    return {
-        'chi_square': chi_square_stat(text),
-        'bigram_score': bigram_score(text),
-        'trigram_score': trigram_score(text),
-        'quadgram_score': quadgram_score(text) if QUADGRAMS else 0.0,
-        'crib_bonus': crib_bonus(text),
-        'combined_score': combined_plaintext_score(text),  # keep raw (non-cached) for baseline
-        'index_of_coincidence': index_of_coincidence(text),
-        'vowel_ratio': vowel_ratio(text),
-        'letter_coverage': letter_coverage(text),
-        'letter_entropy': letter_entropy(text),
-        'repeating_bigram_fraction': repeating_bigram_fraction(text),
-    }
+def combined_plaintext_score_with_positions(text: str, positional: Dict[str, Sequence[int]], window: int = 5) -> float:
+    """Combined plaintext score augmented with positional crib bonuses."""
+    base = combined_plaintext_score(text)
+    pos_bonus = positional_crib_bonus(text, positional, window)
+    return base + pos_bonus
 
 __all__ = [
-    'LETTER_FREQ','BIGRAMS','TRIGRAMS','CRIBS','QUADGRAMS',
+    'LETTER_FREQ','BIGRAMS','TRIGRAMS','CRIBS','QUADGRAMS','WORDLIST',
     'chi_square_stat','bigram_score','trigram_score','crib_bonus','quadgram_score',
     'combined_plaintext_score','combined_plaintext_score_cached','segment_plaintext_scores',
     'index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats',
     'positional_crib_bonus','combined_plaintext_score_with_positions',
-    'letter_entropy','repeating_bigram_fraction'
+    'letter_entropy','repeating_bigram_fraction',
+    'wordlist_hit_rate','trigram_entropy','bigram_gap_variance'
 ]
