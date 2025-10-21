@@ -110,32 +110,21 @@ Each test should skip (`unittest.skip`) until implemented.
 
 1. Implement normalization & crib mapping utilities. (COMPLETED)
 2. Add Hill cipher solver (2x2, 3x3 brute constrained). (COMPLETED: `hill_cipher.py`, constraints in `hill_constraints.py`)
-3. Add transposition constraint solver prototype. (PARTIAL: basic columnar search + pruning; full constraint stage pending)
+3. Add transposition constraint solver prototype. (PARTIAL: basic columnar search + pruning; adaptive search implemented `search_columnar_adaptive` + stage)
 4. Add Berlin Clock key stream generator. (COMPLETED: basic + full lamp enumeration in `berlin_clock.py`)
 5. Produce top-N decrypt outputs & persist artifacts. (COMPLETED: JSON/CSV via `reporting.py`)
-6. Refine heuristics. (IN PROGRESS: added positional crib bonus & partial-score pruning)
-
-## 13. Risk Management
-
-- Avoid combinatorial explosion: set pragmatic bounds (e.g., 2x2, 3x3 Hill only; column widths <= 20).
-- Maintain reproducibility with seed and saved intermediate files.
-- Document unsuccessful paths in `docs/K4_ATTEMPTS.md` to prevent repetition.
-
-## 14. Open Questions
-
-- Exact indexing convention for released clues (need authoritative mapping).
-- Was extra L in tableau line intended as matrix hint or aesthetic artifact?
-- Null characters usage (e.g., X in K2) repetition pattern in K4?
+6. Refine heuristics. (IN PROGRESS: positional crib bonus; weighted multi-stage fusion implemented; masking/null-removal stage implemented)
+7. Masking/null removal heuristic. (COMPLETED: `masking.py`, `make_masking_stage`)
+8. Weighted scoring fusion across stages. (COMPLETED: `normalize_scores`, `fuse_scores_weighted`)
+9. Upgrade quadgram data quality. (COMPLETED: `quadgrams_high_quality.tsv` preferred loader)
 
 ## 15. Next Immediate Actions (Updated)
 
-- Integrate transposition stage into composite chain (currently hill + clock only).
-- Add quadgram loader/score (COMPLETED).
-- Implement adaptive transposition pruning (prefix caching + permutation sampling bias).
-- Prototype recursive masking/null removal heuristic (detect/remove low-frequency padding clusters; evaluate score delta).
-- Enhance scoring fusion across stages (weighted aggregation of multi-stage candidate metrics).
-
-(Composite multi-stage aggregation implemented; previous items crib mapping, Hill cipher module, test scaffolds completed.)
+- Extend transposition constraints (anchor crib positions rather than pure permutation sampling).
+- Add entropy and spacing metrics to scoring for additional discriminators.
+- Integrate 3x3 Hill constraints (current constraints focus on 2x2 sets) and evaluate viability for crib alignment.
+- Enhance masking heuristic with frequency delta scoring (compare before/after removal effect per character class).
+- Add lineage metadata to artifacts (record stage + transformation chain for reproducibility).
 
 ## 16. References
 

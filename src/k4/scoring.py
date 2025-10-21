@@ -4,6 +4,7 @@ import os
 import json
 from collections import Counter
 from typing import Dict, Iterable, Sequence
+import math  # added
 
 # Paths
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -207,17 +208,45 @@ def letter_coverage(text: str) -> float:
     letters = {c for c in text.upper() if c.isalpha()}
     return len(letters) / 26.0
 
+def letter_entropy(text: str) -> float:
+    """Shannon entropy (bits) of letter distribution (A-Z only)."""
+    letters = [c for c in text.upper() if c.isalpha()]
+    n = len(letters)
+    if n == 0:
+        return 0.0
+    counts = Counter(letters)
+    ent = 0.0
+    for v in counts.values():
+        p = v / n
+        ent -= p * math.log2(p)
+    return ent
+
+def repeating_bigram_fraction(text: str) -> float:
+    """Fraction of bigrams that are repeats (duplicate occurrences) among all bigrams.
+    0 if no bigrams.
+    """
+    seq = ''.join(c for c in text.upper() if c.isalpha())
+    if len(seq) < 2:
+        return 0.0
+    bigrams = [seq[i:i+2] for i in range(len(seq)-2+1)]
+    counts = Counter(bigrams)
+    repeats = sum(v for v in counts.values() if v > 1)
+    return repeats / len(bigrams)
+
 def baseline_stats(text: str) -> Dict[str, float]:
     """Return dictionary of baseline scoring metrics for a candidate plaintext."""
     return {
         'chi_square': chi_square_stat(text),
         'bigram_score': bigram_score(text),
         'trigram_score': trigram_score(text),
+        'quadgram_score': quadgram_score(text) if QUADGRAMS else 0.0,
         'crib_bonus': crib_bonus(text),
         'combined_score': combined_plaintext_score(text),
         'index_of_coincidence': index_of_coincidence(text),
         'vowel_ratio': vowel_ratio(text),
         'letter_coverage': letter_coverage(text),
+        'letter_entropy': letter_entropy(text),
+        'repeating_bigram_fraction': repeating_bigram_fraction(text),
     }
 
 __all__ = [
@@ -225,5 +254,6 @@ __all__ = [
     'chi_square_stat','bigram_score','trigram_score','crib_bonus','quadgram_score',
     'combined_plaintext_score','segment_plaintext_scores',
     'index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats',
-    'positional_crib_bonus','combined_plaintext_score_with_positions'
+    'positional_crib_bonus','combined_plaintext_score_with_positions',
+    'letter_entropy','repeating_bigram_fraction'
 ]

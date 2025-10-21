@@ -4,7 +4,7 @@ from .scoring import (
     combined_plaintext_score, segment_plaintext_scores,
     chi_square_stat, trigram_score, bigram_score, crib_bonus,
     index_of_coincidence, vowel_ratio, letter_coverage, baseline_stats,
-    QUADGRAMS, quadgram_score
+    QUADGRAMS, quadgram_score, letter_entropy, repeating_bigram_fraction
 )
 from .substitution_solver import solve_substitution
 from .pipeline import Pipeline, Stage, StageResult, make_hill_constraint_stage, make_berlin_clock_stage, make_transposition_stage, make_transposition_adaptive_stage, make_masking_stage
@@ -40,7 +40,7 @@ __all__ += ['berlin_clock_shifts','apply_clock_shifts']
 
 __all__ += ['invert_columnar','search_with_crib']
 
-__all__ += ['index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats']
+__all__ += ['index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats','letter_entropy','repeating_bigram_fraction']
 
 __all__ += ['score_decryptions']
 
