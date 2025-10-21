@@ -44,7 +44,6 @@ def apply_columnar_permutation(ciphertext: str, n_cols: int, perm: Tuple[int, ..
         L = col_lengths[p]
         cols.append(ct[idx:idx+L])
         idx += L
-    # Initialize original_order with empty strings instead of None
     original_order: List[str] = [''] * n_cols
     for read_index, p in enumerate(perm):
         original_order[p] = cols[read_index]
