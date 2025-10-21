@@ -54,11 +54,15 @@ def _load_ngrams(path: str) -> Dict[str, float]:
         # Missing n-gram file: return empty; letter freq fallback handled separately.
         return {}
     return grams
-    """Load cribs from config file."""
+
+
+def _load_config_cribs(path: str) -> List[str]:
+    """Load cribs from config file (expects top-level 'cribs' list)."""
     try:
         with open(path, 'r', encoding='utf-8') as fh:
             data = json.load(fh)
-            return [c.upper() for c in data.get('cribs', [])]
+            cribs = data.get('cribs', [])
+            return [c.upper() for c in cribs if isinstance(c, str)]
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 

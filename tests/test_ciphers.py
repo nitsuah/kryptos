@@ -5,6 +5,7 @@ import json
 import os
 import unittest
 import logging
+
 from src.ciphers import vigenere_decrypt, kryptos_k3_decrypt
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
