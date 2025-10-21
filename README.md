@@ -104,6 +104,7 @@ from src.k4 import (
     make_hill_constraint_stage,
     make_transposition_adaptive_stage,
     make_transposition_multi_crib_stage,
+    make_route_transposition_stage,
     make_masking_stage,
     make_berlin_clock_stage,
     run_composite_pipeline
@@ -120,6 +121,7 @@ stages = [
     make_hill_constraint_stage(),
     make_transposition_adaptive_stage(min_cols=5, max_cols=6, sample_perms=200, partial_length=50),
     make_transposition_multi_crib_stage(positional_cribs=positional_cribs, min_cols=5, max_cols=6),
+    make_route_transposition_stage(min_cols=5, max_cols=6),
     make_masking_stage(limit=15),
     make_berlin_clock_stage(step_seconds=10800, limit=20)
 ]
