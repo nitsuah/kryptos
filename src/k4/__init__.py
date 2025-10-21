@@ -6,7 +6,7 @@ from .scoring import (
     index_of_coincidence, vowel_ratio, letter_coverage, baseline_stats
 )
 from .substitution_solver import solve_substitution
-from .pipeline import Pipeline, Stage, StageResult, make_hill_constraint_stage
+from .pipeline import Pipeline, Stage, StageResult, make_hill_constraint_stage, make_berlin_clock_stage
 from .transposition import apply_columnar_permutation, search_columnar
 from .hill_cipher import (
     mod_inv, matrix_det, matrix_inv_mod,
@@ -43,7 +43,7 @@ __all__ += ['score_decryptions']
 
 __all__ += ['KNOWN_CRIBS','derive_candidate_keys','decrypt_and_score']
 
-__all__ += ['make_hill_constraint_stage']
+__all__ += ['make_hill_constraint_stage', 'make_berlin_clock_stage']
 
 __all__ += ['write_candidates_json','write_candidates_csv','generate_candidate_artifacts']
 

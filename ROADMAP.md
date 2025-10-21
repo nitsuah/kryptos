@@ -4,15 +4,15 @@ Detailed plan for advancing Kryptos K4 analysis.
 
 ## High-Level Planned Modules / Enhancements
 
-- Layered / composite transposition + substitution search pruning.
-- Expanded Berlin Clock enumeration (full lamp state/time modeling, parity & quarter markers).
-- Recursive masking / null removal heuristics.
-- Probable word placement scoring (additional cribs beyond BERLIN/CLOCK/EASTNORTHEAST).
-- Composite reporting (persist top-N candidate plaintexts & metrics to JSON/CSV).
-- Extended Hill cipher exploration (3x3 & larger constrained key search under crib anchors).
-- Overlay & spiral path grid traversal experiments.
+- Layered / composite transposition + substitution search pruning. (IN PROGRESS: basic columnar partial-score pruning added)
+- Expanded Berlin Clock enumeration (full lamp state/time modeling, parity & quarter markers). (PARTIALLY IMPLEMENTED: full lamp state & enumeration utilities; pipeline stage added `make_berlin_clock_stage`)
+- Recursive masking / null removal heuristics. (PENDING)
+- Probable word placement scoring (additional cribs beyond BERLIN/CLOCK/EASTNORTHEAST). (PENDING)
+- Composite reporting (persist top-N candidate plaintexts & metrics to JSON/CSV). (IMPLEMENTED: reporting.py JSON/CSV artifacts)
+- Extended Hill cipher exploration (3x3 & larger constrained key search under crib anchors). (PARTIAL: 3x3 ops present, constraint search still 2x2)
+- Overlay & spiral path grid traversal experiments. (PENDING)
 
-## Candidate Reporting (Planned)
+## Candidate Reporting (Status: IMPLEMENTED)
 
 A forthcoming pipeline reporting stage will persist ranked candidates (key/source metadata + metrics). JSON schema example:
 
@@ -42,22 +42,13 @@ A forthcoming pipeline reporting stage will persist ranked candidates (key/sourc
 }
 ```
 
-## Berlin Clock Enumeration (Upcoming)
+## Berlin Clock Enumeration (Status: PARTIAL)
 
-Current simplified shift vector will be expanded:
+Current simplified shift vector expanded with full lamp modeling & enumeration functions (`full_clock_state`, `full_berlin_clock_shifts`, `enumerate_clock_shift_sequences`). Next: integrate as pipeline stage with scoring comparison.
 
-- Full lamp state modeling (hours 5s row, hours 1s row, minutes 5s row w/ quarter markers, minutes 1s row, seconds lamp).
-- Deterministic encoding to multi-length shift sequences (e.g., concatenated lamp counts & parity bits).
-- Integration point: clock-derived Vigenère-like shifts pre/post transposition stage.
+## Transposition Pruning Heuristics (Status: INITIAL)
 
-## Transposition Pruning Heuristics (Planned)
-
-Mitigating factorial growth:
-
-- Early partial n-gram scoring on initial rows.
-- Chi-square / entropy deltas for early rejection.
-- Adaptive permutation sampling biased by continuity improvements.
-- Prefix score caching.
+Added optional partial segment scoring (parameters: prune, partial_length, partial_min_score) to skip low-quality permutations early. Future: adaptive sampling & prefix caching.
 
 ## Search Strategy Evolution
 
@@ -67,13 +58,9 @@ Mitigating factorial growth:
 4. Integrate Berlin Clock enumeration as an optional stage.
 5. Add persistence/reporting and comparative metrics tracking.
 
-## Metrics Expansion
+## Metrics Expansion (Status: PARTIAL)
 
-Potential future metrics:
-
-- Quadgram scoring (if performance acceptable).
-- Repeated digram/spacing analysis vs English norms.
-- Positional crib weighting (crib near plausible structural indices).
+Positional crib weighting implemented (`positional_crib_bonus`, `combined_plaintext_score_with_positions`). Future metrics: quadgrams, spacing analysis.
 
 ## Status Tracking
 

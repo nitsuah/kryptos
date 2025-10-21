@@ -13,7 +13,7 @@ K4 remains unsolved publicly. Our goal:
 
 Ciphertext (per sculpture transcription; spaces inserted for readability):
 
-```
+``` text
 OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT MZFPKWGDKZXTJCDIGKUHUAUEKCAR
 ```
 
@@ -106,14 +106,14 @@ Add `tests/test_k4_hypotheses.py` skeleton with parametrized tests:
 
 Each test should skip (`unittest.skip`) until implemented.
 
-## 12. Iterative Workflow
+## 12. Iterative Workflow (Status Update)
 
-1. Implement normalization & crib mapping utilities.
-2. Add Hill cipher solver (2x2, 3x3 brute constrained) in `ciphers.py`.
-3. Add transposition constraint solver prototype.
-4. Add Berlin Clock key stream generator.
-5. For each candidate, produce top-N decrypt outputs, persist to `reports/k4_candidates.txt` with scores.
-6. Review manually; refine heuristics.
+1. Implement normalization & crib mapping utilities. (COMPLETED)
+2. Add Hill cipher solver (2x2, 3x3 brute constrained). (COMPLETED: `hill_cipher.py`, constraints in `hill_constraints.py`)
+3. Add transposition constraint solver prototype. (PARTIAL: basic columnar search + pruning; full constraint stage pending)
+4. Add Berlin Clock key stream generator. (COMPLETED: basic + full lamp enumeration in `berlin_clock.py`)
+5. Produce top-N decrypt outputs & persist artifacts. (COMPLETED: JSON/CSV via `reporting.py`)
+6. Refine heuristics. (IN PROGRESS: added positional crib bonus & partial-score pruning)
 
 ## 13. Risk Management
 
@@ -127,11 +127,15 @@ Each test should skip (`unittest.skip`) until implemented.
 - Was extra L in tableau line intended as matrix hint or aesthetic artifact?
 - Null characters usage (e.g., X in K2) repetition pattern in K4?
 
-## 15. Next Immediate Actions
+## 15. Next Immediate Actions (Updated)
 
-- Add crib mapping utility.
-- Add Hill cipher module (encryption/decryption functions + matrix inversion mod 26).
-- Scaffold tests with skips.
+- Integrate Berlin Clock overlay as pipeline stage (apply full lamp shifts, score, report).
+- Add quadgram loader/score (data/quadgrams.tsv) and incorporate into combined score weighting.
+- Implement adaptive transposition pruning (prefix caching + permutation sampling bias).
+- Composite multi-stage run: transposition → hill constraints → clock shifts; merge & rank unified candidate set.
+- Prototype recursive masking/null removal heuristic (detect/remove low-frequency padding clusters; evaluate score delta).
+
+(Previous items: crib mapping, Hill cipher module, test scaffolds now completed.)
 
 ## 16. References
 
@@ -144,4 +148,4 @@ Each test should skip (`unittest.skip`) until implemented.
 - Twitter (2020) EAST clue.
 
 ---
-Prepared: 2025-10-20
+Prepared: 2025-10-20 (updated)

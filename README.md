@@ -46,23 +46,24 @@ K2 contains systematic X (and some Y) insertions serving as alignment/null separ
 - **Hill cipher (2x2 & 3x3)** encryption/decryption + key solving from crib segments
 - **Constrained Hill key derivation** from `BERLIN` / `CLOCK` cribs (single & pairwise) with caching
 - **Modular pipeline architecture** (stage factory for Hill constraints)
-- **Columnar transposition** search and crib-constrained inversion utilities
-- **Extended scoring metrics**: chi-square, bigram/trigram totals, index of coincidence, vowel ratio, letter coverage, baseline metric bundle
-- **Berlin Clock shift hypothesis** scaffolding (now with full lamp enumeration utilities)
+- **Columnar transposition** search (with optional partial-score pruning) and crib-constrained inversion utilities
+- **Extended scoring metrics**: chi-square, bigram/trigram totals, index of coincidence, vowel ratio, letter coverage, baseline metrics
+- **Positional crib weighting** (distance-window bonus)
+- **Berlin Clock shift hypothesis** scaffolding (now with full lamp enumeration utilities + pipeline stage factory `make_berlin_clock_stage`)
 - **Candidate reporting artifacts** (JSON + optional CSV summaries)
 
 ## K4 Analysis Toolkit (New Modules)
 
 Located under `src/k4/` (see full roadmap in `roadmap.md`):
 
-- `scoring.py` – file-driven frequencies & composite scoring
+- `scoring.py` – frequencies, composite scoring, positional crib bonus
 - `hill_cipher.py` – Hill math & crib-based key solving
 - `hill_constraints.py` – constrained 2x2 key derivation + caching
 - `hill_search.py` – candidate batch scoring
-- `transposition.py` / `transposition_constraints.py` – permutation & crib-aware inversion
+- `transposition.py` / `transposition_constraints.py` – permutation & crib-aware inversion (with pruning)
 - `cribs.py` – normalization / annotation
-- `berlin_clock.py` – preliminary and full clock shift generation (`full_clock_state`, `full_berlin_clock_shifts`, `enumerate_clock_shift_sequences`)
-- `pipeline.py` – `Pipeline`, `Stage`, `StageResult`, `make_hill_constraint_stage()`
+- `berlin_clock.py` – preliminary & full clock shift generation (`full_clock_state`, `full_berlin_clock_shifts`, `enumerate_clock_shift_sequences`)
+- `pipeline.py` – `Pipeline`, `Stage`, `StageResult`, `make_hill_constraint_stage()`, `make_berlin_clock_stage()`
 - `reporting.py` – JSON/CSV artifact generation utilities
 
 Exports aggregated in `src/k4/__init__.py`.

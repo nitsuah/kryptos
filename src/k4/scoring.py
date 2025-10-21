@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import json
 from collections import Counter
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Sequence
 
 # Paths
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -124,12 +124,47 @@ def crib_bonus(text: str) -> float:
             bonus += 5.0 * len(crib)
     return bonus
 
+def positional_crib_bonus(text: str, positional: Dict[str, Sequence[int]], window: int = 5) -> float:
+    """Compute bonus for cribs appearing near expected positional indices.
+    positional: mapping crib -> iterable of expected start indices (0-based).
+    For each occurrence of crib in text, if distance to any expected index <= window,
+    award (8 * len(crib) - distance). Multiple positions can contribute; occurrences outside
+    window give no bonus. Cribs not found yield zero.
+    """
+    if not positional:
+        return 0.0
+    upper = ''.join(c for c in text.upper() if c.isalpha())
+    total = 0.0
+    for crib, expected_positions in positional.items():
+        c = crib.upper()
+        if not c or c not in upper:
+            continue
+        # Find all occurrences
+        starts = []
+        idx = upper.find(c)
+        while idx != -1:
+            starts.append(idx)
+            idx = upper.find(c, idx + 1)
+        for occ in starts:
+            # Compute closest expected index
+            if expected_positions:
+                dist = min(abs(occ - ep) for ep in expected_positions)
+                if dist <= window:
+                    total += max(0.0, (8 * len(c) - dist))
+    return total
+
 def combined_plaintext_score(text: str) -> float:
     """Higher is better: n-gram scores minus weighted chi-square plus crib bonus."""
     chi = chi_square_stat(text)
     bi = bigram_score(text)
     tri = trigram_score(text)
     return bi + tri - 0.05 * chi + crib_bonus(text)
+
+def combined_plaintext_score_with_positions(text: str, positional: Dict[str, Sequence[int]], window: int = 5) -> float:
+    """Extended combined score including positional crib bonus."""
+    base = combined_plaintext_score(text)
+    pos_bonus = positional_crib_bonus(text, positional, window)
+    return base + pos_bonus
 
 def segment_plaintext_scores(segments: Iterable[str]) -> Dict[str, float]:
     """Compute combined plaintext scores for multiple segments."""
@@ -177,5 +212,6 @@ __all__ = [
     'LETTER_FREQ','BIGRAMS','TRIGRAMS','CRIBS',
     'chi_square_stat','bigram_score','trigram_score','crib_bonus',
     'combined_plaintext_score','segment_plaintext_scores',
-    'index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats'
+    'index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats',
+    'positional_crib_bonus','combined_plaintext_score_with_positions'
 ]
