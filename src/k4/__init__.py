@@ -68,4 +68,3 @@ __all__ += ['generate_route_variants']
 
 __all__ += ['adaptive_fusion_weights']
 
-# TODO: dynamic fusion weighting integrating wordlist_hit_rate & trigram_entropy (see strategy doc).
