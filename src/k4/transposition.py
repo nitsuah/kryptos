@@ -7,6 +7,7 @@ from .scoring import combined_plaintext_score_cached as combined_plaintext_score
 # Attempt log storage
 _attempt_log: list[dict] = []
 
+
 def _log_attempt(cols: int, perm: tuple[int, ...], partial: float | None, final: float | None, pruned: bool) -> None:
     if len(_attempt_log) < 10000:  # cap to avoid runaway memory
         _attempt_log.append({
@@ -17,12 +18,14 @@ def _log_attempt(cols: int, perm: tuple[int, ...], partial: float | None, final:
             'pruned': pruned,
         })
 
+
 def get_transposition_attempt_log(clear: bool = False) -> list[dict]:
     """Return collected attempt log (permutation evaluations). Optionally clear after retrieval."""
     out = list(_attempt_log)
     if clear:
         _attempt_log.clear()
     return out
+
 
 def apply_columnar_permutation(ciphertext: str, n_cols: int, perm: tuple[int, ...]) -> str:
     """Attempt to invert a columnar transposition given a permutation of column indices.
@@ -61,6 +64,7 @@ def _partial_score(text: str, length: int) -> float:
     segment = text[:length]
     return combined_plaintext_score(segment)
 
+
 def search_columnar(
     ciphertext: str,
     min_cols: int = 5,
@@ -96,7 +100,9 @@ def search_columnar(
     results.sort(key=lambda r: r['score'], reverse=True)
     return results[:50]
 
+
 # Adaptive search with sampling and prefix caching
+
 
 def search_columnar_adaptive(
     ciphertext: str,
@@ -145,5 +151,6 @@ def search_columnar_adaptive(
                 prefix_cache = dict(sorted_items[:keep])
     all_results.sort(key=lambda r: r['score'], reverse=True)
     return all_results[:50]
+
 
 __all__ = ['apply_columnar_permutation', 'search_columnar', 'search_columnar_adaptive', 'get_transposition_attempt_log']

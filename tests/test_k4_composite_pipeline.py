@@ -7,6 +7,7 @@ from src.k4 import (
     run_composite_pipeline,
 )
 
+
 class TestCompositePipeline(unittest.TestCase):
     def test_composite_run_aggregates_candidates(self):
         ct = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"[:40]
@@ -26,6 +27,7 @@ class TestCompositePipeline(unittest.TestCase):
         self.assertEqual(scores, sorted(scores, reverse=True))
         # Ensure presence of adaptive transposition candidates
         self.assertTrue(any(c['stage'] == 'transposition-adaptive' for c in agg))
+
 
 if __name__ == '__main__':
     unittest.main()

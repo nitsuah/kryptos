@@ -7,6 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from .scoring import combined_plaintext_score_cached as combined_plaintext_score
 
+
 def _to_grid(text: str, cols: int) -> list[list[str]]:
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if cols <= 0:
@@ -20,6 +21,7 @@ def _to_grid(text: str, cols: int) -> list[list[str]]:
                 grid[r][c] = seq[idx]
                 idx += 1
     return grid
+
 
 def _read_spiral(grid: list[list[str]]) -> str:
     if not grid:
@@ -44,6 +46,7 @@ def _read_spiral(grid: list[list[str]]) -> str:
             left += 1
     return ''.join(out)
 
+
 def _read_boustrophedon(grid: list[list[str]]) -> str:
     out: list[str] = []
     for r, row in enumerate(grid):
@@ -52,6 +55,7 @@ def _read_boustrophedon(grid: list[list[str]]) -> str:
         else:
             out.extend(reversed(row))
     return ''.join(out)
+
 
 def _read_diagonal(grid: list[list[str]]) -> str:
     if not grid:
@@ -66,11 +70,13 @@ def _read_diagonal(grid: list[list[str]]) -> str:
                 out.append(grid[r][c])
     return ''.join(out)
 
+
 _ROUTE_FUNCS: dict[str, Callable[[list[list[str]]], str]] = {
     'spiral': _read_spiral,
     'boustrophedon': _read_boustrophedon,
     'diagonal': _read_diagonal,
 }
+
 
 def generate_route_variants(
         ciphertext: str,
@@ -116,5 +122,6 @@ def generate_route_variants(
             })
     results.sort(key=lambda r: r['score'], reverse=True)
     return results
+
 
 __all__ = ['generate_route_variants']

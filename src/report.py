@@ -6,6 +6,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # Use a non-GUI backend
 
+
 def generate_report(results, cipher_name):
     '''Generate a report with frequency analysis and crib matches.'''
     frequencies = results.get('frequencies', {})

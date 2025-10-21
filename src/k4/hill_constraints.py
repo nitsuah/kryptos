@@ -13,13 +13,16 @@ KNOWN_CRIBS = {
 _cache_holder: dict[str, list[dict]] = {}
 _hill_attempts: list[dict] = []
 
+
 def get_hill_attempt_log(clear: bool = False) -> list[dict]:
     out = list(_hill_attempts)
     if clear:
         _hill_attempts.clear()
     return out
 
+
 # --- 3x3 helpers (refined) -------------------------------------------------
+
 
 def _assemble_3x3_variants(seq: str) -> list[list[list[int]]]:
     """Return multiple 3x3 matrix assemblies from a 9-letter sequence.
@@ -79,6 +82,7 @@ def _assemble_3x3_variants(seq: str) -> list[list[list[int]]]:
 
     return variants
 
+
 def _solve_3x3_keys(plain: str, cipher: str) -> list[list[list[int]]]:
     """Attempt to derive 3x3 keys from concatenated 9-letter plain/cipher slices using multiple assemblies.
     Returns list of invertible key matrices (may be empty)."""
@@ -111,7 +115,9 @@ def _solve_3x3_keys(plain: str, cipher: str) -> list[list[list[int]]]:
                     keys.append(K)
     return keys
 
+
 # --- 3x3 candidate generator (orders + sliding windows refined) ------------
+
 
 def _generate_3x3_candidates(cribs: dict[str, str]) -> list[dict]:
     items = list(cribs.items())
@@ -137,7 +143,9 @@ def _generate_3x3_candidates(cribs: dict[str, str]) -> list[dict]:
                 results.append({'key': k, 'source': f'trial3x3:{order_tag}:win{start}', 'size': 3})
     return results
 
+
 # --- Public API --------------------------------------------------------------
+
 
 def derive_candidate_keys() -> list[dict]:
     """Derive candidate 2x2 and refined 3x3 Hill cipher keys from crib segments.
@@ -164,6 +172,7 @@ def derive_candidate_keys() -> list[dict]:
     keys.extend(_generate_3x3_candidates(KNOWN_CRIBS))
     _cache_holder['keys'] = keys
     return keys
+
 
 def decrypt_and_score(
     ciphertext: str,
@@ -216,5 +225,6 @@ def decrypt_and_score(
         _hill_attempts.append(attempt_entry)
     results.sort(key=lambda r: r['score'], reverse=True)
     return results
+
 
 __all__ = ['KNOWN_CRIBS', 'derive_candidate_keys', 'decrypt_and_score', 'get_hill_attempt_log']

@@ -2,6 +2,7 @@
 import unittest
 from src.k4 import quadgram_score, combined_plaintext_score
 
+
 class TestQuadgramScoring(unittest.TestCase):
     """
     Unit tests for quadgram scoring functions.
@@ -21,6 +22,7 @@ class TestQuadgramScoring(unittest.TestCase):
         q2 = quadgram_score(random_like)
         self.assertIsInstance(q1, float)
         self.assertIsInstance(q2, float)
+
 
 if __name__ == '__main__':
     unittest.main()

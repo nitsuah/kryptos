@@ -13,8 +13,10 @@ from .transposition import get_transposition_attempt_log
 
 DEF_LIMIT = 5000  # safety cap per category
 
+
 def _ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
+
 
 def persist_attempt_logs(
     out_dir: str = 'reports',
@@ -52,5 +54,6 @@ def persist_attempt_logs(
         get_clock_attempt_log(clear=True)
         get_transposition_attempt_log(clear=True)
     return path
+
 
 __all__ = ['persist_attempt_logs']

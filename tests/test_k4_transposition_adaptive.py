@@ -2,6 +2,7 @@
 import unittest
 from src.k4 import search_columnar_adaptive, make_transposition_adaptive_stage, Pipeline
 
+
 class TestK4TranspositionAdaptive(unittest.TestCase):
     def test_search_columnar_adaptive_basic(self):
         ct = 'THISISATESTOFTRANSPOSEDONPLAINTEXTSEGMENT'
@@ -18,6 +19,7 @@ class TestK4TranspositionAdaptive(unittest.TestCase):
         self.assertIn('candidates', res.metadata)
         self.assertTrue(len(res.metadata['candidates']) <= 10)
         self.assertIsInstance(res.score, float)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -2,6 +2,7 @@
 import unittest
 from src.k4 import normalize_scores, fuse_scores_weighted
 
+
 class TestK4Fusion(unittest.TestCase):
     def test_normalize_and_fuse(self):
         candidates = [
@@ -17,6 +18,7 @@ class TestK4Fusion(unittest.TestCase):
         self.assertTrue(all('fused_score' in c for c in fused))
         # Highest hill candidate should appear before highest berlin candidate due to weight
         self.assertEqual(fused[0]['stage'], 'hill-constraint')
+
 
 if __name__ == '__main__':
     unittest.main()

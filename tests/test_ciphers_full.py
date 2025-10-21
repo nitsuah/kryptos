@@ -9,6 +9,7 @@ from src.ciphers import (
     rotate_matrix_right_90,
 )
 
+
 class TestCiphersFull(unittest.TestCase):
     def test_vigenere_preserve_non_alpha(self):
         pt = vigenere_decrypt("KRY PTOS!", "KEY", preserve_non_alpha=True)
@@ -53,6 +54,7 @@ class TestCiphersFull(unittest.TestCase):
         ]
         pt = polybius_decrypt("111213", square)
         self.assertEqual(pt, "ABC")
+
 
 if __name__ == '__main__':
     unittest.main()

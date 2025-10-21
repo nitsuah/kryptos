@@ -3,6 +3,7 @@ import unittest
 from src.k4 import run_composite_pipeline, make_hill_constraint_stage, make_masking_stage
 from src.k4.composite import normalize_scores, fuse_scores_weighted
 
+
 class TestCompositeBranchCoverage(unittest.TestCase):
     def test_pipeline_weights_no_normalize(self):
         stages = [
@@ -41,6 +42,7 @@ class TestCompositeBranchCoverage(unittest.TestCase):
         b = next(c for c in fused if c['stage'] == 'B')
         self.assertEqual(a['fused_score'], 20.0)
         self.assertEqual(b['fused_score'], 20.0)
+
 
 if __name__ == '__main__':
     unittest.main()

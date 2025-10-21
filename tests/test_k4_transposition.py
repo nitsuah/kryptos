@@ -4,6 +4,7 @@
 import unittest
 from src.k4 import search_columnar, apply_columnar_permutation
 
+
 class TestK4Transposition(unittest.TestCase):
     """Test cases for K4 transposition functions."""
     def test_apply_columnar_permutation_roundtrip_shape(self):
@@ -22,6 +23,7 @@ class TestK4Transposition(unittest.TestCase):
         self.assertIn('score', results[0])
         # Scores should be numeric
         self.assertIsInstance(results[0]['score'], float)
+
 
 if __name__ == '__main__':
     unittest.main()

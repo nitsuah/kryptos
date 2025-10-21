@@ -3,6 +3,7 @@ import unittest
 from collections.abc import Sequence
 from src.k4.pipeline import make_transposition_multi_crib_stage, Pipeline
 
+
 class TestTranspositionMultiCribStageActive(unittest.TestCase):
     def test_active_multi_crib_stage(self):
         positional: dict[str, Sequence[int]] = {"CLOCK": [0], "BERLIN": [6]}
@@ -25,6 +26,7 @@ class TestTranspositionMultiCribStageActive(unittest.TestCase):
             first = cands[0]
             self.assertIn('pos_bonus', first)
             self.assertGreaterEqual(first['pos_bonus'], 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

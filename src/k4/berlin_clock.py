@@ -107,6 +107,7 @@ def enumerate_clock_shift_sequences(
         cur += timedelta(seconds=step_seconds)
     return out
 
+
 __all__ = [
     'berlin_clock_shifts',
     'apply_clock_shifts',

@@ -2,6 +2,7 @@
 import unittest
 from src.k4.pipeline import Pipeline, Stage, make_hill_constraint_stage
 
+
 class TestPipelineEdgeCases(unittest.TestCase):
     def test_pipeline_no_stages(self):
         pipe = Pipeline([])
@@ -22,6 +23,7 @@ class TestPipelineEdgeCases(unittest.TestCase):
         pipe = Pipeline([stage])
         with self.assertRaises(RuntimeError):
             pipe.run("ABC")
+
 
 if __name__ == '__main__':
     unittest.main()

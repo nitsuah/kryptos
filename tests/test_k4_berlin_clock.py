@@ -9,6 +9,7 @@ from src.k4 import (
     make_berlin_clock_stage, Pipeline, StageResult,
 )
 
+
 class TestBerlinClock(unittest.TestCase):
     def test_basic_shift_pattern_generation(self):
         shifts = berlin_clock_shifts(time(13, 37, 42))
@@ -42,6 +43,7 @@ class TestBerlinClock(unittest.TestCase):
         self.assertIsInstance(r, StageResult)
         self.assertIn('candidates', r.metadata)
         self.assertTrue(len(r.metadata['candidates']) <= 10)
+
 
 if __name__ == '__main__':
     unittest.main()

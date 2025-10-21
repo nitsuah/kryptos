@@ -2,6 +2,7 @@
 import unittest
 from src.k4.pipeline import make_transposition_multi_crib_stage, Pipeline
 
+
 class TestPipelineNoopMultiCrib(unittest.TestCase):
     def test_noop_stage(self):
         stage = make_transposition_multi_crib_stage(positional_cribs=None)
@@ -11,6 +12,7 @@ class TestPipelineNoopMultiCrib(unittest.TestCase):
         r = res[0]
         self.assertEqual(r.metadata.get('candidates'), [])
         self.assertEqual(r.output, "ABCD")
+
 
 if __name__ == '__main__':
     unittest.main()

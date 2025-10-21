@@ -9,6 +9,7 @@ from src.k4.transposition_constraints import (
 
 CIPHER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+
 class TestTranspositionConstraintsEdge(unittest.TestCase):
     def test_invert_columnar_roundtrip(self):
         ct = CIPHER
@@ -28,6 +29,7 @@ class TestTranspositionConstraintsEdge(unittest.TestCase):
     def test_search_with_multiple_cribs_positions_empty(self):
         results = search_with_multiple_cribs_positions(CIPHER, {"ZZZ": [0]}, 5, max_perms=10)
         self.assertEqual(results, [])
+
 
 if __name__ == '__main__':
     unittest.main()

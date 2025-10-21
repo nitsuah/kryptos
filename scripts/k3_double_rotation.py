@@ -11,6 +11,7 @@ import os
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
 
+
 def load_k3():
     with open(CONFIG_PATH, encoding='utf-8') as f:
         cfg = json.load(f)
@@ -19,10 +20,12 @@ def load_k3():
         ct = ct[1:]
     return ct
 
+
 def rotate_right(matrix):
     rows = len(matrix)
     cols = len(matrix[0])
     return [[matrix[r][c] for r in range(rows-1, -1, -1)] for c in range(cols)]
+
 
 def k3_double_rotation(ct: str) -> str:
     # First grid 24x14
@@ -40,10 +43,12 @@ def k3_double_rotation(ct: str) -> str:
     m4 = rotate_right(m3)
     return ''.join(''.join(r) for r in m4)
 
+
 def main():
     k3_ct = load_k3()
     pt = k3_double_rotation(k3_ct)
     print(pt)
+
 
 if __name__ == '__main__':
     main()

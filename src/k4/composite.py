@@ -6,6 +6,7 @@ from .reporting import generate_candidate_artifacts
 from .attempt_logging import persist_attempt_logs  # new import
 from .scoring import wordlist_hit_rate, trigram_entropy  # ensure metrics imported
 
+
 def aggregate_stage_candidates(results: list[StageResult]) -> list[dict[str, Any]]:
     """Aggregate candidates from multiple StageResults, annotate with stage name."""
     agg: list[dict[str, Any]] = []
@@ -26,10 +27,13 @@ def aggregate_stage_candidates(results: list[StageResult]) -> list[dict[str, Any
     agg.sort(key=lambda x: x.get('score', 0.0), reverse=True)
     return agg
 
+
 # Weighted fusion utilities
+
 
 def _min_max(values: list[float]) -> tuple[float, float]:
     return (min(values), max(values)) if values else (0.0, 0.0)
+
 
 def normalize_scores(candidates: list[dict[str, Any]], key: str = 'score') -> list[dict[str, Any]]:
     """Return new list with added 'norm_score' using min-max normalization per stage grouping."""
@@ -48,6 +52,7 @@ def normalize_scores(candidates: list[dict[str, Any]], key: str = 'score') -> li
             new['norm_score'] = ns
             out.append(new)
     return out
+
 
 def fuse_scores_weighted(
     candidates: list[dict[str, Any]],
@@ -69,6 +74,7 @@ def fuse_scores_weighted(
         out.append(new)
     out.sort(key=lambda x: x.get('fused_score', 0.0), reverse=True)
     return out
+
 
 def run_composite_pipeline(
     ciphertext: str,
@@ -207,6 +213,7 @@ def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float
             w = 2.5
         weights[stage] = round(w, 3)
     return weights
+
 
 __all__ = [
     'aggregate_stage_candidates', 'run_composite_pipeline', 'normalize_scores',

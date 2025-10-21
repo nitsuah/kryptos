@@ -2,6 +2,7 @@
 import unittest
 from src.k4 import letter_entropy, repeating_bigram_fraction
 
+
 class TestK4Entropy(unittest.TestCase):
     def test_letter_entropy_range(self):
         low = 'AAAAAAAAAAAAAA'
@@ -14,6 +15,7 @@ class TestK4Entropy(unittest.TestCase):
         self.assertGreater(frac, 0.0)
         unique = 'ABCDEFGH'
         self.assertLess(repeating_bigram_fraction(unique), frac)
+
 
 if __name__ == '__main__':
     unittest.main()

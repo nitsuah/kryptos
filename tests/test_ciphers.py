@@ -15,6 +15,7 @@ config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../config
 with open(config_path, encoding='utf-8') as config_file:
     config = json.load(config_file)
 
+
 class TestCiphers(unittest.TestCase):
     """Unit tests for cipher decryption functions."""
     def test_vigenere_k1(self):
@@ -51,6 +52,7 @@ class TestCiphers(unittest.TestCase):
         )
         decrypted_text_k3 = kryptos_k3_decrypt(ciphertext_k3)
         self.assertEqual(decrypted_text_k3.replace(" ", ""), expected_plaintext_k3)
+
 
 if __name__ == "__main__":
     unittest.main()

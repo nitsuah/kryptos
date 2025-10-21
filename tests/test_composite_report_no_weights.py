@@ -2,6 +2,7 @@
 import unittest
 from src.k4 import run_composite_pipeline, make_hill_constraint_stage, make_masking_stage
 
+
 class TestCompositeReportNoWeights(unittest.TestCase):
     def test_report_without_weights_no_adaptive(self):
         stages = [
@@ -19,6 +20,7 @@ class TestCompositeReportNoWeights(unittest.TestCase):
         )
         self.assertIn('artifacts', res)
         self.assertIn('attempt_log', res)
+
 
 if __name__ == '__main__':
     unittest.main()

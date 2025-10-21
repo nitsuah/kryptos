@@ -11,6 +11,7 @@ from src.k4 import (
 
 CIPHER_SAMPLE = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
 
+
 class TestAttemptLogging(unittest.TestCase):
     def test_persist_attempt_logs(self):
         stages = [
@@ -36,6 +37,7 @@ class TestAttemptLogging(unittest.TestCase):
         with open(second_path, encoding='utf-8') as fh:
             data2 = fh.read()
         self.assertIn('"hill": 0', data2)
+
 
 if __name__ == '__main__':
     unittest.main()

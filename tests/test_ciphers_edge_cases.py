@@ -2,6 +2,7 @@
 import unittest
 from src.ciphers import vigenere_decrypt, polybius_decrypt, double_rotational_transposition
 
+
 class TestCiphersEdgeCases(unittest.TestCase):
     def test_vigenere_decrypt_mixed_case(self):
         ct = "KRYPTOS"
@@ -17,6 +18,7 @@ class TestCiphersEdgeCases(unittest.TestCase):
     def test_double_rotational_invalid_length(self):
         with self.assertRaises(ValueError):
             double_rotational_transposition("TOOSHORT")
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -12,12 +12,15 @@ import hashlib
 from datetime import datetime
 from .scoring import baseline_stats
 
+
 def _ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
+
 
 def _key_hash(key: Sequence[Sequence[int]]) -> str:
     flat = ','.join(str(v) for row in key for v in row)
     return hashlib.sha1(flat.encode('utf-8')).hexdigest()[:16]
+
 
 def write_candidates_json(
     stage: str,
@@ -61,6 +64,7 @@ def write_candidates_json(
         json.dump(payload, fh, indent=2)
     return output_path
 
+
 def write_candidates_csv(
     candidates: list[dict],
     output_path: str = 'reports/k4_candidates.csv',
@@ -83,6 +87,7 @@ def write_candidates_csv(
             ])
     return output_path
 
+
 def generate_candidate_artifacts(
     stage: str,
     cipher_label: str,
@@ -103,5 +108,6 @@ def generate_candidate_artifacts(
         csv_path = os.path.join(out_dir, 'k4_candidates.csv')
         paths['csv'] = write_candidates_csv(candidates, csv_path, limit)
     return paths
+
 
 __all__ = ['write_candidates_json', 'write_candidates_csv', 'generate_candidate_artifacts']

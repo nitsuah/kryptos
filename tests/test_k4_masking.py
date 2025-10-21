@@ -2,6 +2,7 @@
 import unittest
 from src.k4 import mask_variants, score_mask_variants, make_masking_stage, Pipeline
 
+
 class TestK4Masking(unittest.TestCase):
     def test_mask_variants_generation(self):
         ct = 'XXOBKRUOXOGHULBXXSOLIYFBBWFLRVQXXQPRNGKSSOTWTQYY'
@@ -23,6 +24,7 @@ class TestK4Masking(unittest.TestCase):
         res = pipe.run(ct)[0]
         self.assertIn('candidates', res.metadata)
         self.assertTrue(len(res.metadata['candidates']) <= 5)
+
 
 if __name__ == '__main__':
     unittest.main()

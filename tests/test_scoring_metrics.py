@@ -9,6 +9,7 @@ from src.k4.scoring import (
     combined_plaintext_score_with_positions,
 )
 
+
 class TestScoringMetrics(unittest.TestCase):
     def test_repeating_bigram_fraction(self):
         self.assertGreater(repeating_bigram_fraction("ABABAB"), 0.0)
@@ -38,6 +39,7 @@ class TestScoringMetrics(unittest.TestCase):
         score_plain = quadgram_score("TESTTEXT")
         score_pos = combined_plaintext_score_with_positions("TESTTEXT", {"TEST": [0]}, window=1)
         self.assertGreaterEqual(score_pos, score_plain)
+
 
 if __name__ == '__main__':
     unittest.main()

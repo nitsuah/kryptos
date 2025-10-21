@@ -16,6 +16,7 @@ from src import (
     combined_plaintext_score, solve_substitution,
 )
 
+
 class TestK4Scaffold(unittest.TestCase):
     def test_partitions_generation(self):
         """Test generation of partitions for K4 segmentation."""
@@ -46,6 +47,7 @@ class TestK4Scaffold(unittest.TestCase):
 
     def test_placeholder_k4_ciphertext(self):
         self.skipTest("Real K4 ciphertext integration pending.")
+
 
 if __name__ == '__main__':
     unittest.main()

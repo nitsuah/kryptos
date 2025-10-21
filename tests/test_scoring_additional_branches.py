@@ -2,6 +2,7 @@
 import unittest
 from src.k4.scoring import wordlist_hit_rate, bigram_gap_variance
 
+
 class TestScoringAdditionalBranches(unittest.TestCase):
     def test_wordlist_hit_rate_break(self):
         # Long text to trigger early break (>=5000 windows)
@@ -19,6 +20,7 @@ class TestScoringAdditionalBranches(unittest.TestCase):
         text = "ABABABXXAB"
         val = bigram_gap_variance(text)
         self.assertGreaterEqual(val, 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

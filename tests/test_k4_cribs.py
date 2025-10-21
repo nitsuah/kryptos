@@ -14,6 +14,7 @@ EXPECTED_CRIB_INDICES: dict[str, int] = {
     'CLOCK': 69,
 }
 
+
 class TestCribMapping(unittest.TestCase):
     """Tests for crib mapping and positional index validation."""
     def test_index_validation(self):
@@ -36,6 +37,7 @@ class TestCribMapping(unittest.TestCase):
         self.assertEqual(found.get('CLOCK'), EXPECTED_CRIB_INDICES['CLOCK'])
         for crib in ['NORTHEAST', 'BERLIN', 'CLOCK']:
             self.assertIsNotNone(found.get(crib), f"Crib {crib} not located at expected index")
+
 
 if __name__ == '__main__':
     unittest.main()

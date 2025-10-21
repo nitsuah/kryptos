@@ -15,6 +15,7 @@ from .masking import score_mask_variants
 from .transposition_constraints import search_with_multiple_cribs_positions  # new import
 from .transposition_routes import generate_route_variants  # new import
 
+
 @dataclass
 class StageResult:
     """
@@ -25,11 +26,13 @@ class StageResult:
     metadata: dict[str, Any]
     score: float
 
+
 @dataclass
 class Stage:
     """A processing stage in the pipeline."""
     name: str
     func: Callable[[str], StageResult]
+
 
 class Pipeline:
     """Orchestrates execution of multiple stages on ciphertext."""
@@ -52,7 +55,9 @@ class Pipeline:
             current = res.output
         return results
 
+
 # New helper to build a Hill constraint stage
+
 
 def make_hill_constraint_stage(
     name: str = 'hill-constraint',
@@ -97,13 +102,16 @@ def make_hill_constraint_stage(
         )
     return Stage(name=name, func=_run)
 
+
 _clock_attempts: list[dict[str, Any]] = []
+
 
 def get_clock_attempt_log(clear: bool = False) -> list[dict[str, Any]]:
     out = list(_clock_attempts)
     if clear:
         _clock_attempts.clear()
     return out
+
 
 def make_berlin_clock_stage(name: str = 'berlin-clock', step_seconds: int = 3600, limit: int = 50) -> Stage:
     """Create a stage that applies multiple Berlin Clock shift sequences and scores outputs.
@@ -156,7 +164,9 @@ def make_berlin_clock_stage(name: str = 'berlin-clock', step_seconds: int = 3600
         )
     return Stage(name=name, func=_run)
 
+
 # New transposition search stage
+
 
 def make_transposition_stage(
     name: str = 'transposition',
@@ -207,7 +217,9 @@ def make_transposition_stage(
         )
     return Stage(name=name, func=_run)
 
+
 # Adaptive transposition search stage
+
 
 def make_transposition_adaptive_stage(
     name: str = 'transposition-adaptive',
@@ -259,6 +271,7 @@ def make_transposition_adaptive_stage(
         )
     return Stage(name=name, func=_run)
 
+
 def make_masking_stage(name: str = 'masking', null_chars=None, limit: int = 25) -> Stage:
     """Create a stage that generates and scores masking/null-removal variants."""
     def _run(ct: str) -> StageResult:
@@ -268,6 +281,7 @@ def make_masking_stage(name: str = 'masking', null_chars=None, limit: int = 25) 
         best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
         return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
     return Stage(name=name, func=_run)
+
 
 def make_transposition_multi_crib_stage(
     name: str = 'transposition-pos-crib',
@@ -338,6 +352,7 @@ def make_transposition_multi_crib_stage(
         )
     return Stage(name=name, func=_run)
 
+
 def make_route_transposition_stage(
     name: str = 'transposition-route',
     min_cols: int = 5,
@@ -379,9 +394,18 @@ def make_route_transposition_stage(
         )
     return Stage(name=name, func=_run)
 
+
 __all__ = [
-    'Stage', 'StageResult', 'Pipeline', 'make_hill_constraint_stage', 'make_berlin_clock_stage',
-    'make_transposition_stage', 'make_transposition_adaptive_stage', 'make_masking_stage',
-    'get_clock_attempt_log', 'get_hill_attempt_log', 'make_transposition_multi_crib_stage',
+    'Stage',
+    'StageResult',
+    'Pipeline',
+    'make_hill_constraint_stage',
+    'make_berlin_clock_stage',
+    'make_transposition_stage',
+    'make_transposition_adaptive_stage',
+    'make_masking_stage',
+    'get_clock_attempt_log',
+    'get_hill_attempt_log',
+    'make_transposition_multi_crib_stage',
     'make_route_transposition_stage',
 ]

@@ -14,6 +14,7 @@ CONFIG_PATH = os.path.join(ROOT_DIR, 'config', 'config.json')
 
 # ---------------- Loaders ----------------
 
+
 def _load_letter_freq(path: str) -> dict[str, float]:
     """Load letter frequency table from file."""
     freq: dict[str, float] = {}
@@ -66,6 +67,7 @@ def _load_config_cribs(path: str) -> list[str]:
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
+
 def _load_wordlist(path: str) -> set[str]:
     """Load wordlist (one word per line) into uppercase set. Only keep length >=3."""
     words: set[str] = set()
@@ -78,6 +80,7 @@ def _load_wordlist(path: str) -> set[str]:
     except FileNotFoundError:
         pass
     return words
+
 
 # ---------------- Data ----------------
 LETTER_FREQ: dict[str, float] = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv'))
@@ -115,6 +118,7 @@ _UNKNOWN_QUADGRAM = -4.0  # slightly harsher unknown penalty with higher quality
 
 # ---------------- Metrics ----------------
 
+
 def chi_square_stat(text: str) -> float:
     """Chi-square statistic vs English letter frequencies (lower is better)."""
     filtered = [c for c in text.upper() if c.isalpha()]
@@ -130,6 +134,7 @@ def chi_square_stat(text: str) -> float:
             chi += (obs - expected) ** 2 / expected
     return chi
 
+
 def _score_ngrams(text: str, table: dict[str, float], size: int, unknown: float) -> float:
     """Generic n-gram scoring function."""
     seq = ''.join(c for c in text.upper() if c.isalpha())
@@ -139,17 +144,21 @@ def _score_ngrams(text: str, table: dict[str, float], size: int, unknown: float)
         total += table.get(gram, unknown)
     return total
 
+
 def bigram_score(text: str) -> float:
     """Score text based on bigram frequencies."""
     return _score_ngrams(text, BIGRAMS, 2, _UNKNOWN_BIGRAM)
+
 
 def trigram_score(text: str) -> float:
     """Score text based on trigram frequencies."""
     return _score_ngrams(text, TRIGRAMS, 3, _UNKNOWN_TRIGRAM)
 
+
 def quadgram_score(text: str) -> float:
     """Score text based on quadgram frequencies."""
     return _score_ngrams(text, QUADGRAMS, 4, _UNKNOWN_QUADGRAM)
+
 
 def crib_bonus(text: str) -> float:
     """Bonus score for presence of known cribs."""
@@ -159,6 +168,7 @@ def crib_bonus(text: str) -> float:
         if crib and crib in upper:
             bonus += 5.0 * len(crib)
     return bonus
+
 
 def positional_crib_bonus(text: str, positional: dict[str, Sequence[int]], window: int = 5) -> float:
     """Compute bonus for cribs appearing near expected positional indices.
@@ -189,6 +199,7 @@ def positional_crib_bonus(text: str, positional: dict[str, Sequence[int]], windo
                     total += max(0.0, (8 * len(c) - dist))
     return total
 
+
 def combined_plaintext_score(text: str) -> float:
     """Higher is better: n-gram scores minus weighted chi-square plus crib bonus."""
     chi = chi_square_stat(text)
@@ -197,12 +208,15 @@ def combined_plaintext_score(text: str) -> float:
     quad = quadgram_score(text) if QUADGRAMS else 0.0
     return bi + tri + quad - 0.05 * chi + crib_bonus(text)
 
+
 # Cached wrapper (memoization for repeated scoring of identical plaintexts)
 @lru_cache(maxsize=10000)
 def combined_plaintext_score_cached(text: str) -> float:
     return combined_plaintext_score(text)
 
+
 # --- Advanced linguistic metrics -------------------------------------------
+
 
 def wordlist_hit_rate(text: str, min_len: int = 3, max_len: int = 8) -> float:
     """Approximate word-likeness: ratio of substring windows that appear in WORDLIST.
@@ -227,6 +241,7 @@ def wordlist_hit_rate(text: str, min_len: int = 3, max_len: int = 8) -> float:
             break
     return hits / total if total else 0.0
 
+
 def trigram_entropy(text: str) -> float:
     """Shannon entropy over trigram distribution (A-Z only)."""
     seq = ''.join(c for c in text.upper() if c.isalpha())
@@ -240,6 +255,7 @@ def trigram_entropy(text: str) -> float:
         p = v / n
         ent -= p * math.log2(p)
     return ent
+
 
 def bigram_gap_variance(text: str) -> float:
     """Average variance of gaps between repeated bigram occurrences.
@@ -267,7 +283,9 @@ def bigram_gap_variance(text: str) -> float:
         return 0.0
     return sum(gap_vars) / len(gap_vars)
 
+
 # ---------------- Baseline stats ----------------
+
 
 def baseline_stats(text: str) -> dict[str, float]:
     """Return dictionary of baseline scoring metrics for a candidate plaintext."""
@@ -288,9 +306,11 @@ def baseline_stats(text: str) -> dict[str, float]:
         'bigram_gap_variance': bigram_gap_variance(text),
     }
 
+
 def segment_plaintext_scores(segments: Iterable[str]) -> dict[str, float]:
     """Compute combined plaintext scores for multiple segments."""
     return {seg: combined_plaintext_score(seg) for seg in segments}
+
 
 def index_of_coincidence(text: str) -> float:
     """Compute index of coincidence (IC)."""
@@ -303,6 +323,7 @@ def index_of_coincidence(text: str) -> float:
     den = n * (n - 1)
     return num / den if den else 0.0
 
+
 def vowel_ratio(text: str) -> float:
     """Return proportion of letters that are vowels (AEIOUY)."""
     letters = [c for c in text.upper() if c.isalpha()]
@@ -312,10 +333,12 @@ def vowel_ratio(text: str) -> float:
     vcount = sum(1 for c in letters if c in vowels)
     return vcount / len(letters)
 
+
 def letter_coverage(text: str) -> float:
     """Return fraction of alphabet present in text."""
     letters = {c for c in text.upper() if c.isalpha()}
     return len(letters) / 26.0
+
 
 def letter_entropy(text: str) -> float:
     """Shannon entropy (bits) of letter distribution (A-Z only)."""
@@ -330,6 +353,7 @@ def letter_entropy(text: str) -> float:
         ent -= p * math.log2(p)
     return ent
 
+
 def repeating_bigram_fraction(text: str) -> float:
     """Fraction of bigrams that are repeats (duplicate occurrences) among all bigrams.
     0 if no bigrams.
@@ -342,11 +366,13 @@ def repeating_bigram_fraction(text: str) -> float:
     repeats = sum(v for v in counts.values() if v > 1)
     return repeats / len(bigrams)
 
+
 def combined_plaintext_score_with_positions(text: str, positional: dict[str, Sequence[int]], window: int = 5) -> float:
     """Combined plaintext score augmented with positional crib bonuses."""
     base = combined_plaintext_score(text)
     pos_bonus = positional_crib_bonus(text, positional, window)
     return base + pos_bonus
+
 
 __all__ = [
     'LETTER_FREQ', 'BIGRAMS', 'TRIGRAMS', 'CRIBS', 'QUADGRAMS', 'WORDLIST',

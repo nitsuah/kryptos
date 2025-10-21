@@ -2,6 +2,7 @@
 import unittest
 from src.k4.transposition_constraints import search_with_multiple_cribs_positions
 
+
 class TestTranspositionConstraintsBonus(unittest.TestCase):
     def test_multi_crib_pos_bonus_scoring(self):
         cipher = "CLOCKBERLINXXXXCLOCKBERLIN"
@@ -14,6 +15,7 @@ class TestTranspositionConstraintsBonus(unittest.TestCase):
             r = results[0]
             self.assertIn('pos_bonus', r)
             self.assertGreaterEqual(r['pos_bonus'], 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

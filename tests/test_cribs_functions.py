@@ -2,6 +2,7 @@
 import unittest
 from src.k4.cribs import normalize_cipher, annotate_cribs
 
+
 class TestCribsFunctions(unittest.TestCase):
     def test_normalize_cipher(self):
         self.assertEqual(normalize_cipher("a-b C!"), "ABC")
@@ -16,6 +17,7 @@ class TestCribsFunctions(unittest.TestCase):
         self.assertIn('expected_positions', entry)
         fp = entry['found_positions'] if isinstance(entry['found_positions'], list) else []
         self.assertTrue(len(fp) >= 1)
+
 
 if __name__ == '__main__':
     unittest.main()

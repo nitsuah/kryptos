@@ -3,6 +3,7 @@ Module for performing frequency analysis and crib checking on text.
 """
 from collections import Counter
 
+
 def frequency_analysis(text):
     """Return frequency analysis of characters in the text."""
     frequencies = Counter(text)

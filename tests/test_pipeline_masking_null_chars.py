@@ -2,6 +2,7 @@
 import unittest
 from src.k4.pipeline import make_masking_stage, Pipeline
 
+
 class TestPipelineMaskingNullChars(unittest.TestCase):
     def test_masking_with_null_chars(self):
         stage = make_masking_stage(null_chars="X", limit=5)
@@ -11,6 +12,7 @@ class TestPipelineMaskingNullChars(unittest.TestCase):
         meta = res[0].metadata
         cands = meta.get('candidates', [])
         self.assertTrue(isinstance(cands, list))
+
 
 if __name__ == '__main__':
     unittest.main()

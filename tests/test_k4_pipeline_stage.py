@@ -2,6 +2,7 @@
 import unittest
 from src.k4 import make_hill_constraint_stage, Pipeline, StageResult
 
+
 class TestPipelineHillStage(unittest.TestCase):
     def test_hill_constraint_stage_runs(self):
         stage = make_hill_constraint_stage()
@@ -13,6 +14,7 @@ class TestPipelineHillStage(unittest.TestCase):
         self.assertIsInstance(r, StageResult)
         self.assertIn('candidates', r.metadata)
         self.assertTrue('score' in r.__dict__)
+
 
 if __name__ == '__main__':
     unittest.main()
