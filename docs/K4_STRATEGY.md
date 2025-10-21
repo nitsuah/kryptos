@@ -6,8 +6,8 @@ K4 remains unsolved publicly. Our goal:
 
 - Reconstruct high-confidence ciphertext normalization.
 - Implement systematic candidate generation pipelines (cipher families consistent with design ethos).
-- Integrate objective scoring (language fitness, crib placement, clue satisfaction).
-- Maintain reproducibility (config-driven, test harness for each hypothesis).
+- Integrate objective scoring (language fitness, crib placement, clue satisfaction, linguistic metrics).
+- Maintain reproducibility (config-driven, test harness & artifact lineage + attempt logs).
 
 ## 2. Canonical Data
 
@@ -17,124 +17,121 @@ Ciphertext (per sculpture transcription; spaces inserted for readability):
 OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT MZFPKWGDKZXTJCDIGKUHUAUEKCAR
 ```
 
-Length accounting (remove spaces) must be validated in code.
+Known plaintext cribs (confirmed by Sanborn) with expected start indices (0-based for analysis convenience):
 
-Known plaintext cribs (confirmed by Sanborn):
+| Plain | Expected Index | Cipher Segment |
+|-------|----------------|----------------|
+| EAST | 22 | (under investigation) |
+| NORTHEAST | 26 | QQPRNGKSS |
+| BERLIN | 64 | NYPVTT |
+| CLOCK | 70 | MZFPK |
 
-- Positions 22–25: EAST
-- Positions 26–34: NORTHEAST (cipher: QQPRNGKSS)
-- Positions 64–69: BERLIN (cipher: NYPVTT)
-- Positions 70–74: CLOCK (cipher: MZFPK) (Note: K self-maps)
-
-Open question: Are indices 1-based sculpture positions? We must harmonize indexing (decide zero vs one-based) in code.
+(Validate off-by-one vs public disclosures; harmonize before enforced positional scoring.)
 
 ## 3. Constraints & Observations
 
-- Multiple deliberate irregularities in K1–K3 (misspellings, omitted letter) suggest transcription artifacts are permissible.
-- K3 switched methodology (pure transposition vs Vigenère). Clues hint at a "change in methodology" again.
-- Presence of self-mapping letter (K -> K) in CLOCK suggests polyalphabetic system where coincidental alignment occurs (e.g., Vigenère variant) or homophonic / matrix cipher.
-- Bauer/Link/Molle conjecture: Hill cipher / matrix (presence of extra L in tableau line). Consider small matrix block size (2x2, 3x3, 5x5) over sanitized text.
-- Spatial clues (EAST, NORTHEAST, BERLIN CLOCK) imply directional / temporal semantics—potential key schedule derived from Berlin Clock state encoding (base-5/10 representation via lamp rows).
+- K1–K3 show deliberate anomalies → tolerate misspellings/nulls.
+- Clues suggest possible method shift (like K3 shift to pure transposition) → evaluate hybrid approaches (matrix + transposition + key-stream).
+- CLOCK self-map letter indicates potential polyalphabetic coincidence or matrix edge alignment.
+- Spatial/temporal clues (EAST/NORTHEAST/BERLIN CLOCK) reinforce directional/time-based key schedule hypothesis (Berlin Clock encoding route).
 
-## 4. Candidate Cipher Families
+## 4. Candidate Cipher Families (Tracked)
 
-1. Polyalphabetic (variant Vigenère / autokey / progressive key shifts)
-2. Fractionation + transposition (e.g., Bifid / Trifid hybrid using keyed square from tableau anomalies)
-3. Columnar/double transposition with inserted nulls aligning known cribs at given coordinates after rotation paths.
-4. Hill cipher (mod 26) applied to digraphs/trigraphs with a key matrix chosen to yield known crib mappings at target positions.
-5. Running-key using Berlin Clock pattern (daily seconds -> lamp states) as dynamic key stream.
-6. Mixed scheme: partial matrix substitution then route transposition (spiral, boustrophedon, knight’s tour) to produce clustering of directional words.
+1. Polyalphabetic / key-stream (Berlin Clock derived shifts). [IN PROGRESS]
+2. Columnar / double transposition with anchored cribs. [IN PROGRESS]
+3. Hill cipher (2x2, 3x3 constrained by cribs). [IN PROGRESS]
+4. Masking / null removal to expose latent structure. [COMPLETED (stage)]
+5. Hybrid matrix + transposition chain. [PLANNED]
+6. Progressive key (autokey/Berlin-lamp injection). [PLANNED]
 
-## 5. Initial Prioritization
+## 5. Prioritization Status
 
-High payoff/feasibility first:
-
-- A: Hill cipher small block search constrained by BERLIN/CLOCK mapping.
-- B: Columnar/double transposition with fixed crib anchoring (simulate insertion of cribs and solve for column order via constraint satisfaction).
-- C: Progressive Vigenère (shift pattern derived from Berlin Clock lamps) verifying selective plaintext emergence at known indices.
+| Priority | Item | Status |
+|----------|------|--------|
+| A | Hill cipher small block search (2x2 & 3x3 assemblies) | Expanded + pruning added |
+| B | Columnar / multi-crib positional transposition | Multi-crib stage added |
+| C | Berlin Clock key-stream enumeration | Implemented (full lamp & attempt logging) |
+| D | Masking/null heuristic | Completed |
+| E | Weighted multi-stage fusion | Completed |
+| F | Advanced linguistic metrics (entropy, wordlist hit rate) | Completed |
 
 ## 6. Data Normalization Tasks
 
-- Remove spaces & question marks; confirm final length.
-- Index mapping: produce dictionary of { plain_index_range: known_plain, cipher_range: cipher_segment }.
-- Validate segments align; if not, adjust offset hypothesis.
+DONE: normalization utilities; still ensure consistent indexing for positional scoring (verify EAST/NORTHEAST alignment). Pending: automatic index validation test.
 
-## 7. Scoring Components
+## 7. Scoring Components (Implemented)
 
-Implement in `analysis.py` expansions:
+- Unigram/bigram/trigram/quadgram additive log scores.
+- Chi-square penalty (scaled).
+- Crib bonus & positional crib bonus.
+- Index of coincidence, vowel ratio, letter coverage.
+- Letter entropy, repeating bigram fraction.
+- Wordlist hit rate, trigram entropy, bigram gap variance.
+- Weighted fusion (stage-normalized min-max).
+- Memoized combined score (LRU cache).
 
-- English frequency log-likelihood (unigram + bigram + trigram + quadgram where available).
-- Crib satisfaction score (proportion of cribs placed correctly).
-- Positional penalty (distance if crib misaligned but present).
-- Entropy measure post-decryption (expect moderate natural language entropy).
+## 8. Hill Cipher Path (Current State)
 
-Return composite fitness: weighted sum.
+- 2x2 key derivation from single & paired cribs.
+- 3x3 variant assembly (row/col/diag) + sliding window concatenations.
+- Partial score pruning for 3x3 candidates (reduce evaluation expense).
+- Attempt logging for each key attempt (pruned & successful) → persisted via composite run.
 
-## 8. Hill Cipher Path
+Next: Evaluate additional assembly heuristics (spiral, snake) and consider plaintext/cipher swapped orientation tests (P = K*C vs C = K*P) with small sample.
 
-Steps:
+## 9. Transposition Constraint Solver (Current State)
 
-1. Extract contiguous segments covering cribs; form linear equations for key matrix unknowns.
-2. If plaintext P and ciphertext C block relate via `C = K * P` (mod 26) or `P = K * C`, test orientation.
-3. Solve for K using invertible matrices; check determinant coprime to 26.
-4. Apply candidate K over full ciphertext; score result.
+- Standard & adaptive permutation search (sampling + prefix caching).
+- Multi-crib positional stage enumerating permutations satisfying window constraints.
+- Attempt logging at permutation level (search & adaptive).
 
-Potential challenge: Non-contiguous cribs may require guessed intervening plaintext.
+Next: Integrate simultaneous alignment scoring (weighted by rarity of alignment probability) and add route-transposition patterns.
 
-## 9. Transposition Constraint Solver
+## 10. Berlin Clock Key Stream (Current State)
 
-Approach:
+- Full lamp state encoding with quarter markers differentiation.
+- Dual-direction shift application (forward/backward) enumerated across time range.
+- Attempt logging per time-mode combination.
 
-- Assume plaintext length N; choose column width w.
-- Place known crib strings at target row/column positions after transposition inverse.
-- Solve column permutation that produces given cipher ordering; use backtracking + pruning.
-
-## 10. Berlin Clock Key Stream
-
-Berlin Clock encodes time via lamps (hours/5, hours, minutes/5, minutes, seconds). Map lamp states at hypothetical reference moment (e.g., dedication time, sunrise at coordinates, auction date) to numeric sequence; convert to shifts.
-
-- Derive shift array S.
-- Apply S mod 26 to ciphertext (forward/backward) attempting to reveal cribs at target positions.
+Next: Derive candidate reference times (historical events) and cluster high scoring intervals; refine by dynamic step reduction near promising hours.
 
 ## 11. Testing Infrastructure
 
-Add `tests/test_k4_hypotheses.py` skeleton with parametrized tests:
+Completed: Unit tests for scoring, Hill, transposition, Berlin Clock, masking, fusion, entropy metrics, positional constraints.
+Pending: Tests for attempt log persistence artifact and multi-crib stage correctness (positions captured). Add failure mode tests (pruned keys/perms recorded).
 
-- hill_cipher_candidate (assert cribs appear)
-- transposition_candidate (assert placement alignment)
-- berlin_clock_vigenere_candidate (assert substring matches)
+## 12. Workflow Log (Recent Updates)
 
-Each test should skip (`unittest.skip`) until implemented.
+- Added advanced linguistic metrics to scoring.
+- Introduced memoized scoring & pipeline profiling.
+- Implemented attempt logging + persistence (Hill, Clock, Transposition).
+- Added 3x3 Hill pruning via partial score threshold.
+- Added multi-crib positional transposition stage.
+- Updated README with new features and examples.
 
-## 12. Iterative Workflow (Status Update)
+## 13. Performance & Optimization
 
-1. Implement normalization & crib mapping utilities. (COMPLETED)
-2. Add Hill cipher solver (2x2, 3x3 brute constrained). (COMPLETED: `hill_cipher.py`, constraints in `hill_constraints.py`)
-3. Add transposition constraint solver prototype. (PARTIAL: basic columnar search + pruning; adaptive search implemented `search_columnar_adaptive` + stage)
-4. Add Berlin Clock key stream generator. (COMPLETED: basic + full lamp enumeration in `berlin_clock.py`)
-5. Produce top-N decrypt outputs & persist artifacts. (COMPLETED: JSON/CSV via `reporting.py`)
-6. Refine heuristics. (IN PROGRESS: positional crib bonus; weighted multi-stage fusion implemented; masking/null-removal stage implemented)
-7. Masking/null removal heuristic. (COMPLETED: `masking.py`, `make_masking_stage`)
-8. Weighted scoring fusion across stages. (COMPLETED: `normalize_scores`, `fuse_scores_weighted`)
-9. Upgrade quadgram data quality. (COMPLETED: `quadgrams_high_quality.tsv` preferred loader)
+Implemented: LRU caching, partial score pruning, prefix caching.
+Next: Profile hotspots for 3x3 key generation & multi-crib permutation enumeration; implement parallelization option (multiprocessing) for heavy search stages.
 
-## 15. Next Immediate Actions (Updated)
+## 14. Artifact & Reproducibility
 
-- Extend transposition constraints (anchor crib positions rather than pure permutation sampling).
-- Add entropy and spacing metrics to scoring for additional discriminators.
-- Integrate 3x3 Hill constraints (current constraints focus on 2x2 sets) and evaluate viability for crib alignment.
-- Enhance masking heuristic with frequency delta scoring (compare before/after removal effect per character class).
-- Add lineage metadata to artifacts (record stage + transformation chain for reproducibility).
+Implemented: Candidate JSON/CSV with metrics + transformation trace + lineage; attempt logs persisted in timestamped JSON.
+Next: Add compression option & integrate provenance hash of ciphertext + parameters.
+
+## 15. Updated Next Actions
+
+1. Add route / pattern transposition (spiral, diagonal) stage prototype.
+2. Expand 3x3 Hill assemblies (spiral, column zigzag) + orientation flip tests.
+3. Positional index validation test (ensure EAST/NORTHEAST offsets).
+4. Probability-weighted multi-crib scoring (rarity weighting vs simple bonus).
+5. Multiprocessing / parallel stage execution benchmarking.
+6. Failure mode tests for pruning (assert pruned recorded correctly).
+7. Fuse linguistic metrics (wordlist_hit_rate) into composite weight adaptation.
 
 ## 16. References
 
-(See README plus:)
-
-- Bauer, Link, Molle (2016) Matrix conjecture.
-- Bean (2021) Cryptodiagnosis of K4.
-- Wired (2010, 2014) clue releases.
-- NYT (2020) NORTHEAST clue.
-- Twitter (2020) EAST clue.
+(See README for links; add matrix conjecture, entropy references.)
 
 ---
-Prepared: 2025-10-20 (updated)
+Updated: 2025-10-20

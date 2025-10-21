@@ -22,8 +22,8 @@ Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos u
 ### ℹ️ K4: The unsolved mystery
 
 - **Status**: Unsolved.
-- **Implemented Toolkit**: See new K4 modules below (Hill cipher exploration, scoring, constraint pipeline).
-- **Next Focus**: Research masking techniques, positional/overlay hypotheses, layered transposition, and potential null insertion strategies (see CIA hints: `BERLIN`, `CLOCK`).
+- **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint pipeline, multi-stage fusion).
+- **Latest Additions**: Multi-crib positional transposition stage, attempt logging & persistence, advanced linguistic metrics, 3x3 Hill key pruning.
 
 ## Deliberate Misspellings / Anomalies
 
@@ -44,52 +44,54 @@ K2 contains systematic X (and some Y) insertions serving as alignment/null separ
 - **Test Suite** validating K1–K3 solutions ([learn more](https://en.wikipedia.org/wiki/Unit_testing))
 - **Frequency, n-gram, and crib-based scoring utilities** ([learn more](https://en.wikipedia.org/wiki/Frequency_analysis), [n-grams](https://en.wikipedia.org/wiki/N-gram), [cribs](https://en.wikipedia.org/wiki/Crib_(cryptanalysis)))
 - **Hill cipher (2x2 & 3x3)** encryption/decryption + key solving from crib segments ([learn more](https://en.wikipedia.org/wiki/Hill_cipher))
+- **3x3 Hill assembly variants & pruning** (row/col/diagonal constructions + partial score pruning) ([learn more](https://en.wikipedia.org/wiki/Hill_cipher))
 - **Constrained Hill key derivation** from `BERLIN` / `CLOCK` cribs (single & pairwise) with caching ([learn more](https://en.wikipedia.org/wiki/Crib_(cryptanalysis)))
-- **Modular pipeline architecture** (stage factory for Hill constraints) ([learn more](https://en.wikipedia.org/wiki/Pipeline_(computing)))
-- **Columnar transposition** search (with optional partial-score pruning) and crib-constrained inversion utilities ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher#Columnar_transposition))
-- **Extended scoring metrics**: chi-square, bigram/trigram/quadgram totals, index of coincidence, vowel ratio, letter coverage, baseline metrics ([chi-square](https://en.wikipedia.org/wiki/Chi-square_test), [index of coincidence](https://en.wikipedia.org/wiki/Index_of_coincidence))
-- **Positional crib weighting** (distance-window bonus) ([learn more](https://en.wikipedia.org/wiki/Crib_(cryptanalysis)))
-- **Berlin Clock shift hypothesis** scaffolding (full lamp enumeration utilities + pipeline stage factory) ([learn more](https://en.wikipedia.org/wiki/Mengenlehreuhr))
-- **Columnar transposition stage factory** (`make_transposition_stage`) for permutation search integration ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher))
-- **Adaptive transposition stage** (`make_transposition_adaptive_stage`) with sampling + prefix caching heuristics ([learn more](https://en.wikipedia.org/wiki/Heuristic))
-- **Masking/null-removal stage** (`make_masking_stage`) exploring structural padding elimination variants ([learn more](https://en.wikipedia.org/wiki/Null_cipher))
+- **Modular pipeline architecture** (stage factories for all hypothesis families) ([learn more](https://en.wikipedia.org/wiki/Pipeline_(computing)))
+- **Columnar transposition** search (partial-score pruning) and crib-constrained inversion utilities ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher#Columnar_transposition))
+- **Multi-crib positional transposition stage** (anchors multiple cribs simultaneously) ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher))
+- **Adaptive transposition search** (`make_transposition_adaptive_stage`) with sampling + prefix caching heuristics ([learn more](https://en.wikipedia.org/wiki/Heuristic))
+- **Masking/null-removal stage** exploring structural padding elimination variants ([learn more](https://en.wikipedia.org/wiki/Null_cipher))
+- **Berlin Clock shift hypothesis** (full lamp state enumeration + dual-direction application) ([learn more](https://en.wikipedia.org/wiki/Mengenlehreuhr))
 - **Weighted multi-stage fusion utilities** (`normalize_scores`, `fuse_scores_weighted`) for score aggregation ([learn more](https://en.wikipedia.org/wiki/Ensemble_learning))
 - **High-quality quadgram table** auto-loaded when present (`data/quadgrams_high_quality.tsv`) ([learn more](https://en.wikipedia.org/wiki/N-gram))
+- **Advanced linguistic metrics** (wordlist hit rate, trigram entropy, bigram gap variance, entropy, repeating bigram fraction) ([learn more](https://en.wikipedia.org/wiki/Entropy_(information_theory)))
+- **Memoized scoring** (LRU cache for repeated candidate evaluation) ([learn more](https://en.wikipedia.org/wiki/Cache_(computing)))
+- **Pipeline profiling** (per-stage duration metadata) ([learn more](https://en.wikipedia.org/wiki/Profiling_(computer_programming)))
+- **Transformation trace & lineage** (each candidate records stage + transformation chain) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
+- **Attempt logging & persistence** (Hill, Clock, Transposition permutations → timestamped JSON) ([learn more](https://en.wikipedia.org/wiki/Logging))
 - **Candidate reporting artifacts** (JSON + optional CSV summaries) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
 
-## K4 Analysis Toolkit (New Modules)
+## K4 Analysis Toolkit (New / Updated Modules)
 
-Located under `src/k4/` (see full roadmap in `roadmap.md`):
+Located under `src/k4/`:
 
-- `scoring.py` – frequencies, composite scoring, positional crib bonus, quadgram support
+- `scoring.py` – composite scoring, positional crib bonus, memoized scoring, advanced metrics
 - `hill_cipher.py` – Hill math & crib-based key solving
-- `hill_constraints.py` – constrained 2x2 key derivation + caching
-- `hill_search.py` – candidate batch scoring
-- `transposition.py` / `transposition_constraints.py` – permutation & crib-aware inversion (with pruning)
-- `cribs.py` – normalization / annotation
-- `berlin_clock.py` – preliminary & full clock shift generation (`full_clock_state`, `full_berlin_clock_shifts`, `enumerate_clock_shift_sequences`)
-- `pipeline.py` – `Pipeline`, `Stage`, `StageResult`, `make_hill_constraint_stage()`, `make_berlin_clock_stage()`, `make_transposition_stage()`, `make_transposition_adaptive_stage()`, `make_masking_stage()`
-- `masking.py` – null removal / run-collapsing variant generation and scoring
-- `composite.py` – aggregation + optional weighted fusion (see `run_composite_pipeline` with `weights`)
-
-Exports aggregated in `src/k4/__init__.py`.
+- `hill_constraints.py` – constrained 2x2 & multi-assembly 3x3 key derivation + pruning + attempt logging
+- `transposition.py` – columnar search (standard & adaptive) + attempt logging
+- `transposition_constraints.py` – crib positional anchoring (`search_with_multiple_cribs_positions`)
+- `berlin_clock.py` – clock shift sequence generation (full lamp state)
+- `pipeline.py` – stage factories (`make_hill_constraint_stage`, `make_transposition_stage`, `make_transposition_adaptive_stage`, `make_transposition_multi_crib_stage`, `make_masking_stage`, `make_berlin_clock_stage`)
+- `masking.py` – null removal / run collapsing variant generation
+- `composite.py` – multi-stage aggregation, weighted fusion, artifact + attempt log persistence
+- `attempt_logging.py` – persist Hill / Clock / Transposition attempt logs (`persist_attempt_logs`)
+- `reporting.py` – enriched candidate JSON/CSV with baseline metrics + trace
 
 ## Roadmap
 
-Detailed future plans (candidate reporting, Berlin Clock expansion, pruning heuristics, extended Hill search, masking strategies) have moved to `roadmap.md` → see the full document here: [Detailed Roadmap](./roadmap.md).
+See full document in `docs/K4_STRATEGY.md` – includes current completion status and next actions.
 
 ## Contributing
 
-Contribution guidelines moved to `CONTRIBUTING.md` → read them here: [Contributing Guide](./CONTRIBUTING.md).
+Contribution guidelines moved to `CONTRIBUTING.md` → [Contributing Guide](./CONTRIBUTING.md).
 
 ## Quick Start: Hill Constraint Stage
 
 ```python
 from src.k4 import Pipeline, make_hill_constraint_stage
-
-cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"  # sample beginning
+cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
 pipe = Pipeline([make_hill_constraint_stage()])
-result = pipe.run(cipher_k4)[0]  # StageResult
+result = pipe.run(cipher_k4)[0]
 for cand in result.metadata['candidates'][:5]:
     print(cand['source'], cand['score'], cand['text'][:50])
 ```
@@ -100,21 +102,30 @@ for cand in result.metadata['candidates'][:5]:
 from src.k4 import (
     make_hill_constraint_stage,
     make_transposition_adaptive_stage,
+    make_transposition_multi_crib_stage,
     make_masking_stage,
     make_berlin_clock_stage,
     run_composite_pipeline
 )
 
 cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
+positional_cribs = {
+    'EAST': [22],
+    'NORTHEAST': [26],
+    'BERLIN': [64],
+    'CLOCK': [70]
+}
 stages = [
     make_hill_constraint_stage(),
     make_transposition_adaptive_stage(min_cols=5, max_cols=6, sample_perms=200, partial_length=50),
+    make_transposition_multi_crib_stage(positional_cribs=positional_cribs, min_cols=5, max_cols=6),
     make_masking_stage(limit=15),
     make_berlin_clock_stage(step_seconds=10800, limit=20)
 ]
 weights = {
     'hill-constraint': 2.0,
     'transposition-adaptive': 1.2,
+    'transposition-pos-crib': 1.5,
     'masking': 1.0,
     'berlin-clock': 0.8,
 }
@@ -124,9 +135,17 @@ for c in res.get('fused', [])[:5]:
     print(c['stage'], c['fused_score'], c['text'][:50])
 ```
 
+## Attempt Logs Persistence
+
+```python
+from src.k4.attempt_logging import persist_attempt_logs
+path = persist_attempt_logs(out_dir='reports', label='K4', clear=True)
+print("Attempt log written:", path)
+```
+
 ## Scoring Metrics Snapshot
 
-Use `from src.k4 import baseline_stats` to inspect metrics for any candidate plaintext.
+Use `baseline_stats(text)` to inspect metrics including advanced linguistic features.
 
 ## How to Run
 
@@ -139,7 +158,7 @@ python -m unittest discover -s tests
 
 ## Data Sources
 
-Frequency & n-gram data in `data/` (TSV). High-quality quadgrams loaded automatically if `quadgrams_high_quality.tsv` exists (fallback to `quadgrams.tsv`). Fallback unigram distribution used if files absent.
+Frequency & n-gram data in `data/` (TSV). High-quality quadgrams loaded automatically if `quadgrams_high_quality.tsv` exists. Fallback unigram distribution used if files absent.
 
 ## License
 
@@ -151,3 +170,7 @@ See `LICENSE`.
 - [Kryptos Wiki](https://en.wikipedia.org/wiki/Kryptos)
 - [Vigenère Cipher Explanation](https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher)
 - [Kryptosfan Blog](https://kryptosfan.wordpress.com/k3/k3-solution-3/)
+- [Berlin Clock](https://en.wikipedia.org/wiki/Mengenlehreuhr)
+- [Hill Cipher](https://en.wikipedia.org/wiki/Hill_cipher)
+- [Index of Coincidence](https://en.wikipedia.org/wiki/Index_of_coincidence)
+- [Entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory))
