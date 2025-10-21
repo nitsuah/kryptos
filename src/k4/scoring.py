@@ -5,6 +5,7 @@ import json
 from collections import Counter
 from typing import Dict, Iterable, Sequence
 import math  # added
+from functools import lru_cache  # new import
 
 # Paths
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -173,6 +174,11 @@ def combined_plaintext_score(text: str) -> float:
     quad = quadgram_score(text) if QUADGRAMS else 0.0
     return bi + tri + quad - 0.05 * chi + crib_bonus(text)
 
+# Cached wrapper (memoization for repeated scoring of identical plaintexts)
+@lru_cache(maxsize=10000)
+def combined_plaintext_score_cached(text: str) -> float:
+    return combined_plaintext_score(text)
+
 def combined_plaintext_score_with_positions(text: str, positional: Dict[str, Sequence[int]], window: int = 5) -> float:
     """Extended combined score including positional crib bonus."""
     base = combined_plaintext_score(text)
@@ -241,7 +247,7 @@ def baseline_stats(text: str) -> Dict[str, float]:
         'trigram_score': trigram_score(text),
         'quadgram_score': quadgram_score(text) if QUADGRAMS else 0.0,
         'crib_bonus': crib_bonus(text),
-        'combined_score': combined_plaintext_score(text),
+        'combined_score': combined_plaintext_score(text),  # keep raw (non-cached) for baseline
         'index_of_coincidence': index_of_coincidence(text),
         'vowel_ratio': vowel_ratio(text),
         'letter_coverage': letter_coverage(text),
@@ -252,7 +258,7 @@ def baseline_stats(text: str) -> Dict[str, float]:
 __all__ = [
     'LETTER_FREQ','BIGRAMS','TRIGRAMS','CRIBS','QUADGRAMS',
     'chi_square_stat','bigram_score','trigram_score','crib_bonus','quadgram_score',
-    'combined_plaintext_score','segment_plaintext_scores',
+    'combined_plaintext_score','combined_plaintext_score_cached','segment_plaintext_scores',
     'index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats',
     'positional_crib_bonus','combined_plaintext_score_with_positions',
     'letter_entropy','repeating_bigram_fraction'

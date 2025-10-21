@@ -2,7 +2,7 @@
 from typing import List, Tuple, Iterable, Dict
 import itertools
 import random
-from .scoring import combined_plaintext_score
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score  # cached
 
 def apply_columnar_permutation(ciphertext: str, n_cols: int, perm: Tuple[int, ...]) -> str:
     """Attempt to invert a columnar transposition given a permutation of column indices.

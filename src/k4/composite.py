@@ -82,7 +82,10 @@ def run_composite_pipeline(
     aggregated = aggregate_stage_candidates(stage_results)[:limit]
     out: Dict[str, Any] = {
         'results': stage_results,
-        'aggregated': aggregated
+        'aggregated': aggregated,
+        'profile': {
+            'stage_durations': {r.name: r.metadata.get('duration') for r in stage_results}
+        }
     }
     # Build lineage list (stage names in order)
     lineage = [r.name for r in stage_results]

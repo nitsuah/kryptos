@@ -4,11 +4,12 @@ Defines modular transformation stages and execution framework.
 """
 from dataclasses import dataclass
 from typing import Callable, List, Dict, Any
+import time  # profiling
 from .hill_constraints import decrypt_and_score
-from .scoring import combined_plaintext_score
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score  # switch to cached
 from .berlin_clock import enumerate_clock_shift_sequences, apply_clock_shifts
-from .transposition import search_columnar, search_columnar_adaptive  # updated import
-from .masking import score_mask_variants  # new import
+from .transposition import search_columnar, search_columnar_adaptive
+from .masking import score_mask_variants
 
 @dataclass
 class StageResult:
@@ -38,7 +39,11 @@ class Pipeline:
         results: List[StageResult] = []
         current = ciphertext
         for stage in self.stages:
+            start = time.perf_counter()
             res = stage.func(current)
+            duration = time.perf_counter() - start
+            # attach duration profiling info
+            res.metadata['duration'] = duration
             results.append(res)
             current = res.output
         return results

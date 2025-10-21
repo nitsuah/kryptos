@@ -2,7 +2,7 @@
 from __future__ import annotations
 from typing import List, Tuple, Dict, Sequence
 import itertools
-from .scoring import combined_plaintext_score, positional_crib_bonus  # added positional bonus
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score, positional_crib_bonus
 from .cribs import normalize_cipher
 
 def _column_lengths(n: int, n_cols: int) -> List[int]:

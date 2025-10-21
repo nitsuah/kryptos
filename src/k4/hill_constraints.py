@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List, Dict, Tuple, Set
 from itertools import combinations, permutations
 from .hill_cipher import solve_2x2_key, hill_decrypt, matrix_inv_mod, ALPHABET
-from .scoring import combined_plaintext_score
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score  # cached
 
 # Example known cribs (plaintext -> cipher segment) from Kryptos K4 clues
 KNOWN_CRIBS = {
