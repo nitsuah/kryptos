@@ -15,7 +15,7 @@ from .hill_cipher import (
 )
 from .cribs import normalize_cipher, annotate_cribs
 from .berlin_clock import berlin_clock_shifts, apply_clock_shifts, full_clock_state, encode_clock_state, full_berlin_clock_shifts, enumerate_clock_shift_sequences
-from .transposition_constraints import invert_columnar, search_with_crib
+from .transposition_constraints import invert_columnar, search_with_crib, search_with_crib_at_position
 from .hill_search import score_decryptions
 from .hill_constraints import KNOWN_CRIBS, derive_candidate_keys, decrypt_and_score
 from .reporting import write_candidates_json, write_candidates_csv, generate_candidate_artifacts
@@ -38,7 +38,7 @@ __all__ += ['normalize_cipher','annotate_cribs']
 
 __all__ += ['berlin_clock_shifts','apply_clock_shifts']
 
-__all__ += ['invert_columnar','search_with_crib']
+__all__ += ['invert_columnar','search_with_crib','search_with_crib_at_position']
 
 __all__ += ['index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats','letter_entropy','repeating_bigram_fraction']
 
