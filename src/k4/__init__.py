@@ -19,7 +19,7 @@ from .transposition_constraints import invert_columnar, search_with_crib, search
 from .hill_search import score_decryptions
 from .hill_constraints import KNOWN_CRIBS, derive_candidate_keys, decrypt_and_score
 from .reporting import write_candidates_json, write_candidates_csv, generate_candidate_artifacts
-from .composite import aggregate_stage_candidates, run_composite_pipeline, normalize_scores, fuse_scores_weighted
+from .composite import aggregate_stage_candidates, run_composite_pipeline, normalize_scores, fuse_scores_weighted, adaptive_fusion_weights
 from .masking import DEFAULT_NULLS, mask_variants, score_mask_variants
 from .attempt_logging import persist_attempt_logs
 from .transposition_routes import generate_route_variants
@@ -65,5 +65,7 @@ __all__ += ['DEFAULT_NULLS','mask_variants','score_mask_variants']
 __all__ += ['persist_attempt_logs']
 
 __all__ += ['generate_route_variants']
+
+__all__ += ['adaptive_fusion_weights']
 
 # TODO: dynamic fusion weighting integrating wordlist_hit_rate & trigram_entropy (see strategy doc).

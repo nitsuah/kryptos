@@ -53,27 +53,26 @@ def _assemble_3x3_variants(seq: str) -> List[List[List[int]]]:
     if flat not in seen:
         variants.append(col_mat); seen.add(flat)
 
-    # diagonal emphasis (place first 3 on main diag, next 3 on anti-diag, rest row-major)
-    diag_mat = [[0]*3 for _ in range(3)]
-    pos_letters = list(letters)
-    if len(pos_letters) >= 9:
-        # first 3 -> main diag (0,0),(1,1),(2,2)
-        diag_positions = [(0,0),(1,1),(2,2)]
-        for i,(r,c) in enumerate(diag_positions):
-            diag_mat[r][c] = ALPHABET.index(pos_letters[i])
-        # next 3 -> anti diag (0,2),(1,1),(2,0)
-        anti_positions = [(0,2),(1,1),(2,0)]
-        for j,(r,c) in enumerate(anti_positions, start=3):
-            diag_mat[r][c] = ALPHABET.index(pos_letters[j])
-        # fill remaining cells row-major with remaining letters
-        fill_idx = 6
-        for r in range(3):
-            for c in range(3):
-                if diag_mat[r][c] == 0 and (r,c) not in [(1,1)]:  # center already set
-                    diag_mat[r][c] = ALPHABET.index(pos_letters[fill_idx]); fill_idx += 1
-        flat = tuple(v for rr in diag_mat for v in rr)
-        if flat not in seen:
-            variants.append(diag_mat); seen.add(flat)
+    # diagonal emphasis (first 3 main diag, next 2 anti-diag (excluding center), rest fill)
+    diag_mat = [[-1]*3 for _ in range(3)]  # use -1 sentinel
+    assigned: Set[Tuple[int, int]] = set()
+    # main diagonal (3 cells)
+    for i,(r,c) in enumerate([(0,0),(1,1),(2,2)]):
+        diag_mat[r][c] = ALPHABET.index(letters[i])
+        assigned.add((r,c))
+    # anti-diagonal excluding center (2 cells)
+    for j,(r,c) in enumerate([(0,2),(2,0)], start=3):
+        diag_mat[r][c] = ALPHABET.index(letters[j])
+        assigned.add((r,c))
+    # fill remaining cells row-major with remaining letters
+    fill_idx = 5
+    for r in range(3):
+        for c in range(3):
+            if (r,c) not in assigned:
+                diag_mat[r][c] = ALPHABET.index(letters[fill_idx]); fill_idx += 1
+    flat = tuple(v for rr in diag_mat for v in rr)
+    if flat not in seen:
+        variants.append(diag_mat); seen.add(flat)
 
     return variants
 
