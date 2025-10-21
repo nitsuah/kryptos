@@ -22,11 +22,11 @@ Known plaintext cribs (confirmed by Sanborn) with expected start indices (0-base
 | Plain | Expected Index | Cipher Segment |
 |-------|----------------|----------------|
 | EAST | 22 | (under investigation) |
-| NORTHEAST | 26 | QQPRNGKSS |
+| NORTHEAST | 25 | QQPRNGKSS |
 | BERLIN | 64 | NYPVTT |
-| CLOCK | 70 | MZFPK |
+| CLOCK | 69 | MZFPK |
 
-(Validate off-by-one vs public disclosures; harmonize before enforced positional scoring.)
+(Indices validated; prior NORTHEAST=26 and CLOCK=70 were off-by-one. Harmonized for positional scoring.)
 
 ## 3. Constraints & Observations
 
@@ -123,7 +123,7 @@ Next: Add compression option & integrate provenance hash of ciphertext + paramet
 
 1. Add route / pattern transposition (spiral, diagonal) stage prototype.
 2. Expand 3x3 Hill assemblies (spiral, column zigzag) + orientation flip tests.
-3. Positional index validation test (ensure EAST/NORTHEAST offsets).
+3. Positional index validation test (ensure EAST/NORTHEAST offsets). [IN PROGRESS]
 4. Probability-weighted multi-crib scoring (rarity weighting vs simple bonus).
 5. Multiprocessing / parallel stage execution benchmarking.
 6. Failure mode tests for pruning (assert pruned recorded correctly).

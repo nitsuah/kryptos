@@ -1,17 +1,38 @@
-"""Tests (skipped placeholders) for crib mapping."""
+"""Tests for crib mapping and positional index validation."""
 import unittest
-from src.k4 import annotate_cribs
+from typing import Dict, Any
+from src.k4 import annotate_cribs, normalize_cipher
+
+K4_CIPHER = normalize_cipher("OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT MZFPKWGDKZXTJCDIGKUHUAUEKCAR")
+
+EXPECTED_CRIB_INDICES: Dict[str, int] = {
+    'EAST': 22,
+    'NORTHEAST': 25,
+    'BERLIN': 64,
+    'CLOCK': 69,
+}
 
 class TestCribMapping(unittest.TestCase):
-    @unittest.skip("Crib mapping logic tests deferred")
-    def test_basic_annotation(self):
-        ct = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
-        mapping = {
-            'EAST': 'EAST',
-            'NORTHEAST': 'QQPRNGKSS'
+    def test_index_validation(self):
+        mapping: Dict[str, str] = {
+            'EAST': 'EAST',        # placeholder segment for presence; real released cipher form uncertain
+            'NORTHEAST': 'QQPRNGKSS',
+            'BERLIN': 'NYPVTT',
+            'CLOCK': 'MZFPK',
         }
-        ann = annotate_cribs(ct, mapping)
-        self.assertTrue(len(ann) >= 2)
+        ann = annotate_cribs(K4_CIPHER, mapping, one_based=False)
+        found: Dict[str, int | None] = {}
+        for entry in ann:
+            exp_pos = entry.get('expected_positions')
+            start_idx = exp_pos[0] if isinstance(exp_pos, tuple) else None
+            key = str(entry.get('plaintext'))
+            found[key] = start_idx
+        # Validate indices (excluding EAST which is placeholder)
+        self.assertEqual(found.get('NORTHEAST'), EXPECTED_CRIB_INDICES['NORTHEAST'])
+        self.assertEqual(found.get('BERLIN'), EXPECTED_CRIB_INDICES['BERLIN'])
+        self.assertEqual(found.get('CLOCK'), EXPECTED_CRIB_INDICES['CLOCK'])
+        for crib in ['NORTHEAST','BERLIN','CLOCK']:
+            self.assertIsNotNone(found.get(crib), f"Crib {crib} not located at expected index")
 
 if __name__ == '__main__':
     unittest.main()

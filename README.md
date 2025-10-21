@@ -23,7 +23,7 @@ Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos u
 
 - **Status**: Unsolved.
 - **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint pipeline, multi-stage fusion).
-- **Latest Additions**: Multi-crib positional transposition stage, attempt logging & persistence, advanced linguistic metrics, 3x3 Hill key pruning.
+- **Latest Additions**: Multi-crib positional transposition stage, attempt logging & persistence, advanced linguistic metrics, 3x3 Hill key pruning (partial_len/partial_min tunable in hill constraint stage).
 
 ## Deliberate Misspellings / Anomalies
 
@@ -111,9 +111,9 @@ from src.k4 import (
 cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
 positional_cribs = {
     'EAST': [22],
-    'NORTHEAST': [26],
+    'NORTHEAST': [25],  # corrected index
     'BERLIN': [64],
-    'CLOCK': [70]
+    'CLOCK': [69],      # corrected index
 }
 stages = [
     make_hill_constraint_stage(),
