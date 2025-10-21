@@ -24,7 +24,8 @@ def write_candidates_json(
     ciphertext: str,
     candidates: List[Dict],
     output_path: str = 'reports/k4_candidates.json',
-    limit: int = 50
+    limit: int = 50,
+    lineage: List[str] | None = None
 ) -> str:
     """Write detailed candidate list (limited) to JSON. Returns path."""
     _ensure_dir(os.path.dirname(output_path) or '.')
@@ -41,7 +42,9 @@ def write_candidates_json(
             'key': key,
             'key_hash': _key_hash(key) if key else None,
             'text': text,
-            'metrics': metrics
+            'metrics': metrics,
+            'origin_stage': stage,
+            'candidate_lineage': cand.get('lineage') or lineage
         })
     payload = {
         'cipher': cipher_label,
@@ -49,6 +52,7 @@ def write_candidates_json(
         'generated_at': datetime.utcnow().isoformat() + 'Z',
         'ciphertext_prefix': ciphertext[:50],
         'candidate_count': len(enriched),
+        'lineage': lineage,
         'candidates': enriched
     }
     with open(output_path, 'w', encoding='utf-8') as fh:
@@ -84,13 +88,14 @@ def generate_candidate_artifacts(
     candidates: List[Dict],
     out_dir: str = 'reports',
     limit: int = 50,
-    write_csv: bool = True
+    write_csv: bool = True,
+    lineage: List[str] | None = None
 ) -> Dict[str, str]:
     """Generate JSON (and optionally CSV) artifacts; return dict of paths."""
     _ensure_dir(out_dir)
     json_path = os.path.join(out_dir, 'k4_candidates.json')
     paths = {
-        'json': write_candidates_json(stage, cipher_label, ciphertext, candidates, json_path, limit)
+        'json': write_candidates_json(stage, cipher_label, ciphertext, candidates, json_path, limit, lineage=lineage)
     }
     if write_csv:
         csv_path = os.path.join(out_dir, 'k4_candidates.csv')

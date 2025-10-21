@@ -83,23 +83,25 @@ def run_composite_pipeline(
         'results': stage_results,
         'aggregated': aggregated
     }
+    # Build lineage list (stage names in order)
+    lineage = [r.name for r in stage_results]
     fused_candidates: List[Dict[str, Any]] = []
     if weights:
         candidates_for_fusion = normalize_scores(aggregated) if normalize else aggregated
         fused_candidates = fuse_scores_weighted(candidates_for_fusion, weights, use_normalized=normalize)
         out['fused'] = fused_candidates[:limit]
     if report:
-        # Choose artifact source list: fused if available else aggregated
         artifact_source = fused_candidates if fused_candidates else aggregated
         candidates_for_artifact = [
             {
                 'text': c['text'],
                 'score': c.get('fused_score', c['score']),
                 'source': f"{c.get('stage')}|{c.get('source')}",
-                'key': c.get('key')
+                'key': c.get('key'),
+                'lineage': lineage
             } for c in artifact_source
         ]
-        paths = generate_candidate_artifacts('composite', 'K4', ciphertext, candidates_for_artifact, out_dir=report_dir, limit=limit)
+        paths = generate_candidate_artifacts('composite', 'K4', ciphertext, candidates_for_artifact, out_dir=report_dir, limit=limit, lineage=lineage)
         out['artifacts'] = paths
     return out
 
