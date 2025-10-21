@@ -135,7 +135,6 @@ def run_composite_pipeline(
         out['attempt_log'] = attempt_path
     return out
 
-# TODO: Adaptive weighting: incorporate wordlist_hit_rate & trigram_entropy to adjust stage weights dynamically.
 
 def adaptive_fusion_weights(candidates: List[Dict[str, Any]]) -> Dict[str, float]:
     """Compute dynamic stage weights from top candidate linguistic metrics.
