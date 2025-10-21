@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, Dict, Any, Tuple
 from .pipeline import Pipeline, Stage, StageResult
 from .reporting import generate_candidate_artifacts
+from .attempt_logging import persist_attempt_logs  # new import
 
 def aggregate_stage_candidates(results: List[StageResult]) -> List[Dict[str, Any]]:
     """Aggregate candidates from multiple StageResults, annotate with stage name."""
@@ -108,6 +109,9 @@ def run_composite_pipeline(
         ]
         paths = generate_candidate_artifacts('composite', 'K4', ciphertext, candidates_for_artifact, out_dir=report_dir, limit=limit, lineage=lineage)
         out['artifacts'] = paths
+        # persist attempt logs
+        attempt_path = persist_attempt_logs(out_dir=report_dir, label='K4', clear=True)
+        out['attempt_log'] = attempt_path
     return out
 
 __all__ = ['aggregate_stage_candidates','run_composite_pipeline','normalize_scores','fuse_scores_weighted']

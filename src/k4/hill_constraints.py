@@ -12,6 +12,13 @@ KNOWN_CRIBS = {
 }
 
 _cache_holder: Dict[str, List[Dict]] = {}
+_hill_attempts: List[Dict] = []
+
+def get_hill_attempt_log(clear: bool = False) -> List[Dict]:
+    out = list(_hill_attempts)
+    if clear:
+        _hill_attempts.clear()
+    return out
 
 # --- 3x3 helpers (refined) -------------------------------------------------
 
@@ -155,7 +162,7 @@ def derive_candidate_keys() -> List[Dict]:
     _cache_holder['keys'] = keys
     return keys
 
-def decrypt_and_score(ciphertext: str) -> List[Dict]:
+def decrypt_and_score(ciphertext: str, prune_3x3: bool = True, partial_len: int = 60, partial_min: float = -800.0) -> List[Dict]:
     """Decrypt ciphertext using candidate keys and score results.
     Each result dict: {'key': key_matrix, 'source': source, 'score': score, 'text': decrypted}.
     """
@@ -165,14 +172,27 @@ def decrypt_and_score(ciphertext: str) -> List[Dict]:
     for info in key_infos:
         k = info['key']
         dec = hill_decrypt(ciphertext, k)
-        if dec and dec not in seen_texts:
-            seen_texts.add(dec)
-            results.append({
-                'key': k, 'source': info['source'], 'size': info.get('size', len(k)),
-                'score': combined_plaintext_score(dec), 'text': dec,
-                'trace': [{'stage': 'hill', 'transformation': f"key:{info['source']}", 'size': info.get('size', len(k))}]
-            })
+        attempt_entry = {'source': info['source'], 'size': info.get('size', len(k)), 'key': k, 'ok': bool(dec)}
+        if dec:
+            if prune_3x3 and info.get('size') == 3:
+                partial = dec[:partial_len]
+                pscore = combined_plaintext_score(partial)
+                attempt_entry['partial_score'] = pscore
+                if pscore < partial_min:
+                    attempt_entry['pruned'] = True
+                    _hill_attempts.append(attempt_entry)
+                    continue
+            if dec not in seen_texts:
+                seen_texts.add(dec)
+                score = combined_plaintext_score(dec)
+                attempt_entry['score'] = score
+                results.append({
+                    'key': k, 'source': info['source'], 'size': info.get('size', len(k)),
+                    'score': score, 'text': dec,
+                    'trace': [{'stage': 'hill', 'transformation': f"key:{info['source']}", 'size': info.get('size', len(k))}]
+                })
+        _hill_attempts.append(attempt_entry)
     results.sort(key=lambda r: r['score'], reverse=True)
     return results
 
-__all__ = ['KNOWN_CRIBS', 'derive_candidate_keys', 'decrypt_and_score']
+__all__ = ['KNOWN_CRIBS', 'derive_candidate_keys', 'decrypt_and_score', 'get_hill_attempt_log']
