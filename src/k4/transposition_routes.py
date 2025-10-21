@@ -73,6 +73,22 @@ _ROUTE_FUNCS: Dict[str, Callable[[List[List[str]]], str]] = {
 }
 
 def generate_route_variants(ciphertext: str, cols_min: int = 5, cols_max: int = 8, routes: Tuple[str, ...] = ('spiral','boustrophedon','diagonal')) -> List[Dict]:
+    """
+    Generate transposition route variants of the given ciphertext.
+
+    Args:
+        ciphertext (str): The input ciphertext to be arranged and read out.
+        cols_min (int, optional): Minimum number of columns for the grid. Defaults to 5.
+        cols_max (int, optional): Maximum number of columns for the grid. Defaults to 8.
+        routes (Tuple[str, ...], optional): Traversal patterns to use. Defaults to ('spiral','boustrophedon','diagonal').
+
+    Returns:
+        List[Dict]: A list of dictionaries, each with the following keys:
+            - 'route' (str): The name of the traversal pattern used.
+            - 'cols' (int): The number of columns in the grid.
+            - 'score' (float): The score assigned to the resulting plaintext.
+            - 'text' (str): The resulting plaintext after applying the route.
+    """
     results: List[Dict] = []
     for cols in range(cols_min, cols_max + 1):
         grid = _to_grid(ciphertext, cols)
