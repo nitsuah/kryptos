@@ -3,7 +3,7 @@
 Defines modular transformation stages and execution framework.
 """
 from dataclasses import dataclass
-from typing import Callable, List, Dict, Any, Sequence
+from typing import Callable, List, Dict, Any, Sequence, Tuple  # added Tuple
 import time
 from .hill_constraints import decrypt_and_score, get_hill_attempt_log  # added accessor
 from .scoring import combined_plaintext_score_cached as combined_plaintext_score
