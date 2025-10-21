@@ -9,11 +9,11 @@
 - [x] 5. Validate logging persistence on sample attempt (attempt_log.jsonl, summary.json).
 - [x] 6. Run tiny end-to-end sample with trivial cipher slice.
 - [x] 7. Add parallel/batch execution stub (hill variants parameter diversification).
-- [ ] 8. Prepare tuning script/notebook for hill & transposition parameter sweeps.
-- [ ] 9. Add artifact CSV export per stage (top candidates).
-- [ ] 10. Implement adaptive gating refinement (dynamic threshold adjustment based on prior stage deltas).
-- [ ] 11. Performance counters (candidates/ms, score bucket distribution) integrated into summary.
-- [ ] 12. Fallback n-gram loader test (simulate missing files and verify graceful defaults).
+- [x] 8. Prepare tuning script/notebook for hill & transposition parameter sweeps. (tune_pipeline.py scaffold)
+- [x] 9. Add artifact CSV export per stage (top candidates). (stage_top_candidates.csv)
+- [x] 10. Implement adaptive gating refinement (dynamic threshold adjustment based on prior stage deltas). (dynamic adjustments added)
+- [x] 11. Performance counters (candidates/ms, score bucket distribution) integrated into summary.
+- [x] 12. Fallback n-gram loader test (simulate missing files and verify graceful defaults). (test_k4_scoring_fallback.py)
 
 ## Execution Kickoff (Focus Block)
 
@@ -77,11 +77,11 @@ Durability:
 - [x] Parallel hill variant metadata test.
 - [x] Composite pipeline sample dry-run (scripts/run_pipeline_sample.py).
 - [x] Artifact directory creation + summary writer.
-- [ ] Positional crib bonus test coverage.
-- [ ] N-gram fallback simulation test.
-- [ ] Artifact CSV export implementation + test.
-- [ ] Tuning notebook/script scaffold (parameter sweep).
-- [ ] Adaptive gating dynamic threshold experiment.
+- [x] Positional crib bonus test coverage.
+- [x] N-gram fallback simulation test.
+- [x] Artifact CSV export implementation + test.
+- [x] Tuning notebook/script scaffold (parameter sweep).
+- [x] Adaptive gating dynamic threshold experiment.
 
 Integration Order (Updated Progress)
 

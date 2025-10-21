@@ -40,6 +40,8 @@ class PipelineConfig:
 class PipelineExecutor:
     def __init__(self, config: PipelineConfig):
         self.config = config
+        # Track dynamic threshold adjustments per stage
+        self._dynamic_thresholds: dict[str, float] = {}
 
     # ---------------- Internal helpers -----------------
     def _artifact_dir(self) -> str:
@@ -216,12 +218,47 @@ class PipelineExecutor:
                     self._write_attempt_line(attempt_fh, stage.name, cand, rank)
 
             # Adaptive gating: if score below threshold of this stage, optionally skip next gated stage(s)
-            thresh = self.config.adaptive_thresholds.get(stage.name)
-            if thresh is not None and result.score < thresh:
-                # If next stage is adaptive transposition, we may still run it but mark gating fail
+            base_thresh = self.config.adaptive_thresholds.get(stage.name)
+            dyn_adjust = self._dynamic_thresholds.get(stage.name)
+            effective_thresh = base_thresh
+            if base_thresh is not None and dyn_adjust is not None:
+                # Combine base with dynamic adjustment (bounded)
+                effective_thresh = base_thresh + dyn_adjust
+            if effective_thresh is not None and result.score < effective_thresh:
                 result.metadata['adaptive_gate_pass'] = False
+                result.metadata['adaptive_gate_threshold'] = effective_thresh
             else:
                 result.metadata['adaptive_gate_pass'] = True
+                result.metadata['adaptive_gate_threshold'] = effective_thresh
+
+            # Dynamic threshold update heuristic:
+            # If stage produced many candidates with high mean score, raise threshold slightly for next time.
+            # If stage underperformed (few candidates or low mean), lower threshold to avoid over-pruning.
+            if candidates:
+                raw_scores = [c.get('score', 0.0) for c in candidates]
+                mean_score = statistics.fmean(raw_scores)
+                # Compute delta relative to existing threshold (if any)
+                if base_thresh is not None:
+                    delta = mean_score - base_thresh
+                    # Scale adjustment: small fraction of delta, bounded
+                    adjust = max(-50.0, min(50.0, delta * 0.05))
+                    prev = self._dynamic_thresholds.get(stage.name, 0.0)
+                    new_adj = prev + adjust
+                    # Bound cumulative adjustment
+                    new_adj = max(-base_thresh * 0.5, min(base_thresh * 0.5, new_adj))
+                    self._dynamic_thresholds[stage.name] = new_adj
+                    result.metadata['dynamic_threshold_adjust'] = new_adj
+                else:
+                    result.metadata['dynamic_threshold_adjust'] = None
+            else:
+                # Penalize threshold if no candidates; encourage easier future gating
+                if base_thresh is not None:
+                    prev = self._dynamic_thresholds.get(stage.name, 0.0)
+                    new_adj = prev - (base_thresh * 0.05)
+                    self._dynamic_thresholds[stage.name] = new_adj
+                    result.metadata['dynamic_threshold_adjust'] = new_adj
+                else:
+                    result.metadata['dynamic_threshold_adjust'] = None
 
             # Prepare text for next stage: use best candidate output if available else stage output
             if pruned:
@@ -282,6 +319,8 @@ class PipelineExecutor:
                     'candidate_count': r.metadata.get('candidate_count'),
                     'pruned_count': r.metadata.get('pruned_count'),
                     'adaptive_gate_pass': r.metadata.get('adaptive_gate_pass'),
+                    'adaptive_gate_threshold': r.metadata.get('adaptive_gate_threshold'),
+                    'dynamic_threshold_adjust': r.metadata.get('dynamic_threshold_adjust'),
                 }
                 for r in all_stage_results
             ],
@@ -291,6 +330,7 @@ class PipelineExecutor:
             'performance': stage_perf,
             'score_bucket_edges': bucket_edges,
             'artifact_csv': os.path.basename(csv_path),
+            'dynamic_thresholds_final': self._dynamic_thresholds,
         }
         with open(os.path.join(artifact_dir, 'summary.json'), 'w', encoding='utf-8') as fh:
             json.dump(summary, fh, indent=2)

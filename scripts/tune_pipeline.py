@@ -95,6 +95,7 @@ def run_sweep(ciphertext: str, base_config: PipelineConfig, param_grid: dict[str
         'pruning_top_n',
         'candidate_cap_per_stage',
         'parallel_hill_variants',
+        'adaptive_thresh_hill',
         'best_stage_score',
         'wall_clock_seconds',
     ]
@@ -112,11 +113,19 @@ def run_sweep(ciphertext: str, base_config: PipelineConfig, param_grid: dict[str
                     'parallel_hill_variants',
                     [base_config.parallel_hill_variants],
                 ):
+                    for adaptive_thresh_hill in param_grid.get('adaptive_thresh_hill', ['']):
+                        adaptive_map = {}
+                        if str(adaptive_thresh_hill).strip():
+                            try:
+                                adaptive_map['hill'] = float(adaptive_thresh_hill)
+                            except ValueError:
+                                adaptive_map['hill'] = base_config.adaptive_thresholds.get('hill', 0.0)
                     cfg = replace(
                         base_config,
                         pruning_top_n=int(pruning_top_n),
                         candidate_cap_per_stage=int(candidate_cap_per_stage),
                         parallel_hill_variants=int(parallel_hill_variants),
+                        adaptive_thresholds=adaptive_map if adaptive_map else base_config.adaptive_thresholds,
                         ordering=build_default_order(),  # rebuild ordering to ensure fresh stage closures
                     )
                     executor = PipelineExecutor(cfg)
@@ -129,6 +138,7 @@ def run_sweep(ciphertext: str, base_config: PipelineConfig, param_grid: dict[str
                             cfg.pruning_top_n,
                             cfg.candidate_cap_per_stage,
                             cfg.parallel_hill_variants,
+                            adaptive_map.get('hill') if adaptive_map else '',
                             summary.get('best_stage_score'),
                             elapsed,
                         ],
@@ -148,7 +158,10 @@ def parse_args() -> argparse.Namespace:
         '--sweeps',
         type=str,
         nargs='*',
-        help='Param sweeps like pruning_top_n=10,15 candidate_cap_per_stage=30,50 parallel_hill_variants=1,3',
+        help=(
+            'Param sweeps like pruning_top_n=10,15 candidate_cap_per_stage=30,50 '
+            'parallel_hill_variants=1,3 adaptive_thresh_hill=500,800'
+        ),
         default=[],
     )
     return parser.parse_args()
