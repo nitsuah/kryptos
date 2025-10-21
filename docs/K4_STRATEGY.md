@@ -108,6 +108,8 @@ Pending: Tests for attempt log persistence artifact and multi-crib stage correct
 - Added 3x3 Hill pruning via partial score threshold.
 - Added multi-crib positional transposition stage.
 - Updated README with new features and examples.
+- Added automated crib index validation test.
+- Implemented adaptive fusion weighting (wordlist_hit_rate + trigram_entropy heuristics).
 
 ## 13. Performance & Optimization
 
@@ -123,15 +125,15 @@ Next: Add compression option & integrate provenance hash of ciphertext + paramet
 
 1. Add route / pattern transposition (spiral, diagonal) stage prototype.
 2. Expand 3x3 Hill assemblies (spiral, column zigzag) + orientation flip tests.
-3. Positional index validation test (ensure EAST/NORTHEAST offsets). [IN PROGRESS]
+3. Positional index validation test (ensure EAST/NORTHEAST offsets). [COMPLETED]
 4. Probability-weighted multi-crib scoring (rarity weighting vs simple bonus).
 5. Multiprocessing / parallel stage execution benchmarking.
 6. Failure mode tests for pruning (assert pruned recorded correctly).
-7. Fuse linguistic metrics (wordlist_hit_rate) into composite weight adaptation.
+7. Refine adaptive fusion weighting thresholds (entropy band & bonuses).
 
 ## 16. References
 
 (See README for links; add matrix conjecture, entropy references.)
 
 ---
-Updated: 2025-10-20
+Updated: 2023-10-20

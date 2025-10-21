@@ -44,13 +44,16 @@ if __name__ == "__main__":
         CIPHER_K4,
         stages,
         report=True,
-        weights=WEIGHTS,
+        weights=None,  # override manual weights
         normalize=True,
+        adaptive=True,  # enable adaptive weighting
         limit=40
     )
     attempt_path = persist_attempt_logs(out_dir='reports', label='K4', clear=True)
     print("Artifacts written. Attempt log:", attempt_path)
     fused = result.get('fused', [])
+    print("Adaptive weights diagnostics:")
+    print(result.get('profile', {}).get('adaptive_diagnostics'))
     print("Top fused candidates:")
     for cand in fused[:5]:
         print(cand['stage'], round(cand['fused_score'], 2), cand['text'][:60])

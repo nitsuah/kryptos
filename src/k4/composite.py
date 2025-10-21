@@ -4,6 +4,7 @@ from typing import List, Dict, Any, Tuple
 from .pipeline import Pipeline, Stage, StageResult
 from .reporting import generate_candidate_artifacts
 from .attempt_logging import persist_attempt_logs  # new import
+from .scoring import wordlist_hit_rate, trigram_entropy  # ensure metrics imported
 
 def aggregate_stage_candidates(results: List[StageResult]) -> List[Dict[str, Any]]:
     """Aggregate candidates from multiple StageResults, annotate with stage name."""
@@ -40,8 +41,9 @@ def normalize_scores(candidates: List[Dict[str, Any]], key: str = 'score') -> Li
         vals = [g.get(key, 0.0) for g in group]
         mn, mx = _min_max(vals)
         span = mx - mn if mx != mn else 1.0
+        all_equal = mx == mn
         for g in group:
-            ns = (g.get(key, 0.0) - mn) / span
+            ns = 0.5 if all_equal else (g.get(key, 0.0) - mn) / span
             new = dict(g)
             new['norm_score'] = ns
             out.append(new)
@@ -71,7 +73,8 @@ def run_composite_pipeline(
     report_dir: str = 'reports',
     limit: int = 100,
     weights: Dict[str, float] | None = None,
-    normalize: bool = True
+    normalize: bool = True,
+    adaptive: bool = False
 ) -> Dict[str, Any]:
     """Run multiple stages, aggregate candidates, optionally write artifacts and apply weighted fusion.
     weights: mapping of stage name to multiplier; if provided fused ranking appended.
@@ -91,6 +94,25 @@ def run_composite_pipeline(
     # Build lineage list (stage names in order)
     lineage = [r.name for r in stage_results]
     fused_candidates: List[Dict[str, Any]] = []
+    # If adaptive requested, compute weights dynamically (overrides provided weights)
+    if adaptive:
+        weights = adaptive_fusion_weights(aggregated)
+        metrics_samples = [{'stage': c['stage'], 'wl': wordlist_hit_rate(c['text']), 'ent': trigram_entropy(c['text'])} for c in aggregated]
+        by_stage: Dict[str, List[Dict[str, float]]] = {}
+        for m in metrics_samples:
+            by_stage.setdefault(m['stage'], []).append(m)
+        diag: Dict[str, Dict[str, float]] = {}
+        for stage, arr in by_stage.items():
+            wls = sorted(v['wl'] for v in arr)
+            ents = sorted(v['ent'] for v in arr)
+            mid_wl = wls[len(wls)//2]
+            mid_ent = ents[len(ents)//2]
+            diag[stage] = {
+                'median_wordlist_hit_rate': mid_wl,
+                'median_trigram_entropy': mid_ent,
+                'adaptive_weight': weights.get(stage, 1.0)
+            }
+        out['profile']['adaptive_diagnostics'] = diag
     if weights:
         candidates_for_fusion = normalize_scores(aggregated) if normalize else aggregated
         fused_candidates = fuse_scores_weighted(candidates_for_fusion, weights, use_normalized=normalize)
@@ -104,14 +126,66 @@ def run_composite_pipeline(
                 'source': f"{c.get('stage')}|{c.get('source')}",
                 'key': c.get('key'),
                 'lineage': lineage,
-                'trace': c.get('trace')  # include trace
+                'trace': c.get('trace')
             } for c in artifact_source
         ]
         paths = generate_candidate_artifacts('composite', 'K4', ciphertext, candidates_for_artifact, out_dir=report_dir, limit=limit, lineage=lineage)
         out['artifacts'] = paths
-        # persist attempt logs
         attempt_path = persist_attempt_logs(out_dir=report_dir, label='K4', clear=True)
         out['attempt_log'] = attempt_path
     return out
 
-__all__ = ['aggregate_stage_candidates','run_composite_pipeline','normalize_scores','fuse_scores_weighted']
+# TODO: Adaptive weighting: incorporate wordlist_hit_rate & trigram_entropy to adjust stage weights dynamically.
+
+def adaptive_fusion_weights(candidates: List[Dict[str, Any]]) -> Dict[str, float]:
+    """Compute dynamic stage weights from top candidate linguistic metrics.
+    Heuristic:
+      - Base weight = 1.0
+      - +0.30 if top candidate wordlist_hit_rate > median of stage tops
+      - +0.20 if trigram_entropy in [3.0, 5.2] (plausible English band)
+      - -0.15 if trigram_entropy outside that band
+      - +0.10 if candidate raw score in top 10% of all aggregated scores
+      - Clamp weights to [0.3, 2.5]
+    Returns mapping stage->weight.
+    """
+    if not candidates:
+        return {}
+    # Identify top candidate per stage (highest raw score)
+    by_stage: Dict[str, Dict[str, Any]] = {}
+    all_scores: List[float] = []
+    for c in candidates:
+        sc = c.get('score', 0.0)
+        all_scores.append(sc)
+        stage = c['stage']
+        if stage not in by_stage or sc > by_stage[stage].get('score', -1e9):
+            by_stage[stage] = c
+    # Compute metrics
+    tops = list(by_stage.values())
+    wl_rates = [wordlist_hit_rate(t['text']) for t in tops]
+    median_wl = sorted(wl_rates)[len(wl_rates)//2]
+    all_scores.sort(reverse=True)
+    top_cutoff_index = max(1, int(0.1 * len(all_scores))) - 1
+    top_cutoff_score = all_scores[top_cutoff_index]
+    weights: Dict[str, float] = {}
+    for stage, cand in by_stage.items():
+        w = 1.0
+        wl = wordlist_hit_rate(cand['text'])
+        ent = trigram_entropy(cand['text'])
+        raw_score = cand.get('score', 0.0)
+        if wl > median_wl:
+            w += 0.30
+        if 3.0 <= ent <= 5.2:
+            w += 0.20
+        else:
+            w -= 0.15
+        if raw_score >= top_cutoff_score:
+            w += 0.10
+        # clamp
+        if w < 0.3:
+            w = 0.3
+        if w > 2.5:
+            w = 2.5
+        weights[stage] = round(w, 3)
+    return weights
+
+__all__ = ['aggregate_stage_candidates','run_composite_pipeline','normalize_scores','fuse_scores_weighted', 'adaptive_fusion_weights']

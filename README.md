@@ -60,6 +60,7 @@ K2 contains systematic X (and some Y) insertions serving as alignment/null separ
 - **Transformation trace & lineage** (each candidate records stage + transformation chain) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
 - **Attempt logging & persistence** (Hill, Clock, Transposition permutations → timestamped JSON) ([learn more](https://en.wikipedia.org/wiki/Logging))
 - **Candidate reporting artifacts** (JSON + optional CSV summaries) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
+- **Adaptive fusion weighting** (optional `adaptive=True` in composite run) leveraging wordlist hit rate & trigram entropy heuristics.
 
 ## K4 Analysis Toolkit (New / Updated Modules)
 
@@ -129,7 +130,8 @@ weights = {
     'masking': 1.0,
     'berlin-clock': 0.8,
 }
-res = run_composite_pipeline(cipher_k4, stages, report=True, weights=weights, normalize=True)
+res = run_composite_pipeline(cipher_k4, stages, report=True, normalize=True, adaptive=True)
+print("Adaptive weights:", res['profile'].get('adaptive_diagnostics'))
 print("Top fused candidates:")
 for c in res.get('fused', [])[:5]:
     print(c['stage'], c['fused_score'], c['text'][:50])
