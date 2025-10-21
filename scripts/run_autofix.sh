@@ -1,4 +1,2 @@
 #!/usr/bin/env bash
-set -euo pipefail
-python "$(dirname "$0")/auto_fix_spacing.py"
-pre-commit run --all-files || true
+echo "Deprecated: use pre-commit directly or pep8_spacing_autofix.py."
