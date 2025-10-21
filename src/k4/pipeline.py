@@ -51,7 +51,7 @@ def make_hill_constraint_stage(name: str = 'hill-constraint') -> Stage:
     """
     def _run(ct: str) -> StageResult:
         candidates = decrypt_and_score(ct)
-        best = candidates[0] if candidates else {'text': ct, 'score': combined_plaintext_score(ct), 'key': None}
+        best = candidates[0] if candidates else {'text': ct, 'score': combined_plaintext_score(ct), 'key': None, 'trace': []}
         return StageResult(name=name, output=best['text'], metadata={'key': best.get('key'), 'candidates': candidates}, score=best['score'])
     return Stage(name=name, func=_run)
 
@@ -65,15 +65,15 @@ def make_berlin_clock_stage(name: str = 'berlin-clock', step_seconds: int = 3600
         cands: List[Dict[str, Any]] = []
         for entry in seqs:
             shifts = entry['shifts']
-            # Try both directions (encrypt-like and decrypt-like application)
             dec_forward = apply_clock_shifts(ct, shifts, decrypt=True)
             dec_backward = apply_clock_shifts(ct, shifts, decrypt=False)
             for mode, txt in [('forward', dec_forward), ('backward', dec_backward)]:
                 score = combined_plaintext_score(txt)
-                cands.append({'time': entry['time'], 'mode': mode, 'shifts': shifts, 'text': txt, 'score': score})
+                trans_label = f"clock:{mode}:{entry['time']}"
+                cands.append({'time': entry['time'], 'mode': mode, 'shifts': shifts, 'text': txt, 'score': score, 'trace': [{'stage': name, 'transformation': trans_label, 'shifts': shifts}]})
         cands.sort(key=lambda c: c['score'], reverse=True)
         top = cands[:limit]
-        best = top[0] if top else {'text': ct, 'score': combined_plaintext_score(ct)}
+        best = top[0] if top else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
         return StageResult(name=name, output=best['text'], metadata={'candidates': top}, score=best['score'])
     return Stage(name=name, func=_run)
 
@@ -102,7 +102,10 @@ def make_transposition_stage(
             partial_length=partial_length,
             partial_min_score=partial_min_score
         )
-        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct)}
+        # inject trace
+        for c in cands:
+            c['trace'] = [{'stage': name, 'transformation': f"colperm:{c['cols']}:{c['perm']}", 'cols': c['cols'], 'perm': c['perm']}]
+        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
         return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
     return Stage(name=name, func=_run)
 
@@ -131,7 +134,9 @@ def make_transposition_adaptive_stage(
             prefix_cache_max=prefix_cache_max,
             early_stop_threshold=early_stop_threshold
         )
-        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct)}
+        for c in cands:
+            c['trace'] = [{'stage': name, 'transformation': f"colperm-adapt:{c['cols']}:{c['perm']}", 'cols': c['cols'], 'perm': c['perm'], 'partial': c.get('partial')}]
+        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
         return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
     return Stage(name=name, func=_run)
 
@@ -139,7 +144,9 @@ def make_masking_stage(name: str = 'masking', null_chars=None, limit: int = 25) 
     """Create a stage that generates and scores masking/null-removal variants."""
     def _run(ct: str) -> StageResult:
         cands = score_mask_variants(ct, null_chars)
-        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct)}
+        for c in cands:
+            c['trace'] = [{'stage': name, 'transformation': f"mask:{c.get('removed','')}"}]
+        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
         return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
     return Stage(name=name, func=_run)
 

@@ -18,7 +18,8 @@ def aggregate_stage_candidates(results: List[StageResult]) -> List[Dict[str, Any
                 'key': c.get('key'),
                 'time': c.get('time'),
                 'mode': c.get('mode'),
-                'shifts': c.get('shifts')
+                'shifts': c.get('shifts'),
+                'trace': c.get('trace')  # propagate trace
             })
     agg.sort(key=lambda x: x.get('score', 0.0), reverse=True)
     return agg
@@ -98,7 +99,8 @@ def run_composite_pipeline(
                 'score': c.get('fused_score', c['score']),
                 'source': f"{c.get('stage')}|{c.get('source')}",
                 'key': c.get('key'),
-                'lineage': lineage
+                'lineage': lineage,
+                'trace': c.get('trace')  # include trace
             } for c in artifact_source
         ]
         paths = generate_candidate_artifacts('composite', 'K4', ciphertext, candidates_for_artifact, out_dir=report_dir, limit=limit, lineage=lineage)

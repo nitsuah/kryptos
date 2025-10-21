@@ -44,7 +44,8 @@ def write_candidates_json(
             'text': text,
             'metrics': metrics,
             'origin_stage': stage,
-            'candidate_lineage': cand.get('lineage') or lineage
+            'candidate_lineage': cand.get('lineage') or lineage,
+            'trace': cand.get('trace')  # new field
         })
     payload = {
         'cipher': cipher_label,
