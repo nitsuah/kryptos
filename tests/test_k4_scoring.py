@@ -1,7 +1,8 @@
 """
  Unit tests for K4 scoring functions.
 """
-import unittest, random
+import unittest
+import random
 from src.k4 import combined_plaintext_score
 
 class TestK4Scoring(unittest.TestCase):
