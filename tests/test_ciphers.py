@@ -1,20 +1,22 @@
-import sys
-import os
+"""
+Unit tests for cipher decryption functions.
+"""
 import json
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.ciphers import vigenere_decrypt, kryptos_k3_decrypt  # removed transposition_decrypt import
+import os
 import unittest
 import logging
 
+from src.ciphers import vigenere_decrypt, kryptos_k3_decrypt
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load configuration from config.json
 config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../config/config.json'))
-with open(config_path, 'r') as config_file:
+with open(config_path, 'r', encoding='utf-8') as config_file:
     config = json.load(config_file)
 
 class TestCiphers(unittest.TestCase):
+    """Unit tests for cipher decryption functions."""
     def test_vigenere_k1(self):
         """Test the Vigenère decryption for K1 using the keyed alphabet."""
         ciphertext_k1 = config["ciphertexts"]["K1"].replace(" ", "")
@@ -22,7 +24,7 @@ class TestCiphers(unittest.TestCase):
         expected_plaintext_k1 = "BETWEENSUBTLESHADINGANDTHEABSENCEOFLIGHTLIESTHENUANCEOFIQLUSION"
         decrypted_text_k1 = vigenere_decrypt(ciphertext_k1, key_k1, preserve_non_alpha=False)
         self.assertEqual(decrypted_text_k1, expected_plaintext_k1)
-    
+
     def test_vigenere_k2(self):
         """Test the Vigenère decryption for K2 using the keyed alphabet."""
         ciphertext_k2 = config["ciphertexts"]["K2"]
