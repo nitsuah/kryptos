@@ -7,17 +7,21 @@ from math import gcd
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 MOD = 26
 
+
 def _char_to_int(c: str) -> int:
     return ALPHABET.index(c)
 
+
 def _int_to_char(i: int) -> str:
     return ALPHABET[i % MOD]
+
 
 def _chunks(seq: Sequence[int], size: int):
     for i in range(0, len(seq), size):
         chunk = seq[i:i+size]
         if len(chunk) == size:
             yield chunk
+
 
 def mod_inv(a: int, m: int = MOD) -> int | None:
     """Modular inverse of a mod m, or None if not invertible."""
@@ -26,6 +30,7 @@ def mod_inv(a: int, m: int = MOD) -> int | None:
         if (a * x) % m == 1:
             return x
     return None
+
 
 def matrix_det(mat: list[list[int]]) -> int:
     """
@@ -40,6 +45,7 @@ def matrix_det(mat: list[list[int]]) -> int:
         g, h, i = mat[2]
         return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g)
     raise ValueError("Only 2x2 or 3x3 supported")
+
 
 def matrix_inv_mod(mat: list[list[int]], m: int = MOD) -> list[list[int]] | None:
     """
@@ -58,19 +64,19 @@ def matrix_inv_mod(mat: list[list[int]], m: int = MOD) -> list[list[int]] | None
         a, b, c = mat[0]
         d, e, f = mat[1]
         g, h, i = mat[2]
-        # Cofactors (not transposed yet)
-        C11 = (e * i - f * h)
+        # Cofactors
+        C11 = e * i - f * h
         C12 = -(d * i - f * g)
-        C13 = (d * h - e * g)
+        C13 = d * h - e * g
 
         C21 = -(b * i - c * h)
-        C22 = (a * i - c * g)
+        C22 = a * i - c * g
         C23 = -(a * h - b * g)
 
-        C31 = (b * f - c * e)
+        C31 = b * f - c * e
         C32 = -(a * f - c * d)
-        C33 = (a * e - b * d)
-        # Adjugate is transpose of cofactor matrix
+        C33 = a * e - b * d
+        # Adjugate: cofactor matrix already transposed in construction
         adj = [
             [C11, C21, C31],
             [C12, C22, C32],
@@ -81,10 +87,12 @@ def matrix_inv_mod(mat: list[list[int]], m: int = MOD) -> list[list[int]] | None
     inv = [[(inv_det * val) % m for val in row] for row in adj]
     return inv
 
+
 def hill_encrypt_block(block: Sequence[int], key: list[list[int]]) -> list[int]:
     """Encrypt a block using Hill cipher with given key."""
     size = len(key)
     return [sum(key[row][col] * block[col] for col in range(size)) % MOD for row in range(size)]
+
 
 def hill_decrypt_block(block: Sequence[int], key: list[list[int]]) -> list[int] | None:
     """Decrypt a block using Hill cipher with given key."""
@@ -93,6 +101,7 @@ def hill_decrypt_block(block: Sequence[int], key: list[list[int]]) -> list[int] 
         return None
     size = len(inv)
     return [sum(inv[row][col] * block[col] for col in range(size)) % MOD for row in range(size)]
+
 
 def hill_encrypt(text: str, key: list[list[int]]) -> str:
     """Encrypt text using Hill cipher with given key."""
@@ -103,6 +112,7 @@ def hill_encrypt(text: str, key: list[list[int]]) -> str:
     for chunk in _chunks(nums, size):
         out.extend(hill_encrypt_block(chunk, key))
     return ''.join(_int_to_char(n) for n in out)
+
 
 def hill_decrypt(text: str, key: list[list[int]]) -> str | None:
     """Decrypt text using Hill cipher with given key."""
@@ -117,6 +127,7 @@ def hill_decrypt(text: str, key: list[list[int]]) -> str | None:
         out.extend(dec)
     return ''.join(_int_to_char(n) for n in out)
 
+
 def invertible_2x2_keys() -> list[list[list[int]]]:
     """Generate all invertible 2x2 Hill cipher keys mod 26."""
     keys: list[list[list[int]]] = []
@@ -128,6 +139,7 @@ def invertible_2x2_keys() -> list[list[list[int]]]:
                     if gcd(det, 26) == 1:
                         keys.append([[a, b], [c, d]])
     return keys
+
 
 def solve_2x2_key(plain: str, cipher: str) -> list[list[int]] | None:
     """Solve for 2x2 Hill cipher key mapping plain to cipher (first 4 letters each)."""
@@ -157,6 +169,7 @@ def solve_2x2_key(plain: str, cipher: str) -> list[list[int]] | None:
         return None
     return K
 
+
 def brute_force_crib(cipher_segment: str, plain_segment: str, limit: int = 1000) -> list[dict]:
     """Brute-force search for 2x2 Hill cipher keys mapping plain_segment to cipher_segment."""
     p = ''.join(ch for ch in plain_segment.upper() if ch.isalpha())[:4]
@@ -173,6 +186,7 @@ def brute_force_crib(cipher_segment: str, plain_segment: str, limit: int = 1000)
             results.append({'key': key, 'enc': enc})
         count += 1
     return results
+
 
 __all__ = [
     'mod_inv', 'matrix_det', 'matrix_inv_mod', 'hill_encrypt_block',

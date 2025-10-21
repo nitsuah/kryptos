@@ -1,22 +1,34 @@
 """Sample composite pipeline run producing artifacts & attempt logs.
-Run this after installing dependencies. Generates reports/ folder outputs.
+Run after installing the package (pip install -e .).
+Falls back to temporary sys.path tweak if not installed.
 """
-import os
-import sys
-# Ensure project root (directory containing 'src') is on sys.path when run from outside
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+try:
+    from src.k4 import (
+        make_hill_constraint_stage,
+        make_transposition_adaptive_stage,
+        make_transposition_multi_crib_stage,
+        make_masking_stage,
+        make_berlin_clock_stage,
+        run_composite_pipeline,
+        persist_attempt_logs,
+    )
+except ImportError:  # fallback for direct script execution without install
+    import os
+    import sys
+
+    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+    from src.k4 import (
+        make_hill_constraint_stage,
+        make_transposition_adaptive_stage,
+        make_transposition_multi_crib_stage,
+        make_masking_stage,
+        make_berlin_clock_stage,
+        run_composite_pipeline,
+        persist_attempt_logs,
+    )
 from collections.abc import Sequence
-from src.k4 import (
-    make_hill_constraint_stage,
-    make_transposition_adaptive_stage,
-    make_transposition_multi_crib_stage,
-    make_masking_stage,
-    make_berlin_clock_stage,
-    run_composite_pipeline,
-    persist_attempt_logs,
-)
 
 CIPHER_K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
