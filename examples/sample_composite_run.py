@@ -2,6 +2,8 @@
 Run after installing the package (pip install -e .).
 Falls back to temporary sys.path tweak if not installed.
 """
+import os
+import sys
 try:
     from src.k4 import (
         make_hill_constraint_stage,
@@ -13,8 +15,6 @@ try:
         persist_attempt_logs,
     )
 except ImportError:  # fallback for direct script execution without install
-    import os
-    import sys
 
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     if PROJECT_ROOT not in sys.path:
