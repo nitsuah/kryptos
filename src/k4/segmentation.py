@@ -4,17 +4,16 @@ Generates partitions of the ciphertext length into block sizes within a
 specified range. Used for layered substitution block hypothesis.
 """
 from functools import lru_cache
-from typing import List, Tuple
 
 
-def generate_partitions(total: int, min_len: int, max_len: int, limit: int = 10000) -> List[Tuple[int, ...]]:
+def generate_partitions(total: int, min_len: int, max_len: int, limit: int = 10000) -> list[tuple[int, ...]]:
     """Generate partitions of 'total' into parts between min_len and max_len.
 
     Uses DFS with pruning. Returns at most 'limit' partitions.
     """
-    results: List[Tuple[int, ...]] = []
+    results: list[tuple[int, ...]] = []
 
-    def dfs(remaining: int, current: List[int]):
+    def dfs(remaining: int, current: list[int]):
         if len(results) >= limit:
             return
         if remaining == 0:
@@ -38,15 +37,15 @@ def generate_partitions(total: int, min_len: int, max_len: int, limit: int = 100
 
 
 @lru_cache(maxsize=1024)
-def partitions_for_k4(min_len: int = 12, max_len: int = 24) -> List[Tuple[int, ...]]:
+def partitions_for_k4(min_len: int = 12, max_len: int = 24) -> list[tuple[int, ...]]:
     """Convenience wrapper for K4 (ciphertext length 97)."""
     k4_len = 97  # K4 ciphertext length is 97
     return generate_partitions(k4_len, min_len, max_len, limit=5000)
 
 
-def slice_by_partition(text: str, partition: Tuple[int, ...]) -> List[str]:
+def slice_by_partition(text: str, partition: tuple[int, ...]) -> list[str]:
     """Slice text into segments according to partition lengths."""
-    segments: List[str] = []
+    segments: list[str] = []
     idx = 0
     for length in partition:
         segments.append(text[idx:idx+length])

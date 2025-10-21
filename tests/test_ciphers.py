@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Load configuration from config.json
 config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../config/config.json'))
-with open(config_path, 'r', encoding='utf-8') as config_file:
+with open(config_path, encoding='utf-8') as config_file:
     config = json.load(config_file)
 
 class TestCiphers(unittest.TestCase):

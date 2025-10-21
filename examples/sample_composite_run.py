@@ -1,32 +1,60 @@
 """Sample composite pipeline run producing artifacts & attempt logs.
-Run this after installing dependencies. Generates reports/ folder outputs.
+Run after installing the package (pip install -e .).
+Falls back to temporary sys.path tweak if not installed.
 """
-from typing import Dict, List, Sequence
-from src.k4 import (
-    make_hill_constraint_stage,
-    make_transposition_adaptive_stage,
-    make_transposition_multi_crib_stage,
-    make_masking_stage,
-    make_berlin_clock_stage,
-    run_composite_pipeline,
-    persist_attempt_logs
-)
+import os
+import sys
+try:
+    from src.k4 import (
+        make_hill_constraint_stage,
+        make_transposition_adaptive_stage,
+        make_transposition_multi_crib_stage,
+        make_masking_stage,
+        make_berlin_clock_stage,
+        run_composite_pipeline,
+        persist_attempt_logs,
+    )
+except ImportError:  # fallback for direct script execution without install
+    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    if PROJECT_ROOT not in sys.path:
+        sys.path.insert(0, PROJECT_ROOT)
+    try:
+        from src.k4 import (
+            make_hill_constraint_stage,
+            make_transposition_adaptive_stage,
+            make_transposition_multi_crib_stage,
+            make_masking_stage,
+            make_berlin_clock_stage,
+            run_composite_pipeline,
+            persist_attempt_logs,
+        )
+    except ImportError as e:
+        raise ImportError(
+            f"Failed to import 'src.k4' even after adding PROJECT_ROOT to sys.path. "
+            f"Ensure the package is installed or the source is available at '{PROJECT_ROOT}'.\nOriginal error: {e}"
+        ) from e
+from collections.abc import Sequence
 
 CIPHER_K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
-_RAW_POSITIONAL: Dict[str, List[int]] = {
+_RAW_POSITIONAL: dict[str, list[int]] = {
     'EAST': [22],  # provisional; under investigation per strategy doc
     'NORTHEAST': [25],
     'BERLIN': [64],
     'CLOCK': [69],
 }
 # Treat as Dict[str, Sequence[int]] for stage factory
-POSITIONAL_CRIBS: Dict[str, Sequence[int]] = {k: tuple(v) for k, v in _RAW_POSITIONAL.items()}
+POSITIONAL_CRIBS: dict[str, Sequence[int]] = {k: tuple(v) for k, v in _RAW_POSITIONAL.items()}
 
 stages = [
     make_hill_constraint_stage(partial_len=60, partial_min=-800.0),
     make_transposition_adaptive_stage(min_cols=5, max_cols=6, sample_perms=250, partial_length=50),
-    make_transposition_multi_crib_stage(positional_cribs=POSITIONAL_CRIBS, min_cols=5, max_cols=6, window=5),
+    make_transposition_multi_crib_stage(
+        positional_cribs=POSITIONAL_CRIBS,
+        min_cols=5,
+        max_cols=6,
+        window=5,
+    ),
     make_masking_stage(limit=10),
     make_berlin_clock_stage(step_seconds=10800, limit=15),
 ]
@@ -47,7 +75,7 @@ if __name__ == "__main__":
         weights=None,  # disables manual weighting; enables adaptive weighting
         normalize=True,
         adaptive=True,  # enable adaptive weighting
-        limit=40
+        limit=40,
     )
     attempt_path = persist_attempt_logs(out_dir='reports', label='K4', clear=True)
     print("Artifacts written. Attempt log:", attempt_path)

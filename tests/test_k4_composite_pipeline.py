@@ -1,6 +1,11 @@
 """Tests for composite multi-stage pipeline aggregation."""
 import unittest
-from src.k4 import make_hill_constraint_stage, make_berlin_clock_stage, make_transposition_adaptive_stage, run_composite_pipeline
+from src.k4 import (
+    make_hill_constraint_stage,
+    make_berlin_clock_stage,
+    make_transposition_adaptive_stage,
+    run_composite_pipeline,
+)
 
 class TestCompositePipeline(unittest.TestCase):
     def test_composite_run_aggregates_candidates(self):
@@ -8,7 +13,7 @@ class TestCompositePipeline(unittest.TestCase):
         stages = [
             make_hill_constraint_stage(),
             make_transposition_adaptive_stage(min_cols=5, max_cols=5, sample_perms=60, limit=8),
-            make_berlin_clock_stage(step_seconds=14400, limit=5)
+            make_berlin_clock_stage(step_seconds=14400, limit=5),
         ]
         result = run_composite_pipeline(ct, stages, report=False, limit=30)
         self.assertIn('aggregated', result)

@@ -1,2 +1,6 @@
 matplotlib
 numpy
+flake8
+pytest
+pytest-cov
+pre-commit

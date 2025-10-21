@@ -1,14 +1,14 @@
 """Composite multi-stage pipeline runner and candidate aggregator for K4."""
 from __future__ import annotations
-from typing import List, Dict, Any, Tuple
+from typing import Any
 from .pipeline import Pipeline, Stage, StageResult
 from .reporting import generate_candidate_artifacts
 from .attempt_logging import persist_attempt_logs  # new import
 from .scoring import wordlist_hit_rate, trigram_entropy  # ensure metrics imported
 
-def aggregate_stage_candidates(results: List[StageResult]) -> List[Dict[str, Any]]:
+def aggregate_stage_candidates(results: list[StageResult]) -> list[dict[str, Any]]:
     """Aggregate candidates from multiple StageResults, annotate with stage name."""
-    agg: List[Dict[str, Any]] = []
+    agg: list[dict[str, Any]] = []
     for res in results:
         cands = res.metadata.get('candidates', [])
         for c in cands:
@@ -21,22 +21,22 @@ def aggregate_stage_candidates(results: List[StageResult]) -> List[Dict[str, Any
                 'time': c.get('time'),
                 'mode': c.get('mode'),
                 'shifts': c.get('shifts'),
-                'trace': c.get('trace')  # propagate trace
+                'trace': c.get('trace'),  # propagate trace
             })
     agg.sort(key=lambda x: x.get('score', 0.0), reverse=True)
     return agg
 
 # Weighted fusion utilities
 
-def _min_max(values: List[float]) -> Tuple[float, float]:
+def _min_max(values: list[float]) -> tuple[float, float]:
     return (min(values), max(values)) if values else (0.0, 0.0)
 
-def normalize_scores(candidates: List[Dict[str, Any]], key: str = 'score') -> List[Dict[str, Any]]:
+def normalize_scores(candidates: list[dict[str, Any]], key: str = 'score') -> list[dict[str, Any]]:
     """Return new list with added 'norm_score' using min-max normalization per stage grouping."""
-    grouped: Dict[str, List[Dict[str, Any]]] = {}
+    grouped: dict[str, list[dict[str, Any]]] = {}
     for c in candidates:
         grouped.setdefault(c['stage'], []).append(c)
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     for group in grouped.values():
         vals = [g.get(key, 0.0) for g in group]
         mn, mx = _min_max(vals)
@@ -49,13 +49,17 @@ def normalize_scores(candidates: List[Dict[str, Any]], key: str = 'score') -> Li
             out.append(new)
     return out
 
-def fuse_scores_weighted(candidates: List[Dict[str, Any]], weights: Dict[str, float], use_normalized: bool = True) -> List[Dict[str, Any]]:
+def fuse_scores_weighted(
+    candidates: list[dict[str, Any]],
+    weights: dict[str, float],
+    use_normalized: bool = True,
+) -> list[dict[str, Any]]:
     """Fuse scores across stages using supplied weights.
     - If use_normalized True, use 'norm_score' (ensure normalize_scores called first).
     - Otherwise use raw 'score'.
     Returns new candidate list with 'fused_score' and sorted by it desc.
     """
-    out: List[Dict[str, Any]] = []
+    out: list[dict[str, Any]] = []
     for c in candidates:
         base = c.get('norm_score') if use_normalized else c.get('score')
         w = weights.get(c['stage'], 1.0)
@@ -68,40 +72,47 @@ def fuse_scores_weighted(candidates: List[Dict[str, Any]], weights: Dict[str, fl
 
 def run_composite_pipeline(
     ciphertext: str,
-    stages: List[Stage],
+    stages: list[Stage],
     report: bool = True,
     report_dir: str = 'reports',
     limit: int = 100,
-    weights: Dict[str, float] | None = None,
+    weights: dict[str, float] | None = None,
     normalize: bool = True,
-    adaptive: bool = False
-) -> Dict[str, Any]:
-    """Run multiple stages, aggregate candidates, optionally write artifacts and apply weighted fusion.
+    adaptive: bool = False,
+) -> dict[str, Any]:
+    """Run multiple stages, aggregate candidates, optionally write artifacts and apply
+    weighted fusion.
     weights: mapping of stage name to multiplier; if provided fused ranking appended.
-    normalize: apply per-stage min-max before fusion (recommended to balance different scoring scales).
+    normalize: apply per-stage min-max before fusion (balances different scoring scales).
     Returns dict with 'results', 'aggregated', optional 'fused', and optional 'artifacts'.
     """
     pipe = Pipeline(stages)
     stage_results = pipe.run(ciphertext)
     aggregated = aggregate_stage_candidates(stage_results)[:limit]
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         'results': stage_results,
         'aggregated': aggregated,
         'profile': {
-            'stage_durations': {r.name: r.metadata.get('duration') for r in stage_results}
-        }
+            'stage_durations': {r.name: r.metadata.get('duration') for r in stage_results},
+        },
     }
     # Build lineage list (stage names in order)
     lineage = [r.name for r in stage_results]
-    fused_candidates: List[Dict[str, Any]] = []
+    fused_candidates: list[dict[str, Any]] = []
     # If adaptive requested, compute weights dynamically (overrides provided weights)
     if adaptive:
         weights = adaptive_fusion_weights(aggregated)
-        metrics_samples = [{'stage': c['stage'], 'wl': wordlist_hit_rate(c['text']), 'ent': trigram_entropy(c['text'])} for c in aggregated]
-        by_stage: Dict[str, List[Dict[str, float]]] = {}
+        metrics_samples = [
+            {
+                'stage': c['stage'],
+                'wl': wordlist_hit_rate(c['text']),
+                'ent': trigram_entropy(c['text']),
+            } for c in aggregated
+        ]
+        by_stage: dict[str, list[dict[str, float]]] = {}
         for m in metrics_samples:
             by_stage.setdefault(m['stage'], []).append(m)
-        diag: Dict[str, Dict[str, float]] = {}
+        diag: dict[str, dict[str, float]] = {}
         for stage, arr in by_stage.items():
             if not arr:
                 continue
@@ -112,7 +123,7 @@ def run_composite_pipeline(
             diag[stage] = {
                 'median_wordlist_hit_rate': mid_wl,
                 'median_trigram_entropy': mid_ent,
-                'adaptive_weight': weights.get(stage, 1.0)
+                'adaptive_weight': weights.get(stage, 1.0),
             }
         out['profile']['adaptive_diagnostics'] = diag
     if weights:
@@ -128,17 +139,25 @@ def run_composite_pipeline(
                 'source': f"{c.get('stage')}|{c.get('source')}",
                 'key': c.get('key'),
                 'lineage': lineage,
-                'trace': c.get('trace')
+                'trace': c.get('trace'),
             } for c in artifact_source
         ]
-        paths = generate_candidate_artifacts('composite', 'K4', ciphertext, candidates_for_artifact, out_dir=report_dir, limit=limit, lineage=lineage)
+        paths = generate_candidate_artifacts(
+            'composite',
+            'K4',
+            ciphertext,
+            candidates_for_artifact,
+            out_dir=report_dir,
+            limit=limit,
+            lineage=lineage,
+        )
         out['artifacts'] = paths
         attempt_path = persist_attempt_logs(out_dir=report_dir, label='K4', clear=True)
         out['attempt_log'] = attempt_path
     return out
 
 
-def adaptive_fusion_weights(candidates: List[Dict[str, Any]]) -> Dict[str, float]:
+def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float]:
     """Compute dynamic stage weights from top candidate linguistic metrics.
     Heuristic:
       - Base weight = 1.0
@@ -152,8 +171,8 @@ def adaptive_fusion_weights(candidates: List[Dict[str, Any]]) -> Dict[str, float
     if not candidates:
         return {}
     # Identify top candidate per stage (highest raw score)
-    by_stage: Dict[str, Dict[str, Any]] = {}
-    all_scores: List[float] = []
+    by_stage: dict[str, dict[str, Any]] = {}
+    all_scores: list[float] = []
     for c in candidates:
         sc = c.get('score', 0.0)
         all_scores.append(sc)
@@ -167,7 +186,7 @@ def adaptive_fusion_weights(candidates: List[Dict[str, Any]]) -> Dict[str, float
     all_scores.sort(reverse=True)
     top_cutoff_index = max(1, int(0.1 * len(all_scores))) - 1
     top_cutoff_score = all_scores[top_cutoff_index]
-    weights: Dict[str, float] = {}
+    weights: dict[str, float] = {}
     for stage, cand in by_stage.items():
         w = 1.0
         wl = wordlist_hit_rate(cand['text'])
@@ -189,4 +208,7 @@ def adaptive_fusion_weights(candidates: List[Dict[str, Any]]) -> Dict[str, float
         weights[stage] = round(w, 3)
     return weights
 
-__all__ = ['aggregate_stage_candidates','run_composite_pipeline','normalize_scores','fuse_scores_weighted', 'adaptive_fusion_weights']
+__all__ = [
+    'aggregate_stage_candidates', 'run_composite_pipeline', 'normalize_scores',
+    'fuse_scores_weighted', 'adaptive_fusion_weights',
+]

@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import json
 from collections import Counter
-from typing import Dict, Iterable, Sequence, Set, List
+from collections.abc import Iterable, Sequence
 import math
 from functools import lru_cache
 
@@ -14,11 +14,11 @@ CONFIG_PATH = os.path.join(ROOT_DIR, 'config', 'config.json')
 
 # ---------------- Loaders ----------------
 
-def _load_letter_freq(path: str) -> Dict[str, float]:
+def _load_letter_freq(path: str) -> dict[str, float]:
     """Load letter frequency table from file."""
-    freq: Dict[str, float] = {}
+    freq: dict[str, float] = {}
     try:
-        with open(path, 'r', encoding='utf-8') as fh:
+        with open(path, encoding='utf-8') as fh:
             for line in fh:
                 line = line.strip()
                 if not line or line.startswith('#'):
@@ -34,11 +34,11 @@ def _load_letter_freq(path: str) -> Dict[str, float]:
     return freq
 
 
-def _load_ngrams(path: str) -> Dict[str, float]:
+def _load_ngrams(path: str) -> dict[str, float]:
     """Load n-gram frequency table from file."""
-    grams: Dict[str, float] = {}
+    grams: dict[str, float] = {}
     try:
-        with open(path, 'r', encoding='utf-8') as fh:
+        with open(path, encoding='utf-8') as fh:
             for line in fh:
                 line = line.strip()
                 if not line or line.startswith('#'):
@@ -56,21 +56,21 @@ def _load_ngrams(path: str) -> Dict[str, float]:
     return grams
 
 
-def _load_config_cribs(path: str) -> List[str]:
+def _load_config_cribs(path: str) -> list[str]:
     """Load cribs from config file (expects top-level 'cribs' list)."""
     try:
-        with open(path, 'r', encoding='utf-8') as fh:
+        with open(path, encoding='utf-8') as fh:
             data = json.load(fh)
             cribs = data.get('cribs', [])
             return [c.upper() for c in cribs if isinstance(c, str)]
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
-def _load_wordlist(path: str) -> Set[str]:
+def _load_wordlist(path: str) -> set[str]:
     """Load wordlist (one word per line) into uppercase set. Only keep length >=3."""
-    words: Set[str] = set()
+    words: set[str] = set()
     try:
-        with open(path, 'r', encoding='utf-8') as fh:
+        with open(path, encoding='utf-8') as fh:
             for line in fh:
                 w = line.strip().upper()
                 if len(w) >= 3 and w.isalpha():
@@ -80,31 +80,34 @@ def _load_wordlist(path: str) -> Set[str]:
     return words
 
 # ---------------- Data ----------------
-LETTER_FREQ: Dict[str, float] = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv'))
-BIGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'bigrams.tsv'))
-TRIGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'trigrams.tsv'))
+LETTER_FREQ: dict[str, float] = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv'))
+BIGRAMS: dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'bigrams.tsv'))
+TRIGRAMS: dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'trigrams.tsv'))
 # Prefer high quality quadgrams file if present
 _quad_hi_path = os.path.join(DATA_DIR, 'quadgrams_high_quality.tsv')
 if os.path.exists(_quad_hi_path):
-    QUADGRAMS: Dict[str, float] = _load_ngrams(_quad_hi_path)
+    QUADGRAMS: dict[str, float] = _load_ngrams(_quad_hi_path)
 else:
-    QUADGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'quadgrams.tsv'))
+    QUADGRAMS: dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'quadgrams.tsv'))
 
-CRIBS: List[str] = _load_config_cribs(CONFIG_PATH)
-WORDLIST: Set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
+CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
+WORDLIST: set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
 
 if not LETTER_FREQ:
     LETTER_FREQ = {
-        'E': 12.702,'T': 9.056,'A':8.167,'O':7.507,'N':6.749,'I':6.966,
-        'S':6.327,'R':5.987,'H':6.094,'L':4.025,'D':4.253,'C':2.782,
-        'U':2.758,'M':2.406,'F':2.228,'Y':1.974,'W':2.360,'G':2.015,
-        'P':1.929,'B':1.492,'V':0.978,'K':0.772,'X':0.150,'J':0.153,
-        'Q':0.095,'Z':0.074
+        'E': 12.702, 'T': 9.056, 'A': 8.167, 'O': 7.507, 'N': 6.749, 'I': 6.966,
+        'S': 6.327, 'R': 5.987, 'H': 6.094, 'L': 4.025, 'D': 4.253, 'C': 2.782,
+        'U': 2.758, 'M': 2.406, 'F': 2.228, 'Y': 1.974, 'W': 2.360, 'G': 2.015,
+        'P': 1.929, 'B': 1.492, 'V': 0.978, 'K': 0.772, 'X': 0.150, 'J': 0.153,
+        'Q': 0.095, 'Z': 0.074,
     }
 
 # Minimal fallback wordlist (placeholder)
 if not WORDLIST:
-    WORDLIST = { 'THE','AND','YOU','THAT','FOR','WITH','HAVE','THIS','FROM','CLOCK','BERLIN','TIME','CODE','DATA','NEXT','OVER','PART','TEXT' }
+    WORDLIST = {
+        'THE', 'AND', 'YOU', 'THAT', 'FOR', 'WITH', 'HAVE', 'THIS', 'FROM', 'CLOCK',
+        'BERLIN', 'TIME', 'CODE', 'DATA', 'NEXT', 'OVER', 'PART', 'TEXT',
+    }
 
 _UNKNOWN_BIGRAM = -2.0
 _UNKNOWN_TRIGRAM = -2.5
@@ -127,7 +130,7 @@ def chi_square_stat(text: str) -> float:
             chi += (obs - expected) ** 2 / expected
     return chi
 
-def _score_ngrams(text: str, table: Dict[str, float], size: int, unknown: float) -> float:
+def _score_ngrams(text: str, table: dict[str, float], size: int, unknown: float) -> float:
     """Generic n-gram scoring function."""
     seq = ''.join(c for c in text.upper() if c.isalpha())
     total = 0.0
@@ -157,7 +160,7 @@ def crib_bonus(text: str) -> float:
             bonus += 5.0 * len(crib)
     return bonus
 
-def positional_crib_bonus(text: str, positional: Dict[str, Sequence[int]], window: int = 5) -> float:
+def positional_crib_bonus(text: str, positional: dict[str, Sequence[int]], window: int = 5) -> float:
     """Compute bonus for cribs appearing near expected positional indices.
     positional: mapping crib -> iterable of expected start indices (0-based).
     For each occurrence of crib in text, if distance to any expected index <= window,
@@ -246,11 +249,11 @@ def bigram_gap_variance(text: str) -> float:
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if len(seq) < 4:
         return 0.0
-    positions: Dict[str, List[int]] = {}
+    positions: dict[str, list[int]] = {}
     for i in range(len(seq)-2+1):
         gram = seq[i:i+2]
         positions.setdefault(gram, []).append(i)
-    gap_vars: List[float] = []
+    gap_vars: list[float] = []
     for gram, pos_list in positions.items():
         if len(pos_list) < 2:
             continue
@@ -266,7 +269,7 @@ def bigram_gap_variance(text: str) -> float:
 
 # ---------------- Baseline stats ----------------
 
-def baseline_stats(text: str) -> Dict[str, float]:
+def baseline_stats(text: str) -> dict[str, float]:
     """Return dictionary of baseline scoring metrics for a candidate plaintext."""
     return {
         'chi_square': chi_square_stat(text),
@@ -285,7 +288,7 @@ def baseline_stats(text: str) -> Dict[str, float]:
         'bigram_gap_variance': bigram_gap_variance(text),
     }
 
-def segment_plaintext_scores(segments: Iterable[str]) -> Dict[str, float]:
+def segment_plaintext_scores(segments: Iterable[str]) -> dict[str, float]:
     """Compute combined plaintext scores for multiple segments."""
     return {seg: combined_plaintext_score(seg) for seg in segments}
 
@@ -339,18 +342,17 @@ def repeating_bigram_fraction(text: str) -> float:
     repeats = sum(v for v in counts.values() if v > 1)
     return repeats / len(bigrams)
 
-def combined_plaintext_score_with_positions(text: str, positional: Dict[str, Sequence[int]], window: int = 5) -> float:
+def combined_plaintext_score_with_positions(text: str, positional: dict[str, Sequence[int]], window: int = 5) -> float:
     """Combined plaintext score augmented with positional crib bonuses."""
     base = combined_plaintext_score(text)
     pos_bonus = positional_crib_bonus(text, positional, window)
     return base + pos_bonus
 
 __all__ = [
-    'LETTER_FREQ','BIGRAMS','TRIGRAMS','CRIBS','QUADGRAMS','WORDLIST',
-    'chi_square_stat','bigram_score','trigram_score','crib_bonus','quadgram_score',
-    'combined_plaintext_score','combined_plaintext_score_cached','segment_plaintext_scores',
-    'index_of_coincidence','vowel_ratio','letter_coverage','baseline_stats',
-    'positional_crib_bonus','combined_plaintext_score_with_positions',
-    'letter_entropy','repeating_bigram_fraction',
-    'wordlist_hit_rate','trigram_entropy','bigram_gap_variance'
+    'LETTER_FREQ', 'BIGRAMS', 'TRIGRAMS', 'CRIBS', 'QUADGRAMS', 'WORDLIST',
+    'chi_square_stat', 'bigram_score', 'trigram_score', 'crib_bonus', 'quadgram_score',
+    'combined_plaintext_score', 'combined_plaintext_score_cached', 'segment_plaintext_scores',
+    'index_of_coincidence', 'vowel_ratio', 'letter_coverage', 'baseline_stats',
+    'positional_crib_bonus', 'combined_plaintext_score_with_positions', 'letter_entropy',
+    'repeating_bigram_fraction', 'wordlist_hit_rate', 'trigram_entropy', 'bigram_gap_variance',
 ]

@@ -6,12 +6,13 @@ Usage:
 
 Outputs the derived plaintext (with DESPARATLY) from config K3 ciphertext.
 """
-import json, os
+import json
+import os
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
 
 def load_k3():
-    with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+    with open(CONFIG_PATH, encoding='utf-8') as f:
         cfg = json.load(f)
     ct = ''.join(cfg['ciphertexts']['K3'].split())
     if ct.startswith('?'):

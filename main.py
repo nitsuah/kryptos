@@ -2,14 +2,14 @@
  Main module for Kryptos analysis and reporting.
 """
 import json
-from src.ciphers import vigenere_decrypt, transposition_decrypt
+from src.ciphers import vigenere_decrypt  # removed unused transposition_decrypt
 from src.analysis import frequency_analysis, check_cribs
 from src.report import generate_report
 
 def main():
     """Main function to run Kryptos analysis and reporting."""
     # Load configuration
-    with open("config/config.json", "r", encoding="utf-8") as f:
+    with open("config/config.json", encoding="utf-8") as f:
         config = json.load(f)
     ciphertexts = config["ciphertexts"]
     cribs = config["cribs"]
