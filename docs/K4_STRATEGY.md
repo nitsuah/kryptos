@@ -57,7 +57,7 @@ K4 remains unsolved publicly. Our goal:
 
 Ciphertext (per sculpture transcription; spaces inserted for readability):
 
-``` text
+```text
 OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT MZFPKWGDKZXTJCDIGKUHUAUEKCAR
 ```
 
@@ -183,4 +183,4 @@ Next: Add compression option & integrate provenance hash of ciphertext + paramet
 (See README for links; add matrix conjecture, entropy references.)
 
 ---
-Updated: 2025-10-20
+Updated: 2025-10-21
