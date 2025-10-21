@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import json
 from collections import Counter
-from typing import Dict, Iterable, Sequence, Set, List  # added List
+from typing import Dict, Iterable, Sequence, Set, List
 import math
 from functools import lru_cache
 
