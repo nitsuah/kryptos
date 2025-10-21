@@ -80,6 +80,8 @@ Located under `src/k4/`:
 
 ## Roadmap
 
+Detailed future plans (candidate reporting, Berlin Clock expansion, pruning heuristics, extended Hill search, masking strategies) have moved to `ROADMAP.md` → see the full document here: [Roadmap Guide](./ROADMAP.md).
+
 See full document in `docs/K4_STRATEGY.md` – includes current completion status and next actions.
 
 ## Contributing
