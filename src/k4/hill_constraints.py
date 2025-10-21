@@ -1,6 +1,5 @@
 """Constrained Hill cipher key solving using known crib pairs (BERLIN/CLOCK)."""
 from __future__ import annotations
-from typing import List, Dict, Tuple, Set
 from itertools import combinations, permutations
 from .hill_cipher import solve_2x2_key, hill_decrypt, matrix_inv_mod, ALPHABET
 from .scoring import combined_plaintext_score_cached as combined_plaintext_score  # cached
@@ -8,13 +7,13 @@ from .scoring import combined_plaintext_score_cached as combined_plaintext_score
 # Example known cribs (plaintext -> cipher segment) from Kryptos K4 clues
 KNOWN_CRIBS = {
     'BERLIN': 'NYPVTT',
-    'CLOCK': 'MZFPK'
+    'CLOCK': 'MZFPK',
 }
 
-_cache_holder: Dict[str, List[Dict]] = {}
-_hill_attempts: List[Dict] = []
+_cache_holder: dict[str, list[dict]] = {}
+_hill_attempts: list[dict] = []
 
-def get_hill_attempt_log(clear: bool = False) -> List[Dict]:
+def get_hill_attempt_log(clear: bool = False) -> list[dict]:
     out = list(_hill_attempts)
     if clear:
         _hill_attempts.clear()
@@ -22,7 +21,7 @@ def get_hill_attempt_log(clear: bool = False) -> List[Dict]:
 
 # --- 3x3 helpers (refined) -------------------------------------------------
 
-def _assemble_3x3_variants(seq: str) -> List[List[List[int]]]:
+def _assemble_3x3_variants(seq: str) -> list[list[list[int]]]:
     """Return multiple 3x3 matrix assemblies from a 9-letter sequence.
     Strategies:
     - row: fill rows left->right (default)
@@ -34,8 +33,8 @@ def _assemble_3x3_variants(seq: str) -> List[List[List[int]]]:
     if len(seq) < 9:
         return []
     letters = seq[:9]
-    variants: List[List[List[int]]] = []
-    seen: Set[Tuple[int, ...]] = set()
+    variants: list[list[list[int]]] = []
+    seen: set[tuple[int, ...]] = set()
 
     # row-major
     row = [[ALPHABET.index(letters[r*3 + c]) for c in range(3)] for r in range(3)]
@@ -48,53 +47,58 @@ def _assemble_3x3_variants(seq: str) -> List[List[List[int]]]:
     idx = 0
     for c in range(3):
         for r in range(3):
-            col_mat[r][c] = ALPHABET.index(letters[idx]); idx += 1
+            col_mat[r][c] = ALPHABET.index(letters[idx])
+            idx += 1
     flat = tuple(v for rr in col_mat for v in rr)
     if flat not in seen:
-        variants.append(col_mat); seen.add(flat)
+        variants.append(col_mat)
+        seen.add(flat)
 
     # diagonal emphasis (first 3 main diag, next 2 anti-diag (excluding center), rest fill)
-    diag_mat = [[-1]*3 for _ in range(3)]  # use -1 sentinel
-    assigned: Set[Tuple[int, int]] = set()
+    diag_mat = [[-1] * 3 for _ in range(3)]  # use -1 sentinel
+    assigned: set[tuple[int, int]] = set()
     # main diagonal (3 cells)
-    for i,(r,c) in enumerate([(0,0),(1,1),(2,2)]):
+    for i, (r, c) in enumerate([(0, 0), (1, 1), (2, 2)]):
         diag_mat[r][c] = ALPHABET.index(letters[i])
-        assigned.add((r,c))
+        assigned.add((r, c))
     # anti-diagonal excluding center (2 cells)
-    for j,(r,c) in enumerate([(0,2),(2,0)], start=3):
+    for j, (r, c) in enumerate([(0, 2), (2, 0)], start=3):
         diag_mat[r][c] = ALPHABET.index(letters[j])
-        assigned.add((r,c))
+        assigned.add((r, c))
     # fill remaining cells row-major with remaining letters
     fill_idx = 5
     for r in range(3):
         for c in range(3):
-            if (r,c) not in assigned:
-                diag_mat[r][c] = ALPHABET.index(letters[fill_idx]); fill_idx += 1
+            if (r, c) not in assigned:
+                diag_mat[r][c] = ALPHABET.index(letters[fill_idx])
+                fill_idx += 1
     flat = tuple(v for rr in diag_mat for v in rr)
     if flat not in seen:
-        variants.append(diag_mat); seen.add(flat)
+        variants.append(diag_mat)
+        seen.add(flat)
 
     return variants
 
-def _solve_3x3_keys(plain: str, cipher: str) -> List[List[List[int]]]:
+def _solve_3x3_keys(plain: str, cipher: str) -> list[list[list[int]]]:
     """Attempt to derive 3x3 keys from concatenated 9-letter plain/cipher slices using multiple assemblies.
     Returns list of invertible key matrices (may be empty)."""
     p = ''.join(ch for ch in plain.upper() if ch.isalpha())
     c = ''.join(ch for ch in cipher.upper() if ch.isalpha())
     if len(p) < 9 or len(c) < 9:
         return []
-    p = p[:9]; c = c[:9]
+    p = p[:9]
+    c = c[:9]
     P_variants = _assemble_3x3_variants(p)
     C_variants = _assemble_3x3_variants(c)
-    keys: List[List[List[int]]] = []
+    keys: list[list[list[int]]] = []
     for Pv in P_variants:
         Pinv = matrix_inv_mod(Pv)
         if Pinv is None:
             continue
         for Cv in C_variants:
-            K: List[List[int]] = []
+            K: list[list[int]] = []
             for r in range(3):
-                row: List[int] = []
+                row: list[int] = []
                 for col in range(3):
                     val = 0
                     for k in range(3):
@@ -109,10 +113,10 @@ def _solve_3x3_keys(plain: str, cipher: str) -> List[List[List[int]]]:
 
 # --- 3x3 candidate generator (orders + sliding windows refined) ------------
 
-def _generate_3x3_candidates(cribs: Dict[str, str]) -> List[Dict]:
+def _generate_3x3_candidates(cribs: dict[str, str]) -> list[dict]:
     items = list(cribs.items())
-    results: List[Dict] = []
-    seen: Set[Tuple[int, ...]] = set()
+    results: list[dict] = []
+    seen: set[tuple[int, ...]] = set()
     for order in permutations(items, len(items)):
         plain_concat = ''.join(p for p, _ in order)
         cipher_concat = ''.join(c for _, c in order)
@@ -135,14 +139,14 @@ def _generate_3x3_candidates(cribs: Dict[str, str]) -> List[Dict]:
 
 # --- Public API --------------------------------------------------------------
 
-def derive_candidate_keys() -> List[Dict]:
+def derive_candidate_keys() -> list[dict]:
     """Derive candidate 2x2 and refined 3x3 Hill cipher keys from crib segments.
     Generates single/pair 2x2 keys and multiple window/order 3x3 heuristic keys.
     Caches results.
     """
     if 'keys' in _cache_holder:
         return _cache_holder['keys']
-    keys: List[Dict] = []
+    keys: list[dict] = []
     # Single cribs (2x2)
     for plain, cipher in KNOWN_CRIBS.items():
         k = solve_2x2_key(plain, cipher)
@@ -161,17 +165,27 @@ def derive_candidate_keys() -> List[Dict]:
     _cache_holder['keys'] = keys
     return keys
 
-def decrypt_and_score(ciphertext: str, prune_3x3: bool = True, partial_len: int = 60, partial_min: float = -800.0) -> List[Dict]:
+def decrypt_and_score(
+    ciphertext: str,
+    prune_3x3: bool = True,
+    partial_len: int = 60,
+    partial_min: float = -800.0,
+) -> list[dict]:
     """Decrypt ciphertext using candidate keys and score results.
     Each result dict: {'key': key_matrix, 'source': source, 'score': score, 'text': decrypted}.
     """
     key_infos = derive_candidate_keys()
-    results: List[Dict] = []
-    seen_texts: Set[str] = set()
+    results: list[dict] = []
+    seen_texts: set[str] = set()
     for info in key_infos:
         k = info['key']
         dec = hill_decrypt(ciphertext, k)
-        attempt_entry = {'source': info['source'], 'size': info.get('size', len(k)), 'key': k, 'ok': bool(dec)}
+        attempt_entry = {
+            'source': info['source'],
+            'size': info.get('size', len(k)),
+            'key': k,
+            'ok': bool(dec),
+        }
         if dec:
             if prune_3x3 and info.get('size') == 3:
                 partial = dec[:partial_len]
@@ -186,9 +200,18 @@ def decrypt_and_score(ciphertext: str, prune_3x3: bool = True, partial_len: int 
                 score = combined_plaintext_score(dec)
                 attempt_entry['score'] = score
                 results.append({
-                    'key': k, 'source': info['source'], 'size': info.get('size', len(k)),
-                    'score': score, 'text': dec,
-                    'trace': [{'stage': 'hill', 'transformation': f"key:{info['source']}", 'size': info.get('size', len(k))}]
+                    'key': k,
+                    'source': info['source'],
+                    'size': info.get('size', len(k)),
+                    'score': score,
+                    'text': dec,
+                    'trace': [
+                        {
+                            'stage': 'hill',
+                            'transformation': f"key:{info['source']}",
+                            'size': info.get('size', len(k)),
+                        },
+                    ],
                 })
         _hill_attempts.append(attempt_entry)
     results.sort(key=lambda r: r['score'], reverse=True)

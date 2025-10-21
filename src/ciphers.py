@@ -7,7 +7,7 @@ import logging
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
 )
 
 
@@ -38,7 +38,7 @@ def vigenere_decrypt(ciphertext, key, preserve_non_alpha=False):
             plaintext.append(c)
             if logging.getLogger().isEnabledFor(logging.DEBUG):
                 logging.debug(
-                    "[%d] Non-alphabetic char preserved: %s", i, c
+                    "[%d] Non-alphabetic char preserved: %s", i, c,
                 )
     return ''.join(plaintext)
 
@@ -60,7 +60,7 @@ def double_rotational_transposition(text):
     if len(text) != cols1 * rows1:
         raise ValueError(
             f"K3 ciphertext must be exactly {cols1 * rows1} characters (got "
-            f"{len(text)})."
+            f"{len(text)}).",
         )
 
     # Fill the 24×14 matrix row by row
@@ -131,7 +131,7 @@ def transposition_decrypt(ciphertext, key=None):
     if len(ciphertext) != width * height:
         raise ValueError(
             f"Expected ciphertext length {width * height}, got "
-            f"{len(ciphertext)}"
+            f"{len(ciphertext)}",
         )
     if key is not None:
         key = key.upper()
@@ -179,6 +179,6 @@ def polybius_decrypt(ciphertext, key_square):
             plaintext.append(key_square[row][col])
         except (IndexError, ValueError) as exc:
             raise ValueError(
-                f"Invalid pair in ciphertext: {pair}"
+                f"Invalid pair in ciphertext: {pair}",
             ) from exc
     return ''.join(plaintext)

@@ -1,7 +1,7 @@
 """Sample composite pipeline run producing artifacts & attempt logs.
 Run this after installing dependencies. Generates reports/ folder outputs.
 """
-from typing import Dict, List, Sequence
+from collections.abc import Sequence
 from src.k4 import (
     make_hill_constraint_stage,
     make_transposition_adaptive_stage,
@@ -9,19 +9,19 @@ from src.k4 import (
     make_masking_stage,
     make_berlin_clock_stage,
     run_composite_pipeline,
-    persist_attempt_logs
+    persist_attempt_logs,
 )
 
 CIPHER_K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
-_RAW_POSITIONAL: Dict[str, List[int]] = {
+_RAW_POSITIONAL: dict[str, list[int]] = {
     'EAST': [22],  # provisional; under investigation per strategy doc
     'NORTHEAST': [25],
     'BERLIN': [64],
     'CLOCK': [69],
 }
 # Treat as Dict[str, Sequence[int]] for stage factory
-POSITIONAL_CRIBS: Dict[str, Sequence[int]] = {k: tuple(v) for k, v in _RAW_POSITIONAL.items()}
+POSITIONAL_CRIBS: dict[str, Sequence[int]] = {k: tuple(v) for k, v in _RAW_POSITIONAL.items()}
 
 stages = [
     make_hill_constraint_stage(partial_len=60, partial_min=-800.0),
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         weights=None,  # disables manual weighting; enables adaptive weighting
         normalize=True,
         adaptive=True,  # enable adaptive weighting
-        limit=40
+        limit=40,
     )
     attempt_path = persist_attempt_logs(out_dir='reports', label='K4', clear=True)
     print("Artifacts written. Attempt log:", attempt_path)

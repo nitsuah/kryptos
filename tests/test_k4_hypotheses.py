@@ -1,6 +1,5 @@
 """Skipped high-level hypothesis tests for K4."""
 import unittest
-from src.k4 import hill_decrypt, invert_columnar, apply_clock_shifts
 
 class TestK4Hypotheses(unittest.TestCase):
     @unittest.skip("Hill hypothesis not implemented")

@@ -5,39 +5,38 @@ maximize the combined_plaintext_score from scoring.py by permuting a mapping.
 Not cryptographically exhaustive; serves as a heuristic filter.
 """
 import random
-from typing import Dict, Tuple
 from .scoring import combined_plaintext_score
 
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
-def initial_mapping() -> Dict[str, str]:
+def initial_mapping() -> dict[str, str]:
     letters = list(ALPHABET)
     random.shuffle(letters)
     return {c: letters[i] for i, c in enumerate(ALPHABET)}
 
 
-def apply_mapping(text: str, mapping: Dict[str, str]) -> str:
+def apply_mapping(text: str, mapping: dict[str, str]) -> str:
     return ''.join(mapping.get(c, c) for c in text)
 
 
-def invert_mapping(mapping: Dict[str, str]) -> Dict[str, str]:
+def invert_mapping(mapping: dict[str, str]) -> dict[str, str]:
     return {v: k for k, v in mapping.items()}
 
 
-def random_swap(mapping: Dict[str, str]) -> None:
+def random_swap(mapping: dict[str, str]) -> None:
     a, b = random.sample(ALPHABET, 2)
     mapping[a], mapping[b] = mapping[b], mapping[a]
 
 
-def solve_substitution(ciphertext: str, iterations: int = 5000, restarts: int = 5) -> Tuple[str, float, Dict[str, str]]:
+def solve_substitution(ciphertext: str, iterations: int = 5000, restarts: int = 5) -> tuple[str, float, dict[str, str]]:
     """Attempt to solve monoalphabetic substitution for ciphertext.
 
     Returns best plaintext, score, and mapping.
     """
     best_plain = ''
     best_score = float('-inf')
-    best_map: Dict[str, str] = {}
+    best_map: dict[str, str] = {}
 
     for _ in range(restarts):
         mapping = initial_mapping()

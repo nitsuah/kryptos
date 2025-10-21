@@ -4,7 +4,7 @@ from src.k4 import (
     make_hill_constraint_stage,
     make_route_transposition_stage,
     run_composite_pipeline,
-    adaptive_fusion_weights
+    adaptive_fusion_weights,
 )
 
 CIPHER_SAMPLE = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
@@ -19,12 +19,12 @@ class TestAdaptiveFusionWeights(unittest.TestCase):
         ]
         weights = adaptive_fusion_weights(candidates)
         self.assertTrue(all(0.3 <= w <= 2.5 for w in weights.values()))
-        self.assertEqual(set(weights.keys()), {'A','B','C'})
+        self.assertEqual(set(weights.keys()), {'A', 'B', 'C'})
 
     def test_run_composite_pipeline_adaptive_profile(self):
         stages = [
             make_hill_constraint_stage(partial_len=30, partial_min=-900.0),
-            make_route_transposition_stage(min_cols=5, max_cols=5)
+            make_route_transposition_stage(min_cols=5, max_cols=5),
         ]
         result = run_composite_pipeline(CIPHER_SAMPLE, stages, report=False, adaptive=True, limit=20)
         diag = result['profile'].get('adaptive_diagnostics')

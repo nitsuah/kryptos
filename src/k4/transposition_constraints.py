@@ -1,31 +1,32 @@
 """Constraint-based columnar transposition solver prototype (crib anchoring)."""
 from __future__ import annotations
-from typing import List, Tuple, Dict, Sequence
+
+from collections.abc import Sequence
 import itertools
 from .scoring import combined_plaintext_score_cached as combined_plaintext_score, positional_crib_bonus
 from .cribs import normalize_cipher
 
-def _column_lengths(n: int, n_cols: int) -> List[int]:
+def _column_lengths(n: int, n_cols: int) -> list[int]:
     n_rows = (n + n_cols - 1) // n_cols
     full_cols = n % n_cols if n % n_cols != 0 else n_cols
     return [n_rows if i < full_cols else (n_rows - 1) for i in range(n_cols)]
 
-def invert_columnar(ciphertext: str, n_cols: int, perm: Tuple[int, ...]) -> str:
+def invert_columnar(ciphertext: str, n_cols: int, perm: tuple[int, ...]) -> str:
     """Invert columnar transposition with given column permutation."""
     ct = normalize_cipher(ciphertext)
     n = len(ct)
     col_lengths = _column_lengths(n, n_cols)
-    cols: List[str] = []
+    cols: list[str] = []
     idx = 0
     for p in perm:
         L = col_lengths[p]
         cols.append(ct[idx:idx+L])
         idx += L
-    original: List[str] = [''] * n_cols
+    original: list[str] = [''] * n_cols
     for read_idx, p in enumerate(perm):
         original[p] = cols[read_idx]
     n_rows = max(len(c) for c in original)
-    out: List[str] = []
+    out: list[str] = []
     for r in range(n_rows):
         for c in range(n_cols):
             col = original[c]
@@ -33,14 +34,14 @@ def invert_columnar(ciphertext: str, n_cols: int, perm: Tuple[int, ...]) -> str:
                 out.append(col[r])
     return ''.join(out)
 
-def search_with_crib(ciphertext: str, crib: str, n_cols: int, max_perms: int = 1000) -> List[Dict]:
+def search_with_crib(ciphertext: str, crib: str, n_cols: int, max_perms: int = 1000) -> list[dict]:
     """Search permutations where decrypted text contains crib substring.
     Returns top results sorted by score.
     """
     ct = normalize_cipher(ciphertext)
     target = normalize_cipher(crib)
     perms_iter = itertools.permutations(range(n_cols))
-    results: List[Dict] = []
+    results: list[dict] = []
     for count, perm in enumerate(perms_iter):
         if count >= max_perms:
             break
@@ -57,15 +58,15 @@ def search_with_crib_at_position(
     n_cols: int,
     expected_index: int,
     window: int = 5,
-    max_perms: int = 2000
-) -> List[Dict]:
+    max_perms: int = 2000,
+) -> list[dict]:
     """Search permutations where decrypted text places crib starting within expected_index ± window.
     Returns top scored matches.
     """
     ct = normalize_cipher(ciphertext)
     target = normalize_cipher(crib)
     perms_iter = itertools.permutations(range(n_cols))
-    results: List[Dict] = []
+    results: list[dict] = []
     for count, perm in enumerate(perms_iter):
         if count >= max_perms:
             break
@@ -81,12 +82,12 @@ def search_with_crib_at_position(
 
 def search_with_multiple_cribs_positions(
     ciphertext: str,
-    positional_cribs: Dict[str, Sequence[int]],
+    positional_cribs: dict[str, Sequence[int]],
     n_cols: int,
     window: int = 5,
     max_perms: int = 5000,
-    limit: int = 50
-) -> List[Dict]:
+    limit: int = 50,
+) -> list[dict]:
     """Search permutations where all provided cribs appear within any of their expected indices ± window.
     positional_cribs: mapping crib -> iterable of expected start indices (0-based).
     Adds positional bonus to score via positional_crib_bonus.
@@ -95,22 +96,22 @@ def search_with_multiple_cribs_positions(
     if not positional_cribs:
         return []
     ct = normalize_cipher(ciphertext)
-    crib_norm_map: Dict[str, str] = {crib.upper(): normalize_cipher(crib) for crib in positional_cribs}
+    crib_norm_map: dict[str, str] = {crib.upper(): normalize_cipher(crib) for crib in positional_cribs}
     perms_iter = itertools.permutations(range(n_cols))
-    results: List[Dict] = []
+    results: list[dict] = []
     for count, perm in enumerate(perms_iter):
         if count >= max_perms:
             break
         pt = invert_columnar(ct, n_cols, perm)
         # Check each crib for at least one occurrence within positional window
         all_ok = True
-        occurrences: Dict[str, int] = {}
+        occurrences: dict[str, int] = {}
         for crib, expected_positions in positional_cribs.items():
             target = crib_norm_map[crib.upper()]
             if not target:
                 continue
             # find all occurrences
-            starts = []
+            starts: list[int] = []  # ensure spacing after commas when appending
             idx = pt.find(target)
             while idx != -1:
                 starts.append(idx)
@@ -133,8 +134,19 @@ def search_with_multiple_cribs_positions(
         base_score = combined_plaintext_score(pt)
         pos_bonus = positional_crib_bonus(pt, positional_cribs, window)
         score = base_score + pos_bonus
-        results.append({'perm': perm, 'score': score, 'text': pt, 'positions': occurrences, 'pos_bonus': pos_bonus})
+        results.append({
+            'perm': perm,
+            'score': score,
+            'text': pt,
+            'positions': occurrences,
+            'pos_bonus': pos_bonus,
+        })
     results.sort(key=lambda r: r['score'], reverse=True)
     return results[:limit]
 
-__all__ = ['invert_columnar','search_with_crib','search_with_crib_at_position','search_with_multiple_cribs_positions']
+__all__ = [
+    'invert_columnar',
+    'search_with_crib',
+    'search_with_crib_at_position',
+    'search_with_multiple_cribs_positions',
+]

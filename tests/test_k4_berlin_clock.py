@@ -2,9 +2,11 @@
 import unittest
 from datetime import time
 from src.k4 import (
-    berlin_clock_shifts, apply_clock_shifts,
-    full_clock_state, full_berlin_clock_shifts, enumerate_clock_shift_sequences,
-    make_berlin_clock_stage, Pipeline, StageResult
+    berlin_clock_shifts,
+    full_clock_state,
+    full_berlin_clock_shifts,
+    enumerate_clock_shift_sequences,
+    make_berlin_clock_stage, Pipeline, StageResult,
 )
 
 class TestBerlinClock(unittest.TestCase):

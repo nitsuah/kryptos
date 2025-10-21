@@ -4,10 +4,12 @@ Generates candidate plaintext variants by removing or substituting suspected nul
 and evaluating resulting texts.
 """
 from __future__ import annotations
-from typing import List, Dict, Iterable, Any
+from typing import Any
+
+from collections.abc import Iterable
 from .scoring import combined_plaintext_score
 
-DEFAULT_NULLS = {'X','Y'}
+DEFAULT_NULLS = {'X', 'Y'}
 
 def remove_chars(text: str, chars: Iterable[str]) -> str:
     """Return text with all occurrences of chars removed (case-insensitive for alpha)."""
@@ -16,7 +18,7 @@ def remove_chars(text: str, chars: Iterable[str]) -> str:
 
 def collapse_runs(text: str, char: str, max_run: int = 2) -> str:
     """Collapse runs of a given char longer than max_run down to max_run length."""
-    out: List[str] = []
+    out: list[str] = []
     run = 0
     for ch in text:
         if ch.upper() == char.upper():
@@ -28,11 +30,11 @@ def collapse_runs(text: str, char: str, max_run: int = 2) -> str:
             out.append(ch)
     return ''.join(out)
 
-def mask_variants(text: str, null_chars: Iterable[str] | None = None) -> List[str]:
+def mask_variants(text: str, null_chars: Iterable[str] | None = None) -> list[str]:
     """Generate simple masking variants: full removal and run-collapsed versions for each null char."""
     if null_chars is None:
         null_chars = DEFAULT_NULLS
-    variants: List[str] = []
+    variants: list[str] = []
     base = text
     for n in null_chars:
         removed = remove_chars(base, [n])
@@ -43,20 +45,20 @@ def mask_variants(text: str, null_chars: Iterable[str] | None = None) -> List[st
     variants.append(remove_chars(base, null_chars))
     # Deduplicate while preserving order
     seen = set()
-    uniq: List[str] = []
+    uniq: list[str] = []
     for v in variants:
         if v not in seen:
             seen.add(v)
             uniq.append(v)
     return uniq
 
-def score_mask_variants(text: str, null_chars: Iterable[str] | None = None) -> List[Dict[str, Any]]:
+def score_mask_variants(text: str, null_chars: Iterable[str] | None = None) -> list[dict[str, Any]]:
     """Produce scored variant list sorted by score desc."""
     vars_ = mask_variants(text, null_chars)
-    scored: List[Dict[str, Any]] = []
+    scored: list[dict[str, Any]] = []
     for v in vars_:
         scored.append({'text': v, 'score': combined_plaintext_score(v), 'variant': 'mask'})
     scored.sort(key=lambda r: r['score'], reverse=True)
     return scored
 
-__all__ = ['DEFAULT_NULLS','remove_chars','collapse_runs','mask_variants','score_mask_variants']
+__all__ = ['DEFAULT_NULLS', 'remove_chars', 'collapse_runs', 'mask_variants', 'score_mask_variants']
