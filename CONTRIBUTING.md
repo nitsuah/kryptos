@@ -4,7 +4,7 @@ Thank you for your interest in advancing K4 analysis.
 
 ## Workflow
 
-1. Fork and branch from `k4`.
+1. Fork and branch from `main`.
 2. Implement a focused enhancement (small, testable functions).
 3. Add or update tests under `tests/` (avoid large exhaustive brute-force loops; cap iterations).
 4. Update exports in `src/k4/__init__.py` if you introduce new public symbols.
@@ -35,7 +35,7 @@ Thank you for your interest in advancing K4 analysis.
 ## Documentation
 
 - README: High-level overview only.
-- `roadmap.md`: Detailed upcoming modules and hypotheses.
+- `ROADMAP.md`: Detailed upcoming modules and hypotheses.
 - Inline comments: Clarify non-obvious math (e.g., matrix inversion steps).
 
 ## Data
@@ -48,7 +48,7 @@ Thank you for your interest in advancing K4 analysis.
 - [ ] Feature isolated and cohesive
 - [ ] Tests added / updated
 - [ ] All tests pass locally
-- [ ] README / roadmap updated if relevant
+- [ ] README / ROADMAP.md updated if relevant
 - [ ] No linter / syntax errors
 
 Welcome aboard!
