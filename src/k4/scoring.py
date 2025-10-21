@@ -94,18 +94,6 @@ else:
 CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
 WORDLIST: Set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
 
-    'THE': -1.0,
-    'AND': -1.2,
-    'ING': -1.3,
-    'ION': -1.4,
-    'ENT': -1.5,
-    'HER': -1.6,
-    'FOR': -1.7,
-    'THA': -1.8,
-    'NTH': -1.9,
-    'INT': -2.0,
-    'ERE': -2.1,
-    'TIO': -2.2,
 if not LETTER_FREQ:
     LETTER_FREQ = {
         'E': 12.702,'T': 9.056,'A':8.167,'O':7.507,'N':6.749,'I':6.966,
