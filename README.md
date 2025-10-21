@@ -88,6 +88,18 @@ for cand in result.metadata['candidates'][:5]:
     print(cand['source'], cand['score'], cand['text'][:50])
 ```
 
+## Quick Start: Composite Multi-Stage Run
+
+```python
+from src.k4 import make_hill_constraint_stage, make_berlin_clock_stage, run_composite_pipeline
+cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
+stages = [make_hill_constraint_stage(), make_berlin_clock_stage(step_seconds=10800, limit=15)]
+res = run_composite_pipeline(cipher_k4, stages, report=True)
+print("Aggregated candidates:")
+for c in res['aggregated'][:5]:
+    print(c['stage'], c['score'], c['text'][:50])
+```
+
 ## Scoring Metrics Snapshot
 
 Use `from src.k4 import baseline_stats` to inspect metrics for any candidate plaintext.

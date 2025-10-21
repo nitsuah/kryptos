@@ -129,13 +129,13 @@ Each test should skip (`unittest.skip`) until implemented.
 
 ## 15. Next Immediate Actions (Updated)
 
-- Integrate Berlin Clock overlay as pipeline stage (apply full lamp shifts, score, report).
-- Add quadgram loader/score (data/quadgrams.tsv) and incorporate into combined score weighting.
+- Integrate transposition stage into composite chain (currently hill + clock only).
+- Add quadgram loader/score (COMPLETED).
 - Implement adaptive transposition pruning (prefix caching + permutation sampling bias).
-- Composite multi-stage run: transposition → hill constraints → clock shifts; merge & rank unified candidate set.
 - Prototype recursive masking/null removal heuristic (detect/remove low-frequency padding clusters; evaluate score delta).
+- Enhance scoring fusion across stages (weighted aggregation of multi-stage candidate metrics).
 
-(Previous items: crib mapping, Hill cipher module, test scaffolds now completed.)
+(Composite multi-stage aggregation implemented; previous items crib mapping, Hill cipher module, test scaffolds completed.)
 
 ## 16. References
 

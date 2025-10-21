@@ -19,6 +19,7 @@ from .transposition_constraints import invert_columnar, search_with_crib
 from .hill_search import score_decryptions
 from .hill_constraints import KNOWN_CRIBS, derive_candidate_keys, decrypt_and_score
 from .reporting import write_candidates_json, write_candidates_csv, generate_candidate_artifacts
+from .composite import aggregate_stage_candidates, run_composite_pipeline
 
 __all__ = [
     'generate_partitions', 'partitions_for_k4', 'slice_by_partition',
@@ -51,3 +52,5 @@ __all__ += ['write_candidates_json','write_candidates_csv','generate_candidate_a
 __all__ += ['full_clock_state','encode_clock_state','full_berlin_clock_shifts','enumerate_clock_shift_sequences']
 
 __all__ += ['QUADGRAMS','quadgram_score']
+
+__all__ += ['aggregate_stage_candidates','run_composite_pipeline']
