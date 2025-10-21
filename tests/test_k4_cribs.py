@@ -1,6 +1,6 @@
 """Tests for crib mapping and positional index validation."""
 import unittest
-from typing import Dict, Any
+from typing import Dict, Optional
 from src.k4 import annotate_cribs, normalize_cipher
 
 K4_CIPHER = normalize_cipher("OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT MZFPKWGDKZXTJCDIGKUHUAUEKCAR")
@@ -21,7 +21,7 @@ class TestCribMapping(unittest.TestCase):
             'CLOCK': 'MZFPK',
         }
         ann = annotate_cribs(K4_CIPHER, mapping, one_based=False)
-        found: Dict[str, int | None] = {}
+        found: Dict[str, Optional[int]] = {}
         for entry in ann:
             exp_pos = entry.get('expected_positions')
             start_idx = exp_pos[0] if isinstance(exp_pos, tuple) else None

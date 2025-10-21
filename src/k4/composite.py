@@ -103,6 +103,8 @@ def run_composite_pipeline(
             by_stage.setdefault(m['stage'], []).append(m)
         diag: Dict[str, Dict[str, float]] = {}
         for stage, arr in by_stage.items():
+            if not arr:
+                continue
             wls = sorted(v['wl'] for v in arr)
             ents = sorted(v['ent'] for v in arr)
             mid_wl = wls[len(wls)//2]

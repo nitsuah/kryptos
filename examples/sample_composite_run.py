@@ -15,7 +15,7 @@ from src.k4 import (
 CIPHER_K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
 _RAW_POSITIONAL: Dict[str, List[int]] = {
-    'EAST': [22],
+    'EAST': [22],  # provisional; under investigation per strategy doc
     'NORTHEAST': [25],
     'BERLIN': [64],
     'CLOCK': [69],
