@@ -11,6 +11,7 @@ from .berlin_clock import enumerate_clock_shift_sequences, apply_clock_shifts
 from .transposition import search_columnar, search_columnar_adaptive
 from .masking import score_mask_variants
 from .transposition_constraints import search_with_multiple_cribs_positions  # new import
+from .transposition_routes import generate_route_variants  # new import
 
 @dataclass
 class StageResult:
@@ -216,4 +217,20 @@ def make_transposition_multi_crib_stage(
         }, score=best.get('score', combined_plaintext_score(ct)))
     return Stage(name=name, func=_run)
 
-__all__ = ['Stage','StageResult','Pipeline','make_hill_constraint_stage','make_berlin_clock_stage','make_transposition_stage','make_transposition_adaptive_stage','make_masking_stage','get_clock_attempt_log','get_hill_attempt_log','make_transposition_multi_crib_stage']
+def make_route_transposition_stage(
+    name: str = 'transposition-route',
+    min_cols: int = 5,
+    max_cols: int = 8,
+    routes: tuple[str, ...] = ('spiral','boustrophedon','diagonal'),
+    limit: int = 50
+) -> Stage:
+    """Create a stage enumerating route-based grid traversal variants (spiral, boustrophedon, diagonal)."""
+    def _run(ct: str) -> StageResult:
+        cands = generate_route_variants(ct, cols_min=min_cols, cols_max=max_cols, routes=routes)
+        for c in cands:
+            c['trace'] = [{'stage': name, 'transformation': f"route:{c['route']}:{c['cols']}", 'route': c['route'], 'cols': c['cols']}]
+        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
+        return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
+    return Stage(name=name, func=_run)
+
+__all__ = ['Stage','StageResult','Pipeline','make_hill_constraint_stage','make_berlin_clock_stage','make_transposition_stage','make_transposition_adaptive_stage','make_masking_stage','get_clock_attempt_log','get_hill_attempt_log','make_transposition_multi_crib_stage', 'make_route_transposition_stage']

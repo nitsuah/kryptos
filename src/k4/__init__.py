@@ -7,7 +7,7 @@ from .scoring import (
     QUADGRAMS, quadgram_score, letter_entropy, repeating_bigram_fraction
 )
 from .substitution_solver import solve_substitution
-from .pipeline import Pipeline, Stage, StageResult, make_hill_constraint_stage, make_berlin_clock_stage, make_transposition_stage, make_transposition_adaptive_stage, make_masking_stage, make_transposition_multi_crib_stage
+from .pipeline import Pipeline, Stage, StageResult, make_hill_constraint_stage, make_berlin_clock_stage, make_transposition_stage, make_transposition_adaptive_stage, make_masking_stage, make_transposition_multi_crib_stage, make_route_transposition_stage
 from .transposition import apply_columnar_permutation, search_columnar, search_columnar_adaptive
 from .hill_cipher import (
     mod_inv, matrix_det, matrix_inv_mod,
@@ -22,6 +22,7 @@ from .reporting import write_candidates_json, write_candidates_csv, generate_can
 from .composite import aggregate_stage_candidates, run_composite_pipeline, normalize_scores, fuse_scores_weighted
 from .masking import DEFAULT_NULLS, mask_variants, score_mask_variants
 from .attempt_logging import persist_attempt_logs
+from .transposition_routes import generate_route_variants
 
 __all__ = [
     'generate_partitions', 'partitions_for_k4', 'slice_by_partition',
@@ -47,7 +48,7 @@ __all__ += ['score_decryptions']
 
 __all__ += ['KNOWN_CRIBS','derive_candidate_keys','decrypt_and_score']
 
-__all__ += ['make_hill_constraint_stage', 'make_berlin_clock_stage', 'make_transposition_stage', 'make_transposition_adaptive_stage', 'make_masking_stage', 'make_transposition_multi_crib_stage']
+__all__ += ['make_hill_constraint_stage', 'make_berlin_clock_stage', 'make_transposition_stage', 'make_transposition_adaptive_stage', 'make_masking_stage', 'make_transposition_multi_crib_stage', 'make_route_transposition_stage']
 
 __all__ += ['write_candidates_json','write_candidates_csv','generate_candidate_artifacts']
 
@@ -62,5 +63,7 @@ __all__ += ['search_columnar_adaptive','normalize_scores','fuse_scores_weighted'
 __all__ += ['DEFAULT_NULLS','mask_variants','score_mask_variants']
 
 __all__ += ['persist_attempt_logs']
+
+__all__ += ['generate_route_variants']
 
 # TODO: dynamic fusion weighting integrating wordlist_hit_rate & trigram_entropy (see strategy doc).
