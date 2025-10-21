@@ -66,7 +66,12 @@ def _load_config_cribs(path: str) -> list[str]:
 LETTER_FREQ: Dict[str, float] = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv'))
 BIGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'bigrams.tsv'))
 TRIGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'trigrams.tsv'))
-QUADGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'quadgrams.tsv'))
+# Prefer high quality quadgrams file if present
+_quad_hi_path = os.path.join(DATA_DIR, 'quadgrams_high_quality.tsv')
+if os.path.exists(_quad_hi_path):
+    QUADGRAMS: Dict[str, float] = _load_ngrams(_quad_hi_path)
+else:
+    QUADGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'quadgrams.tsv'))
 CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
 
 # Fallback minimal frequency if file missing
@@ -81,7 +86,7 @@ if not LETTER_FREQ:
 
 _UNKNOWN_BIGRAM = -2.0
 _UNKNOWN_TRIGRAM = -2.5
-_UNKNOWN_QUADGRAM = -3.5
+_UNKNOWN_QUADGRAM = -4.0  # slightly harsher unknown penalty with higher quality table
 
 # ---------------- Metrics ----------------
 
