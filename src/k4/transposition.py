@@ -36,22 +36,39 @@ def apply_columnar_permutation(ciphertext: str, n_cols: int, perm: Tuple[int, ..
     return ''.join(plaintext_chars)
 
 
-def search_columnar(ciphertext: str, min_cols: int = 5, max_cols: int = 8, max_perms_per_width: int = 720) -> List[Dict]:
+def _partial_score(text: str, length: int) -> float:
+    """Score only a leading segment of text for pruning heuristics."""
+    segment = text[:length]
+    return combined_plaintext_score(segment)
+
+def search_columnar(
+    ciphertext: str,
+    min_cols: int = 5,
+    max_cols: int = 8,
+    max_perms_per_width: int = 720,
+    prune: bool = False,
+    partial_length: int = 40,
+    partial_min_score: float = -1e9
+) -> List[Dict]:
     """Search columnar transposition permutations across a range of column counts.
     Factorial growth is limited by sampling permutations if necessary.
+    Optional pruning: if prune=True, evaluate partial segment score and skip candidate
+    if below partial_min_score.
     Returns list of dicts: {'cols': n_cols, 'perm': perm, 'score': score, 'text': plaintext}
     """
     results: List[Dict] = []
     for n_cols in range(min_cols, max_cols + 1):
         all_perms_iter: Iterable[Tuple[int,...]] = itertools.permutations(range(n_cols))
-        # Limit permutations to avoid explosion
         for count, perm in enumerate(all_perms_iter):
             if count >= max_perms_per_width:
                 break
             pt = apply_columnar_permutation(ciphertext, n_cols, perm)
+            if prune:
+                ps = _partial_score(pt, partial_length)
+                if ps < partial_min_score:
+                    continue
             score = combined_plaintext_score(pt)
             results.append({'cols': n_cols, 'perm': perm, 'score': score, 'text': pt})
-    # Sort by score descending
     results.sort(key=lambda r: r['score'], reverse=True)
     return results[:50]
 
