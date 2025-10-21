@@ -22,7 +22,8 @@ Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos u
 ### K4: The unsolved mystery
 
 - **Status**: Unsolved.
-- **Next Focus**: Research masking techniques, positional/overlay hypotheses, layered transposition, and potential null insertion strategies (see Kryptosfan blog & CIA hints: `BERLIN`, `CLOCK`).
+- **Implemented Toolkit**: See new K4 modules below (Hill cipher exploration, scoring, constraint pipeline).
+- **Next Focus**: Research masking techniques, positional/overlay hypotheses, layered transposition, and potential null insertion strategies (see CIA hints: `BERLIN`, `CLOCK`).
 
 ## Deliberate Misspellings / Anomalies
 
@@ -31,23 +32,62 @@ Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos u
 | K1      | IQLUSION              | ILLUSION                  | Intentional artistic alteration |
 | K3      | DESPARATLY            | DESPERATELY               | Preserved from sculpture transcription |
 
+### K2 Structural Padding
+
+K2 contains systematic X (and some Y) insertions serving as alignment/null separators rather than mistakes. They should be treated as structural artifacts when analyzing pattern continuity or constructing transposition hypotheses.
+
 ## Features
 
 - **Vigenère Cipher** with keyed alphabet handling
 - **K3 Double Rotational Transposition** implementation
 - **Config Driven** (`config/config.json`) for ciphertexts, keys, and parameters
 - **Test Suite** validating K1–K3 solutions
-- **Exploratory Utilities** for frequency & crib analysis
+- **Frequency, n-gram, and crib-based scoring utilities**
+- **Hill cipher (2x2 & 3x3)** encryption/decryption + key solving from crib segments
+- **Constrained Hill key derivation** from `BERLIN` / `CLOCK` cribs (single & pairwise) with caching
+- **Modular pipeline architecture** (stage factory for Hill constraints)
+- **Columnar transposition** search and crib-constrained inversion utilities
+- **Extended scoring metrics**: chi-square, bigram/trigram totals, index of coincidence, vowel ratio, letter coverage, baseline metric bundle
+- **Berlin Clock shift hypothesis** scaffolding (early exploratory stage)
 
-## Roadmap Toward K4
+## K4 Analysis Toolkit (New Modules)
 
-Planned analytical modules:
+Located under `src/k4/` (see full roadmap in `roadmap.md`):
 
-- Layered transposition brute-force scaffolding
-- Probable word / crib placement scoring (BERLIN, CLOCK, EASTNORTHEAST)
-- Recursive masking / null removal heuristics
-- N-gram fitness ranking over candidate decrypts
-- Overlay & spiral path experiments (grid-based)
+- `scoring.py` – file-driven frequencies & composite scoring
+- `hill_cipher.py` – Hill math & crib-based key solving
+- `hill_constraints.py` – constrained 2x2 key derivation + caching
+- `hill_search.py` – candidate batch scoring
+- `transposition.py` / `transposition_constraints.py` – permutation & crib-aware inversion
+- `cribs.py` – normalization / annotation
+- `berlin_clock.py` – preliminary clock shift generator
+- `pipeline.py` – `Pipeline`, `Stage`, `StageResult`, `make_hill_constraint_stage()`
+
+Exports aggregated in `src/k4/__init__.py`.
+
+## Roadmap
+
+Detailed future plans (candidate reporting, Berlin Clock expansion, pruning heuristics, extended Hill search, masking strategies) have moved to `roadmap.md` → see the full document here: [Detailed Roadmap](./roadmap.md).
+
+## Contributing
+
+Contribution guidelines moved to `CONTRIBUTING.md` → read them here: [Contributing Guide](./CONTRIBUTING.md).
+
+## Quick Start: Hill Constraint Stage
+
+```python
+from src.k4 import Pipeline, make_hill_constraint_stage
+
+cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"  # sample beginning
+pipe = Pipeline([make_hill_constraint_stage()])
+result = pipe.run(cipher_k4)[0]  # StageResult
+for cand in result.metadata['candidates'][:5]:
+    print(cand['source'], cand['score'], cand['text'][:50])
+```
+
+## Scoring Metrics Snapshot
+
+Use `from src.k4 import baseline_stats` to inspect metrics for any candidate plaintext.
 
 ## How to Run
 
@@ -57,6 +97,14 @@ cd kryptos
 pip install -r requirements.txt
 python -m unittest discover -s tests
 ```
+
+## Data Sources
+
+Frequency & n-gram data in `data/` (TSV). Fallback values used if missing.
+
+## License
+
+See `LICENSE`.
 
 ## References & Research
 
