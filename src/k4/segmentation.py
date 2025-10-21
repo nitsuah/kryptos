@@ -39,8 +39,8 @@ def generate_partitions(total: int, min_len: int, max_len: int, limit: int = 100
 
 @lru_cache(maxsize=1024)
 def partitions_for_k4(min_len: int = 12, max_len: int = 24) -> List[Tuple[int, ...]]:
-    """Convenience wrapper for K4 (length TBD, placeholder 97)."""
-    k4_len = 97  # adjust when ciphertext finalized
+    """Convenience wrapper for K4 (ciphertext length 97)."""
+    k4_len = 97  # K4 ciphertext length is 97
     return generate_partitions(k4_len, min_len, max_len, limit=5000)
 
 
