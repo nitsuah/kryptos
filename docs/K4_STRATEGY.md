@@ -26,7 +26,7 @@ Known plaintext cribs (confirmed by Sanborn) with expected start indices (0-base
 | BERLIN | 64 | NYPVTT |
 | CLOCK | 69 | MZFPK |
 
-(Indices validated; prior NORTHEAST=26 and CLOCK=70 were off-by-one. Harmonized for positional scoring. See validation in [`tests/test_k4_cribs.py`](../tests/test_k4_cribs.py).)
+(Indices validated; the table above shows the corrected values (NORTHEAST=25, CLOCK=69). Prior values (NORTHEAST=26 and CLOCK=70) were off-by-one errors. Harmonized for positional scoring. See validation in [`tests/test_k4_cribs.py`](../tests/test_k4_cribs.py).)
 
 ## 3. Constraints & Observations
 
