@@ -2,7 +2,7 @@
 import unittest
 from src.k4 import search_with_crib_at_position
 
-def _make_columnar_ciphertext(plaintext: str, n_cols: int, perm: tuple[int, ...]) -> str:
+def _make_columnar_ciphertext(plaintext: str, n_cols: int, perm: Tuple[int, ...]) -> str:
     """Produce ciphertext matching invert_columnar model for given permutation."""
     pt = ''.join(c for c in plaintext.upper() if c.isalpha())
     n = len(pt)
