@@ -9,6 +9,7 @@ def _make_columnar_ciphertext(plaintext: str, n_cols: int, perm: tuple[int, ...]
     for i, ch in enumerate(pt):
         c = i % n_cols
         cols[c] += ch
+    # Ciphertext constructed by concatenating columns in permuted order
     pieces = [cols[p] for p in perm]
     return ''.join(pieces)
 
