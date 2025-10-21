@@ -15,10 +15,23 @@ from pathlib import Path
 
 # Ensure repository root on path when executing as a script.
 ROOT = Path(__file__).resolve().parents[1]  # kryptos project root
-sys.path.insert(0, str(ROOT))  # insert at front unconditionally for simplicity
+SRC_DIR = ROOT / 'src'
+# Ensure both repo root and src are importable depending on environment
+for p in (str(ROOT), str(SRC_DIR)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
-from src.k4.executor import PipelineConfig, PipelineExecutor  # noqa: E402
-from src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # noqa: E402
+# Try a few import fallbacks depending on how the workspace is invoked
+try:  # pragma: no cover - import resolution logic
+    from src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
+    from src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
+except ImportError:  # pragma: no cover
+    try:
+        from k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
+        from k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
+    except ImportError:  # pragma: no cover
+        from kryptos.src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
+        from kryptos.src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
 
 # Short slice of K4 for quick run
 CIPHERTEXT = "OBKRUOXOGHULBSOLIFB"
