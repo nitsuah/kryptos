@@ -48,7 +48,8 @@ K2 contains systematic X (and some Y) insertions serving as alignment/null separ
 - **Modular pipeline architecture** (stage factory for Hill constraints)
 - **Columnar transposition** search and crib-constrained inversion utilities
 - **Extended scoring metrics**: chi-square, bigram/trigram totals, index of coincidence, vowel ratio, letter coverage, baseline metric bundle
-- **Berlin Clock shift hypothesis** scaffolding (early exploratory stage)
+- **Berlin Clock shift hypothesis** scaffolding (now with full lamp enumeration utilities)
+- **Candidate reporting artifacts** (JSON + optional CSV summaries)
 
 ## K4 Analysis Toolkit (New Modules)
 
@@ -60,8 +61,9 @@ Located under `src/k4/` (see full roadmap in `roadmap.md`):
 - `hill_search.py` – candidate batch scoring
 - `transposition.py` / `transposition_constraints.py` – permutation & crib-aware inversion
 - `cribs.py` – normalization / annotation
-- `berlin_clock.py` – preliminary clock shift generator
+- `berlin_clock.py` – preliminary and full clock shift generation (`full_clock_state`, `full_berlin_clock_shifts`, `enumerate_clock_shift_sequences`)
 - `pipeline.py` – `Pipeline`, `Stage`, `StageResult`, `make_hill_constraint_stage()`
+- `reporting.py` – JSON/CSV artifact generation utilities
 
 Exports aggregated in `src/k4/__init__.py`.
 
