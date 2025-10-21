@@ -76,7 +76,7 @@ def matrix_inv_mod(mat: list[list[int]], m: int = MOD) -> list[list[int]] | None
         C31 = b * f - c * e
         C32 = -(a * f - c * d)
         C33 = a * e - b * d
-        # Adjugate: cofactor matrix already transposed in construction
+        # Construct adjugate matrix by transposing the cofactor matrix
         adj = [
             [C11, C21, C31],
             [C12, C22, C32],
