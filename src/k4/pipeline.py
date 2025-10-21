@@ -221,7 +221,7 @@ def make_route_transposition_stage(
     name: str = 'transposition-route',
     min_cols: int = 5,
     max_cols: int = 8,
-    routes: tuple[str, ...] = ('spiral','boustrophedon','diagonal'),
+    routes: Tuple[str, ...] = ('spiral','boustrophedon','diagonal'),
     limit: int = 50
 ) -> Stage:
     """Create a stage enumerating route-based grid traversal variants (spiral, boustrophedon, diagonal)."""
