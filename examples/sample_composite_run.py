@@ -19,15 +19,21 @@ except ImportError:  # fallback for direct script execution without install
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     if PROJECT_ROOT not in sys.path:
         sys.path.insert(0, PROJECT_ROOT)
-    from src.k4 import (
-        make_hill_constraint_stage,
-        make_transposition_adaptive_stage,
-        make_transposition_multi_crib_stage,
-        make_masking_stage,
-        make_berlin_clock_stage,
-        run_composite_pipeline,
-        persist_attempt_logs,
-    )
+    try:
+        from src.k4 import (
+            make_hill_constraint_stage,
+            make_transposition_adaptive_stage,
+            make_transposition_multi_crib_stage,
+            make_masking_stage,
+            make_berlin_clock_stage,
+            run_composite_pipeline,
+            persist_attempt_logs,
+        )
+    except ImportError as e:
+        raise ImportError(
+            "Failed to import 'src.k4' even after adding PROJECT_ROOT to sys.path. "
+            "Ensure the package is installed or the source is available at '{}'.\nOriginal error: {}".format(PROJECT_ROOT, e)
+        ) from e
 from collections.abc import Sequence
 
 CIPHER_K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
