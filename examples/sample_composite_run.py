@@ -1,6 +1,12 @@
 """Sample composite pipeline run producing artifacts & attempt logs.
 Run this after installing dependencies. Generates reports/ folder outputs.
 """
+import os
+import sys
+# Ensure project root (directory containing 'src') is on sys.path when run from outside
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 from collections.abc import Sequence
 from src.k4 import (
     make_hill_constraint_stage,
@@ -26,7 +32,12 @@ POSITIONAL_CRIBS: dict[str, Sequence[int]] = {k: tuple(v) for k, v in _RAW_POSIT
 stages = [
     make_hill_constraint_stage(partial_len=60, partial_min=-800.0),
     make_transposition_adaptive_stage(min_cols=5, max_cols=6, sample_perms=250, partial_length=50),
-    make_transposition_multi_crib_stage(positional_cribs=POSITIONAL_CRIBS, min_cols=5, max_cols=6, window=5),
+    make_transposition_multi_crib_stage(
+        positional_cribs=POSITIONAL_CRIBS,
+        min_cols=5,
+        max_cols=6,
+        window=5,
+    ),
     make_masking_stage(limit=10),
     make_berlin_clock_stage(step_seconds=10800, limit=15),
 ]

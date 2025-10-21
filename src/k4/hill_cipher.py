@@ -58,11 +58,23 @@ def matrix_inv_mod(mat: list[list[int]], m: int = MOD) -> list[list[int]] | None
         a, b, c = mat[0]
         d, e, f = mat[1]
         g, h, i = mat[2]
-        # Correct adjugate (transpose of cofactor matrix) with proper sign pattern
+        # Cofactors (not transposed yet)
+        C11 = (e * i - f * h)
+        C12 = -(d * i - f * g)
+        C13 = (d * h - e * g)
+
+        C21 = -(b * i - c * h)
+        C22 = (a * i - c * g)
+        C23 = -(a * h - b * g)
+
+        C31 = (b * f - c * e)
+        C32 = -(a * f - c * d)
+        C33 = (a * e - b * d)
+        # Adjugate is transpose of cofactor matrix
         adj = [
-            [(e * i - f * h), -(b * i - c * h), (b * f - c * e)],
-            [(d * i - f * g), -(a * i - c * g), (a * f - c * d)],
-            [(d * h - e * g), -(a * h - b * g), (a * e - b * d)],
+            [C11, C21, C31],
+            [C12, C22, C32],
+            [C13, C23, C33],
         ]
     else:
         raise ValueError("Only 2x2 or 3x3 supported")
