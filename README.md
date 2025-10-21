@@ -4,22 +4,22 @@ Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos u
 
 ## Current Progress
 
-### K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"
+### ✅ K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"
 
 - **Status**: Solved.
 - **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional misspelling preserved: `IQLUSION`.
 
-### K2: "It was totally invisible. How's that possible?"
+### ✅ K2: "It was totally invisible. How's that possible?"
 
 - **Status**: Solved.
 - **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for historical alignment. Contains geospatial coordinates and narrative text.
 
-### K3: "Slowly, desperately slowly, the remains of passage debris..."
+### ✅ K3: "Slowly, desperately slowly, the remains of passage debris..."
 
 - **Status**: Solved (double rotational transposition method).
 - **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid → second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling `DESPARATLY` (analogous to `IQLUSION` in K1).
 
-### K4: The unsolved mystery
+### ℹ️ K4: The unsolved mystery
 
 - **Status**: Unsolved.
 - **Implemented Toolkit**: See new K4 modules below (Hill cipher exploration, scoring, constraint pipeline).
@@ -50,6 +50,7 @@ K2 contains systematic X (and some Y) insertions serving as alignment/null separ
 - **Extended scoring metrics**: chi-square, bigram/trigram/quadgram totals, index of coincidence, vowel ratio, letter coverage, baseline metrics
 - **Positional crib weighting** (distance-window bonus)
 - **Berlin Clock shift hypothesis** scaffolding (now with full lamp enumeration utilities + pipeline stage factory `make_berlin_clock_stage`)
+- **Columnar transposition stage factory** (`make_transposition_stage`) for permutation search integration
 - **Candidate reporting artifacts** (JSON + optional CSV summaries)
 
 ## K4 Analysis Toolkit (New Modules)
@@ -63,7 +64,7 @@ Located under `src/k4/` (see full roadmap in `roadmap.md`):
 - `transposition.py` / `transposition_constraints.py` – permutation & crib-aware inversion (with pruning)
 - `cribs.py` – normalization / annotation
 - `berlin_clock.py` – preliminary & full clock shift generation (`full_clock_state`, `full_berlin_clock_shifts`, `enumerate_clock_shift_sequences`)
-- `pipeline.py` – `Pipeline`, `Stage`, `StageResult`, `make_hill_constraint_stage()`, `make_berlin_clock_stage()`
+- `pipeline.py` – `Pipeline`, `Stage`, `StageResult`, `make_hill_constraint_stage()`, `make_berlin_clock_stage()`, `make_transposition_stage()`
 - `reporting.py` – JSON/CSV artifact generation utilities
 
 Exports aggregated in `src/k4/__init__.py`.
@@ -91,9 +92,13 @@ for cand in result.metadata['candidates'][:5]:
 ## Quick Start: Composite Multi-Stage Run
 
 ```python
-from src.k4 import make_hill_constraint_stage, make_berlin_clock_stage, run_composite_pipeline
+from src.k4 import make_hill_constraint_stage, make_berlin_clock_stage, make_transposition_stage, run_composite_pipeline
 cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
-stages = [make_hill_constraint_stage(), make_berlin_clock_stage(step_seconds=10800, limit=15)]
+stages = [
+    make_hill_constraint_stage(),
+    make_transposition_stage(min_cols=5, max_cols=6, max_perms_per_width=120, prune=True, partial_min_score=-300.0, limit=25),
+    make_berlin_clock_stage(step_seconds=10800, limit=15)
+]
 res = run_composite_pipeline(cipher_k4, stages, report=True)
 print("Aggregated candidates:")
 for c in res['aggregated'][:5]:

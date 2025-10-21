@@ -7,9 +7,13 @@ from typing import Callable, List, Dict, Any
 from .hill_constraints import decrypt_and_score
 from .scoring import combined_plaintext_score
 from .berlin_clock import enumerate_clock_shift_sequences, apply_clock_shifts
+from .transposition import search_columnar, search_columnar_adaptive  # updated import
 
 @dataclass
 class StageResult:
+    """
+    Represents the result of a processing stage in the pipeline.
+    """
     name: str
     output: str
     metadata: Dict[str, Any]
@@ -17,14 +21,19 @@ class StageResult:
 
 @dataclass
 class Stage:
+    """A processing stage in the pipeline."""
     name: str
     func: Callable[[str], StageResult]
 
 class Pipeline:
+    """Orchestrates execution of multiple stages on ciphertext."""
     def __init__(self, stages: List[Stage]):
         self.stages = stages
 
     def run(self, ciphertext: str) -> List[StageResult]:
+        """
+        Execute all stages on the given ciphertext.
+        """
         results: List[StageResult] = []
         current = ciphertext
         for stage in self.stages:
@@ -36,6 +45,9 @@ class Pipeline:
 # New helper to build a Hill constraint stage
 
 def make_hill_constraint_stage(name: str = 'hill-constraint') -> Stage:
+    """Create a stage that applies Hill cipher constraints and scores outputs.
+    Uses decrypt_and_score to generate candidates; returns best candidate text as stage output.
+    """
     def _run(ct: str) -> StageResult:
         candidates = decrypt_and_score(ct)
         best = candidates[0] if candidates else {'text': ct, 'score': combined_plaintext_score(ct), 'key': None}
@@ -64,4 +76,62 @@ def make_berlin_clock_stage(name: str = 'berlin-clock', step_seconds: int = 3600
         return StageResult(name=name, output=best['text'], metadata={'candidates': top}, score=best['score'])
     return Stage(name=name, func=_run)
 
-__all__ = ['Stage','StageResult','Pipeline','make_hill_constraint_stage','make_berlin_clock_stage']
+# New transposition search stage
+
+def make_transposition_stage(
+    name: str = 'transposition',
+    min_cols: int = 5,
+    max_cols: int = 8,
+    max_perms_per_width: int = 720,
+    prune: bool = True,
+    partial_length: int = 40,
+    partial_min_score: float = -500.0,
+    limit: int = 50
+) -> Stage:
+    """Create a stage performing columnar transposition search.
+    Parameters mirror search_columnar; results are scored and best plaintext output returned.
+    """
+    def _run(ct: str) -> StageResult:
+        cands = search_columnar(
+            ct,
+            min_cols=min_cols,
+            max_cols=max_cols,
+            max_perms_per_width=max_perms_per_width,
+            prune=prune,
+            partial_length=partial_length,
+            partial_min_score=partial_min_score
+        )
+        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct)}
+        return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
+    return Stage(name=name, func=_run)
+
+# Adaptive transposition search stage
+
+def make_transposition_adaptive_stage(
+    name: str = 'transposition-adaptive',
+    min_cols: int = 5,
+    max_cols: int = 8,
+    sample_perms: int = 500,
+    partial_length: int = 50,
+    prefix_len: int = 3,
+    prefix_cache_max: int = 5000,
+    early_stop_threshold: float = 1500.0,
+    limit: int = 50
+) -> Stage:
+    """Create a stage using adaptive permutation sampling and prefix caching heuristics."""
+    def _run(ct: str) -> StageResult:
+        cands = search_columnar_adaptive(
+            ct,
+            min_cols=min_cols,
+            max_cols=max_cols,
+            sample_perms=sample_perms,
+            partial_length=partial_length,
+            prefix_len=prefix_len,
+            prefix_cache_max=prefix_cache_max,
+            early_stop_threshold=early_stop_threshold
+        )
+        best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct)}
+        return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
+    return Stage(name=name, func=_run)
+
+__all__ = ['Stage','StageResult','Pipeline','make_hill_constraint_stage','make_berlin_clock_stage','make_transposition_stage','make_transposition_adaptive_stage']

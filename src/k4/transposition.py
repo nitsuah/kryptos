@@ -1,6 +1,7 @@
 """Columnar transposition search utilities for K4 hypotheses."""
 from typing import List, Tuple, Iterable, Dict
 import itertools
+import random
 from .scoring import combined_plaintext_score
 
 def apply_columnar_permutation(ciphertext: str, n_cols: int, perm: Tuple[int, ...]) -> str:
@@ -72,4 +73,55 @@ def search_columnar(
     results.sort(key=lambda r: r['score'], reverse=True)
     return results[:50]
 
-__all__ = ['apply_columnar_permutation', 'search_columnar']
+# Adaptive search with sampling and prefix caching
+
+def search_columnar_adaptive(
+    ciphertext: str,
+    min_cols: int = 5,
+    max_cols: int = 8,
+    sample_perms: int = 500,
+    partial_length: int = 50,
+    prefix_len: int = 3,
+    prefix_cache_max: int = 5000,
+    early_stop_threshold: float = 1500.0
+) -> List[Dict]:
+    """Adaptive columnar search.
+    - Randomly samples permutations for each width (sample_perms)
+    - Uses prefix (first prefix_len indices of permutation) to cache best partial scores
+    - If partial score for a sampled permutation is far below cached best for its prefix, skip full scoring
+    - Early stop: if a candidate exceeds early_stop_threshold, still continue gathering but threshold could inform future heuristics
+    Returns top 50 scored candidates across all widths.
+    """
+    rng = random.Random(42)
+    ct = ''.join(c for c in ciphertext if c.isalpha())
+    all_results: List[Dict] = []
+    prefix_cache: Dict[Tuple[int,...], float] = {}
+    for n_cols in range(min_cols, max_cols + 1):
+        perms = list(itertools.permutations(range(n_cols)))
+        if len(perms) > sample_perms:
+            perms = rng.sample(perms, sample_perms)
+        for perm in perms:
+            pt = apply_columnar_permutation(ct, n_cols, perm)
+            partial = _partial_score(pt, partial_length)
+            pref = perm[:prefix_len]
+            best_pref = prefix_cache.get(pref)
+            if best_pref is None or partial > best_pref:
+                prefix_cache[pref] = partial
+            else:
+                # If partial too low compared to best prefix score, skip
+                if partial < (best_pref - abs(best_pref) * 0.25):
+                    continue
+            score = combined_plaintext_score(pt)
+            all_results.append({'cols': n_cols, 'perm': perm, 'score': score, 'partial': partial, 'text': pt})
+            if score > early_stop_threshold:
+                # Could log or flag; keep collecting for breadth
+                pass
+            if len(prefix_cache) > prefix_cache_max:
+                # Simple eviction: shrink by removing lowest 20%
+                sorted_items = sorted(prefix_cache.items(), key=lambda kv: kv[1], reverse=True)
+                keep = int(len(sorted_items) * 0.8)
+                prefix_cache = dict(sorted_items[:keep])
+    all_results.sort(key=lambda r: r['score'], reverse=True)
+    return all_results[:50]
+
+__all__ = ['apply_columnar_permutation', 'search_columnar', 'search_columnar_adaptive']

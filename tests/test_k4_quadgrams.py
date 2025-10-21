@@ -3,7 +3,13 @@ import unittest
 from src.k4 import quadgram_score, combined_plaintext_score
 
 class TestQuadgramScoring(unittest.TestCase):
+    """
+    Unit tests for quadgram scoring functions.
+    """
     def test_quadgram_integration_combined_score(self):
+        """
+        Test the integration of quadgram scoring with combined plaintext scoring.
+        """
         english_like = 'THERETHATTIONHEREOULDHAVEWITHINGTMENTEVERFROMTHIS'
         random_like = 'QXZJMVKPWQXZJMVKPWQXZJMVKPWQXZJMVKPWQXZJMVKP'
         # Raw quadgram score may not strictly differentiate with placeholder data; ensure combined score better
