@@ -1,6 +1,50 @@
-# Kryptos K4 Research & Strategy
+# K4 Strategy & Technical Notes
 
-## 1. Scope & Objectives
+This document collects K4-specific strategy, modules, and operational notes used by the analysis pipeline. It's intentionally focused on the unsolved K4 piece and the specialized tooling in `src/k4/`.
+
+## Current Progress (K4-specific)
+
+- Implemented pipeline scaffolding for multi-stage hypotheses (hill, transposition, masking, berlin-clock).
+- Integrated attempt logging, scoring heuristics (n-grams, crib bonuses, positional bonuses), and CSV/JSON artifact writers.
+- Added adaptive gating heuristics, parallel hill-variant scaffolding, and a tuning harness scaffold.
+
+## K4 Features (detailed)
+
+- Hill cipher solving (2x2 & partial 3x3 exploration) with crib-anchored pruning and assembly variants.
+- Columnar and route transposition search, including multi-crib positional anchoring and adaptive sampling.
+- Masking / null-removal heuristics to explore structural padding variants.
+- Berlin Clock enumeration and a small validator to score ordering/occurrence of `BERLIN`/`CLOCK` in plaintexts.
+- Composite orchestration, weighted fusion of stage outputs, and per-run diagnostics.
+
+## Key modules (under `src/k4/`)
+
+- `scoring.py` — composite scoring, positional crib bonuses, and advanced metrics.
+- `hill_constraints.py`, `hill_cipher.py` — constrained key derivation and hill math.
+- `transposition.py`, `transposition_constraints.py` — route and columnar search utilities.
+- `pipeline.py`, `composite.py` — stage factory functions and pipeline orchestration.
+- `attempt_logging.py`, `reporting.py` — persistence of attempts and enriched reporting.
+
+## Tuning & Daemon Notes
+
+- `scripts/tune_pipeline.py` contains a minimal sweep harness intended for quick parameter experimentation (use small budgets for local runs).
+- `scripts/daemon_runner.py` is a conservative long-loop runner that can execute the tuning harness, apply simple filtering (top-N), and rotate/retain artifacts. It includes a dry-run mode for safe testing.
+
+## Artifacts and format
+
+- Per-run artifacts are written to `artifacts/run_<timestamp>/` or `artifacts/tuning_runs/run_<timestamp>/`.
+- Each run contains `summary.csv` and a `*_top.csv` filtered view for quick review.
+
+## Next K4 priorities (short)
+
+1. Close remaining scoring coverage gaps and add transposition edge-case tests.
+2. Implement deterministic small sweeps and iterate weighting heuristics.
+3. Deploy the daemon runner and collect longer campaigns for candidate analysis.
+
+For operational details and code-level examples, refer to the module docstrings in `src/k4/` and the quick examples in `docs/README_CORE.md`.
+
+## Kryptos K4 Research & Strategy
+
+### 1. Scope & Objectives
 
 K4 remains unsolved publicly. Our goal:
 
@@ -9,7 +53,7 @@ K4 remains unsolved publicly. Our goal:
 - Integrate objective scoring (language fitness, crib placement, clue satisfaction, linguistic metrics).
 - Maintain reproducibility (config-driven, test harness & artifact lineage + attempt logs).
 
-## 2. Canonical Data
+### 2. Canonical Data
 
 Ciphertext (per sculpture transcription; spaces inserted for readability):
 
@@ -26,18 +70,18 @@ Known plaintext cribs (confirmed by Sanborn) with expected start indices (0-base
 | BERLIN | 64 | NYPVTT |
 | CLOCK | 69 | MZFPK |
 
-
-### Index Corrections
+#### Index Corrections
 
 Indices have been validated; the table above shows the corrected values (NORTHEAST=25, CLOCK=69). Prior values (NORTHEAST=26 and CLOCK=70) were off-by-one errors. These have been harmonized for positional scoring. See validation in [`tests/test_k4_cribs.py`](../tests/test_k4_cribs.py).
-## 3. Constraints & Observations
+
+### 3. Constraints & Observations
 
 - K1–K3 show deliberate anomalies → tolerate misspellings/nulls.
 - Clues suggest possible method shift (like K3 shift to pure transposition) → evaluate hybrid approaches (matrix + transposition + key-stream).
 - CLOCK self-map letter indicates potential polyalphabetic coincidence or matrix edge alignment.
 - Spatial/temporal clues (EAST/NORTHEAST/BERLIN CLOCK) reinforce directional/time-based key schedule hypothesis (Berlin Clock encoding route).
 
-## 4. Candidate Cipher Families (Tracked)
+### 4. Candidate Cipher Families (Tracked)
 
 1. Polyalphabetic / key-stream (Berlin Clock derived shifts). [IN PROGRESS]
 2. Columnar / double transposition with anchored cribs. [IN PROGRESS]
@@ -46,7 +90,7 @@ Indices have been validated; the table above shows the corrected values (NORTHEA
 5. Hybrid matrix + transposition chain. [PLANNED]
 6. Progressive key (autokey/Berlin-lamp injection). [PLANNED]
 
-## 5. Prioritization Status
+### 5. Prioritization Status
 
 | Priority | Item | Status |
 |----------|------|--------|
@@ -57,11 +101,11 @@ Indices have been validated; the table above shows the corrected values (NORTHEA
 | E | Weighted multi-stage fusion | Completed |
 | F | Advanced linguistic metrics (entropy, wordlist hit rate) | Completed |
 
-## 6. Data Normalization Tasks
+### 6. Data Normalization Tasks
 
 DONE: normalization utilities; still ensure consistent indexing for positional scoring (verify EAST/NORTHEAST alignment). Pending: automatic index validation test.
 
-## 7. Scoring Components (Implemented)
+### 7. Scoring Components (Implemented)
 
 - Unigram/bigram/trigram/quadgram additive log scores.
 - Chi-square penalty (scaled).
@@ -72,7 +116,7 @@ DONE: normalization utilities; still ensure consistent indexing for positional s
 - Weighted fusion (stage-normalized min-max).
 - Memoized combined score (LRU cache).
 
-## 8. Hill Cipher Path (Current State)
+### 8. Hill Cipher Path (Current State)
 
 - 2x2 key derivation from single & paired cribs.
 - 3x3 variant assembly (row/col/diag) + sliding window concatenations.
@@ -81,7 +125,7 @@ DONE: normalization utilities; still ensure consistent indexing for positional s
 
 Next: Evaluate additional assembly heuristics (spiral, snake) and consider plaintext/cipher swapped orientation tests (P = K*C vs C = K*P) with small sample.
 
-## 9. Transposition Constraint Solver (Current State)
+### 9. Transposition Constraint Solver (Current State)
 
 - Standard & adaptive permutation search (sampling + prefix caching).
 - Multi-crib positional stage enumerating permutations satisfying window constraints.
@@ -89,7 +133,7 @@ Next: Evaluate additional assembly heuristics (spiral, snake) and consider plain
 
 Next: Integrate simultaneous alignment scoring (weighted by rarity of alignment probability) and add route-transposition patterns.
 
-## 10. Berlin Clock Key Stream (Current State)
+### 10. Berlin Clock Key Stream (Current State)
 
 - Full lamp state encoding with quarter markers differentiation.
 - Dual-direction shift application (forward/backward) enumerated across time range.
@@ -97,12 +141,12 @@ Next: Integrate simultaneous alignment scoring (weighted by rarity of alignment 
 
 Next: Derive candidate reference times (historical events) and cluster high scoring intervals; refine by dynamic step reduction near promising hours.
 
-## 11. Testing Infrastructure
+### 11. Testing Infrastructure
 
 Completed: Unit tests for scoring, Hill, transposition, Berlin Clock, masking, fusion, entropy metrics, positional constraints.
 Pending: Tests for attempt log persistence artifact and multi-crib stage correctness (positions captured). Add failure mode tests (pruned keys/perms recorded).
 
-## 12. Workflow Log (Recent Updates)
+### 12. Workflow Log (Recent Updates)
 
 - Added advanced linguistic metrics to scoring.
 - Introduced memoized scoring & pipeline profiling.
@@ -114,17 +158,17 @@ Pending: Tests for attempt log persistence artifact and multi-crib stage correct
 - Implemented adaptive fusion weighting (wordlist_hit_rate + trigram_entropy heuristics).
 - Implemented route transposition stage (spiral / boustrophedon / diagonal variants).
 
-## 13. Performance & Optimization
+### 13. Performance & Optimization
 
 Implemented: LRU caching, partial score pruning, prefix caching.
 Next: Profile hotspots for 3x3 key generation & multi-crib permutation enumeration; implement parallelization option (multiprocessing) for heavy search stages.
 
-## 14. Artifact & Reproducibility
+### 14. Artifact & Reproducibility
 
 Implemented: Candidate JSON/CSV with metrics + transformation trace + lineage; attempt logs persisted in timestamped JSON.
 Next: Add compression option & integrate provenance hash of ciphertext + parameters.
 
-## 15. Updated Next Actions
+### 15. Updated Next Actions
 
 1. Refine route transposition scoring (add positional crib bonus integration).
 2. Expand 3x3 Hill assemblies (spiral, column zigzag) + orientation flip tests.
@@ -134,7 +178,7 @@ Next: Add compression option & integrate provenance hash of ciphertext + paramet
 6. Refine adaptive fusion weighting thresholds (entropy band & bonuses).
 7. Add diagonal-start variants (anti-diagonal snake) & perimeter-in/out variants.
 
-## 16. References
+### 16. References
 
 (See README for links; add matrix conjecture, entropy references.)
 

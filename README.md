@@ -4,6 +4,8 @@ Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos u
 
 ## TL;DR
 
+This Kryptos repository is a research toolkit for exploring layered cipher hypotheses (Vigenère, Hill, transposition, masking, and related hybrids) with an emphasis on reproducible pipelines and scoring heuristics.
+
 **K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in copper that nobody has cracked in 30+ years. We're using Python to systematically try every reasonable decryption method – techniques that cryptanalysts may have attempted manually but couldn't exhaustively explore. Our approach combines automated testing with intelligent scoring to measure how "English-like" each result appears:
 
 1. **Hill Cipher** - Matrix-based substitution where letters become numbers, transform through matrix multiplication, then convert back
@@ -78,17 +80,7 @@ K2 contains systematic X (and some Y) insertions serving as alignment/null separ
 
 Located under `src/k4/`:
 
-- `scoring.py` – composite scoring, positional crib bonus, memoized scoring, advanced metrics
-- `hill_cipher.py` – Hill math & crib-based key solving
-- `hill_constraints.py` – constrained 2x2 & multi-assembly 3x3 key derivation + pruning + attempt logging
-- `transposition.py` – columnar search (standard & adaptive) + attempt logging
-- `transposition_constraints.py` – crib positional anchoring (`search_with_multiple_cribs_positions`)
-- `berlin_clock.py` – clock shift sequence generation (full lamp state)
-- `pipeline.py` – stage factories (`make_hill_constraint_stage`, `make_transposition_stage`, `make_transposition_adaptive_stage`, `make_transposition_multi_crib_stage`, `make_masking_stage`, `make_berlin_clock_stage`)
-- `masking.py` – null removal / run collapsing variant generation
-- `composite.py` – multi-stage aggregation, weighted fusion, artifact + attempt log persistence
-- `attempt_logging.py` – persist Hill / Clock / Transposition attempt logs (`persist_attempt_logs`)
-- `reporting.py` – enriched candidate JSON/CSV with baseline metrics + trace
+Details and module-level examples for K4 have been moved to `docs/K4_STRATEGY.md` (K4-specific notes) and `docs/README_CORE.md` (code-level examples).
 
 ## Roadmap
 
@@ -100,79 +92,9 @@ See full document in `docs/K4_STRATEGY.md` – includes current completion statu
 
 Contribution guidelines moved to `CONTRIBUTING.md` → [Contributing Guide](./CONTRIBUTING.md).
 
-## Quick Start: Hill Constraint Stage
-
-```python
-from src.k4 import Pipeline, make_hill_constraint_stage
-cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
-pipe = Pipeline([make_hill_constraint_stage()])
-result = pipe.run(cipher_k4)[0]
-for cand in result.metadata['candidates'][:5]:
-    print(cand['source'], cand['score'], cand['text'][:50])
-```
-
-## Quick Start: Composite Multi-Stage Run
-
-```python
-from src.k4 import (
-    make_hill_constraint_stage,
-    make_transposition_adaptive_stage,
-    make_transposition_multi_crib_stage,
-    make_route_transposition_stage,
-    make_masking_stage,
-    make_berlin_clock_stage,
-    run_composite_pipeline
-)
-
-cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
-positional_cribs = {
-    'EAST': [22],
-    'NORTHEAST': [25],  # corrected index
-    'BERLIN': [64],
-    'CLOCK': [69],      # corrected index
-}
-stages = [
-    make_hill_constraint_stage(),
-    make_transposition_adaptive_stage(min_cols=5, max_cols=6, sample_perms=200, partial_length=50),
-    make_transposition_multi_crib_stage(positional_cribs=positional_cribs, min_cols=5, max_cols=6),
-    make_route_transposition_stage(min_cols=5, max_cols=6),
-    make_masking_stage(limit=15),
-    make_berlin_clock_stage(step_seconds=10800, limit=20)
-]
-weights = {
-    'hill-constraint': 2.0,
-    'transposition-adaptive': 1.2,
-    'transposition-pos-crib': 1.5,
-    'masking': 1.0,
-    'berlin-clock': 0.8,
-}
-res = run_composite_pipeline(cipher_k4, stages, report=True, normalize=True, adaptive=True)
-print("Adaptive weights:", res['profile'].get('adaptive_diagnostics'))
-print("Top fused candidates:")
-for c in res.get('fused', [])[:5]:
-    print(c['stage'], c['fused_score'], c['text'][:50])
-```
-
-## Attempt Logs Persistence
-
-```python
-from src.k4.attempt_logging import persist_attempt_logs
-path = persist_attempt_logs(out_dir='reports', label='K4', clear=True)
-print("Attempt log written:", path)
-```
-
 ## Scoring Metrics Snapshot
 
 Use `baseline_stats(text)` to inspect metrics including advanced linguistic features.
-
-## How to Run
-
-```bash
-git clone https://github.com/nitsuah/kryptos.git
-cd kryptos
-pip install -r requirements.txt
-python -m unittest discover -s tests
-```
 
 ## Data Sources
 
@@ -181,6 +103,13 @@ Frequency & n-gram data in `data/` (TSV). High-quality quadgrams loaded automati
 ## License
 
 See `LICENSE`.
+
+## Other Documentation
+
+- `docs/README_CORE.md` — project reference and examples
+- `docs/K4_STRATEGY.md` — K4-specific strategy and notes
+
+If you prefer to run an example pipeline, see `scripts/run_pipeline_sample.py` for a minimal programmatic example.
 
 ## References & Research
 
