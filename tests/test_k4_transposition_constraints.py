@@ -1,6 +1,7 @@
 """Tests for positional crib columnar transposition constraint search."""
 import unittest
 from src.k4 import search_with_crib_at_position
+from typing import Tuple
 
 def _make_columnar_ciphertext(plaintext: str, n_cols: int, perm: Tuple[int, ...]) -> str:
     """Produce ciphertext matching invert_columnar model for given permutation."""
