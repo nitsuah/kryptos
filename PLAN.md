@@ -14,24 +14,29 @@
 ## Execution Kickoff (Focus Block)
 
 Stage Interface (1):
+
 - [x] List all stage factory functions (hill, transposition adaptive/multi-crib, masking, berlin clock).
 - [x] Define common StageContext (ciphertext, params, prior_results).
 - [x] Define output contract (candidates list, scores, metadata dict).
 - [x] Draft interface in code (placeholder types) and mark TODOs. -> DONE
 
 Unit Tests Scaffold (2):
+
 - [x] Create test_stage_interface.py with dummy mock stage.
 - [x] Add fixture for sample ciphertext and crib set. (Mock via literal for now)
 - [x] Add negative test (no candidates -> empty list). -> DONE
 
 Scoring/Fitness (3):
+
 - [x] Enumerate components: n-gram freq, crib positional bonus, berlin clock pattern validation.
 - [x] Determine weight defaults.
 - [x] Provide pure function score_candidate(text, meta, weights).
 - [ ] Add fallback path when n-gram data missing (use uniform frequencies). -> EXTEND with real file loader + caching
 
 ## Pipeline Config Draft
+
 Minimal prototype:
+
 - order: ["hill", "transposition_adaptive", "transposition_multi_crib", "masking", "berlin_clock"]
 - iteration_budget: 250 (hill), 100 (each transposition), 50 (masking), 30 (clock)
 - adaptive_thresholds: hill.score >= 0.15 to feed transposition_adaptive
@@ -40,15 +45,20 @@ Minimal prototype:
 - retry_on_empty: hill -> expand key space by +5 keys; transposition -> widen columns by +2
 
 ## Logging & Metrics Spec
+
 Artifacts per run:
+
 - attempt_log.jsonl: one line per candidate (stage, rank, score, components, elapsed_ms)
 - summary.json: totals (candidates_generated, pruned, final, wall_clock, best_score)
 - metrics counters: stage_time_ms, candidates_per_ms, score_distribution (bucketed)
+
 Durability:
+
 - write to ./artifacts/run_<timestamp>/
 - provide flush after each stage to allow mid-run inspection
 
 ## Performance Targets
+
 - hill stage: <= 75ms for iteration_budget 250
 - transposition stages each: <= 50ms
 - masking: <= 30ms

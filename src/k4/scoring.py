@@ -1,10 +1,12 @@
 """Scoring utilities for K4 analysis (file-driven frequencies)."""
+
 from __future__ import annotations
-import os
+
 import json
+import math
+import os
 from collections import Counter
 from collections.abc import Iterable, Sequence
-import math
 from functools import lru_cache
 
 # Paths
@@ -96,20 +98,60 @@ else:
 CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
 WORDLIST: set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
 
+# Berlin Clock pattern reference words (stub for pattern validator)
+BERLIN_CLOCK_TERMS = {'BERLIN', 'CLOCK'}
+
 if not LETTER_FREQ:
     LETTER_FREQ = {
-        'E': 12.702, 'T': 9.056, 'A': 8.167, 'O': 7.507, 'N': 6.749, 'I': 6.966,
-        'S': 6.327, 'R': 5.987, 'H': 6.094, 'L': 4.025, 'D': 4.253, 'C': 2.782,
-        'U': 2.758, 'M': 2.406, 'F': 2.228, 'Y': 1.974, 'W': 2.360, 'G': 2.015,
-        'P': 1.929, 'B': 1.492, 'V': 0.978, 'K': 0.772, 'X': 0.150, 'J': 0.153,
-        'Q': 0.095, 'Z': 0.074,
+        'E': 12.702,
+        'T': 9.056,
+        'A': 8.167,
+        'O': 7.507,
+        'N': 6.749,
+        'I': 6.966,
+        'S': 6.327,
+        'R': 5.987,
+        'H': 6.094,
+        'L': 4.025,
+        'D': 4.253,
+        'C': 2.782,
+        'U': 2.758,
+        'M': 2.406,
+        'F': 2.228,
+        'Y': 1.974,
+        'W': 2.360,
+        'G': 2.015,
+        'P': 1.929,
+        'B': 1.492,
+        'V': 0.978,
+        'K': 0.772,
+        'X': 0.150,
+        'J': 0.153,
+        'Q': 0.095,
+        'Z': 0.074,
     }
 
 # Minimal fallback wordlist (placeholder)
 if not WORDLIST:
     WORDLIST = {
-        'THE', 'AND', 'YOU', 'THAT', 'FOR', 'WITH', 'HAVE', 'THIS', 'FROM', 'CLOCK',
-        'BERLIN', 'TIME', 'CODE', 'DATA', 'NEXT', 'OVER', 'PART', 'TEXT',
+        'THE',
+        'AND',
+        'YOU',
+        'THAT',
+        'FOR',
+        'WITH',
+        'HAVE',
+        'THIS',
+        'FROM',
+        'CLOCK',
+        'BERLIN',
+        'TIME',
+        'CODE',
+        'DATA',
+        'NEXT',
+        'OVER',
+        'PART',
+        'TEXT',
     }
 
 _UNKNOWN_BIGRAM = -2.0
@@ -140,7 +182,7 @@ def _score_ngrams(text: str, table: dict[str, float], size: int, unknown: float)
     seq = ''.join(c for c in text.upper() if c.isalpha())
     total = 0.0
     for i in range(len(seq) - size + 1):
-        gram = seq[i:i+size]
+        gram = seq[i : i + size]
         total += table.get(gram, unknown)
     return total
 
@@ -215,6 +257,32 @@ def combined_plaintext_score_cached(text: str) -> float:
     return combined_plaintext_score(text)
 
 
+def berlin_clock_pattern_validator(text: str) -> dict[str, bool | int]:
+    """Stub validator: check presence & ordering of BERLIN before CLOCK; future logic may
+    incorporate lamp pattern alignment or temporal sequencing. Returns dict with flags.
+    """
+    upper = ''.join(c for c in text.upper() if c.isalpha())
+    has_berlin = 'BERLIN' in upper
+    has_clock = 'CLOCK' in upper
+    order_ok = False
+    if has_berlin and has_clock:
+        order_ok = upper.find('BERLIN') < upper.find('CLOCK')
+    return {
+        'has_berlin': has_berlin,
+        'has_clock': has_clock,
+        'berlin_before_clock': order_ok,
+        'pattern_bonus': int(has_berlin and has_clock and order_ok),  # simple 1/0 bonus
+    }
+
+
+def combined_plaintext_score_extended(text: str) -> float:
+    """Extended combined score including berlin clock pattern bonus (small weight)."""
+    base = combined_plaintext_score(text)
+    pattern = berlin_clock_pattern_validator(text)
+    # weight bonus modestly to avoid overpowering n-gram scoring
+    return base + 25.0 * pattern['pattern_bonus']
+
+
 # --- Advanced linguistic metrics -------------------------------------------
 
 
@@ -235,7 +303,7 @@ def wordlist_hit_rate(text: str, min_len: int = 3, max_len: int = 8) -> float:
             if total >= 5000:
                 break
             total += 1
-            if seq[i:i+L] in WORDLIST:
+            if seq[i : i + L] in WORDLIST:
                 hits += 1
         if total >= 5000:
             break
@@ -247,7 +315,7 @@ def trigram_entropy(text: str) -> float:
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if len(seq) < 3:
         return 0.0
-    trigrams = [seq[i:i+3] for i in range(len(seq)-3+1)]
+    trigrams = [seq[i : i + 3] for i in range(len(seq) - 3 + 1)]
     counts = Counter(trigrams)
     n = sum(counts.values())
     ent = 0.0
@@ -266,14 +334,14 @@ def bigram_gap_variance(text: str) -> float:
     if len(seq) < 4:
         return 0.0
     positions: dict[str, list[int]] = {}
-    for i in range(len(seq)-2+1):
-        gram = seq[i:i+2]
+    for i in range(len(seq) - 2 + 1):
+        gram = seq[i : i + 2]
         positions.setdefault(gram, []).append(i)
     gap_vars: list[float] = []
-    for gram, pos_list in positions.items():
+    for _gram, pos_list in positions.items():
         if len(pos_list) < 2:
             continue
-        gaps = [pos_list[i+1] - pos_list[i] for i in range(len(pos_list)-1)]
+        gaps = [pos_list[i + 1] - pos_list[i] for i in range(len(pos_list) - 1)]
         if not gaps:
             continue
         mean_gap = sum(gaps) / len(gaps)
@@ -289,7 +357,7 @@ def bigram_gap_variance(text: str) -> float:
 
 def baseline_stats(text: str) -> dict[str, float]:
     """Return dictionary of baseline scoring metrics for a candidate plaintext."""
-    return {
+    stats = {
         'chi_square': chi_square_stat(text),
         'bigram_score': bigram_score(text),
         'trigram_score': trigram_score(text),
@@ -305,6 +373,13 @@ def baseline_stats(text: str) -> dict[str, float]:
         'trigram_entropy': trigram_entropy(text),
         'bigram_gap_variance': bigram_gap_variance(text),
     }
+    pattern = berlin_clock_pattern_validator(text)
+    stats.update(
+        {
+            'berlin_clock_pattern_bonus': float(pattern['pattern_bonus']),
+        },
+    )
+    return stats
 
 
 def segment_plaintext_scores(segments: Iterable[str]) -> dict[str, float]:
@@ -361,7 +436,7 @@ def repeating_bigram_fraction(text: str) -> float:
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if len(seq) < 2:
         return 0.0
-    bigrams = [seq[i:i+2] for i in range(len(seq)-2+1)]
+    bigrams = [seq[i : i + 2] for i in range(len(seq) - 2 + 1)]
     counts = Counter(bigrams)
     repeats = sum(v for v in counts.values() if v > 1)
     return repeats / len(bigrams)
@@ -375,10 +450,31 @@ def combined_plaintext_score_with_positions(text: str, positional: dict[str, Seq
 
 
 __all__ = [
-    'LETTER_FREQ', 'BIGRAMS', 'TRIGRAMS', 'CRIBS', 'QUADGRAMS', 'WORDLIST',
-    'chi_square_stat', 'bigram_score', 'trigram_score', 'crib_bonus', 'quadgram_score',
-    'combined_plaintext_score', 'combined_plaintext_score_cached', 'segment_plaintext_scores',
-    'index_of_coincidence', 'vowel_ratio', 'letter_coverage', 'baseline_stats',
-    'positional_crib_bonus', 'combined_plaintext_score_with_positions', 'letter_entropy',
-    'repeating_bigram_fraction', 'wordlist_hit_rate', 'trigram_entropy', 'bigram_gap_variance',
+    'LETTER_FREQ',
+    'BIGRAMS',
+    'TRIGRAMS',
+    'CRIBS',
+    'QUADGRAMS',
+    'WORDLIST',
+    'chi_square_stat',
+    'bigram_score',
+    'trigram_score',
+    'crib_bonus',
+    'quadgram_score',
+    'combined_plaintext_score',
+    'combined_plaintext_score_cached',
+    'segment_plaintext_scores',
+    'index_of_coincidence',
+    'vowel_ratio',
+    'letter_coverage',
+    'baseline_stats',
+    'positional_crib_bonus',
+    'combined_plaintext_score_with_positions',
+    'letter_entropy',
+    'repeating_bigram_fraction',
+    'wordlist_hit_rate',
+    'trigram_entropy',
+    'bigram_gap_variance',
+    'berlin_clock_pattern_validator',
+    'combined_plaintext_score_extended',
 ]
