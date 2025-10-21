@@ -44,7 +44,7 @@ if __name__ == "__main__":
         CIPHER_K4,
         stages,
         report=True,
-        weights=None,  # override manual weights
+        weights=None,  # disables manual weighting; enables adaptive weighting
         normalize=True,
         adaptive=True,  # enable adaptive weighting
         limit=40
