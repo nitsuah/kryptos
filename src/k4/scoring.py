@@ -89,6 +89,7 @@ if os.path.exists(_quad_hi_path):
     QUADGRAMS: Dict[str, float] = _load_ngrams(_quad_hi_path)
 else:
     QUADGRAMS: Dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'quadgrams.tsv'))
+
 CRIBS: List[str] = _load_config_cribs(CONFIG_PATH)
 WORDLIST: Set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
 
