@@ -1,6 +1,8 @@
 """Test noop path for make_transposition_multi_crib_stage when positional_cribs is None."""
+
 import unittest
-from src.k4.pipeline import make_transposition_multi_crib_stage, Pipeline
+
+from src.k4.pipeline import Pipeline, make_transposition_multi_crib_stage
 
 
 class TestPipelineNoopMultiCrib(unittest.TestCase):

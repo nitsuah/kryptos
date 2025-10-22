@@ -1,8 +1,8 @@
 from __future__ import annotations
-import os
-from typing import Any
 
+import os
 from collections.abc import Iterable
+from typing import Any
 
 __all__ = ["load_ngram_data", "score_candidate", "compute_meta_and_score"]
 
@@ -97,10 +97,10 @@ def score_candidate(text: str, meta: dict[str, Any], weights: dict[str, float]) 
 
 def compute_meta_and_score(text: str, weights: dict[str, float]) -> dict[str, Any]:
     meta = {
-        "ngrams": None,        # TODO: populate via loader
-        "cribs": None,         # TODO: supply crib list externally
-        "crib_bonus": None,    # computed if None
-        "clock_valid": None,   # computed if None
+        "ngrams": None,  # TODO: populate via loader
+        "cribs": None,  # TODO: supply crib list externally
+        "crib_bonus": None,  # computed if None
+        "clock_valid": None,  # computed if None
     }
     meta["score"] = score_candidate(text, meta, weights)
     return meta

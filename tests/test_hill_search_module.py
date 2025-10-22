@@ -1,5 +1,7 @@
 """Tests for hill_search.score_decryptions."""
+
 import unittest
+
 from src.k4.hill_search import score_decryptions
 
 

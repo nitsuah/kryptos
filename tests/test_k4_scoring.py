@@ -1,8 +1,10 @@
 """
- Unit tests for K4 scoring functions.
+Unit tests for K4 scoring functions.
 """
-import unittest
+
 import random
+import unittest
+
 from src.k4 import combined_plaintext_score
 
 

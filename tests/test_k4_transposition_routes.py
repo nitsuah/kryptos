@@ -1,5 +1,7 @@
 """Tests for route-based transposition variants (spiral, boustrophedon, diagonal)."""
+
 import unittest
+
 from src.k4 import generate_route_variants
 
 CIPHER_SAMPLE = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"

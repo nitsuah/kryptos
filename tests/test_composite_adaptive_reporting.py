@@ -1,7 +1,9 @@
 """Tests covering adaptive fusion and reporting attempt log path for composite pipeline."""
+
 import os
 import unittest
-from src.k4 import run_composite_pipeline, make_hill_constraint_stage, make_masking_stage
+
+from src.k4 import make_hill_constraint_stage, make_masking_stage, run_composite_pipeline
 
 
 class TestCompositeAdaptiveReporting(unittest.TestCase):

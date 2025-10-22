@@ -2,16 +2,17 @@
 
 Defines modular transformation stages and execution framework.
 """
+
+import time
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from collections.abc import Callable, Sequence
-import time
+from .berlin_clock import apply_clock_shifts, enumerate_clock_shift_sequences
 from .hill_constraints import decrypt_and_score, get_hill_attempt_log  # added accessor
-from .scoring import combined_plaintext_score_cached as combined_plaintext_score
-from .berlin_clock import enumerate_clock_shift_sequences, apply_clock_shifts
-from .transposition import search_columnar, search_columnar_adaptive
 from .masking import score_mask_variants
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score
+from .transposition import search_columnar, search_columnar_adaptive
 from .transposition_constraints import search_with_multiple_cribs_positions  # new import
 from .transposition_routes import generate_route_variants  # new import
 
@@ -21,6 +22,7 @@ class StageResult:
     """
     Represents the result of a processing stage in the pipeline.
     """
+
     name: str
     output: str
     metadata: dict[str, Any]
@@ -30,12 +32,14 @@ class StageResult:
 @dataclass
 class Stage:
     """A processing stage in the pipeline."""
+
     name: str
     func: Callable[[str], StageResult]
 
 
 class Pipeline:
     """Orchestrates execution of multiple stages on ciphertext."""
+
     def __init__(self, stages: list[Stage]):
         self.stages = stages
 
@@ -68,6 +72,7 @@ def make_hill_constraint_stage(
     """Create a stage that applies Hill cipher constraints and scores outputs.
     Uses decrypt_and_score to generate candidates; returns best candidate text as stage output.
     """
+
     def _run(ct: str) -> StageResult:
         candidates = decrypt_and_score(
             ct,
@@ -100,6 +105,7 @@ def make_hill_constraint_stage(
             metadata=metadata,
             score=best['score'],
         )
+
     return Stage(name=name, func=_run)
 
 
@@ -118,6 +124,7 @@ def make_berlin_clock_stage(name: str = 'berlin-clock', step_seconds: int = 3600
     Enumerates times across a day at given step; applies shifts (decrypt-style) attempting to reveal plaintext.
     Returns best candidate text as stage output; all candidates stored in metadata.
     """
+
     def _run(ct: str) -> StageResult:
         seqs = enumerate_clock_shift_sequences(step_seconds=step_seconds)
         cands: list[dict[str, Any]] = []
@@ -135,33 +142,32 @@ def make_berlin_clock_stage(name: str = 'berlin-clock', step_seconds: int = 3600
                     'score': score,
                 }
                 _clock_attempts.append(attempt)
-                cands.append({
-                    'time': entry['time'],
-                    'mode': mode,
-                    'shifts': shifts,
-                    'text': txt,
-                    'score': score,
-                    'trace': [
-                        {
-                            'stage': name,
-                            'transformation': trans_label,
-                            'shifts': shifts,
-                        },
-                    ],
-                })
+                cands.append(
+                    {
+                        'time': entry['time'],
+                        'mode': mode,
+                        'shifts': shifts,
+                        'text': txt,
+                        'score': score,
+                        'trace': [
+                            {
+                                'stage': name,
+                                'transformation': trans_label,
+                                'shifts': shifts,
+                            },
+                        ],
+                    },
+                )
         cands.sort(key=lambda c: c['score'], reverse=True)
         top = cands[:limit]
-        best = (
-            top[0]
-            if top
-            else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
-        )
+        best = top[0] if top else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
         return StageResult(
             name=name,
             output=best['text'],
             metadata={'candidates': top},
             score=best['score'],
         )
+
     return Stage(name=name, func=_run)
 
 
@@ -181,6 +187,7 @@ def make_transposition_stage(
     """Create a stage performing columnar transposition search.
     Parameters mirror search_columnar; results are scored and best plaintext output returned.
     """
+
     def _run(ct: str) -> StageResult:
         cands = search_columnar(
             ct,
@@ -215,6 +222,7 @@ def make_transposition_stage(
             metadata={'candidates': cands[:limit]},
             score=best['score'],
         )
+
     return Stage(name=name, func=_run)
 
 
@@ -233,6 +241,7 @@ def make_transposition_adaptive_stage(
     limit: int = 50,
 ) -> Stage:
     """Create a stage using adaptive permutation sampling and prefix caching heuristics."""
+
     def _run(ct: str) -> StageResult:
         cands = search_columnar_adaptive(
             ct,
@@ -269,17 +278,20 @@ def make_transposition_adaptive_stage(
             metadata={'candidates': cands[:limit]},
             score=best['score'],
         )
+
     return Stage(name=name, func=_run)
 
 
 def make_masking_stage(name: str = 'masking', null_chars=None, limit: int = 25) -> Stage:
     """Create a stage that generates and scores masking/null-removal variants."""
+
     def _run(ct: str) -> StageResult:
         cands = score_mask_variants(ct, null_chars)
         for c in cands:
             c['trace'] = [{'stage': name, 'transformation': f"mask:{c.get('removed','')}"}]
         best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
         return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
+
     return Stage(name=name, func=_run)
 
 
@@ -297,6 +309,7 @@ def make_transposition_multi_crib_stage(
     Returns best candidate; all candidates (capped) in metadata.
     """
     if not positional_cribs:
+
         def _noop(ct: str) -> StageResult:
             return StageResult(
                 name=name,
@@ -304,6 +317,7 @@ def make_transposition_multi_crib_stage(
                 metadata={'candidates': []},
                 score=combined_plaintext_score(ct),
             )
+
         return Stage(name=name, func=_noop)
 
     def _run(ct: str) -> StageResult:
@@ -350,6 +364,7 @@ def make_transposition_multi_crib_stage(
             },
             score=best.get('score', combined_plaintext_score(ct)),
         )
+
     return Stage(name=name, func=_run)
 
 
@@ -361,6 +376,7 @@ def make_route_transposition_stage(
     limit: int = 50,
 ) -> Stage:
     """Create a stage enumerating route-based grid traversal variants (spiral, boustrophedon, diagonal)."""
+
     def _run(ct: str) -> StageResult:
         cands = generate_route_variants(
             ct,
@@ -392,6 +408,7 @@ def make_route_transposition_stage(
             metadata={'candidates': cands[:limit]},
             score=best['score'],
         )
+
     return Stage(name=name, func=_run)
 
 

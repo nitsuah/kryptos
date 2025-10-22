@@ -1,4 +1,5 @@
 """Crib mapping utilities for K4 analysis."""
+
 from __future__ import annotations
 
 
@@ -48,13 +49,15 @@ def annotate_cribs(
             found_positions.append(fi + (1 if one_based else 0))
             search_start = fi + 1
         alignment_ok = expected_positions is not None
-        results.append({
-            'plaintext': plain_norm,
-            'expected_cipher': exp_norm,
-            'expected_positions': expected_positions,
-            'found_positions': found_positions,
-            'alignment_ok': alignment_ok,
-        })
+        results.append(
+            {
+                'plaintext': plain_norm,
+                'expected_cipher': exp_norm,
+                'expected_positions': expected_positions,
+                'found_positions': found_positions,
+                'alignment_ok': alignment_ok,
+            },
+        )
     return results
 
 

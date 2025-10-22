@@ -1,9 +1,11 @@
 """
- Main module for Kryptos analysis and reporting.
+Main module for Kryptos analysis and reporting.
 """
+
 import json
+
+from src.analysis import check_cribs, frequency_analysis
 from src.ciphers import vigenere_decrypt  # removed unused transposition_decrypt
-from src.analysis import frequency_analysis, check_cribs
 from src.report import generate_report
 
 

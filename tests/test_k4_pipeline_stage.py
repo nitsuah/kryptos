@@ -1,6 +1,8 @@
 """Test pipeline stage for Hill constraint integration."""
+
 import unittest
-from src.k4 import make_hill_constraint_stage, Pipeline, StageResult
+
+from src.k4 import Pipeline, StageResult, make_hill_constraint_stage
 
 
 class TestPipelineHillStage(unittest.TestCase):

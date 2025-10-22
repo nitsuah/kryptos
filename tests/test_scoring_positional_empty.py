@@ -1,6 +1,8 @@
 """Test positional crib bonus early exit and combined score with no positional bonus."""
+
 import unittest
-from src.k4.scoring import positional_crib_bonus, combined_plaintext_score_with_positions, combined_plaintext_score
+
+from src.k4.scoring import combined_plaintext_score, combined_plaintext_score_with_positions, positional_crib_bonus
 
 
 class TestScoringPositionalEmpty(unittest.TestCase):

@@ -1,6 +1,8 @@
 """Edge case tests for analysis module."""
+
 import unittest
-from src.analysis import frequency_analysis, check_cribs
+
+from src.analysis import check_cribs, frequency_analysis
 
 
 class TestAnalysisEdgeCases(unittest.TestCase):

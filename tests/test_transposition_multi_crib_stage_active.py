@@ -1,7 +1,9 @@
 """Test active multi-crib transposition stage path with n_cols=1 for deterministic match."""
+
 import unittest
 from collections.abc import Sequence
-from src.k4.pipeline import make_transposition_multi_crib_stage, Pipeline
+
+from src.k4.pipeline import Pipeline, make_transposition_multi_crib_stage
 
 
 class TestTranspositionMultiCribStageActive(unittest.TestCase):

@@ -1,5 +1,7 @@
 """Pipeline edge case tests."""
+
 import unittest
+
 from src.k4.pipeline import Pipeline, Stage, make_hill_constraint_stage
 
 
@@ -19,6 +21,7 @@ class TestPipelineEdgeCases(unittest.TestCase):
     def test_stage_exception(self):
         def bad_func(ct: str):
             raise RuntimeError("boom")
+
         stage = Stage(name="bad", func=bad_func)
         pipe = Pipeline([stage])
         with self.assertRaises(RuntimeError):

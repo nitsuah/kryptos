@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import Any
 
-from collections.abc import Iterable
 import os
 import unittest
+from collections.abc import Iterable
+from typing import Any
+
 from src.stages.interface import StageContext
 from src.stages.mock_stage import MockStage
 
@@ -107,17 +108,16 @@ def score_candidate(text: str, meta: dict[str, Any], weights: dict[str, float]) 
 
 def compute_meta_and_score(text: str, weights: dict[str, float]) -> dict[str, Any]:
     meta = {
-        "ngrams": None,        # TODO: populate via loader
-        "cribs": None,         # TODO: supply crib list externally
-        "crib_bonus": None,    # computed if None
-        "clock_valid": None,   # computed if None
+        "ngrams": None,  # TODO: populate via loader
+        "cribs": None,  # TODO: supply crib list externally
+        "crib_bonus": None,  # computed if None
+        "clock_valid": None,  # computed if None
     }
     meta["score"] = score_candidate(text, meta, weights)
     return meta
 
 
 class TestStageInterface(unittest.TestCase):
-
     def setUp(self):
         self.stage = MockStage()
 

@@ -1,10 +1,13 @@
 """Constraint-based columnar transposition solver prototype (crib anchoring)."""
+
 from __future__ import annotations
 
-from collections.abc import Sequence
 import itertools
-from .scoring import combined_plaintext_score_cached as combined_plaintext_score, positional_crib_bonus
+from collections.abc import Sequence
+
 from .cribs import normalize_cipher
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score
+from .scoring import positional_crib_bonus
 
 
 def _column_lengths(n: int, n_cols: int) -> list[int]:
@@ -22,7 +25,7 @@ def invert_columnar(ciphertext: str, n_cols: int, perm: tuple[int, ...]) -> str:
     idx = 0
     for p in perm:
         L = col_lengths[p]
-        cols.append(ct[idx:idx+L])
+        cols.append(ct[idx : idx + L])
         idx += L
     original: list[str] = [''] * n_cols
     for read_idx, p in enumerate(perm):
@@ -140,13 +143,15 @@ def search_with_multiple_cribs_positions(
         base_score = combined_plaintext_score(pt)
         pos_bonus = positional_crib_bonus(pt, positional_cribs, window)
         score = base_score + pos_bonus
-        results.append({
-            'perm': perm,
-            'score': score,
-            'text': pt,
-            'positions': occurrences,
-            'pos_bonus': pos_bonus,
-        })
+        results.append(
+            {
+                'perm': perm,
+                'score': score,
+                'text': pt,
+                'positions': occurrences,
+                'pos_bonus': pos_bonus,
+            },
+        )
     results.sort(key=lambda r: r['score'], reverse=True)
     return results[:limit]
 

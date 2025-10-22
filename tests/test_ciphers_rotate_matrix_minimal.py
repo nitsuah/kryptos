@@ -1,5 +1,7 @@
 """Test rotate_matrix_right_90 on 1x1 matrix."""
+
 import unittest
+
 from src.ciphers import rotate_matrix_right_90
 
 

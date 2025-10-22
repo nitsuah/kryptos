@@ -1,7 +1,9 @@
 """Columnar transposition search utilities for K4 hypotheses."""
-from collections.abc import Iterable
+
 import itertools
 import random
+from collections.abc import Iterable
+
 from .scoring import combined_plaintext_score_cached as combined_plaintext_score  # cached
 
 # Attempt log storage
@@ -10,13 +12,15 @@ _attempt_log: list[dict] = []
 
 def _log_attempt(cols: int, perm: tuple[int, ...], partial: float | None, final: float | None, pruned: bool) -> None:
     if len(_attempt_log) < 10000:  # cap to avoid runaway memory
-        _attempt_log.append({
-            'cols': cols,
-            'perm': perm,
-            'partial_score': partial,
-            'final_score': final,
-            'pruned': pruned,
-        })
+        _attempt_log.append(
+            {
+                'cols': cols,
+                'perm': perm,
+                'partial_score': partial,
+                'final_score': final,
+                'pruned': pruned,
+            },
+        )
 
 
 def get_transposition_attempt_log(clear: bool = False) -> list[dict]:
@@ -45,7 +49,7 @@ def apply_columnar_permutation(ciphertext: str, n_cols: int, perm: tuple[int, ..
     idx = 0
     for p in perm:
         L = col_lengths[p]
-        cols.append(ct[idx:idx+L])
+        cols.append(ct[idx : idx + L])
         idx += L
     original_order: list[str] = [''] * n_cols
     for read_index, p in enumerate(perm):

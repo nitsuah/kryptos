@@ -1,7 +1,9 @@
 """Tests for reporting artifact generation."""
+
 import os
 import unittest
-from src.k4.reporting import write_candidates_json, write_candidates_csv, generate_candidate_artifacts
+
+from src.k4.reporting import generate_candidate_artifacts, write_candidates_csv, write_candidates_json
 
 
 class TestReportingArtifacts(unittest.TestCase):

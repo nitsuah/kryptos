@@ -1,7 +1,8 @@
 from __future__ import annotations
+
+import ast
 import pathlib
 import re
-import ast
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]  # kryptos/
 TARGET_DIRS = ["src", "tests", "scripts"]  # add scripts for tool scripts

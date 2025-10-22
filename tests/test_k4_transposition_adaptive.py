@@ -1,6 +1,8 @@
 """Tests for adaptive transposition search and pipeline stage."""
+
 import unittest
-from src.k4 import search_columnar_adaptive, make_transposition_adaptive_stage, Pipeline
+
+from src.k4 import Pipeline, make_transposition_adaptive_stage, search_columnar_adaptive
 
 
 class TestK4TranspositionAdaptive(unittest.TestCase):

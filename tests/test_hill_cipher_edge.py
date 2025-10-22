@@ -1,6 +1,8 @@
 """Hill cipher edge case tests."""
+
 import unittest
-from src.k4.hill_cipher import matrix_inv_mod, brute_force_crib
+
+from src.k4.hill_cipher import brute_force_crib, matrix_inv_mod
 
 
 class TestHillCipherEdge(unittest.TestCase):

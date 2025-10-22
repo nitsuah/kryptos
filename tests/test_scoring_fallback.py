@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import Any
 
-from collections.abc import Iterable
 import os
 import unittest
+from collections.abc import Iterable
+from typing import Any
+
 from src.scoring.fitness import score_candidate
 
 __all__ = [
@@ -78,17 +79,16 @@ def compute_clock_valid(text: str) -> float:
 
 def compute_meta_and_score(text: str, weights: dict[str, float]) -> dict[str, Any]:
     meta = {
-        "ngrams": None,        # TODO: populate via loader
-        "cribs": None,         # TODO: supply crib list externally
-        "crib_bonus": None,    # computed if None
-        "clock_valid": None,   # computed if None
+        "ngrams": None,  # TODO: populate via loader
+        "cribs": None,  # TODO: supply crib list externally
+        "crib_bonus": None,  # computed if None
+        "clock_valid": None,  # computed if None
     }
     meta["score"] = score_candidate(text, meta, weights)
     return meta
 
 
 class TestScoringFallback(unittest.TestCase):
-
     def test_uniform_fallback(self):
         meta = {"ngrams": None, "crib_bonus": 0.0, "clock_valid": 0.0}
         score = score_candidate("ABCDEF", meta, {"ngram": 1.0, "crib": 0.4, "clock": 0.6})

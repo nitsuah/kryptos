@@ -1,6 +1,8 @@
 """Tests for cribs utility functions."""
+
 import unittest
-from src.k4.cribs import normalize_cipher, annotate_cribs
+
+from src.k4.cribs import annotate_cribs, normalize_cipher
 
 
 class TestCribsFunctions(unittest.TestCase):

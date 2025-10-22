@@ -3,12 +3,15 @@
 Aggregates in-memory attempt logs from Hill, Berlin Clock, and transposition searches
 and writes them to timestamped JSON artifact for post-run auditing.
 """
+
 from __future__ import annotations
-import os
+
 import json
+import os
 from datetime import datetime
 from typing import Any
-from .pipeline import get_hill_attempt_log, get_clock_attempt_log
+
+from .pipeline import get_clock_attempt_log, get_hill_attempt_log
 from .transposition import get_transposition_attempt_log
 
 DEF_LIMIT = 5000  # safety cap per category

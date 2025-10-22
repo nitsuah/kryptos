@@ -1,5 +1,7 @@
 """Hill cipher search utilities separated from core primitives."""
+
 from __future__ import annotations
+
 from .hill_cipher import hill_decrypt
 from .scoring import combined_plaintext_score
 

@@ -1,5 +1,7 @@
 """Tests empty positional crib path for transposition constraints."""
+
 import unittest
+
 from src.k4.transposition_constraints import search_with_multiple_cribs_positions
 
 

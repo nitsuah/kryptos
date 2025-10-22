@@ -1,5 +1,7 @@
 """Tests for positional crib columnar transposition constraint search."""
+
 import unittest
+
 from src.k4 import search_with_crib_at_position
 
 

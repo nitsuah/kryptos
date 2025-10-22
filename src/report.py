@@ -1,9 +1,12 @@
 """
 Module for generating reports based on analysis results.
 """
+
 import os
+
 import matplotlib
 import matplotlib.pyplot as plt
+
 matplotlib.use('Agg')  # Use a non-GUI backend
 
 

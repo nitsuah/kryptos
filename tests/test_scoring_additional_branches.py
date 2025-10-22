@@ -1,6 +1,8 @@
 """Tests for additional scoring branches (wordlist_hit_rate break, bigram_gap_variance)."""
+
 import unittest
-from src.k4.scoring import wordlist_hit_rate, bigram_gap_variance
+
+from src.k4.scoring import bigram_gap_variance, wordlist_hit_rate
 
 
 class TestScoringAdditionalBranches(unittest.TestCase):

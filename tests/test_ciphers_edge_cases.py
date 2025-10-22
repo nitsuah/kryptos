@@ -1,6 +1,8 @@
 """Edge case tests for ciphers module."""
+
 import unittest
-from src.ciphers import vigenere_decrypt, polybius_decrypt, double_rotational_transposition
+
+from src.ciphers import double_rotational_transposition, polybius_decrypt, vigenere_decrypt
 
 
 class TestCiphersEdgeCases(unittest.TestCase):

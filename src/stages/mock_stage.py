@@ -1,6 +1,8 @@
 from __future__ import annotations
-from .interface import StageContext, CandidateResult, Stage, DEFAULT_WEIGHTS
+
 from src.scoring.fitness import compute_meta_and_score
+
+from .interface import DEFAULT_WEIGHTS, CandidateResult, Stage, StageContext
 
 
 class MockStage(Stage):

@@ -1,5 +1,7 @@
 """Tests positional crib bonus integration in multi-crib search to raise coverage."""
+
 import unittest
+
 from src.k4.transposition_constraints import search_with_multiple_cribs_positions
 
 

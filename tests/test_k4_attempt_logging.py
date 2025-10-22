@@ -1,12 +1,14 @@
 """Tests for attempt log persistence artifact."""
-import unittest
+
 import os
+import unittest
+
 from src.k4 import (
+    make_berlin_clock_stage,
     make_hill_constraint_stage,
     make_transposition_adaptive_stage,
-    make_berlin_clock_stage,
-    run_composite_pipeline,
     persist_attempt_logs,
+    run_composite_pipeline,
 )
 
 CIPHER_SAMPLE = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"

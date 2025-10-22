@@ -3,8 +3,11 @@
 Provides functions to place ciphertext into a rectangular grid by column count and
 read out using various traversal patterns to generate candidate plaintexts.
 """
+
 from __future__ import annotations
+
 from collections.abc import Callable
+
 from .scoring import combined_plaintext_score_cached as combined_plaintext_score
 
 
@@ -79,14 +82,14 @@ _ROUTE_FUNCS: dict[str, Callable[[list[list[str]]], str]] = {
 
 
 def generate_route_variants(
-        ciphertext: str,
-        cols_min: int = 5,
-        cols_max: int = 8,
-        routes: tuple[str, ...] = (
-            'spiral',
-            'boustrophedon',
-            'diagonal',
-        ),
+    ciphertext: str,
+    cols_min: int = 5,
+    cols_max: int = 8,
+    routes: tuple[str, ...] = (
+        'spiral',
+        'boustrophedon',
+        'diagonal',
+    ),
 ) -> list[dict]:
     """
     Generate transposition route variants of the given ciphertext.
@@ -114,12 +117,14 @@ def generate_route_variants(
                 continue
             pt = reader(grid)
             score = combined_plaintext_score(pt)
-            results.append({
-                'route': route,
-                'cols': cols,
-                'score': score,
-                'text': pt,
-            })
+            results.append(
+                {
+                    'route': route,
+                    'cols': cols,
+                    'score': score,
+                    'text': pt,
+                },
+            )
     results.sort(key=lambda r: r['score'], reverse=True)
     return results
 

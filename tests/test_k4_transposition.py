@@ -1,12 +1,15 @@
 """
- Unit tests for K4 transposition functions.
+Unit tests for K4 transposition functions.
 """
+
 import unittest
-from src.k4 import search_columnar, apply_columnar_permutation
+
+from src.k4 import apply_columnar_permutation, search_columnar
 
 
 class TestK4Transposition(unittest.TestCase):
     """Test cases for K4 transposition functions."""
+
     def test_apply_columnar_permutation_roundtrip_shape(self):
         """Test applying a columnar permutation returns text of expected length & character set."""
         ct = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'

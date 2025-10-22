@@ -1,10 +1,11 @@
 """Tests for crib mapping and positional index validation."""
+
 import unittest
+
 from src.k4 import annotate_cribs, normalize_cipher
 
 K4_CIPHER = normalize_cipher(
-    "OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT "
-    "MZFPKWGDKZXTJCDIGKUHUAUEKCAR",
+    "OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT " "MZFPKWGDKZXTJCDIGKUHUAUEKCAR",
 )
 
 EXPECTED_CRIB_INDICES: dict[str, int] = {
@@ -17,6 +18,7 @@ EXPECTED_CRIB_INDICES: dict[str, int] = {
 
 class TestCribMapping(unittest.TestCase):
     """Tests for crib mapping and positional index validation."""
+
     def test_index_validation(self):
         """Test that annotated cribs map to expected indices in K4 ciphertext."""
         mapping: dict[str, str] = {

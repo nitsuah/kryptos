@@ -1,6 +1,8 @@
 """Tests for weighted fusion utilities in composite module."""
+
 import unittest
-from src.k4 import normalize_scores, fuse_scores_weighted
+
+from src.k4 import fuse_scores_weighted, normalize_scores
 
 
 class TestK4Fusion(unittest.TestCase):

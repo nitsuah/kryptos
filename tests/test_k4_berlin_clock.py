@@ -1,12 +1,16 @@
 """Berlin Clock key stream tests."""
+
 import unittest
 from datetime import time
+
 from src.k4 import (
+    Pipeline,
+    StageResult,
     berlin_clock_shifts,
-    full_clock_state,
-    full_berlin_clock_shifts,
     enumerate_clock_shift_sequences,
-    make_berlin_clock_stage, Pipeline, StageResult,
+    full_berlin_clock_shifts,
+    full_clock_state,
+    make_berlin_clock_stage,
 )
 
 
@@ -25,7 +29,7 @@ class TestBerlinClock(unittest.TestCase):
         self.assertEqual(len(state['bottom_minutes']), 4)
         self.assertEqual(len(state['seconds']), 1)
         seq = full_berlin_clock_shifts(t)
-        self.assertEqual(len(seq), 4+4+11+4+1)
+        self.assertEqual(len(seq), 4 + 4 + 11 + 4 + 1)
 
     def test_enumerate_sequences(self):
         seqs = enumerate_clock_shift_sequences(step_seconds=7200)  # every 2 hours

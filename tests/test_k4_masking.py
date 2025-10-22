@@ -1,6 +1,8 @@
 """Tests for masking/null-removal heuristics and pipeline stage."""
+
 import unittest
-from src.k4 import mask_variants, score_mask_variants, make_masking_stage, Pipeline
+
+from src.k4 import Pipeline, make_masking_stage, mask_variants, score_mask_variants
 
 
 class TestK4Masking(unittest.TestCase):

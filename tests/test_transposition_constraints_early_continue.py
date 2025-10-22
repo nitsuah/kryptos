@@ -1,6 +1,8 @@
 """Test early continue path where a crib is not found causing skip of permutation."""
+
 import unittest
 from collections.abc import Sequence
+
 from src.k4.transposition_constraints import search_with_multiple_cribs_positions
 
 

@@ -1,6 +1,7 @@
 """
 Module for performing frequency analysis and crib checking on text.
 """
+
 from collections import Counter
 
 

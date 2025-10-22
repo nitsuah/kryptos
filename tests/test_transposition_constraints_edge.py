@@ -1,5 +1,7 @@
 """Edge case tests for transposition constraints module."""
+
 import unittest
+
 from src.k4.transposition_constraints import (
     invert_columnar,
     search_with_crib,

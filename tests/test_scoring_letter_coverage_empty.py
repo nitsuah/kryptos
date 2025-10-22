@@ -1,5 +1,7 @@
 """Test letter_coverage on empty input."""
+
 import unittest
+
 from src.k4.scoring import letter_coverage
 
 

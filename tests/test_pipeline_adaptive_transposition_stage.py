@@ -1,6 +1,8 @@
 """Test adaptive transposition stage branch."""
+
 import unittest
-from src.k4.pipeline import make_transposition_adaptive_stage, Pipeline
+
+from src.k4.pipeline import Pipeline, make_transposition_adaptive_stage
 
 
 class TestPipelineAdaptiveTranspositionStage(unittest.TestCase):

@@ -2,14 +2,16 @@
 
 Writes ranked candidate decryptions to JSON (full detail) and optional CSV (summary).
 """
+
 from __future__ import annotations
 
-from collections.abc import Sequence
-import os
-import json
 import csv
 import hashlib
+import json
+import os
+from collections.abc import Sequence
 from datetime import datetime
+
 from .scoring import baseline_stats
 
 
@@ -39,18 +41,20 @@ def write_candidates_json(
         text = cand.get('text', '')
         metrics = baseline_stats(text)
         key = cand.get('key')
-        enriched.append({
-            'rank': rank,
-            'score': cand.get('score'),
-            'source': cand.get('source'),
-            'key': key,
-            'key_hash': _key_hash(key) if key else None,
-            'text': text,
-            'metrics': metrics,
-            'origin_stage': stage,
-            'candidate_lineage': cand.get('lineage') or lineage,
-            'trace': cand.get('trace'),
-        })
+        enriched.append(
+            {
+                'rank': rank,
+                'score': cand.get('score'),
+                'source': cand.get('source'),
+                'key': key,
+                'key_hash': _key_hash(key) if key else None,
+                'text': text,
+                'metrics': metrics,
+                'origin_stage': stage,
+                'candidate_lineage': cand.get('lineage') or lineage,
+                'trace': cand.get('trace'),
+            },
+        )
     payload = {
         'cipher': cipher_label,
         'stage': stage,
@@ -78,13 +82,15 @@ def write_candidates_csv(
         w.writerow(['rank', 'score', 'source', 'key_hash', 'text_prefix'])
         for rank, cand in enumerate(ranked, start=1):
             key = cand.get('key')
-            w.writerow([
-                rank,
-                cand.get('score'),
-                cand.get('source'),
-                _key_hash(key) if key else '',
-                (cand.get('text', '')[:60]),
-            ])
+            w.writerow(
+                [
+                    rank,
+                    cand.get('score'),
+                    cand.get('source'),
+                    _key_hash(key) if key else '',
+                    (cand.get('text', '')[:60]),
+                ],
+            )
     return output_path
 
 

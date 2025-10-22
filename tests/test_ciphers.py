@@ -1,12 +1,14 @@
 """
 Unit tests for cipher decryption functions.
 """
+
 import json
+import logging
 import os
 import unittest
-import logging
 
-from src.ciphers import vigenere_decrypt, kryptos_k3_decrypt
+from src.ciphers import kryptos_k3_decrypt, vigenere_decrypt
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -18,6 +20,7 @@ with open(config_path, encoding='utf-8') as config_file:
 
 class TestCiphers(unittest.TestCase):
     """Unit tests for cipher decryption functions."""
+
     def test_vigenere_k1(self):
         """Test the Vigenère decryption for K1 using the keyed alphabet."""
         ciphertext_k1 = config["ciphertexts"]["K1"].replace(" ", "")

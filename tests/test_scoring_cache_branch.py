@@ -1,5 +1,7 @@
 """Test caching branch of combined_plaintext_score_cached."""
+
 import unittest
+
 from src.k4.scoring import combined_plaintext_score_cached
 
 

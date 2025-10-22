@@ -1,8 +1,10 @@
 """Tests for composite multi-stage pipeline aggregation."""
+
 import unittest
+
 from src.k4 import (
-    make_hill_constraint_stage,
     make_berlin_clock_stage,
+    make_hill_constraint_stage,
     make_transposition_adaptive_stage,
     run_composite_pipeline,
 )

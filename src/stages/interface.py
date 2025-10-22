@@ -1,6 +1,7 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Protocol, Any
+from typing import Any, Protocol
 
 
 @dataclass
@@ -18,8 +19,7 @@ class CandidateResult:
 
 
 class Stage(Protocol):
-    def run(self, ctx: StageContext) -> list[CandidateResult]:
-        ...
+    def run(self, ctx: StageContext) -> list[CandidateResult]: ...
 
 
 # Default weights placeholder (shared by scoring)

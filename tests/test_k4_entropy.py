@@ -1,5 +1,7 @@
 """Tests for entropy and repeating bigram metrics."""
+
 import unittest
+
 from src.k4 import letter_entropy, repeating_bigram_fraction
 
 

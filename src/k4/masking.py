@@ -3,10 +3,12 @@
 Generates candidate plaintext variants by removing or substituting suspected null/padding characters
 and evaluating resulting texts.
 """
+
 from __future__ import annotations
-from typing import Any
 
 from collections.abc import Iterable
+from typing import Any
+
 from .scoring import combined_plaintext_score
 
 DEFAULT_NULLS = {'X', 'Y'}

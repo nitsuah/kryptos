@@ -1,7 +1,10 @@
 """Constrained Hill cipher key solving using known crib pairs (BERLIN/CLOCK)."""
+
 from __future__ import annotations
+
 from itertools import combinations, permutations
-from .hill_cipher import solve_2x2_key, hill_decrypt, matrix_inv_mod, ALPHABET
+
+from .hill_cipher import ALPHABET, hill_decrypt, matrix_inv_mod, solve_2x2_key
 from .scoring import combined_plaintext_score_cached as combined_plaintext_score  # cached
 
 # Example known cribs (plaintext -> cipher segment) from Kryptos K4 clues
@@ -40,13 +43,13 @@ def _assemble_3x3_variants(seq: str) -> list[list[list[int]]]:
     seen: set[tuple[int, ...]] = set()
 
     # row-major
-    row = [[ALPHABET.index(letters[r*3 + c]) for c in range(3)] for r in range(3)]
+    row = [[ALPHABET.index(letters[r * 3 + c]) for c in range(3)] for r in range(3)]
     flat = tuple(v for rr in row for v in rr)
     variants.append(row)
     seen.add(flat)
 
     # column-major
-    col_mat = [[0]*3 for _ in range(3)]
+    col_mat = [[0] * 3 for _ in range(3)]
     idx = 0
     for c in range(3):
         for r in range(3):
@@ -131,8 +134,8 @@ def _generate_3x3_candidates(cribs: dict[str, str]) -> list[dict]:
             continue
         # all overlapping 9-char windows
         for start in range(0, max_len - 9 + 1):
-            p_slice = plain_concat[start:start+9]
-            c_slice = cipher_concat[start:start+9]
+            p_slice = plain_concat[start : start + 9]
+            c_slice = cipher_concat[start : start + 9]
             keys = _solve_3x3_keys(p_slice, c_slice)
             for k in keys:
                 flat = tuple(v for row in k for v in row)
@@ -163,8 +166,8 @@ def derive_candidate_keys() -> list[dict]:
     # Pairwise combinations (2x2)
     crib_items = list(KNOWN_CRIBS.items())
     for (p1, c1), (p2, c2) in combinations(crib_items, 2):
-        plain_block = (p1[:2] + p2[:2])
-        cipher_block = (c1[:2] + c2[:2])
+        plain_block = p1[:2] + p2[:2]
+        cipher_block = c1[:2] + c2[:2]
         k2 = solve_2x2_key(plain_block, cipher_block)
         if k2:
             keys.append({'key': k2, 'source': f'pair:{p1}+{p2}', 'size': 2})
@@ -208,20 +211,22 @@ def decrypt_and_score(
                 seen_texts.add(dec)
                 score = combined_plaintext_score(dec)
                 attempt_entry['score'] = score
-                results.append({
-                    'key': k,
-                    'source': info['source'],
-                    'size': info.get('size', len(k)),
-                    'score': score,
-                    'text': dec,
-                    'trace': [
-                        {
-                            'stage': 'hill',
-                            'transformation': f"key:{info['source']}",
-                            'size': info.get('size', len(k)),
-                        },
-                    ],
-                })
+                results.append(
+                    {
+                        'key': k,
+                        'source': info['source'],
+                        'size': info.get('size', len(k)),
+                        'score': score,
+                        'text': dec,
+                        'trace': [
+                            {
+                                'stage': 'hill',
+                                'transformation': f"key:{info['source']}",
+                                'size': info.get('size', len(k)),
+                            },
+                        ],
+                    },
+                )
         _hill_attempts.append(attempt_entry)
     results.sort(key=lambda r: r['score'], reverse=True)
     return results

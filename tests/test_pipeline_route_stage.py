@@ -1,6 +1,8 @@
 """Test route transposition stage to cover generate_route_variants path."""
+
 import unittest
-from src.k4.pipeline import make_route_transposition_stage, Pipeline
+
+from src.k4.pipeline import Pipeline, make_route_transposition_stage
 
 
 class TestPipelineRouteStage(unittest.TestCase):

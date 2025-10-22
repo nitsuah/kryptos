@@ -3,6 +3,7 @@
 Generates partitions of the ciphertext length into block sizes within a
 specified range. Used for layered substitution block hypothesis.
 """
+
 from functools import lru_cache
 
 
@@ -48,6 +49,6 @@ def slice_by_partition(text: str, partition: tuple[int, ...]) -> list[str]:
     segments: list[str] = []
     idx = 0
     for length in partition:
-        segments.append(text[idx:idx+length])
+        segments.append(text[idx : idx + length])
         idx += length
     return segments

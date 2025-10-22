@@ -1,6 +1,8 @@
 """Test composite reporting path when adaptive False and no weights (aggregated artifact source)."""
+
 import unittest
-from src.k4 import run_composite_pipeline, make_hill_constraint_stage, make_masking_stage
+
+from src.k4 import make_hill_constraint_stage, make_masking_stage, run_composite_pipeline
 
 
 class TestCompositeReportNoWeights(unittest.TestCase):

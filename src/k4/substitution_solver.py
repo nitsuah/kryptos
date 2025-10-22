@@ -4,7 +4,9 @@ This is a lightweight solver intended for short K4 segments. It attempts to
 maximize the combined_plaintext_score from scoring.py by permuting a mapping.
 Not cryptographically exhaustive; serves as a heuristic filter.
 """
+
 import random
+
 from .scoring import combined_plaintext_score
 
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

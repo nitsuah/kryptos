@@ -1,5 +1,7 @@
 """Test letter frequency fallback branch by temporarily clearing LETTER_FREQ."""
+
 import unittest
+
 import src.k4.scoring as scoring
 
 
