@@ -66,6 +66,44 @@ The script will fetch each URL, extract the title and first paragraph, and appen
 
 ---
 
+- Date: 2005-01-20
+- Source: [https://www.wired.com/2005/01/questions-for-kryptos-creator/](https://www.wired.com/2005/01/questions-for-kryptos-creator/)
+- Title: "Questions for Kryptos' Creator — Wired" (Kim Zetter interview)
+- Excerpt: "In part of the code that's been deciphered, I refer to an act that took place when I was at the agency and a location that's on the grounds of the agency. So ... you have to decipher the piece and then go to the agency and find that place. There are, for example, longitude and latitude coordinates on the piece, which refer to locations of the agency."
+- Notes: Direct confirmation that the text contains coordinates and references to a specific act/location Sanborn associated with the CIA grounds — strong evidence that geographic/coordinate-derived cribs or place-names are relevant.
+
+---
+
+- Date: 2005-01-20
+- Source: [https://www.wired.com/2005/01/questions-for-kryptos-creator/](https://www.wired.com/2005/01/questions-for-kryptos-creator/)
+- Title: "Questions for Kryptos' Creator — Wired" (Kim Zetter interview)
+- Excerpt: "I made reference in the encoded text to something I could have carried out."
+- Notes: Sanborn acknowledges that a referenced 'act' in the text could have been carried out by him — implies literal actions described on the sculpture may map to instructions or positional clues (useful for interpreting verbs/commands in K4).
+
+---
+
+- Date: 2005-01-20
+- Source: [https://www.wired.com/2005/01/questions-for-kryptos-creator/](https://www.wired.com/2005/01/questions-for-kryptos-creator/)
+- Title: "Questions for Kryptos' Creator — Wired" (Kim Zetter interview)
+- Excerpt: "I would think five or six." (asked how many cryptographic techniques he used)
+- Notes: Sanborn's estimate of the number of techniques ("five or six") is a confirmed clue about cipher complexity — suggests K4 combines multiple layered encipherment strategies.
+
+---
+
+- Date: 1990-11-03
+- Source: [https://www.cia.gov/legacy/headquarters/kryptos-sculpture/](https://www.cia.gov/legacy/headquarters/kryptos-sculpture/)
+- Title: "\"Kryptos\" Sculpture — CIA"
+- Excerpt: "James Sanborn once said, 'They will be able to read what I wrote, but what I wrote is a mystery itself.'"
+- Notes: Direct artist quotation published in the agency's official description — confirms Sanborn's intent to create layered ambiguity and supports cautious use of literal-sense cribs (surface-readable phrases may be metaphorical).
+
+---
+
+- Date: 1990-11-03
+- Source: [https://www.cia.gov/legacy/headquarters/kryptos-sculpture/](https://www.cia.gov/legacy/headquarters/kryptos-sculpture/)
+- Title: "\"Kryptos\" Sculpture — CIA"
+- Excerpt: "I gave it to William Webster at the dedication ceremony with a wax seal on it, but in fact I really didn't tell him the whole story. I definitely didn't give him the last section, which has never been deciphered."
+- Notes: Sanborn's admission about the dedication envelope and deliberately withholding K4 confirms there is a canonical solution record and that the final section was intentionally kept secret from the Agency director — reinforces that verification rests with the artist and that certain referents (e.g., 'WW' -> William Webster) are authoritatively confirmed.
+
 - Date: 1990-11-03
 - Source: [https://www.cia.gov/legacy/headquarters/kryptos-sculpture/](https://www.cia.gov/legacy/headquarters/kryptos-sculpture/)
 - Title: "\"Kryptos\" Sculpture — CIA"

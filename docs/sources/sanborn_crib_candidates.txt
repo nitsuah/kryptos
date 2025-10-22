@@ -13,6 +13,12 @@ EAST	https://en.wikipedia.org/wiki/Kryptos	Letters revealed in 2020/2023; positi
 LODSTONE	http://www.elonka.com/kryptos/sanborn.html	Material motif in Sanborn's works; frequently used as symbolic 'magnet' clue
 PALIMPCEST	https://www.wired.com/2005/01/questions-for-kryptos-creator/	Alternate spelling reference on original charts (noting intentional misspellings)
 
+MAGNETIC	https://www.wired.com/2005/01/questions-for-kryptos-creator/	Direct reference to Earth's magnetic field and lodestones in Sanborn interview
+COORDINATE	https://www.wired.com/2005/01/questions-for-kryptos-creator/	Sanborn: "there are, for example, longitude and latitude coordinates on the piece"
+ACT	https://www.wired.com/2005/01/questions-for-kryptos-creator/	Sanborn: references "an act that took place" on CIA grounds — literal action in plaintext
+WEBSTER	https://www.wired.com/2005/01/questions-for-kryptos-creator/	'WW' references William Webster confirmed by Sanborn in interview notes
+GEOGRAPHY	https://www.cia.gov/legacy/headquarters/kryptos-sculpture/	Agency description notes coordinates and geographic references in the sculpture
+
 # Notes:
 # - These are candidate single-word cribs and short contexts intended for
 #   heuristic weighting or seeding search pipelines. Always verify original source
