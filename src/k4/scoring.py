@@ -7,6 +7,7 @@ import math
 import os
 from collections import Counter
 from collections.abc import Iterable, Sequence
+from pathlib import Path
 from functools import lru_cache
 
 # Paths
@@ -447,8 +448,50 @@ def combined_plaintext_score_with_positions(text: str, positional: dict[str, Seq
     base = combined_plaintext_score(text)
     pos_bonus = positional_crib_bonus(text, positional, window)
     return base + pos_bonus
+def load_cribs_from_file(path: str | Path) -> list[str]:
+    """Load a simple tab-separated crib candidate file (CANDIDATE\tSOURCE\tCONTEXT).
+
+    Returns list of uppercase candidate tokens. Gracefully returns empty list on
+    missing file or parse errors.
+    """
+    try:
+        p = Path(path)
+    except Exception:
+        return []
+    if not p.exists():
+        return []
+    cribs: list[str] = []
+    try:
+        with p.open('r', encoding='utf-8') as fh:
+            for line in fh:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                parts = line.split('\t')
+                token = parts[0].strip().upper() if parts else ''
+                if token.isalpha() and len(token) >= 3:
+                    cribs.append(token)
+    except Exception:
+        return []
+    return cribs
 
 
+def combined_plaintext_score_with_external_cribs(text: str, external_cribs: Iterable[str], crib_weight: float = 1.0) -> float:
+    """Compute combined score while applying a conservative external crib bonus.
+
+    external_cribs: iterable of uppercase strings. crib_weight scales the bonus so
+    higher values increase influence. This function does not mutate module globals.
+    """
+    base = combined_plaintext_score(text)
+    if not external_cribs:
+        return base
+    upper = ''.join(c for c in text.upper() if c.isalpha())
+    bonus = 0.0
+    for crib in external_cribs:
+        c = crib.upper()
+        if c and c in upper:
+            bonus += 5.0 * len(c) * float(crib_weight)
+    return base + bonus
 __all__ = [
     'LETTER_FREQ',
     'BIGRAMS',
@@ -477,4 +520,6 @@ __all__ = [
     'bigram_gap_variance',
     'berlin_clock_pattern_validator',
     'combined_plaintext_score_extended',
+    'load_cribs_from_file',
+    'combined_plaintext_score_with_external_cribs',
 ]
