@@ -94,3 +94,42 @@ def test_bigram_gap_variance_zero_and_nonzero():
 def test_repeating_bigram_fraction():
     # ABABAB => bigrams: AB,BA,AB,BA,AB -> repeats should equal total bigrams => fraction 1.0
     assert scoring.repeating_bigram_fraction('ABABAB') == pytest.approx(1.0)
+
+
+def test_chi_square_and_cached_score_and_segment_scores():
+    # chi-square for normal text should be finite
+    chi = scoring.chi_square_stat('THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG')
+    assert math.isfinite(chi)
+
+    # cached combined score should match uncached and be deterministic
+    s1 = scoring.combined_plaintext_score('SOME PLAINTEXT')
+    s2 = scoring.combined_plaintext_score_cached('SOME PLAINTEXT')
+    s3 = scoring.combined_plaintext_score_cached('SOME PLAINTEXT')
+    assert math.isclose(s1, s2, rel_tol=1e-9)
+    assert s2 == s3
+
+    # segment scores
+    segs = ['THE', 'QUICK', 'BROWN']
+    seg_scores = scoring.segment_plaintext_scores(segs)
+    assert set(segs) == set(seg_scores.keys())
+    for v in seg_scores.values():
+        assert isinstance(v, float)
+
+
+def test_baseline_stats_and_letter_metrics():
+    txt = 'THE QUICK BROWN FOX'
+    stats = scoring.baseline_stats(txt)
+    # basic expected keys
+    expected_keys = {'chi_square', 'bigram_score', 'trigram_score', 'quadgram_score', 'crib_bonus', 'combined_score'}
+    assert expected_keys.issubset(set(stats.keys()))
+    # numeric values
+    for k in expected_keys:
+        assert isinstance(stats[k], float)
+
+    # letter entropy / coverage / index
+    ent = scoring.letter_entropy('AAAA')
+    assert ent == pytest.approx(0.0)
+    cov = scoring.letter_coverage('ABC')
+    assert cov <= 1.0 and cov >= 0.0
+    ic = scoring.index_of_coincidence('AAA')
+    assert isinstance(ic, float)

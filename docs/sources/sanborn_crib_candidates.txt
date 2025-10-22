@@ -1,0 +1,19 @@
+# Sanborn / Kryptos crib candidates (generated)
+
+# Each line: CANDIDATE	SOURCE	CONTEXT
+
+BERLIN	https://en.wikipedia.org/wiki/Kryptos	Mentioned by Sanborn as clue ("BERLIN" letters released in 2010; points to Berlin clock / Mengenlehreuhr)
+CLOCK	https://en.wikipedia.org/wiki/Kryptos	Associated with the Berlin Clock clue; Sanborn referenced "that particular clock"
+MAGNETIC	https://en.wikipedia.org/wiki/Kryptos	Passage 2 references the Earth's magnetic field in plaintext
+PALIMPSEST	https://en.wikipedia.org/wiki/Kryptos	Vigenere keyword used on passage 1 (historical clue)
+ABSCISSA	https://en.wikipedia.org/wiki/Kryptos	Vigenere keyword used on passage 2
+KRYPTOS	https://en.wikipedia.org/wiki/Kryptos	Self-referential keyword/artist identifier
+NORTHEAST	https://en.wikipedia.org/wiki/Kryptos	Sanborn revealed positions 26-34 map to "NORTHEAST" (2020 clue)
+EAST	https://en.wikipedia.org/wiki/Kryptos	Letters revealed in 2020/2023; positional hint in K4
+LODSTONE	http://www.elonka.com/kryptos/sanborn.html	Material motif in Sanborn's works; frequently used as symbolic 'magnet' clue
+PALIMPCEST	https://www.wired.com/2005/01/questions-for-kryptos-creator/	Alternate spelling reference on original charts (noting intentional misspellings)
+
+# Notes:
+# - These are candidate single-word cribs and short contexts intended for
+#   heuristic weighting or seeding search pipelines. Always verify original source
+#   pages before using a crib as a hard constraint in scoring.

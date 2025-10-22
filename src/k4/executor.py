@@ -124,9 +124,7 @@ class PipelineExecutor:
             return res
 
         with ThreadPoolExecutor(max_workers=variant_ct) as ex:
-            futures = [
-                ex.submit(_variant_call, p_len, p_min) for p_len, p_min in zip(partial_lens, partial_mins, strict=False)
-            ]
+            futures = [ex.submit(_variant_call, p_len, p_min) for p_len, p_min in zip(partial_lens, partial_mins)]
             for fut in as_completed(futures):
                 try:
                     r = fut.result()
@@ -303,7 +301,7 @@ class PipelineExecutor:
                             rank,
                             cand.get('score'),
                             cand.get('crib_bonus'),
-                            (cand.get('text', '')[:60]).replace('\n', ' '),
+                            cand.get('text', '')[:60].replace('\n', ' '),
                         ],
                     )
 
