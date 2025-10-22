@@ -7,8 +7,8 @@ import math
 import os
 from collections import Counter
 from collections.abc import Iterable, Sequence
-from pathlib import Path
 from functools import lru_cache
+from pathlib import Path
 
 # Paths
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -448,6 +448,8 @@ def combined_plaintext_score_with_positions(text: str, positional: dict[str, Seq
     base = combined_plaintext_score(text)
     pos_bonus = positional_crib_bonus(text, positional, window)
     return base + pos_bonus
+
+
 def load_cribs_from_file(path: str | Path) -> list[str]:
     """Load a simple tab-separated crib candidate file (CANDIDATE\tSOURCE\tCONTEXT).
 
@@ -476,7 +478,11 @@ def load_cribs_from_file(path: str | Path) -> list[str]:
     return cribs
 
 
-def combined_plaintext_score_with_external_cribs(text: str, external_cribs: Iterable[str], crib_weight: float = 1.0) -> float:
+def combined_plaintext_score_with_external_cribs(
+    text: str,
+    external_cribs: Iterable[str],
+    crib_weight: float = 1.0,
+) -> float:
     """Compute combined score while applying a conservative external crib bonus.
 
     external_cribs: iterable of uppercase strings. crib_weight scales the bonus so
@@ -492,6 +498,8 @@ def combined_plaintext_score_with_external_cribs(text: str, external_cribs: Iter
         if c and c in upper:
             bonus += 5.0 * len(c) * float(crib_weight)
     return base + bonus
+
+
 __all__ = [
     'LETTER_FREQ',
     'BIGRAMS',
