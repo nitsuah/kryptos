@@ -1,10 +1,13 @@
 """
- Main module for Kryptos analysis and reporting.
+Main module for Kryptos analysis and reporting.
 """
+
 import json
+
+from src.analysis import check_cribs, frequency_analysis
 from src.ciphers import vigenere_decrypt  # removed unused transposition_decrypt
-from src.analysis import frequency_analysis, check_cribs
 from src.report import generate_report
+
 
 def main():
     """Main function to run Kryptos analysis and reporting."""
@@ -41,6 +44,7 @@ def main():
             results["cribs"][key] = matches
 
         generate_report(results, cipher_name)
+
 
 if __name__ == "__main__":
     main()

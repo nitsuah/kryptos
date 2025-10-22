@@ -2,17 +2,19 @@
 Run after installing the package (pip install -e .).
 Falls back to temporary sys.path tweak if not installed.
 """
+
 import os
 import sys
+
 try:
     from src.k4 import (
+        make_berlin_clock_stage,
         make_hill_constraint_stage,
+        make_masking_stage,
         make_transposition_adaptive_stage,
         make_transposition_multi_crib_stage,
-        make_masking_stage,
-        make_berlin_clock_stage,
-        run_composite_pipeline,
         persist_attempt_logs,
+        run_composite_pipeline,
     )
 except ImportError:  # fallback for direct script execution without install
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -20,18 +22,18 @@ except ImportError:  # fallback for direct script execution without install
         sys.path.insert(0, PROJECT_ROOT)
     try:
         from src.k4 import (
+            make_berlin_clock_stage,
             make_hill_constraint_stage,
+            make_masking_stage,
             make_transposition_adaptive_stage,
             make_transposition_multi_crib_stage,
-            make_masking_stage,
-            make_berlin_clock_stage,
-            run_composite_pipeline,
             persist_attempt_logs,
+            run_composite_pipeline,
         )
     except ImportError as e:
         raise ImportError(
             f"Failed to import 'src.k4' even after adding PROJECT_ROOT to sys.path. "
-            f"Ensure the package is installed or the source is available at '{PROJECT_ROOT}'.\nOriginal error: {e}"
+            f"Ensure the package is installed or the source is available at '{PROJECT_ROOT}'.\nOriginal error: {e}",
         ) from e
 from collections.abc import Sequence
 

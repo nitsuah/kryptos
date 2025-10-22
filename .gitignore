@@ -37,3 +37,4 @@ MANIFEST
 # Ignore generated data files if any
 /data/*.generated
 reports/
+artifacts/

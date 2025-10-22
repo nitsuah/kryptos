@@ -1,15 +1,18 @@
 """Tests for attempt log persistence artifact."""
-import unittest
+
 import os
+import unittest
+
 from src.k4 import (
+    make_berlin_clock_stage,
     make_hill_constraint_stage,
     make_transposition_adaptive_stage,
-    make_berlin_clock_stage,
-    run_composite_pipeline,
     persist_attempt_logs,
+    run_composite_pipeline,
 )
 
 CIPHER_SAMPLE = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
+
 
 class TestAttemptLogging(unittest.TestCase):
     def test_persist_attempt_logs(self):
@@ -36,6 +39,7 @@ class TestAttemptLogging(unittest.TestCase):
         with open(second_path, encoding='utf-8') as fh:
             data2 = fh.read()
         self.assertIn('"hill": 0', data2)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,5 +1,7 @@
 """Polybius cipher expected output test (fixed formatting)."""
+
 import unittest
+
 from src.ciphers import polybius_decrypt
 
 

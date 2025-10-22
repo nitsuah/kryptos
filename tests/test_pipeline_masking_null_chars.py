@@ -1,6 +1,9 @@
 """Test masking stage with explicit null chars parameter."""
+
 import unittest
-from src.k4.pipeline import make_masking_stage, Pipeline
+
+from src.k4.pipeline import Pipeline, make_masking_stage
+
 
 class TestPipelineMaskingNullChars(unittest.TestCase):
     def test_masking_with_null_chars(self):
@@ -11,6 +14,7 @@ class TestPipelineMaskingNullChars(unittest.TestCase):
         meta = res[0].metadata
         cands = meta.get('candidates', [])
         self.assertTrue(isinstance(cands, list))
+
 
 if __name__ == '__main__':
     unittest.main()

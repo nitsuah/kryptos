@@ -1,9 +1,12 @@
 """
- Unit tests for K4 scoring functions.
+Unit tests for K4 scoring functions.
 """
-import unittest
+
 import random
+import unittest
+
 from src.k4 import combined_plaintext_score
+
 
 class TestK4Scoring(unittest.TestCase):
     def test_english_like_vs_random(self):
@@ -13,6 +16,7 @@ class TestK4Scoring(unittest.TestCase):
         score_eng = combined_plaintext_score(english_like)
         score_rand = combined_plaintext_score(random_text)
         self.assertGreater(score_eng, score_rand)
+
 
 if __name__ == '__main__':
     unittest.main()

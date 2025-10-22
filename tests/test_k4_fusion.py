@@ -1,6 +1,9 @@
 """Tests for weighted fusion utilities in composite module."""
+
 import unittest
-from src.k4 import normalize_scores, fuse_scores_weighted
+
+from src.k4 import fuse_scores_weighted, normalize_scores
+
 
 class TestK4Fusion(unittest.TestCase):
     def test_normalize_and_fuse(self):
@@ -17,6 +20,7 @@ class TestK4Fusion(unittest.TestCase):
         self.assertTrue(all('fused_score' in c for c in fused))
         # Highest hill candidate should appear before highest berlin candidate due to weight
         self.assertEqual(fused[0]['stage'], 'hill-constraint')
+
 
 if __name__ == '__main__':
     unittest.main()

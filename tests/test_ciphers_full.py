@@ -1,13 +1,16 @@
 """Recreated ciphers full test with corrected Polybius ABC expectation."""
+
 import unittest
+
 from src.ciphers import (
-    vigenere_decrypt,
-    kryptos_k3_decrypt,
     double_rotational_transposition,
-    transposition_decrypt,
+    kryptos_k3_decrypt,
     polybius_decrypt,
     rotate_matrix_right_90,
+    transposition_decrypt,
+    vigenere_decrypt,
 )
+
 
 class TestCiphersFull(unittest.TestCase):
     def test_vigenere_preserve_non_alpha(self):
@@ -53,6 +56,7 @@ class TestCiphersFull(unittest.TestCase):
         ]
         pt = polybius_decrypt("111213", square)
         self.assertEqual(pt, "ABC")
+
 
 if __name__ == '__main__':
     unittest.main()

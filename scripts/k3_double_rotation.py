@@ -6,10 +6,12 @@ Usage:
 
 Outputs the derived plaintext (with DESPARATLY) from config K3 ciphertext.
 """
+
 import json
 import os
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
+
 
 def load_k3():
     with open(CONFIG_PATH, encoding='utf-8') as f:
@@ -19,31 +21,35 @@ def load_k3():
         ct = ct[1:]
     return ct
 
+
 def rotate_right(matrix):
     rows = len(matrix)
     cols = len(matrix[0])
-    return [[matrix[r][c] for r in range(rows-1, -1, -1)] for c in range(cols)]
+    return [[matrix[r][c] for r in range(rows - 1, -1, -1)] for c in range(cols)]
+
 
 def k3_double_rotation(ct: str) -> str:
     # First grid 24x14
     cols1, rows1 = 24, 14
-    m1 = [list(ct[i*cols1:(i+1)*cols1]) for i in range(rows1)]
+    m1 = [list(ct[i * cols1 : (i + 1) * cols1]) for i in range(rows1)]
     # Rotate
     m2 = rotate_right(m1)
     # Flatten
     t1 = ''.join(''.join(r) for r in m2)
     # Re-chunk into 8-col rows
     cols2 = 8
-    rows2 = len(t1)//cols2
-    m3 = [list(t1[i*cols2:(i+1)*cols2]) for i in range(rows2)]
+    rows2 = len(t1) // cols2
+    m3 = [list(t1[i * cols2 : (i + 1) * cols2]) for i in range(rows2)]
     # Second rotate
     m4 = rotate_right(m3)
     return ''.join(''.join(r) for r in m4)
+
 
 def main():
     k3_ct = load_k3()
     pt = k3_double_rotation(k3_ct)
     print(pt)
+
 
 if __name__ == '__main__':
     main()

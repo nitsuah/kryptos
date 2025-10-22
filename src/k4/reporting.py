@@ -2,22 +2,27 @@
 
 Writes ranked candidate decryptions to JSON (full detail) and optional CSV (summary).
 """
+
 from __future__ import annotations
 
-from collections.abc import Sequence
-import os
-import json
 import csv
 import hashlib
+import json
+import os
+from collections.abc import Sequence
 from datetime import datetime
+
 from .scoring import baseline_stats
+
 
 def _ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
+
 def _key_hash(key: Sequence[Sequence[int]]) -> str:
     flat = ','.join(str(v) for row in key for v in row)
     return hashlib.sha1(flat.encode('utf-8')).hexdigest()[:16]
+
 
 def write_candidates_json(
     stage: str,
@@ -36,18 +41,20 @@ def write_candidates_json(
         text = cand.get('text', '')
         metrics = baseline_stats(text)
         key = cand.get('key')
-        enriched.append({
-            'rank': rank,
-            'score': cand.get('score'),
-            'source': cand.get('source'),
-            'key': key,
-            'key_hash': _key_hash(key) if key else None,
-            'text': text,
-            'metrics': metrics,
-            'origin_stage': stage,
-            'candidate_lineage': cand.get('lineage') or lineage,
-            'trace': cand.get('trace'),
-        })
+        enriched.append(
+            {
+                'rank': rank,
+                'score': cand.get('score'),
+                'source': cand.get('source'),
+                'key': key,
+                'key_hash': _key_hash(key) if key else None,
+                'text': text,
+                'metrics': metrics,
+                'origin_stage': stage,
+                'candidate_lineage': cand.get('lineage') or lineage,
+                'trace': cand.get('trace'),
+            },
+        )
     payload = {
         'cipher': cipher_label,
         'stage': stage,
@@ -60,6 +67,7 @@ def write_candidates_json(
     with open(output_path, 'w', encoding='utf-8') as fh:
         json.dump(payload, fh, indent=2)
     return output_path
+
 
 def write_candidates_csv(
     candidates: list[dict],
@@ -74,14 +82,17 @@ def write_candidates_csv(
         w.writerow(['rank', 'score', 'source', 'key_hash', 'text_prefix'])
         for rank, cand in enumerate(ranked, start=1):
             key = cand.get('key')
-            w.writerow([
-                rank,
-                cand.get('score'),
-                cand.get('source'),
-                _key_hash(key) if key else '',
-                (cand.get('text', '')[:60]),
-            ])
+            w.writerow(
+                [
+                    rank,
+                    cand.get('score'),
+                    cand.get('source'),
+                    _key_hash(key) if key else '',
+                    (cand.get('text', '')[:60]),
+                ],
+            )
     return output_path
+
 
 def generate_candidate_artifacts(
     stage: str,
@@ -103,5 +114,6 @@ def generate_candidate_artifacts(
         csv_path = os.path.join(out_dir, 'k4_candidates.csv')
         paths['csv'] = write_candidates_csv(candidates, csv_path, limit)
     return paths
+
 
 __all__ = ['write_candidates_json', 'write_candidates_csv', 'generate_candidate_artifacts']

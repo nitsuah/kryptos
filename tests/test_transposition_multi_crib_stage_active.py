@@ -1,7 +1,10 @@
 """Test active multi-crib transposition stage path with n_cols=1 for deterministic match."""
+
 import unittest
 from collections.abc import Sequence
-from src.k4.pipeline import make_transposition_multi_crib_stage, Pipeline
+
+from src.k4.pipeline import Pipeline, make_transposition_multi_crib_stage
+
 
 class TestTranspositionMultiCribStageActive(unittest.TestCase):
     def test_active_multi_crib_stage(self):
@@ -25,6 +28,7 @@ class TestTranspositionMultiCribStageActive(unittest.TestCase):
             first = cands[0]
             self.assertIn('pos_bonus', first)
             self.assertGreaterEqual(first['pos_bonus'], 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

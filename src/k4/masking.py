@@ -3,18 +3,22 @@
 Generates candidate plaintext variants by removing or substituting suspected null/padding characters
 and evaluating resulting texts.
 """
+
 from __future__ import annotations
-from typing import Any
 
 from collections.abc import Iterable
+from typing import Any
+
 from .scoring import combined_plaintext_score
 
 DEFAULT_NULLS = {'X', 'Y'}
+
 
 def remove_chars(text: str, chars: Iterable[str]) -> str:
     """Return text with all occurrences of chars removed (case-insensitive for alpha)."""
     remove = {c.upper() for c in chars}
     return ''.join(ch for ch in text if ch.upper() not in remove)
+
 
 def collapse_runs(text: str, char: str, max_run: int = 2) -> str:
     """Collapse runs of a given char longer than max_run down to max_run length."""
@@ -29,6 +33,7 @@ def collapse_runs(text: str, char: str, max_run: int = 2) -> str:
             run = 0
             out.append(ch)
     return ''.join(out)
+
 
 def mask_variants(text: str, null_chars: Iterable[str] | None = None) -> list[str]:
     """Generate simple masking variants: full removal and run-collapsed versions for each null char."""
@@ -52,6 +57,7 @@ def mask_variants(text: str, null_chars: Iterable[str] | None = None) -> list[st
             uniq.append(v)
     return uniq
 
+
 def score_mask_variants(text: str, null_chars: Iterable[str] | None = None) -> list[dict[str, Any]]:
     """Produce scored variant list sorted by score desc."""
     vars_ = mask_variants(text, null_chars)
@@ -60,5 +66,6 @@ def score_mask_variants(text: str, null_chars: Iterable[str] | None = None) -> l
         scored.append({'text': v, 'score': combined_plaintext_score(v), 'variant': 'mask'})
     scored.sort(key=lambda r: r['score'], reverse=True)
     return scored
+
 
 __all__ = ['DEFAULT_NULLS', 'remove_chars', 'collapse_runs', 'mask_variants', 'score_mask_variants']

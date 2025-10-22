@@ -1,15 +1,20 @@
 """Constraint-based columnar transposition solver prototype (crib anchoring)."""
+
 from __future__ import annotations
 
-from collections.abc import Sequence
 import itertools
-from .scoring import combined_plaintext_score_cached as combined_plaintext_score, positional_crib_bonus
+from collections.abc import Sequence
+
 from .cribs import normalize_cipher
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score
+from .scoring import positional_crib_bonus
+
 
 def _column_lengths(n: int, n_cols: int) -> list[int]:
     n_rows = (n + n_cols - 1) // n_cols
     full_cols = n % n_cols if n % n_cols != 0 else n_cols
     return [n_rows if i < full_cols else (n_rows - 1) for i in range(n_cols)]
+
 
 def invert_columnar(ciphertext: str, n_cols: int, perm: tuple[int, ...]) -> str:
     """Invert columnar transposition with given column permutation."""
@@ -20,7 +25,7 @@ def invert_columnar(ciphertext: str, n_cols: int, perm: tuple[int, ...]) -> str:
     idx = 0
     for p in perm:
         L = col_lengths[p]
-        cols.append(ct[idx:idx+L])
+        cols.append(ct[idx : idx + L])
         idx += L
     original: list[str] = [''] * n_cols
     for read_idx, p in enumerate(perm):
@@ -33,6 +38,7 @@ def invert_columnar(ciphertext: str, n_cols: int, perm: tuple[int, ...]) -> str:
             if r < len(col):
                 out.append(col[r])
     return ''.join(out)
+
 
 def search_with_crib(ciphertext: str, crib: str, n_cols: int, max_perms: int = 1000) -> list[dict]:
     """Search permutations where decrypted text contains crib substring.
@@ -51,6 +57,7 @@ def search_with_crib(ciphertext: str, crib: str, n_cols: int, max_perms: int = 1
             results.append({'perm': perm, 'score': score, 'text': pt})
     results.sort(key=lambda r: r['score'], reverse=True)
     return results[:25]
+
 
 def search_with_crib_at_position(
     ciphertext: str,
@@ -78,7 +85,9 @@ def search_with_crib_at_position(
     results.sort(key=lambda r: r['score'], reverse=True)
     return results[:25]
 
+
 # --- New: multi-crib positional anchoring ----------------------------------
+
 
 def search_with_multiple_cribs_positions(
     ciphertext: str,
@@ -134,15 +143,18 @@ def search_with_multiple_cribs_positions(
         base_score = combined_plaintext_score(pt)
         pos_bonus = positional_crib_bonus(pt, positional_cribs, window)
         score = base_score + pos_bonus
-        results.append({
-            'perm': perm,
-            'score': score,
-            'text': pt,
-            'positions': occurrences,
-            'pos_bonus': pos_bonus,
-        })
+        results.append(
+            {
+                'perm': perm,
+                'score': score,
+                'text': pt,
+                'positions': occurrences,
+                'pos_bonus': pos_bonus,
+            },
+        )
     results.sort(key=lambda r: r['score'], reverse=True)
     return results[:limit]
+
 
 __all__ = [
     'invert_columnar',

@@ -1,10 +1,14 @@
 """Composite multi-stage pipeline runner and candidate aggregator for K4."""
+
 from __future__ import annotations
+
 from typing import Any
+
+from .attempt_logging import persist_attempt_logs  # new import
 from .pipeline import Pipeline, Stage, StageResult
 from .reporting import generate_candidate_artifacts
-from .attempt_logging import persist_attempt_logs  # new import
-from .scoring import wordlist_hit_rate, trigram_entropy  # ensure metrics imported
+from .scoring import trigram_entropy, wordlist_hit_rate  # ensure metrics imported
+
 
 def aggregate_stage_candidates(results: list[StageResult]) -> list[dict[str, Any]]:
     """Aggregate candidates from multiple StageResults, annotate with stage name."""
@@ -12,24 +16,29 @@ def aggregate_stage_candidates(results: list[StageResult]) -> list[dict[str, Any
     for res in results:
         cands = res.metadata.get('candidates', [])
         for c in cands:
-            agg.append({
-                'stage': res.name,
-                'score': c.get('score', res.score),
-                'text': c.get('text', res.output),
-                'source': c.get('source', f'stage:{res.name}'),
-                'key': c.get('key'),
-                'time': c.get('time'),
-                'mode': c.get('mode'),
-                'shifts': c.get('shifts'),
-                'trace': c.get('trace'),  # propagate trace
-            })
+            agg.append(
+                {
+                    'stage': res.name,
+                    'score': c.get('score', res.score),
+                    'text': c.get('text', res.output),
+                    'source': c.get('source', f'stage:{res.name}'),
+                    'key': c.get('key'),
+                    'time': c.get('time'),
+                    'mode': c.get('mode'),
+                    'shifts': c.get('shifts'),
+                    'trace': c.get('trace'),  # propagate trace
+                },
+            )
     agg.sort(key=lambda x: x.get('score', 0.0), reverse=True)
     return agg
 
+
 # Weighted fusion utilities
+
 
 def _min_max(values: list[float]) -> tuple[float, float]:
     return (min(values), max(values)) if values else (0.0, 0.0)
+
 
 def normalize_scores(candidates: list[dict[str, Any]], key: str = 'score') -> list[dict[str, Any]]:
     """Return new list with added 'norm_score' using min-max normalization per stage grouping."""
@@ -48,6 +57,7 @@ def normalize_scores(candidates: list[dict[str, Any]], key: str = 'score') -> li
             new['norm_score'] = ns
             out.append(new)
     return out
+
 
 def fuse_scores_weighted(
     candidates: list[dict[str, Any]],
@@ -69,6 +79,7 @@ def fuse_scores_weighted(
         out.append(new)
     out.sort(key=lambda x: x.get('fused_score', 0.0), reverse=True)
     return out
+
 
 def run_composite_pipeline(
     ciphertext: str,
@@ -107,7 +118,8 @@ def run_composite_pipeline(
                 'stage': c['stage'],
                 'wl': wordlist_hit_rate(c['text']),
                 'ent': trigram_entropy(c['text']),
-            } for c in aggregated
+            }
+            for c in aggregated
         ]
         by_stage: dict[str, list[dict[str, float]]] = {}
         for m in metrics_samples:
@@ -118,8 +130,8 @@ def run_composite_pipeline(
                 continue
             wls = sorted(v['wl'] for v in arr)
             ents = sorted(v['ent'] for v in arr)
-            mid_wl = wls[len(wls)//2]
-            mid_ent = ents[len(ents)//2]
+            mid_wl = wls[len(wls) // 2]
+            mid_ent = ents[len(ents) // 2]
             diag[stage] = {
                 'median_wordlist_hit_rate': mid_wl,
                 'median_trigram_entropy': mid_ent,
@@ -140,7 +152,8 @@ def run_composite_pipeline(
                 'key': c.get('key'),
                 'lineage': lineage,
                 'trace': c.get('trace'),
-            } for c in artifact_source
+            }
+            for c in artifact_source
         ]
         paths = generate_candidate_artifacts(
             'composite',
@@ -182,7 +195,7 @@ def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float
     # Compute metrics
     tops = list(by_stage.values())
     wl_rates = [wordlist_hit_rate(t['text']) for t in tops]
-    median_wl = sorted(wl_rates)[len(wl_rates)//2]
+    median_wl = sorted(wl_rates)[len(wl_rates) // 2]
     all_scores.sort(reverse=True)
     top_cutoff_index = max(1, int(0.1 * len(all_scores))) - 1
     top_cutoff_score = all_scores[top_cutoff_index]
@@ -208,7 +221,11 @@ def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float
         weights[stage] = round(w, 3)
     return weights
 
+
 __all__ = [
-    'aggregate_stage_candidates', 'run_composite_pipeline', 'normalize_scores',
-    'fuse_scores_weighted', 'adaptive_fusion_weights',
+    'aggregate_stage_candidates',
+    'run_composite_pipeline',
+    'normalize_scores',
+    'fuse_scores_weighted',
+    'adaptive_fusion_weights',
 ]

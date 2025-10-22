@@ -1,6 +1,9 @@
 """Test noop path for make_transposition_multi_crib_stage when positional_cribs is None."""
+
 import unittest
-from src.k4.pipeline import make_transposition_multi_crib_stage, Pipeline
+
+from src.k4.pipeline import Pipeline, make_transposition_multi_crib_stage
+
 
 class TestPipelineNoopMultiCrib(unittest.TestCase):
     def test_noop_stage(self):
@@ -11,6 +14,7 @@ class TestPipelineNoopMultiCrib(unittest.TestCase):
         r = res[0]
         self.assertEqual(r.metadata.get('candidates'), [])
         self.assertEqual(r.output, "ABCD")
+
 
 if __name__ == '__main__':
     unittest.main()

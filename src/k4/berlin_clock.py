@@ -1,8 +1,9 @@
 """Berlin Clock key stream generator for K4 hypothesis (expanded)."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
-from datetime import time, datetime, timedelta
+from datetime import datetime, time, timedelta
 
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -74,11 +75,7 @@ def full_clock_state(t: time) -> dict[str, list[int]]:
 def encode_clock_state(state: dict[str, list[int]]) -> list[int]:
     """Flatten clock state dict into a single shift sequence list."""
     return (
-        state['top_hours']
-        + state['bottom_hours']
-        + state['top_minutes']
-        + state['bottom_minutes']
-        + state['seconds']
+        state['top_hours'] + state['bottom_hours'] + state['top_minutes'] + state['bottom_minutes'] + state['seconds']
     )
 
 
@@ -96,8 +93,10 @@ def enumerate_clock_shift_sequences(
     Returns list of dicts: {'time': 'HH:MM:SS', 'shifts': [...]}.
     Default step is 1 hour to keep output small; decrease step_seconds for finer granularity.
     """
+
     def _parse(ts: str) -> datetime:
         return datetime.strptime(ts, '%H:%M:%S')
+
     cur = _parse(start)
     end_dt = _parse(end)
     out: list[dict] = []
@@ -106,6 +105,7 @@ def enumerate_clock_shift_sequences(
         out.append({'time': cur.strftime('%H:%M:%S'), 'shifts': full_berlin_clock_shifts(t_obj)})
         cur += timedelta(seconds=step_seconds)
     return out
+
 
 __all__ = [
     'berlin_clock_shifts',

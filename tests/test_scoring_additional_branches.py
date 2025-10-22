@@ -1,6 +1,9 @@
 """Tests for additional scoring branches (wordlist_hit_rate break, bigram_gap_variance)."""
+
 import unittest
-from src.k4.scoring import wordlist_hit_rate, bigram_gap_variance
+
+from src.k4.scoring import bigram_gap_variance, wordlist_hit_rate
+
 
 class TestScoringAdditionalBranches(unittest.TestCase):
     def test_wordlist_hit_rate_break(self):
@@ -19,6 +22,7 @@ class TestScoringAdditionalBranches(unittest.TestCase):
         text = "ABABABXXAB"
         val = bigram_gap_variance(text)
         self.assertGreaterEqual(val, 0.0)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,18 +3,23 @@
 Aggregates in-memory attempt logs from Hill, Berlin Clock, and transposition searches
 and writes them to timestamped JSON artifact for post-run auditing.
 """
+
 from __future__ import annotations
-import os
+
 import json
+import os
 from datetime import datetime
 from typing import Any
-from .pipeline import get_hill_attempt_log, get_clock_attempt_log
+
+from .pipeline import get_clock_attempt_log, get_hill_attempt_log
 from .transposition import get_transposition_attempt_log
 
 DEF_LIMIT = 5000  # safety cap per category
 
+
 def _ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
+
 
 def persist_attempt_logs(
     out_dir: str = 'reports',
@@ -52,5 +57,6 @@ def persist_attempt_logs(
         get_clock_attempt_log(clear=True)
         get_transposition_attempt_log(clear=True)
     return path
+
 
 __all__ = ['persist_attempt_logs']

@@ -1,6 +1,9 @@
 """Tests for cribs utility functions."""
+
 import unittest
-from src.k4.cribs import normalize_cipher, annotate_cribs
+
+from src.k4.cribs import annotate_cribs, normalize_cipher
+
 
 class TestCribsFunctions(unittest.TestCase):
     def test_normalize_cipher(self):
@@ -16,6 +19,7 @@ class TestCribsFunctions(unittest.TestCase):
         self.assertIn('expected_positions', entry)
         fp = entry['found_positions'] if isinstance(entry['found_positions'], list) else []
         self.assertTrue(len(fp) >= 1)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,9 @@
 """Edge case tests for ciphers module."""
+
 import unittest
-from src.ciphers import vigenere_decrypt, polybius_decrypt, double_rotational_transposition
+
+from src.ciphers import double_rotational_transposition, polybius_decrypt, vigenere_decrypt
+
 
 class TestCiphersEdgeCases(unittest.TestCase):
     def test_vigenere_decrypt_mixed_case(self):
@@ -17,6 +20,7 @@ class TestCiphersEdgeCases(unittest.TestCase):
     def test_double_rotational_invalid_length(self):
         with self.assertRaises(ValueError):
             double_rotational_transposition("TOOSHORT")
+
 
 if __name__ == '__main__':
     unittest.main()

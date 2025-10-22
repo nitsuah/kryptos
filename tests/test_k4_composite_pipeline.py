@@ -1,11 +1,14 @@
 """Tests for composite multi-stage pipeline aggregation."""
+
 import unittest
+
 from src.k4 import (
-    make_hill_constraint_stage,
     make_berlin_clock_stage,
+    make_hill_constraint_stage,
     make_transposition_adaptive_stage,
     run_composite_pipeline,
 )
+
 
 class TestCompositePipeline(unittest.TestCase):
     def test_composite_run_aggregates_candidates(self):
@@ -26,6 +29,7 @@ class TestCompositePipeline(unittest.TestCase):
         self.assertEqual(scores, sorted(scores, reverse=True))
         # Ensure presence of adaptive transposition candidates
         self.assertTrue(any(c['stage'] == 'transposition-adaptive' for c in agg))
+
 
 if __name__ == '__main__':
     unittest.main()

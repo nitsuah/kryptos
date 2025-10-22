@@ -1,4 +1,5 @@
 """Hill cipher utilities (2x2 / 3x3) for K4 hypothesis exploration."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -18,7 +19,7 @@ def _int_to_char(i: int) -> str:
 
 def _chunks(seq: Sequence[int], size: int):
     for i in range(0, len(seq), size):
-        chunk = seq[i:i+size]
+        chunk = seq[i : i + size]
         if len(chunk) == size:
             yield chunk
 
@@ -38,7 +39,7 @@ def matrix_det(mat: list[list[int]]) -> int:
     """
     n = len(mat)
     if n == 2:
-        return mat[0][0]*mat[1][1] - mat[0][1]*mat[1][0]
+        return mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
     if n == 3:
         a, b, c = mat[0]
         d, e, f = mat[1]
@@ -189,7 +190,14 @@ def brute_force_crib(cipher_segment: str, plain_segment: str, limit: int = 1000)
 
 
 __all__ = [
-    'mod_inv', 'matrix_det', 'matrix_inv_mod', 'hill_encrypt_block',
-    'hill_decrypt_block', 'hill_encrypt', 'hill_decrypt',
-    'invertible_2x2_keys', 'solve_2x2_key', 'brute_force_crib',
+    'mod_inv',
+    'matrix_det',
+    'matrix_inv_mod',
+    'hill_encrypt_block',
+    'hill_decrypt_block',
+    'hill_encrypt',
+    'hill_decrypt',
+    'invertible_2x2_keys',
+    'solve_2x2_key',
+    'brute_force_crib',
 ]

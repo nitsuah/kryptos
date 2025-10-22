@@ -1,9 +1,12 @@
 """Crib mapping utilities for K4 analysis."""
+
 from __future__ import annotations
+
 
 def normalize_cipher(text: str) -> str:
     """Return uppercase letters-only form of ciphertext/plaintext input."""
     return ''.join(c for c in text.upper() if c.isalpha())
+
 
 def annotate_cribs(
     ciphertext: str,
@@ -46,13 +49,16 @@ def annotate_cribs(
             found_positions.append(fi + (1 if one_based else 0))
             search_start = fi + 1
         alignment_ok = expected_positions is not None
-        results.append({
-            'plaintext': plain_norm,
-            'expected_cipher': exp_norm,
-            'expected_positions': expected_positions,
-            'found_positions': found_positions,
-            'alignment_ok': alignment_ok,
-        })
+        results.append(
+            {
+                'plaintext': plain_norm,
+                'expected_cipher': exp_norm,
+                'expected_positions': expected_positions,
+                'found_positions': found_positions,
+                'alignment_ok': alignment_ok,
+            },
+        )
     return results
+
 
 __all__ = ['normalize_cipher', 'annotate_cribs']

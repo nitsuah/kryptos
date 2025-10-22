@@ -1,6 +1,9 @@
 """Tests for hill_search.score_decryptions."""
+
 import unittest
+
 from src.k4.hill_search import score_decryptions
+
 
 class TestHillSearchModule(unittest.TestCase):
     def test_score_decryptions_empty_keys(self):
@@ -14,6 +17,7 @@ class TestHillSearchModule(unittest.TestCase):
         self.assertEqual(len(res), 1)
         self.assertIn('score', res[0])
         self.assertIn('text', res[0])
+
 
 if __name__ == '__main__':
     unittest.main()

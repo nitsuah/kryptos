@@ -1,6 +1,9 @@
 """Tests for masking/null-removal heuristics and pipeline stage."""
+
 import unittest
-from src.k4 import mask_variants, score_mask_variants, make_masking_stage, Pipeline
+
+from src.k4 import Pipeline, make_masking_stage, mask_variants, score_mask_variants
+
 
 class TestK4Masking(unittest.TestCase):
     def test_mask_variants_generation(self):
@@ -23,6 +26,7 @@ class TestK4Masking(unittest.TestCase):
         res = pipe.run(ct)[0]
         self.assertIn('candidates', res.metadata)
         self.assertTrue(len(res.metadata['candidates']) <= 5)
+
 
 if __name__ == '__main__':
     unittest.main()

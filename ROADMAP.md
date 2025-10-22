@@ -73,4 +73,22 @@ Use issues to map each bullet to deliverables; close with test evidence and READ
 - K3: Deliberate misspelling `DESPARATLY` retained.
 
 ---
-Last updated: 2025-10-20
+Completed (2025-10-21):
+
+- Extended plaintext scoring (berlin_clock_pattern_validator, pattern bonus integration).
+- Pipeline executor with candidate pruning & artifact logging (attempt_log.jsonl + summary.json).
+- Automated spacing / lint autofix tooling (pep8_spacing_autofix.py) for consistent style compliance.
+- Pruning logic & pattern bonus tests (test_executor_pruning_and_pattern.py).
+- Minimal runnable sample script (scripts/run_pipeline_sample.py).
+
+Next Iteration Targets:
+
+- Parallel hill variants differentiation (vary key space slices / scoring weights).
+- Tuning harness (parameter sweep + summary aggregation CSV/JSON).
+- Additional artifacts (per-stage candidate CSV export integrated into executor flow).
+- Adaptive gating refinement (dynamic threshold adjustment based on previous stage score deltas).
+- Caching of expensive permutation searches (persistent prefix/permutation caches across runs).
+- Integration test chaining multiple transposition + masking stages.
+- Berlin Clock deep pattern alignment scoring (lamp temporal sequencing bonuses beyond ordering stub).
+
+Last updated: 2025-10-21

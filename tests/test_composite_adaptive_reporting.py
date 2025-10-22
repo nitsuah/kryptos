@@ -1,7 +1,10 @@
 """Tests covering adaptive fusion and reporting attempt log path for composite pipeline."""
+
 import os
 import unittest
-from src.k4 import run_composite_pipeline, make_hill_constraint_stage, make_masking_stage
+
+from src.k4 import make_hill_constraint_stage, make_masking_stage, run_composite_pipeline
+
 
 class TestCompositeAdaptiveReporting(unittest.TestCase):
     def test_adaptive_weights_present_and_attempt_log(self):
@@ -22,6 +25,7 @@ class TestCompositeAdaptiveReporting(unittest.TestCase):
         self.assertTrue(diag)
         self.assertIn('attempt_log', res)
         self.assertTrue(os.path.exists(res['attempt_log']))
+
 
 if __name__ == '__main__':
     unittest.main()

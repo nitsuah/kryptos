@@ -1,6 +1,9 @@
 """Edge case tests for analysis module."""
+
 import unittest
-from src.analysis import frequency_analysis, check_cribs
+
+from src.analysis import check_cribs, frequency_analysis
+
 
 class TestAnalysisEdgeCases(unittest.TestCase):
     def test_frequency_analysis_empty(self):
@@ -8,6 +11,7 @@ class TestAnalysisEdgeCases(unittest.TestCase):
 
     def test_check_cribs_none_found(self):
         self.assertEqual(check_cribs("ABCDEF", ["XYZ", "NOP"]), [])
+
 
 if __name__ == '__main__':
     unittest.main()

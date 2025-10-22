@@ -30,15 +30,22 @@ def vigenere_decrypt(ciphertext, key, preserve_non_alpha=False):
                 logging.debug(
                     "[%d] Ciphertext char: %s, Key char: %s, Decrypted char: %s, "
                     "C-Index: %d, K-Index: %d, P-Index: %d",
-                    i, c, key[key_index % len(key)], decrypted_char,
-                    c_index, k_index, p_index,
+                    i,
+                    c,
+                    key[key_index % len(key)],
+                    decrypted_char,
+                    c_index,
+                    k_index,
+                    p_index,
                 )
             key_index += 1
         elif preserve_non_alpha:
             plaintext.append(c)
             if logging.getLogger().isEnabledFor(logging.DEBUG):
                 logging.debug(
-                    "[%d] Non-alphabetic char preserved: %s", i, c,
+                    "[%d] Non-alphabetic char preserved: %s",
+                    i,
+                    c,
                 )
     return ''.join(plaintext)
 
@@ -59,14 +66,13 @@ def double_rotational_transposition(text):
     cols1, rows1 = 24, 14
     if len(text) != cols1 * rows1:
         raise ValueError(
-            f"K3 ciphertext must be exactly {cols1 * rows1} characters (got "
-            f"{len(text)}).",
+            f"K3 ciphertext must be exactly {cols1 * rows1} characters (got " f"{len(text)}).",
         )
 
     # Fill the 24×14 matrix row by row
     matrix1 = []
     for i in range(rows1):
-        row = text[i * cols1:(i + 1) * cols1]
+        row = text[i * cols1 : (i + 1) * cols1]
         matrix1.append(list(row))
 
     # Step 2: Rotate right 90 degrees
@@ -85,7 +91,7 @@ def double_rotational_transposition(text):
     # Fill the 8-column matrix row by row
     matrix3 = []
     for i in range(rows3):
-        row = rotated_text[i * cols3:(i + 1) * cols3]
+        row = rotated_text[i * cols3 : (i + 1) * cols3]
         matrix3.append(list(row))
 
     # Rotate right 90 degrees again
@@ -130,8 +136,7 @@ def transposition_decrypt(ciphertext, key=None):
         ciphertext = ciphertext.ljust(width * height, 'X')
     if len(ciphertext) != width * height:
         raise ValueError(
-            f"Expected ciphertext length {width * height}, got "
-            f"{len(ciphertext)}",
+            f"Expected ciphertext length {width * height}, got " f"{len(ciphertext)}",
         )
     if key is not None:
         key = key.upper()
@@ -144,7 +149,7 @@ def transposition_decrypt(ciphertext, key=None):
         cols = []
         start = 0
         for i in range(width):
-            cols.append(ciphertext[start:start+col_lengths[i]])
+            cols.append(ciphertext[start : start + col_lengths[i]])
             start += col_lengths[i]
         # Reconstruct the grid: place each column in its original position
         grid = [[''] * width for _ in range(height)]
@@ -170,7 +175,7 @@ def polybius_decrypt(ciphertext, key_square):
     if len(ciphertext) % 2 != 0:
         raise ValueError("Ciphertext length must be even.")
 
-    pairs = [ciphertext[i:i+2] for i in range(0, len(ciphertext), 2)]
+    pairs = [ciphertext[i : i + 2] for i in range(0, len(ciphertext), 2)]
     plaintext = []
 
     for pair in pairs:

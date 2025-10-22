@@ -1,10 +1,11 @@
 """Tests for crib mapping and positional index validation."""
+
 import unittest
+
 from src.k4 import annotate_cribs, normalize_cipher
 
 K4_CIPHER = normalize_cipher(
-    "OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT "
-    "MZFPKWGDKZXTJCDIGKUHUAUEKCAR",
+    "OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT " "MZFPKWGDKZXTJCDIGKUHUAUEKCAR",
 )
 
 EXPECTED_CRIB_INDICES: dict[str, int] = {
@@ -14,8 +15,10 @@ EXPECTED_CRIB_INDICES: dict[str, int] = {
     'CLOCK': 69,
 }
 
+
 class TestCribMapping(unittest.TestCase):
     """Tests for crib mapping and positional index validation."""
+
     def test_index_validation(self):
         """Test that annotated cribs map to expected indices in K4 ciphertext."""
         mapping: dict[str, str] = {
@@ -36,6 +39,7 @@ class TestCribMapping(unittest.TestCase):
         self.assertEqual(found.get('CLOCK'), EXPECTED_CRIB_INDICES['CLOCK'])
         for crib in ['NORTHEAST', 'BERLIN', 'CLOCK']:
             self.assertIsNotNone(found.get(crib), f"Crib {crib} not located at expected index")
+
 
 if __name__ == '__main__':
     unittest.main()

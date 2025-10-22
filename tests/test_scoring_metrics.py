@@ -1,13 +1,16 @@
 """Additional scoring metrics tests."""
+
 import unittest
+
 from src.k4.scoring import (
+    baseline_stats,
+    combined_plaintext_score_with_positions,
+    letter_entropy,
+    positional_crib_bonus,
     quadgram_score,
     repeating_bigram_fraction,
-    letter_entropy,
-    baseline_stats,
-    positional_crib_bonus,
-    combined_plaintext_score_with_positions,
 )
+
 
 class TestScoringMetrics(unittest.TestCase):
     def test_repeating_bigram_fraction(self):
@@ -23,9 +26,20 @@ class TestScoringMetrics(unittest.TestCase):
     def test_baseline_stats_keys(self):
         stats = baseline_stats("SAMPLETEXT")
         for key in [
-            'chi_square', 'bigram_score', 'trigram_score', 'quadgram_score', 'crib_bonus', 'combined_score',
-            'index_of_coincidence', 'vowel_ratio', 'letter_coverage', 'letter_entropy', 'repeating_bigram_fraction',
-            'wordlist_hit_rate', 'trigram_entropy', 'bigram_gap_variance',
+            'chi_square',
+            'bigram_score',
+            'trigram_score',
+            'quadgram_score',
+            'crib_bonus',
+            'combined_score',
+            'index_of_coincidence',
+            'vowel_ratio',
+            'letter_coverage',
+            'letter_entropy',
+            'repeating_bigram_fraction',
+            'wordlist_hit_rate',
+            'trigram_entropy',
+            'bigram_gap_variance',
         ]:
             self.assertIn(key, stats)
 
@@ -38,6 +52,7 @@ class TestScoringMetrics(unittest.TestCase):
         score_plain = quadgram_score("TESTTEXT")
         score_pos = combined_plaintext_score_with_positions("TESTTEXT", {"TEST": [0]}, window=1)
         self.assertGreaterEqual(score_pos, score_plain)
+
 
 if __name__ == '__main__':
     unittest.main()

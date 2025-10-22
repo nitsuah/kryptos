@@ -1,8 +1,11 @@
 """Tests for route-based transposition variants (spiral, boustrophedon, diagonal)."""
+
 import unittest
+
 from src.k4 import generate_route_variants
 
 CIPHER_SAMPLE = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
+
 
 class TestRouteTransposition(unittest.TestCase):
     def test_generate_route_variants_lengths(self):
@@ -24,6 +27,7 @@ class TestRouteTransposition(unittest.TestCase):
             self.assertIn(r['route'], ("spiral", "boustrophedon", "diagonal"))
         # Ensure scores present
         self.assertTrue(all('score' in r for r in results))
+
 
 if __name__ == '__main__':
     unittest.main()
