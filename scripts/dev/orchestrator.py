@@ -149,7 +149,7 @@ def ops_run_tuning(weights: list[float] | None = None, dry_run: bool = True) -> 
             print(f"ops_run_tuning: attempt {attempts} running sweep script (cmd={cmd})")
             subprocess.check_call(cmd, cwd=repo_root)
             break
-        except (subprocess.CalledProcessError, OSError) as exc:
+        except Exception as exc:
             print(f"ops_run_tuning: attempt {attempts} failed with: {exc}")
             if attempts >= max_retries:
                 print(f"ops_run_tuning: exceeded max retries ({max_retries}), aborting")
