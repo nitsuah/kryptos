@@ -15,11 +15,16 @@ import sys
 import time
 from pathlib import Path
 
-scoring = importlib.import_module('k4.scoring')
-
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / 'src'
-sys.path.insert(0, str(SRC))
+
+# Prefer package import; fall back to adding src/ to sys.path
+try:
+    scoring = importlib.import_module('src.k4.scoring')
+except Exception:
+    if str(SRC) not in sys.path:
+        sys.path.insert(0, str(SRC))
+    scoring = importlib.import_module('k4.scoring')
 
 
 def load_cribs(path: Path) -> list[str]:

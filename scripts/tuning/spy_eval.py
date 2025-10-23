@@ -49,19 +49,10 @@ def select_best_threshold(labels_path: Path, runs_root: Path, thresholds: list[f
 
 
 def run_extractor_on_run(run_dir: Path, min_conf: float = 0.0) -> set[str]:
-    # run the spy_extractor main logic but import and call scan_run directly
-    repo = Path(__file__).resolve().parents[2]
-    spy_mod = None
+    # import the installed package's spy_extractor and call scan_run directly
     try:
-        import importlib.util
-
-        spec = importlib.util.spec_from_file_location(
-            'spy_eval_mod',
-            str(repo / 'scripts' / 'dev' / 'spy_extractor.py'),
-        )
-        spy_mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(spy_mod)  # type: ignore
-    except (ImportError, FileNotFoundError, AttributeError):
+        from kryptos.scripts.dev import spy_extractor as spy_mod
+    except Exception:
         return set()
 
     cribs = spy_mod.load_cribs(spy_mod.CRIBS)

@@ -10,10 +10,10 @@ import sys
 import time
 from pathlib import Path
 
-# Ensure src/ is importable when running from repo root
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 
 def load_cribs(path: Path) -> list[str]:

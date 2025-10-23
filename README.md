@@ -88,6 +88,10 @@ Detailed future plans (candidate reporting, Berlin Clock expansion, pruning heur
 
 See full document in `docs/K4_STRATEGY.md` – includes current completion status and next actions.
 
+## Recent changes
+
+- 2025-10-22: Added offline autopilot flow (Q/OPS/SPY), conservative SPY extractor with evaluation harness, demo smoke CI and packaging improvements. See `docs/AUTOPILOT.md` for details.
+
 ## Contributing
 
 Contribution guidelines moved to `CONTRIBUTING.md` → [Contributing Guide](./CONTRIBUTING.md).

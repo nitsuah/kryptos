@@ -12,11 +12,8 @@ import sys
 import time
 from pathlib import Path
 
-# Ensure src/ is on sys.path so `from k4 import scoring` resolves when running
-# the script from the workspace root.
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
 
 ARTIFACTS = Path("artifacts") / "tuning_runs"
 ARTIFACTS.mkdir(parents=True, exist_ok=True)
@@ -37,8 +34,13 @@ PARAM_GRID = [
 
 
 def run():
-    # Import scoring here after ensuring src/ is on sys.path so linters don't flag E402
-    from k4 import scoring
+    # Prefer package import; fall back to adding src/ to sys.path for standalone runs
+    try:
+        from src.k4 import scoring
+    except Exception:
+        if str(SRC) not in sys.path:
+            sys.path.insert(0, str(SRC))
+        from k4 import scoring
 
     ts = time.strftime("%Y%m%dT%H%M%S")
     run_dir = ARTIFACTS / f"run_{ts}"
