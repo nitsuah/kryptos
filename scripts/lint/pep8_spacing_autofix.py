@@ -4,7 +4,7 @@ import ast
 import pathlib
 import re
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]  # kryptos/
+ROOT = pathlib.Path(__file__).resolve().parents[2]  # kryptos/
 TARGET_DIRS = ["src", "tests", "scripts"]  # add scripts for tool scripts
 
 DEF_OR_CLASS = re.compile(r"^(def |class )")
