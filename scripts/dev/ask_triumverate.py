@@ -23,7 +23,12 @@ def load_orchestrator():
     raise RuntimeError(f"Failed to load orchestrator at {orch_path}")
 
 
-def run_plan_check(plan_text: str | None = None, autopilot: bool = True):
+def run_plan_check(
+    plan_text: str | None = None,
+    autopilot: bool = True,
+    weights: list[float] | None = None,
+    dry_run: bool = True,
+):
     orch = load_orchestrator()
     personas = orch.load_personas()
 
@@ -35,12 +40,12 @@ def run_plan_check(plan_text: str | None = None, autopilot: bool = True):
 
         # Execute a small set of safe, idempotent actions automatically when recommended.
         rec_lower = rec.lower()
-        # If triumverate wants an OPS run and ops_run_tuning is available, run it (dry-run).
+        # If triumverate wants an OPS run and ops_run_tuning is available, run it.
         if 'ops' in rec_lower or 'run' in rec_lower and 'crib' in rec_lower:
             if hasattr(orch, 'ops_run_tuning'):
                 try:
-                    print('[AUTOPILOT] Executing recommended OPS run (dry-run)...')
-                    run_path = orch.ops_run_tuning(dry_run=True)
+                    print(f"[AUTOPILOT] Executing recommended OPS run (dry_run={dry_run})...")
+                    run_path = orch.ops_run_tuning(weights=weights, dry_run=dry_run)
                     if run_path:
                         print(f"[AUTOPILOT] OPS wrote tuning artifacts to: {run_path}")
                         # run SPY extractor automatically if present
