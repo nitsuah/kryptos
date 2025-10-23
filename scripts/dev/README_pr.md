@@ -3,7 +3,8 @@
 Two options to create PRs programmatically:
 
 - Use GitHub CLI (`gh`) — convenient and interactive. Install from https://cli.github.com/ and run `gh auth login`.
-- Use REST API with a token: set `GITHUB_TOKEN` environment variable (needs `repo` scope for private repos) and use `scripts/dev/create_pr.py`.
+- Use REST API with a token: set `GITHUB_TOKEN` environment variable (needs `repo` scope for private
+repos) and use `scripts/dev/create_pr.py`.
 
 Examples:
 
@@ -20,7 +21,8 @@ Creating PRs from CI or locally
 Two options to create PRs programmatically:
 
 - Use GitHub CLI (`gh`) — convenient and interactive. Install from https://cli.github.com/ and run `gh auth login`.
-- Use REST API with a token: set `GITHUB_TOKEN` environment variable (needs `repo` scope for private repos) and use `scripts/dev/create_pr.py`.
+- Use REST API with a token: set `GITHUB_TOKEN` environment variable (needs `repo` scope for private
+repos) and use `scripts/dev/create_pr.py`.
 
 Examples:
 

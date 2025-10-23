@@ -40,7 +40,7 @@ Related documents / breadcrumbs:
 
 - Implemented K1–K3 verified tooling and tests.
 - K4: implemented multi-stage pipeline scaffolding, scoring utilities, attempt logging, and adaptive
-  gating.
+gating.
 - Added unit tests and a tuning harness scaffold; artifacts written to `artifacts/` during runs.
 
 ## Features (summary)
@@ -80,14 +80,14 @@ call the pipeline programmatically).
 ## How to Use the Tuning Harness
 
 - `scripts/tuning/tune_pipeline.py` contains a small sweep harness. For safe local experiments, use
-  the dry-run mode or set small candidate budgets.
+the dry-run mode or set small candidate budgets.
 - The daemon runner `scripts/daemon_runner.py` provides a minimal long-loop runner that writes CSV
-  artifacts to `artifacts/tuning_runs/` and retains the last 20 runs.
+artifacts to `artifacts/tuning_runs/` and retains the last 20 runs.
 
 ## Artifacts
 
 - Attempt logs and run summaries are placed under `artifacts/run_<timestamp>/` or
-  `artifacts/tuning_runs/run_<timestamp>/` when using the tuning harness or daemon.
+`artifacts/tuning_runs/run_<timestamp>/` when using the tuning harness or daemon.
 
 ## Roadmap & Contributing
 
@@ -97,10 +97,10 @@ call the pipeline programmatically).
 ## Data Sources
 
 - N-gram and frequency data live in `data/` as TSVs; the code falls back to reasonable defaults when
-  files are missing.
+files are missing.
 
 ## License & References
 
 - See `LICENSE` for licensing.
 - References and further reading are in the original README and in-line documentation within
-  `docs/`.
+`docs/`.

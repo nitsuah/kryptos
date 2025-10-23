@@ -6,7 +6,9 @@
 
 
 
-- 2025-10-22: Introduced autopilot flow (Q/OPS/SPY), SPY evaluation harness and conservative extractor, demo smoke CI workflow, and packaging & docs improvements.- Pending: route scoring refinement, multiprocessing, advanced Hill assemblies.
+- 2025-10-22: Introduced autopilot flow (Q/OPS/SPY), SPY evaluation harness and conservative
+extractor, demo smoke CI workflow, and packaging & docs improvements.- Pending: route scoring
+refinement, multiprocessing, advanced Hill assemblies.
 
 
 ## [2025-10-20] Adaptive & Route Expansion

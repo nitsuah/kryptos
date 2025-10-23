@@ -14,21 +14,21 @@ Related documents / breadcrumbs:
 ## Current Progress (K4-specific)
 
 - Implemented pipeline scaffolding for multi-stage hypotheses (hill, transposition, masking, berlin-
-  clock).
+clock).
 - Integrated attempt logging, scoring heuristics (n-grams, crib bonuses, positional bonuses), and
-  CSV/JSON artifact writers.
+CSV/JSON artifact writers.
 - Added adaptive gating heuristics, parallel hill-variant scaffolding, and a tuning harness
-  scaffold.
+scaffold.
 
 ## K4 Features (detailed)
 
 - Hill cipher solving (2x2 & partial 3x3 exploration) with crib-anchored pruning and assembly
-  variants.
+variants.
 - Columnar and route transposition search, including multi-crib positional anchoring and adaptive
-  sampling.
+sampling.
 - Masking / null-removal heuristics to explore structural padding variants.
 - Berlin Clock enumeration and a small validator to score ordering/occurrence of `BERLIN`/`CLOCK` in
-  plaintexts.
+plaintexts.
 - Composite orchestration, weighted fusion of stage outputs, and per-run diagnostics.
 
 ## Key modules (under `src/k4/`)
@@ -42,15 +42,15 @@ Related documents / breadcrumbs:
 ## Tuning & Daemon Notes
 
 - `scripts/tuning/tune_pipeline.py` contains a minimal sweep harness intended for quick parameter
-  experimentation (use small budgets for local runs).
+experimentation (use small budgets for local runs).
 - `scripts/daemon_runner.py` is a conservative long-loop runner that can execute the tuning harness,
-  apply simple filtering (top-N), and rotate/retain artifacts. It includes a dry-run mode for safe
-  testing.
+apply simple filtering (top-N), and rotate/retain artifacts. It includes a dry-run mode for safe
+testing.
 
 ## Artifacts and format
 
 - Per-run artifacts are written to `artifacts/run_<timestamp>/` or
-  `artifacts/tuning_runs/run_<timestamp>/`.
+`artifacts/tuning_runs/run_<timestamp>/`.
 - Each run contains `summary.csv` and a `*_top.csv` filtered view for quick review.
 
 ## Next K4 priorities (short)
@@ -70,9 +70,9 @@ K4 remains unsolved publicly. Our goal:
 
 - Reconstruct high-confidence ciphertext normalization.
 - Implement systematic candidate generation pipelines (cipher families consistent with design
-  ethos).
+ethos).
 - Integrate objective scoring (language fitness, crib placement, clue satisfaction, linguistic
-  metrics).
+metrics).
 - Maintain reproducibility (config-driven, test harness & artifact lineage + attempt logs).
 
 ### 2. Canonical Data
@@ -103,10 +103,10 @@ positional scoring. See validation in [`tests/test_k4_cribs.py`](../tests/test_k
 
 - K1–K3 show deliberate anomalies → tolerate misspellings/nulls.
 - Clues suggest possible method shift (like K3 shift to pure transposition) → evaluate hybrid
-  approaches (matrix + transposition + key-stream).
+approaches (matrix + transposition + key-stream).
 - CLOCK self-map letter indicates potential polyalphabetic coincidence or matrix edge alignment.
 - Spatial/temporal clues (EAST/NORTHEAST/BERLIN CLOCK) reinforce directional/time-based key schedule
-  hypothesis (Berlin Clock encoding route).
+hypothesis (Berlin Clock encoding route).
 
 ### 4. Candidate Cipher Families (Tracked)
 

@@ -13,28 +13,28 @@ Related documents / breadcrumbs:
 ## Components
 
 - Q (Planner): produces a short plan or single-line recommended next action. Implemented in
-  `scripts/dev/ask_triumverate.py` and helpers.
+`scripts/dev/ask_triumverate.py` and helpers.
 - OPS (Operational Tuner): runs tuning sweeps to measure sensitivity to crib weights and other
-  parameters. Key scripts: `scripts/tuning/crib_weight_sweep.py`,
-  `scripts/tuning/tiny_tuning_sweep.py`.
+parameters. Key scripts: `scripts/tuning/crib_weight_sweep.py`,
+`scripts/tuning/tiny_tuning_sweep.py`.
 - SPY (Conservative Extractor): scans tuning run CSV artifacts and extracts high-confidence quoted
-  tokens present in `docs/sources/sanborn_crib_candidates.txt`. Implemented in
-  `scripts/dev/spy_extractor.py`.
+tokens present in `docs/sources/sanborn_crib_candidates.txt`. Implemented in
+`scripts/dev/spy_extractor.py`.
 
 ## SPY threshold selection
 
 - The SPY extractor accepts a minimum confidence via `SPY_MIN_CONF` env var or `--min-conf` CLI.
 - If unset, the autopilot will call `kryptos.scripts.tuning.spy_eval.select_best_threshold` which
-  evaluates precision/recall/F1 across thresholds and now *prefers precision* (conservative
-  extraction). Tie-breaker is F1.
+evaluates precision/recall/F1 across thresholds and now *prefers precision* (conservative
+extraction). Tie-breaker is F1.
 
 Notes and defaults:
 
 - If `SPY_MIN_CONF` is not set and `select_best_threshold` cannot determine a threshold (no labels
-  or runs available), the autopilot will fall back to a conservative default of `0.25`.
+or runs available), the autopilot will fall back to a conservative default of `0.25`.
 - The SPY extractor computes a per-token confidence as `delta / max_delta` where `delta` is the run-
-  specific match delta and `max_delta` is the maximum delta observed in that run's scan. The `--min-
-  conf` threshold is applied to that normalized confidence to decide which tokens to emit.
+specific match delta and `max_delta` is the maximum delta observed in that run's scan. The `--min-
+conf` threshold is applied to that normalized confidence to decide which tokens to emit.
 
 Example: evaluating thresholds
 
@@ -61,15 +61,15 @@ print('Best threshold:', best)
 ## Artifacts
 
 - Tuning runs: `artifacts/tuning_runs/run_<timestamp>/` containing `crib_weight_sweep.csv` and
-  `weight_*_details.csv`.
+`weight_*_details.csv`.
 - Demo runs: `artifacts/demo/run_<timestamp>/` produced by `scripts/demo/run_k4_demo.py`.
 
 ## CI
 
 - Fast CI (`.github/workflows/ci-fast.yml`) runs tests quickly and installs the package in editable
-  mode.
+mode.
 - Slow CI (`.github/workflows/ci-slow.yml`) runs the K4 demo smoke test and uploads artifacts for
-  debugging; it runs on pushes to `main` and manual dispatch.
+debugging; it runs on pushes to `main` and manual dispatch.
 
 ## How to run locally
 

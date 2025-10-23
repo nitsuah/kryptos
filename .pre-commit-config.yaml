@@ -26,3 +26,17 @@ repos:
     hooks:
       - id: pyupgrade
         args: ["--py310-plus"]
+  - repo: local
+    hooks:
+      - id: reflow-md
+        name: Reflow markdown files
+        entry: python
+        args: ["scripts/lint/reflow_md.py"]
+        language: python
+        files: \.(md)$
+      - id: check-md
+        name: Check markdown style
+        entry: python
+        args: ["scripts/lint/check_md.py"]
+        language: python
+        files: \.(md)$

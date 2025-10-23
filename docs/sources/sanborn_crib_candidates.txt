@@ -23,7 +23,7 @@ GEOGRAPHY	https://www.cia.gov/legacy/headquarters/kryptos-sculpture/	Agency desc
 # - These are candidate single-word cribs and short contexts intended for
 #   heuristic weighting or seeding search pipelines. Always verify original source
 #   pages before using a crib as a hard constraint in scoring.
- 
+
 TRINITY	https://ahf.nuclearmuseum.org/voices/oral-histories/jim-sanborns-interview	Related to Sanborn's description of Trinity device artifacts (conservative candidate)
 LOSALAMOS	https://ahf.nuclearmuseum.org/voices/oral-histories/jim-sanborns-interview	Sanborn recounts work and artifacts located at Los Alamos
 MANHATTAN	https://ahf.nuclearmuseum.org/voices/oral-histories/jim-sanborns-interview	Context of Manhattan Project installations — potential thematic crib
