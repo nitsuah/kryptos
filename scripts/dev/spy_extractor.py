@@ -41,7 +41,13 @@ def find_latest_run() -> Path | None:
 
 
 def scan_run(run_dir: Path, cribs: set[str]) -> list[tuple[str, str, float]]:
-    results = []
+    """Scan per-weight detail CSVs and return tuples of (filename, matched_tokens, delta).
+
+    Prefer tokens that appear inside quotes in the sample. If quoted tokens are present
+    and match the crib list, prefer those. Dedupe matches per run by token.
+    """
+    results: list[tuple[str, str, float]] = []
+    seen_tokens: set[str] = set()
     for csvf in run_dir.glob('weight_*_details.csv'):
         with csvf.open('r', encoding='utf-8') as fh:
             reader = csv.DictReader(fh)
@@ -54,9 +60,19 @@ def scan_run(run_dir: Path, cribs: set[str]) -> list[tuple[str, str, float]]:
                 # only consider positive deltas
                 if delta <= 0:
                     continue
-                # find any crib tokens appearing in sample
-                tokens = re.findall(r"[A-Z]{3,}", sample.upper())
-                matches = [t for t in tokens if t in cribs]
+
+                text = sample.upper()
+                # find quoted uppercase tokens first
+                quoted = re.findall(r'["\']([A-Z]{3,})["\']', text)
+                if quoted:
+                    tokens_to_check = quoted
+                else:
+                    tokens_to_check = re.findall(r'[A-Z]{3,}', text)
+
+                matches = [t for t in tokens_to_check if t in cribs and t not in seen_tokens]
+                for t in matches:
+                    seen_tokens.add(t)
+
                 if matches:
                     results.append((csvf.name, ','.join(matches), delta))
     return results
@@ -64,11 +80,14 @@ def scan_run(run_dir: Path, cribs: set[str]) -> list[tuple[str, str, float]]:
 
 def append_learned(note: str) -> None:
     LEARNED.parent.mkdir(parents=True, exist_ok=True)
+    from datetime import datetime
+
+    ts = datetime.utcnow().isoformat()
     with LEARNED.open('a', encoding='utf-8') as fh:
-        fh.write(f"- {note}\n")
+        fh.write(f"- {ts} SPY: {note}\n")
 
 
-def main():
+def main(min_conf: float = 0.0) -> int:
     cribs = load_cribs(CRIBS)
     run = find_latest_run()
     if not run:
@@ -78,13 +97,28 @@ def main():
     if not res:
         print('No conservative crib matches found in latest run')
         return 0
+
+    # compute a simple confidence score relative to the max delta in this run
+    max_delta = max((d for _, _, d in res), default=0.0)
+    notes_written = 0
     for fname, matches, delta in res:
-        note = f"SPY_MATCH {fname}: {matches} (delta={delta:.6f})"
+        conf = 0.0 if max_delta <= 0 else float(delta) / float(max_delta)
+        if conf < float(min_conf):
+            # skip low-confidence matches
+            continue
+        note = f"SPY_MATCH {fname}: {matches} (delta={delta:.6f}, conf={conf:.2f})"
         append_learned(note)
         print(note)
-    print(f'Appended {len(res)} learned entries to {LEARNED}')
+        notes_written += 1
+
+    print(f'Appended {notes_written} learned entries to {LEARNED}')
     return 0
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    import argparse
+
+    p = argparse.ArgumentParser(description='Conservative SPY extractor')
+    p.add_argument('--min-conf', type=float, default=0.0, help='Minimum confidence (0-1) to record matches')
+    args = p.parse_args()
+    raise SystemExit(main(min_conf=args.min_conf))

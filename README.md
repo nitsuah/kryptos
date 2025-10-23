@@ -1,43 +1,70 @@
 # KRYPTOS
 
-Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos using Python! This project focuses on implementing cryptographic techniques, specifically the Vigenère cipher and structural transposition analysis, to decrypt the famous Kryptos sculpture.
+Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos using Python! This
+project focuses on implementing cryptographic techniques, specifically the Vigenère cipher and
+structural transposition analysis, to decrypt the famous Kryptos sculpture.
 
 ## TL;DR
 
-This Kryptos repository is a research toolkit for exploring layered cipher hypotheses (Vigenère, Hill, transposition, masking, and related hybrids) with an emphasis on reproducible pipelines and scoring heuristics.
+This Kryptos repository is a research toolkit for exploring layered cipher hypotheses (Vigenère,
+Hill, transposition, masking, and related hybrids) with an emphasis on reproducible pipelines and
+scoring heuristics.
 
-**K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in copper that nobody has cracked in 30+ years. We're using Python to systematically try every reasonable decryption method – techniques that cryptanalysts may have attempted manually but couldn't exhaustively explore. Our approach combines automated testing with intelligent scoring to measure how "English-like" each result appears:
+Related documents / quick links:
 
-1. **Hill Cipher** - Matrix-based substitution where letters become numbers, transform through matrix multiplication, then convert back
-2. **Transposition** - Systematic letter rearrangement (write in columns, read in rows, or more complex patterns)
-3. **Masking** - Identifying and removing dummy letters that serve as padding or obfuscation
-4. **Berlin Clock** - Using the iconic clock's binary time pattern as a cryptographic key
-5. **Combo Attacks** - Chaining multiple methods together (K4 likely uses 2-3 techniques layered in sequence)
+- Core docs: `docs/README_CORE.md`
+- K4 strategy: `docs/K4_STRATEGY.md`
+- Autopilot: `docs/AUTOPILOT.md`
+- Plan: `docs/PLAN.md`
+- Roadmap: `ROADMAP.md`
 
-We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real word detection – to identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic intuition rather than brute force. After all, humans design puzzles with intention, not randomness!
+**K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in
+copper that nobody has cracked in 30+ years. We're using Python to systematically try every
+reasonable decryption method – techniques that cryptanalysts may have attempted manually but
+couldn't exhaustively explore. Our approach combines automated testing with intelligent scoring to
+measure how "English-like" each result appears:
+
+1. **Hill Cipher** - Matrix-based substitution where letters become numbers, transform through
+matrix multiplication, then convert back 2. **Transposition** - Systematic letter rearrangement
+(write in columns, read in rows, or more complex patterns) 3. **Masking** - Identifying and removing
+dummy letters that serve as padding or obfuscation 4. **Berlin Clock** - Using the iconic clock's
+binary time pattern as a cryptographic key 5. **Combo Attacks** - Chaining multiple methods together
+(K4 likely uses 2-3 techniques layered in sequence)
+
+We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real
+word detection – to identify promising decryptions. Think of it as trying thousands of lock
+combinations, but guided by cryptanalytic intuition rather than brute force. After all, humans
+design puzzles with intention, not randomness!
 
 ## Current Progress
 
 ### ✅ K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"
 
 - **Status**: Solved.
-- **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional misspelling preserved: `IQLUSION`.
+- **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional
+misspelling preserved: `IQLUSION`.
 
 ### ✅ K2: "It was totally invisible. How's that possible?"
 
 - **Status**: Solved.
-- **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for historical alignment. Contains geospatial coordinates and narrative text.
+- **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for
+historical alignment. Contains geospatial coordinates and narrative text.
 
 ### ✅ K3: "Slowly, desperately slowly, the remains of passage debris..."
 
 - **Status**: Solved (double rotational transposition method).
-- **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid → second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling `DESPARATLY` (analogous to `IQLUSION` in K1).
+- **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid →
+second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling
+`DESPARATLY` (analogous to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
 - **Status**: Unsolved.
-- **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint pipeline, multi-stage fusion).
-- **Latest Additions**: Multi-crib positional transposition stage, attempt logging & persistence, advanced linguistic metrics, 3x3 Hill key pruning (partial_len/partial_min tunable in hill constraint stage).
+- **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint
+pipeline, multi-stage fusion).
+- **Latest Additions**: Multi-crib positional transposition stage, attempt logging & persistence,
+advanced linguistic metrics, 3x3 Hill key pruning (partial_len/partial_min tunable in hill
+constraint stage).
 
 ## Deliberate Misspellings / Anomalies
 
@@ -48,7 +75,9 @@ We evaluate candidates using linguistic patterns – common letter pairs, trigra
 
 ### K2 Structural Padding
 
-K2 contains systematic X (and some Y) insertions serving as alignment/null separators rather than mistakes. They should be treated as structural artifacts when analyzing pattern continuity or constructing transposition hypotheses.
+K2 contains systematic X (and some Y) insertions serving as alignment/null separators rather than
+mistakes. They should be treated as structural artifacts when analyzing pattern continuity or
+constructing transposition hypotheses.
 
 ## Features
 
@@ -74,19 +103,37 @@ K2 contains systematic X (and some Y) insertions serving as alignment/null separ
 - **Transformation trace & lineage** (each candidate records stage + transformation chain) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
 - **Attempt logging & persistence** (Hill, Clock, Transposition permutations → timestamped JSON) ([learn more](https://en.wikipedia.org/wiki/Logging))
 - **Candidate reporting artifacts** (JSON + optional CSV summaries) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
-- **Adaptive fusion weighting** (optional `adaptive=True` in composite run) leveraging wordlist hit rate & trigram entropy heuristics.
+- **Adaptive fusion weighting** (optional `adaptive=True` in composite run) leveraging wordlist hit
+rate & trigram entropy heuristics.
 
 ## K4 Analysis Toolkit (New / Updated Modules)
 
 Located under `src/k4/`:
 
-Details and module-level examples for K4 have been moved to `docs/K4_STRATEGY.md` (K4-specific notes) and `docs/README_CORE.md` (code-level examples).
+Details and module-level examples for K4 have been moved to `docs/K4_STRATEGY.md` (K4-specific
+notes) and `docs/README_CORE.md` (code-level examples).
 
 ## Roadmap
 
-Detailed future plans (candidate reporting, Berlin Clock expansion, pruning heuristics, extended Hill search, masking strategies) have moved to `ROADMAP.md` → see the full document here: [Roadmap Guide](./ROADMAP.md).
+Detailed future plans (candidate reporting, Berlin Clock expansion, pruning heuristics, extended
+Hill search, masking strategies) have moved to `ROADMAP.md` → see the full document here: [Roadmap
+Guide](./ROADMAP.md).
 
 See full document in `docs/K4_STRATEGY.md` – includes current completion status and next actions.
+
+## Recent changes
+
+- 2025-10-22: Added offline autopilot flow (Q/OPS/SPY), conservative SPY extractor with evaluation
+harness, demo smoke CI and packaging improvements. See `docs/AUTOPILOT.md` for details.
+
+Autopilot (Q / OPS / SPY) summary
+
+The repository includes an offline autopilot flow (Q / OPS / SPY) to recommend and execute safe
+tuning and extraction steps. `ask_triumverate.py` implements a lightweight driver that can run a
+deterministic OPS tuning sweep and then invoke the conservative SPY extractor. If `SPY_MIN_CONF` is
+not set, the autopilot will compute a conservative threshold using the evaluation harness; it falls
+back to `0.25` when no labeled runs are available. See `docs/AUTOPILOT.md` for full details and CLI
+examples.
 
 ## Contributing
 
@@ -98,7 +145,8 @@ Use `baseline_stats(text)` to inspect metrics including advanced linguistic feat
 
 ## Data Sources
 
-Frequency & n-gram data in `data/` (TSV). High-quality quadgrams loaded automatically if `quadgrams_high_quality.tsv` exists. Fallback unigram distribution used if files absent.
+Frequency & n-gram data in `data/` (TSV). High-quality quadgrams loaded automatically if
+`quadgrams_high_quality.tsv` exists. Fallback unigram distribution used if files absent.
 
 ## License
 
@@ -109,7 +157,8 @@ See `LICENSE`.
 - `docs/README_CORE.md` — project reference and examples
 - `docs/K4_STRATEGY.md` — K4-specific strategy and notes
 
-If you prefer to run an example pipeline, see `scripts/tools/run_pipeline_sample.py` for a minimal programmatic example.
+If you prefer to run an example pipeline, see `scripts/tools/run_pipeline_sample.py` for a minimal
+programmatic example.
 
 ## References & Research
 

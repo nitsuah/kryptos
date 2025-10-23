@@ -10,10 +10,8 @@ import sys
 import time
 from pathlib import Path
 
-# Ensure src/ is importable when running from repo root
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
 
 
 def load_cribs(path: Path) -> list[str]:
@@ -45,7 +43,16 @@ def run():
     parser.add_argument('--dry-run', action='store_true', help='Dry run flag (no external side-effects)')
     args = parser.parse_args()
 
-    from k4 import scoring
+    # Prefer installed package import, fall back to workspace src/ layout
+    try:
+        from kryptos.src.k4 import scoring
+    except Exception:
+        try:
+            from src.k4 import scoring
+        except Exception:
+            if str(SRC) not in sys.path:
+                sys.path.insert(0, str(SRC))
+            from k4 import scoring
 
     cribs_path = ROOT / "docs" / "sources" / "sanborn_crib_candidates.txt"
     cribs = load_cribs(cribs_path)

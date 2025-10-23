@@ -12,10 +12,8 @@ import sys
 import time
 from pathlib import Path
 
-# ensure src/ is importable when running from the repo root
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
 
 
 def load_cribs_from_docs(path: Path) -> list[str]:
@@ -43,7 +41,12 @@ SAMPLES = [
 
 
 def run():
-    from k4 import scoring
+    try:
+        from src.k4 import scoring
+    except Exception:
+        if str(SRC) not in sys.path:
+            sys.path.insert(0, str(SRC))
+        from k4 import scoring
 
     docs_path = ROOT / "docs" / "sources" / "sanborn_crib_candidates.txt"
     cribs = load_cribs_from_docs(docs_path)

@@ -23,15 +23,100 @@ def load_orchestrator():
     raise RuntimeError(f"Failed to load orchestrator at {orch_path}")
 
 
-def run_plan_check(plan_text: str | None = None):
+def run_plan_check(
+    plan_text: str | None = None,
+    autopilot: bool = True,
+    weights: list[float] | None = None,
+    dry_run: bool = True,
+):
     orch = load_orchestrator()
     personas = orch.load_personas()
+
+    # If autopilot enabled and no explicit plan_text provided, ask triumverate for next action.
+    if autopilot and not plan_text:
+        rec, just = orch.recommend_next_action()
+        plan_text = f"Recommendation: {rec}. Reason: {just}"
+        print(f"[AUTOPILOT] Triumverate recommends: {rec} -- {just}")
+
+        # Execute a small set of safe, idempotent actions automatically when recommended.
+        rec_lower = rec.lower()
+        # If triumverate wants an OPS run and ops_run_tuning is available, run it.
+        if 'ops' in rec_lower or ('run' in rec_lower and 'crib' in rec_lower):
+            if hasattr(orch, 'ops_run_tuning'):
+                try:
+                    print(f"[AUTOPILOT] Executing recommended OPS run (dry_run={dry_run})...")
+                    run_path = orch.ops_run_tuning(weights=weights, dry_run=dry_run)
+                    if run_path:
+                        print(f"[AUTOPILOT] OPS wrote tuning artifacts to: {run_path}")
+                        # run SPY extractor automatically if present
+                        spy_path = Path(__file__).resolve().parents[2] / 'scripts' / 'dev' / 'spy_extractor.py'
+                        if spy_path.exists():
+                            import subprocess
+                            import sys
+
+                            try:
+                                # allow configuring a conservative min confidence via env
+                                min_conf = os.environ.get('SPY_MIN_CONF')
+                                if not min_conf:
+                                    # compute best threshold from any available labels/runs
+                                    try:
+                                        from scripts.tuning import spy_eval
+
+                                        labels = Path('data') / 'spy_eval_labels.csv'
+                                        runs = Path('artifacts') / 'tuning_runs'
+                                        min_conf = str(spy_eval.select_best_threshold(labels, runs))
+                                    except Exception:
+                                        min_conf = '0.25'
+                                subprocess.check_call([sys.executable, str(spy_path), '--min-conf', str(min_conf)])
+                                print('[AUTOPILOT] SPY extractor completed')
+                            except Exception as e:
+                                print(f"[AUTOPILOT] SPY extractor failed: {e}")
+                except Exception as e:
+                    print(f"[AUTOPILOT] OPS execution failed: {e}")
+
+        # If triumverate recommends pushing a branch & opening a PR, attempt to use gh cli.
+        if 'push' in rec_lower and 'pr' in rec_lower or 'open pr' in rec_lower:
+            try:
+                import subprocess
+
+                # try to create a PR with gh if available
+                print('[AUTOPILOT] Attempting to create GitHub PR using gh CLI...')
+                # run in repo root
+                repo_root = Path(__file__).resolve().parents[2]
+                # use --fill to pre-populate title/body from last commit
+                res = subprocess.run(['gh', 'pr', 'create', '--fill', '--web'], cwd=str(repo_root))
+                if res.returncode == 0:
+                    print('[AUTOPILOT] gh CLI launched PR creation flow (or created PR).')
+                else:
+                    print('[AUTOPILOT] gh CLI not available or failed; printing compare URL instead.')
+                    # fallback: print compare URL using current branch name
+                    # get current branch
+                    br = subprocess.check_output(
+                        ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+                        cwd=str(repo_root),
+                        encoding='utf-8',
+                    ).strip()
+                    origin = subprocess.check_output(
+                        ['git', 'remote', 'get-url', 'origin'],
+                        cwd=str(repo_root),
+                        encoding='utf-8',
+                    ).strip()
+                    # normalise origin url to https://github.com/<owner>/<repo>.git
+                    if origin.endswith('.git'):
+                        origin = origin[:-4]
+                    if origin.startswith('git@'):
+                        origin = origin.replace(':', '/').replace('git@', 'https://')
+                    compare = f"{origin}/compare/main...{br}?expand=1"
+                    print(f'[AUTOPILOT] PR compare URL: {compare}')
+            except Exception as e:
+                print(f"[AUTOPILOT] Failed to create PR automatically: {e}")
+
     # if plan provided, append a small plan note to Q prompt
     if plan_text and "Q" in personas:
         personas["Q"] = personas["Q"] + f"\n\n# PLAN_CHECK: {plan_text}\n"
         # simple parsing: if plan asks to run crib_weight_sweep, or OPS_RUN env var set, invoke OPS
         plan_lower = (plan_text or '').lower()
-        wants_run = 'crib_weight_sweep' in plan_lower
+        wants_run = 'crib_weight_sweep' in plan_lower or 'run' in plan_lower and 'crib' in plan_lower
         ops_run_env = os.environ.get('OPS_RUN', '')
         if wants_run or ops_run_env.lower() in ('1', 'true', 'yes'):
             # make OPS aware of the run request
@@ -50,7 +135,17 @@ def run_plan_check(plan_text: str | None = None):
                             import sys
 
                             print('Invoking SPY extractor on run artifacts...')
-                            subprocess.check_call([sys.executable, str(spy_path)])
+                            min_conf = os.environ.get('SPY_MIN_CONF')
+                            if not min_conf:
+                                try:
+                                    from scripts.tuning import spy_eval
+
+                                    labels = Path('data') / 'spy_eval_labels.csv'
+                                    runs = Path('artifacts') / 'tuning_runs'
+                                    min_conf = str(spy_eval.select_best_threshold(labels, runs))
+                                except Exception:
+                                    min_conf = '0.25'
+                            subprocess.check_call([sys.executable, str(spy_path), '--min-conf', str(min_conf)])
                             print('SPY extractor completed')
                         except Exception as e:
                             print(f'SPY extractor failed: {e}')
@@ -72,6 +167,24 @@ def run_plan_check(plan_text: str | None = None):
         print(ln.strip())
 
 
+def _parse_weights(s: str | None) -> list[float] | None:
+    if not s:
+        return None
+    try:
+        return [float(x.strip()) for x in s.split(',') if x.strip()]
+    except Exception:
+        return None
+
+
 if __name__ == "__main__":
-    plan = os.environ.get("PLAN", None)
-    run_plan_check(plan)
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Autopilot triumverate runner')
+    parser.add_argument('--plan', type=str, default=None, help='Plan text to append to Q prompt')
+    parser.add_argument('--weights', type=str, default=None, help='Comma-separated weights to pass to OPS')
+    parser.add_argument('--dry-run', dest='dry_run', action='store_true', help='Run OPS in dry-run mode')
+    parser.add_argument('--no-autopilot', dest='autopilot', action='store_false', help="Don't auto-query triumverate")
+    args = parser.parse_args()
+
+    weights = _parse_weights(args.weights)
+    run_plan_check(args.plan, autopilot=args.autopilot, weights=weights, dry_run=args.dry_run)

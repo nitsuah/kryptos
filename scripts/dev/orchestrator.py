@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
+import time
 from datetime import datetime
 
 AGENTS_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'agents')
@@ -94,8 +96,11 @@ def recommend_next_action() -> tuple[str, str]:
     # detect a simple SPY extractor presence
     spy_extractor_path = os.path.join(repo_root, 'scripts', 'dev', 'spy_extractor.py')
     has_spy = os.path.exists(spy_extractor_path)
-    # detect ops_run_tuning presence
-    has_ops = hasattr(sys.modules.get(__name__), 'ops_run_tuning')
+    # detect ops_run_tuning presence: prefer an in-module callable or the presence of the sweep script
+    has_ops = callable(globals().get('ops_run_tuning'))
+    if not has_ops:
+        sweep_script = os.path.join(repo_root, 'scripts', 'tuning', 'crib_weight_sweep.py')
+        has_ops = os.path.exists(sweep_script)
 
     if not has_ops:
         return (
@@ -113,14 +118,18 @@ def recommend_next_action() -> tuple[str, str]:
     )
 
 
-def ops_run_tuning(weights: list[float] | None = None, dry_run: bool = True) -> str:
+def ops_run_tuning(
+    weights: list[float] | None = None,
+    dry_run: bool = True,
+    retries: int = 3,
+    backoff_factor: float = 0.5,
+) -> str | dict:
     """Run the crib_weight_sweep script programmatically.
 
     Returns the run directory path as a string. By default this is a dry run (no network or external
     side-effects beyond writing artifacts) — the underlying script is already safe and writes to
     `artifacts/tuning_runs/run_<ts>/`.
     """
-    import subprocess
     from pathlib import Path
 
     # repository root is two parents above this file (scripts/dev -> scripts -> repo)
@@ -135,15 +144,60 @@ def ops_run_tuning(weights: list[float] | None = None, dry_run: bool = True) -> 
         cmd += ['--dry-run']
 
     # run the external script; it will write artifacts under artifacts/tuning_runs/
-    subprocess.check_call(cmd, cwd=repo_root)
+    # implement retries with exponential backoff for transient failures
+    attempts = 0
+    max_retries = int(retries)
+    while True:
+        try:
+            attempts += 1
+            print(f"ops_run_tuning: attempt {attempts} running sweep script (cmd={cmd})")
+            subprocess.check_call(cmd, cwd=repo_root)
+            break
+        except Exception as exc:
+            print(f"ops_run_tuning: attempt {attempts} failed with: {exc}")
+            if attempts >= max_retries:
+                print(f"ops_run_tuning: exceeded max retries ({max_retries}), aborting")
+                return ''
+            sleep_for = float(backoff_factor) * (2 ** (attempts - 1))
+            print(f"ops_run_tuning: sleeping {sleep_for:.2f}s before retry")
+            time.sleep(sleep_for)
+
     tr_dir = Path(repo_root) / 'artifacts' / 'tuning_runs'
     if not tr_dir.exists():
         return ''
     runs = [p for p in tr_dir.iterdir() if p.is_dir() and p.name.startswith('run_')]
     if not runs:
         return ''
-    latest = max(runs, key=lambda p: p.stat().st_mtime)
-    return str(latest)
+    # prefer runs that contain the primary sweep csv artifact
+    runs_with_csv = [p for p in runs if (p / 'crib_weight_sweep.csv').exists()]
+    if runs_with_csv:
+        latest = max(runs_with_csv, key=lambda p: p.stat().st_mtime)
+    else:
+        latest = max(runs, key=lambda p: p.stat().st_mtime)
+
+    # compute simple run metadata: max delta across weight detail CSVs
+    try:
+        import csv
+
+        max_delta = 0.0
+        for csvf in latest.glob('weight_*_details.csv'):
+            with csvf.open('r', encoding='utf-8') as fh:
+                reader = csv.DictReader(fh)
+                for row in reader:
+                    try:
+                        d = float(row.get('delta', '0'))
+                    except Exception:
+                        d = 0.0
+                    if d > max_delta:
+                        max_delta = d
+    except Exception:
+        max_delta = 0.0
+
+    meta = {'run_dir': str(latest), 'max_delta': float(max_delta)}
+    # backward compatibility: if called with the default signature return the run_dir string
+    if retries == 3 and backoff_factor == 0.5:
+        return str(latest)
+    return meta
 
 
 def run_exchange(personas: dict[str, str], rounds: int = 2):
