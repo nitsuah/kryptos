@@ -28,28 +28,34 @@ until the public search interface stabilizes.
 
 ## Mapping
 
-```
+```python
 from kryptos.sections import SECTIONS
 
 for name, fn in SECTIONS.items():
-  if name in {"K1", "K2"}:
-    plaintext = fn(CIPHERTEXTS[name], "PALIMPSEST")
-  elif name == "K3":
-    plaintext = fn(CIPHERTEXTS[name])
-  else:  # K4 returns DecryptResult
-    result = fn(CIPHERTEXTS[name], limit=25)
-    plaintext = result.plaintext
-  print(name, plaintext[:50])
+    if name in {"K1", "K2"}:
+        plaintext = fn(CIPHERTEXTS[name], "PALIMPSEST")
+    elif name == "K3":
+        plaintext = fn(CIPHERTEXTS[name])
+    else:  # K4 returns DecryptResult
+        result = fn(CIPHERTEXTS[name], limit=25)
+        plaintext = result.plaintext
+    print(name, plaintext[:50])
 ```
 
 ## Usage Examples
 
-For a runnable end-to-end sample see `examples/sections_demo.py` (K1–K3) or use
-`kryptos.k4.decrypt_best` directly for K4 composite search.
+For an end-to-end sample use the CLI or call the composite helper directly:
+
+```bash
+kryptos sections
+kryptos k4-decrypt --cipher path/to/k4.txt --limit 30 --adaptive --report
+```
+
+Or invoke programmatically with `kryptos.k4.decrypt_best` for K4.
 
 ### Decrypt K1 with a Candidate Key
 
-```
+```python
 from kryptos.k1 import decrypt as decrypt_k1
 
 plaintext = decrypt_k1(K1_CIPHERTEXT, "PALIMPSEST")
@@ -57,7 +63,7 @@ plaintext = decrypt_k1(K1_CIPHERTEXT, "PALIMPSEST")
 
 ### Iterate K1/K2 Keys
 
-```
+```python
 from kryptos.sections import SECTIONS
 candidate_keys = ["PALIMPSEST", "ABSCISSA", "KRYPTOS"]
 
@@ -71,14 +77,14 @@ for key in candidate_keys:
 
 ### Decrypt K3
 
-```
+```python
 from kryptos.k3 import decrypt as decrypt_k3
 plaintext_k3 = decrypt_k3(K3_CIPHERTEXT)
 ```
 
 ### K4 Composite Decrypt
 
-```
+```python
 from kryptos.k4 import decrypt_best
 
 result = decrypt_best(K4_CIPHERTEXT, limit=40, adaptive=True, report=True)
