@@ -21,13 +21,14 @@ version = "0.0.1"
 description = "Kryptos tooling and autopilot harness"
 authors = [ { name = "nitsuah" } ]
 readme = "README.md"
-license = "MIT"
+license = { text = "MIT" }
 keywords = ["kryptos","autopilot","crypto"]
 classifiers = [
 	"Programming Language :: Python :: 3",
-	"License :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
 ]
+
+# license expression removed; using PEP-621 license table above
 
 [tool.setuptools.packages.find]
 where = ["src"]
