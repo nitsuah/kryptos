@@ -1,13 +1,13 @@
 # CHANGELOG
 
 ## [Unreleased]
-
 - 2025-10-23: Migrated legacy `src/k4/` package into unified `kryptos/k4/` namespace; updated
 imports, tests, and docs; removed path mutation side-effects from sample scripts.
-
 - 2025-10-22: Introduced autopilot flow (Q/OPS/SPY), SPY evaluation harness and conservative
 extractor, demo smoke CI workflow, and packaging & docs improvements.- Pending: route scoring
-refinement, multiprocessing, advanced Hill assemblies.
+- Removed deprecated experimental scripts: `run_full_smoke.py`, `run_hill_search.py`,
+`clean_and_summarize_matches.py`, `summarize_crib_hits.py`, `run_pipeline_sample.py` (functionality
+migrated to package APIs & CLI subcommands). refinement, multiprocessing, advanced Hill assemblies.
 
 ## [2025-10-20] Adaptive & Route Expansion
 

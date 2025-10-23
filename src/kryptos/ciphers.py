@@ -62,7 +62,10 @@ def kryptos_k3_decrypt(ciphertext: str) -> str:
 
 
 def double_rotational_transposition(text: str) -> str:
-    """Apply K3 double rotational transposition: 24x14 grid -> rotate -> reshape 8 cols -> rotate."""
+    """
+    Apply K3 double rotational transposition:
+    24x14 grid -> rotate -> reshape 8 cols -> rotate.
+    """
     cols1, rows1 = 24, 14
     expected_len = cols1 * rows1
     if len(text) != expected_len:
