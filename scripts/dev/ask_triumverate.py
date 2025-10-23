@@ -41,7 +41,7 @@ def run_plan_check(
         # Execute a small set of safe, idempotent actions automatically when recommended.
         rec_lower = rec.lower()
         # If triumverate wants an OPS run and ops_run_tuning is available, run it.
-        if 'ops' in rec_lower or 'run' in rec_lower and 'crib' in rec_lower:
+        if 'ops' in rec_lower or ('run' in rec_lower and 'crib' in rec_lower):
             if hasattr(orch, 'ops_run_tuning'):
                 try:
                     print(f"[AUTOPILOT] Executing recommended OPS run (dry_run={dry_run})...")
