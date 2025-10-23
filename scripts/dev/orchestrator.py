@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
+import time
 from datetime import datetime
 
 AGENTS_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'agents')
@@ -123,7 +125,6 @@ def ops_run_tuning(weights: list[float] | None = None, dry_run: bool = True) -> 
     side-effects beyond writing artifacts) — the underlying script is already safe and writes to
     `artifacts/tuning_runs/run_<ts>/`.
     """
-    import subprocess
     from pathlib import Path
 
     # repository root is two parents above this file (scripts/dev -> scripts -> repo)
@@ -138,7 +139,25 @@ def ops_run_tuning(weights: list[float] | None = None, dry_run: bool = True) -> 
         cmd += ['--dry-run']
 
     # run the external script; it will write artifacts under artifacts/tuning_runs/
-    subprocess.check_call(cmd, cwd=repo_root)
+    # implement retries with exponential backoff for transient failures
+    attempts = 0
+    max_retries = 3
+    backoff_factor = 0.5
+    while True:
+        try:
+            attempts += 1
+            print(f"ops_run_tuning: attempt {attempts} running sweep script (cmd={cmd})")
+            subprocess.check_call(cmd, cwd=repo_root)
+            break
+        except (subprocess.CalledProcessError, OSError) as exc:
+            print(f"ops_run_tuning: attempt {attempts} failed with: {exc}")
+            if attempts >= max_retries:
+                print(f"ops_run_tuning: exceeded max retries ({max_retries}), aborting")
+                return ''
+            sleep_for = backoff_factor * (2 ** (attempts - 1))
+            print(f"ops_run_tuning: sleeping {sleep_for:.2f}s before retry")
+            time.sleep(sleep_for)
+
     tr_dir = Path(repo_root) / 'artifacts' / 'tuning_runs'
     if not tr_dir.exists():
         return ''
