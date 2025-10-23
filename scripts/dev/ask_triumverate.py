@@ -56,7 +56,17 @@ def run_plan_check(
 
                             try:
                                 # allow configuring a conservative min confidence via env
-                                min_conf = os.environ.get('SPY_MIN_CONF', '0.25')
+                                min_conf = os.environ.get('SPY_MIN_CONF')
+                                if not min_conf:
+                                    # compute best threshold from any available labels/runs
+                                    try:
+                                        from scripts.tuning import spy_eval
+
+                                        labels = Path('data') / 'spy_eval_labels.csv'
+                                        runs = Path('artifacts') / 'tuning_runs'
+                                        min_conf = str(spy_eval.select_best_threshold(labels, runs))
+                                    except Exception:
+                                        min_conf = '0.25'
                                 subprocess.check_call([sys.executable, str(spy_path), '--min-conf', str(min_conf)])
                                 print('[AUTOPILOT] SPY extractor completed')
                             except Exception as e:
@@ -125,7 +135,16 @@ def run_plan_check(
                             import sys
 
                             print('Invoking SPY extractor on run artifacts...')
-                            min_conf = os.environ.get('SPY_MIN_CONF', '0.25')
+                            min_conf = os.environ.get('SPY_MIN_CONF')
+                            if not min_conf:
+                                try:
+                                    from scripts.tuning import spy_eval
+
+                                    labels = Path('data') / 'spy_eval_labels.csv'
+                                    runs = Path('artifacts') / 'tuning_runs'
+                                    min_conf = str(spy_eval.select_best_threshold(labels, runs))
+                                except Exception:
+                                    min_conf = '0.25'
                             subprocess.check_call([sys.executable, str(spy_path), '--min-conf', str(min_conf)])
                             print('SPY extractor completed')
                         except Exception as e:

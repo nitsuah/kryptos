@@ -10,3 +10,22 @@ ignore = ["E203"]
 quote-style = "preserve"
 indent-style = "space"
 line-ending = "auto"
+
+[build-system]
+requires = ["setuptools>=61.0","wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kryptos"
+version = "0.0.0"
+description = "Kryptos tooling and autopilot harness"
+authors = [ { name = "nitsuah" } ]
+readme = "README.md"
+license = { text = "MIT" }
+keywords = ["kryptos","autopilot","crypto"]
+classifiers = [
+	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent",
+]
+packages = ["kryptos"]

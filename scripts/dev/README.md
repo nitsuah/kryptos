@@ -1,0 +1,55 @@
+# Autopilot dev README
+
+This small README explains the local "autopilot" flow and how the SPY extractor threshold is chosen.
+
+## Overview
+
+- The autopilot orchestrator runs three logical components: Q (question/planner), OPS (operational tuner/sweep), and SPY (conservative crib extractor).
+- `scripts/dev/ask_triumverate.py` is a small driver that can run the autopilot loop in dry-run or full-auto.
+
+## SPY threshold selection
+
+- The SPY extractor accepts a minimum confidence threshold via the environment variable `SPY_MIN_CONF` or CLI `--min-conf`.
+- If `SPY_MIN_CONF` is not set, the autopilot will call the SPY evaluation harness to compute a recommended threshold from labeled tuning runs.
+- The evaluation harness lives at `kryptos/scripts/tuning/spy_eval.py` and evaluates precision/recall/F1 across thresholds.
+- By default the harness now prefers a threshold that maximizes precision (conservative extraction). If multiple thresholds have identical precision, it picks the one with the higher F1 score as a tie-breaker.
+
+## Running locally
+
+- To run the autopilot in dry-run mode:
+
+```powershell
+Set-Location 'C:\Users\<you>\code\kryptos'
+python scripts/dev/ask_triumverate.py --dry-run
+```
+
+- To run full autopilot and allow SPY to run automatically (writes to `agents/LEARNED.md`):
+
+```powershell
+python scripts/dev/ask_triumverate.py
+```
+
+- To override the computed threshold explicitly:
+
+```powershell
+$env:SPY_MIN_CONF = '0.5'
+python scripts/dev/ask_triumverate.py
+```
+
+## Local editable install (recommended for development)
+
+Install the project in editable mode so imports like `kryptos.scripts.tuning.spy_eval` resolve consistently:
+
+```powershell
+Set-Location 'C:\Users\<you>\code\kryptos'
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install -e .
+```
+
+After that you can run tests and demos normally (pytest, demo runner, etc.).
+
+## Notes
+
+- The evaluation harness expects labeled CSV in `data/spy_eval_labels.csv` with rows `run_dir,token` and tuning runs under `artifacts/tuning_runs/run_<ts>/`.
+- If you prefer to bias threshold selection to maximize recall (less conservative), we can change the selection strategy in `kryptos/scripts/tuning/spy_eval.py`.
