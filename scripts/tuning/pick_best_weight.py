@@ -25,8 +25,9 @@ def pick_best(run_dir: Path) -> tuple[float, dict]:
     by_weight: dict[str, list[float]] = {}
     with path.open('r', encoding='utf-8') as fh:
         reader = csv.DictReader(fh)
+        rows = list(reader)
         norm = _normalize_fieldnames(reader.fieldnames)
-    for _i, row in enumerate(reader, start=1):
+    for _i, row in enumerate(rows, start=1):
         try:
             w = row.get(norm.get('weight', 'weight'))
             if w is None:
