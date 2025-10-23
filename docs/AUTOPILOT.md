@@ -122,3 +122,9 @@ python scripts/dev/ask_triumverate.py --dry-run
 ```powershell
 python scripts/demo/run_k4_demo.py --limit 5
 ```
+
+Try a quick smoke-run (demo → tiny OPS sweep → SPY extractor → condensed report):
+
+```powershell
+python scripts/examples/run_full_smoke.py
+```
