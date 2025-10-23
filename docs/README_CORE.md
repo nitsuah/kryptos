@@ -203,6 +203,34 @@ Prefer direct APIs over scripts:
 - Pick best weight: `from kryptos.k4.tuning import pick_best_weight_from_rows`
 - Tiny param sweep: `from kryptos.k4.tuning import tiny_param_sweep`
 - Artifact cleaning & summary: `from kryptos.k4.tuning.artifacts import end_to_end_process`
+- Reporting utilities (condensed & top candidates): `from kryptos.k4.report import
+write_condensed_report, write_top_candidates_markdown`
+
+### Generating Condensed & Top Candidate Reports
+
+After running a tuning sweep (e.g. `tuning-crib-weight-sweep` followed by `tuning-pick-best` /
+`tuning-summarize-run`) you can produce normalized summary artifacts:
+
+```python
+from pathlib import Path
+from kryptos.k4.report import write_condensed_report, write_top_candidates_markdown
+
+run_dir = Path("artifacts/tuning_runs/run_20251023T071230")  # directory containing per-weight detail CSVs
+
+# 1. Create condensed_report.csv (one row per weight with top delta & snippet)
+csv_path = write_condensed_report(run_dir)
+print("Condensed CSV written:", csv_path)
+
+# 2. Generate top_candidates.md (ranked markdown list)
+md_path = write_top_candidates_markdown(run_dir, limit=7)
+print("Top candidates markdown:", md_path)
+```
+
+Optional enrichment: if a learned SPY phrases file exists (e.g. `agents/LEARNED.md`) matching
+phrases will be annotated inline in the markdown output.
+
+CLI integration candidate (future): a `tuning-report` subcommand could wrap both calls. For now
+prefer the direct Python API for batching inside notebooks or scripts.
 
 Example weight sweep:
 
