@@ -133,7 +133,8 @@ as separators/padding, not errors.
 - Automated spacing / lint autofix tooling (pep8_spacing_autofix.py) for consistent style
 compliance.
 - Pruning logic & pattern bonus tests (test_executor_pruning_and_pattern.py).
-- Minimal runnable sample script (scripts/tools/run_pipeline_sample.py).
+- CLI provides runnable samples (`kryptos sections`, `kryptos k4-decrypt ...`) replacing legacy
+wrappers.
 
 Next Iteration Targets:
 

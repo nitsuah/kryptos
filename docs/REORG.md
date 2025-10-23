@@ -23,8 +23,8 @@ tests updated to point to canonical paths.
 | Script | Reason | Replacement | Removal Target |
 |--------|--------|-------------|----------------|
 | scripts/experimental/tools/run_hill_search.py | Ad-hoc key gen & scoring | k4.hill_search.score_decryptions | Next PR |
-| scripts/experimental/tools/run_hill_canonical.py | Thin wrapper | k4.hill_constraints.decrypt_and_score | Next PR |
-| scripts/experimental/tools/run_pipeline_sample.py | Pipeline sample wrapper | Direct package pipeline usage | Next PR |
+| (removed) scripts/experimental/tools/run_hill_canonical.py | Thin wrapper | k4.hill_constraints.decrypt_and_score | Removed (API consolidated) |
+| (removed) scripts/experimental/tools/run_pipeline_sample.py | Pipeline sample wrapper | Direct package pipeline usage | Removed (CLI + direct API) |
 | scripts/tuning/spy_eval.py | Legacy evaluation harness | kryptos.tuning.spy_eval | After stability check |
 | scripts/experimental/examples/run_full_smoke.py | Chained demo wrapper | Explicit package calls / tests | Pending review |
 

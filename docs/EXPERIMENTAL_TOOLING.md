@@ -10,8 +10,8 @@ Overview of scripts under `scripts/experimental/` with purpose and disposition.
 | examples/condensed_tuning_report.py | Summarize sweep CSV | Keep (may refactor into report util) |
 | examples/generate_top_candidates.py | Generate markdown candidate report | Keep (consider package reporter) |
 | tools/run_hill_search.py | Random hill key diagnostic | Deprecate (remove) |
-| tools/run_hill_canonical.py | Thin hill_constraints wrapper | Deprecate (remove) |
-| tools/run_pipeline_sample.py | Minimal pipeline wrapper | Deprecate (remove) |
+| (removed) tools/run_hill_canonical.py | Thin hill_constraints wrapper | Removed (use kryptos.k4 APIs) |
+| (removed) tools/run_pipeline_sample.py | Minimal pipeline wrapper | Removed (use CLI) |
 | tools/holdout_score.py | Holdout scoring helper | Keep (could promote if widely used) |
 | tools/run_sweep_on_artifact_samples.py | Crib sweep on existing artifacts | Keep (niche) |
 | tools/clean_and_summarize_matches.py | Clean matches & summarize | Keep (reporting candidate) |

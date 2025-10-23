@@ -138,7 +138,8 @@ analysis.
 
 - Section packages (`kryptos/k1`, `kryptos/k2`, `kryptos/k3`) implemented; `kryptos/sections.py`
 mapping available (K4 included via `decrypt_best`).
-- Example orchestration moved from `main.py` to `examples/sections_demo.py`.
+- Example orchestration now via the CLI (`kryptos sections`, `kryptos k4-decrypt ...`), obsolete
+demo scripts removed.
 - `docs/SECTIONS.md` documents the unified API surface.
 - Legacy `src/__init__.py` shim removed; explicit imports only.
 

@@ -74,8 +74,9 @@ pip install -r requirements.txt
 python -m unittest discover -s tests
 ```
 
-1. Run a tiny pipeline sample (preferred: direct package usage; legacy script
-`run_pipeline_sample.py` is deprecated). This example writes artifacts to `artifacts/k4_runs/`:
+1. Run a tiny pipeline sample (preferred: direct package usage; legacy script Legacy
+`run_pipeline_sample.py` was removed; use the CLI or `kryptos.k4.decrypt_best` directly. Artifacts
+emit under `artifacts/reports/` (attempts, candidates) plus any run grouping dirs:
 
 ```python
 from k4.pipeline import make_hill_constraint_stage, make_masking_stage
