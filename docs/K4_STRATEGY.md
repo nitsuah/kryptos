@@ -2,7 +2,7 @@
 
 This document collects K4-specific strategy, modules, and operational notes used by the analysis
 pipeline. It's intentionally focused on the unsolved K4 piece and the specialized tooling in
-`src/k4/`.
+`kryptos/k4/` (previously `src/k4/`).
 
 Related documents / breadcrumbs:
 
@@ -31,7 +31,7 @@ sampling.
 plaintexts.
 - Composite orchestration, weighted fusion of stage outputs, and per-run diagnostics.
 
-## Key modules (under `src/k4/`)
+## Key modules (under `kryptos/k4/`)
 
 - `scoring.py` — composite scoring, positional crib bonuses, and advanced metrics.
 - `hill_constraints.py`, `hill_cipher.py` — constrained key derivation and hill math.
@@ -59,8 +59,8 @@ testing.
 deterministic small sweeps and iterate weighting heuristics. 3. Deploy the daemon runner and collect
 longer campaigns for candidate analysis.
 
-For operational details and code-level examples, refer to the module docstrings in `src/k4/` and the
-quick examples in `docs/README_CORE.md`.
+For operational details and code-level examples, refer to the module docstrings in `kryptos/k4/` and
+the quick examples in `docs/README_CORE.md`.
 
 ## Kryptos K4 Research & Strategy
 

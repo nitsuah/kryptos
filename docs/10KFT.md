@@ -20,50 +20,37 @@ experiment traces and reproducible results.
 
 - `examples/` — Small example programs that show how to wire the package for quick experiments.
 
-## Package layout details (src/k4 and src/kryptos)
+## Package layout details (sections & utilities)
 
-- `src/k4/` — The canonical K4 implementation and runtime plumbing used by tuning and demo scripts.
-  - Key responsibilities: job execution (parallel variants), scoring, hill/crib algorithms, and
-    pipeline composition. Files of interest include `executor.py` (runs variants and aggregates
-    results), `hill_search.py` and `hill_constraints.py` (hill-cipher specific search and
-    constraints), `scoring.py` (scoring functions used by tuners), and `reporting.py` (helpers
-    that format experiment outputs into artifacts/). This package is the primary place to look
-    when changing runtime behavior or adding new solver variants.
+- `kryptos/k1/`, `kryptos/k2/`, `kryptos/k3/` — Uniform wrappers exposing `decrypt(ciphertext: str,
+**opts)` for solved sections (Vigenère for K1/K2, double rotational transposition for K3).
+(Implemented)
+- `kryptos/k4/` — Canonical K4 pipeline (executor, scoring, hill/crib logic, transposition, masking,
+clock enumeration). Change runtime behavior or add solver variants here.
+- `kryptos/ciphers.py` — Shared primitive cipher functions (Vigenère, rotational transposition,
+Polybius). Will remain as primitives after section wrappers exist.
+- `kryptos/analysis.py` — Generic frequency and crib checking utilities used by examples and
+reporting.
+- `kryptos/reporting.py` — Canonical reporting (frequency chart + crib summary) replacing legacy
+`report.py`.
+- `kryptos/k4/scoring.py` — Extended scoring metrics (ngrams, positional cribs, linguistic
+features).
 
-- `src/kryptos/` — Higher-level package utilities and connectors that sit above `src/k4`.
-  - Key responsibilities: glue code, analysis utilities, and convenience modules used by
-    experiments and CI. This area contains `analysis.py`, higher-level `report.py` helpers,
-    and `scripts/` shims that allow repo-level scripts to be exposed as package-importable
-    modules for tests and tooling.
+### Note on `spy_eval` (tuning) migration
 
-### Note on the `spy_eval` shim and packaging
+Shim indirection will be removed by moving logic fully into `kryptos/tuning/spy_eval.py` and
+updating callers. Direct `scripts.*` imports are being phased out to improve install robustness.
 
-There is an existing shim at `src/kryptos/scripts/tuning/spy_eval.py` which imports the filesystem
-script `scripts/tuning/spy_eval.py` and re-exports functions for tests. Importing directly from
-`scripts.*` paths can lead to brittle imports when running inside venvs or when the package is
-installed.
+## Core python modules & scripts (ELI5)
 
-Recommended fixes:
-
-- Preferred: Move the canonical `spy_eval` implementation into the package (for example,
-`src/kryptos/tuning/spy_eval.py`) and update callers to import `kryptos.tuning.spy_eval`.
-- Alternative: Replace the shim with a small package-level wrapper that imports the
-implementation from the canonical package location (not from `scripts.*`).
-
-If you'd like, I can perform the preferred fix and port `scripts/tuning/spy_eval.py` into the
-package and update import sites in a follow-up commit.
-
-## Core python scripts (ELI5)
-
-- `kryptos/src/k4/executor.py` — Runs job variants in parallel and collects results. ELI5: "It tries
-different ways to run a job at once and picks the outputs when they finish."
+- `kryptos/k4/executor.py` — Runs K4 pipeline variants in parallel and collects results. ELI5: "It
+tries different ways at once and gathers the outputs."
 
 - `kryptos/scripts/dev/orchestrator.py` — Orchestrates OPS (tuning) runs and stores run metadata.
 ELI5: "It runs tuning experiments and remembers what happened so we can learn from it."
 
-- `scripts/dev/ask_triumverate.py` — High-level autopilot driver that runs OPS then SPY extraction.
-ELI5: "A small orchestrator that asks the 3 helpers (Q/OPS/SPY) to make recommendations and
-optionally write learned hints."
+- `scripts/dev/ask_triumverate.py` — Autopilot driver (OPS + SPY). ELI5: "Asks the three helpers to
+make recommendations and logs useful hints."
 
 - `scripts/dev/spy_extractor.py` — Conservative extractor that scans run artifacts for crib-like
 tokens and writes `agents/LEARNED.md`. ELI5: "It looks for useful little hints in a run and notes
@@ -117,7 +104,7 @@ artifacts under `artifacts/`.
 
 1. Executor runs job variants
 
-- `kryptos/src/k4/executor.py` executes multiple job variants in parallel and collects results;
+- `kryptos/k4/executor.py` executes multiple job variants in parallel and collects results;
 tuning uses these results to score parameter combinations.
 
 1. SPY extraction and evaluation
@@ -140,10 +127,19 @@ reproducible `artifacts/` for inspection and evaluation.
 
 Design notes (TL;DR)
 
-- Separation of concerns: `src/` contains the runtime logic (executor, core algorithms),
-`kryptos/scripts/` contains evaluation/tuning helpers, and `scripts/` contains repo-level tooling
-(lint, demos, extractors).
-- Conservative defaults: SPY extraction favors precision over recall; the eval harness picks
-thresholds to avoid noisy learned hints.
-- Reproducibility: tuning scripts write structured artifacts so the evaluator and extractor operate
-on recorded runs.
+- Separation of concerns: `kryptos/` holds all reusable logic; `scripts/` are wrappers / tooling;
+`examples/` show minimal usage.
+- Conservative defaults: SPY extraction favors precision over recall; evaluation picks thresholds to
+avoid noisy hints.
+- Reproducibility: structured artifacts (CSV/JSON) record configuration & scores for post-run
+analysis.
+
+### Sections & Docs Status
+
+- Section packages (`kryptos/k1`, `kryptos/k2`, `kryptos/k3`) implemented; `kryptos/sections.py`
+mapping available (K4 included via `decrypt_best`).
+- Example orchestration moved from `main.py` to `examples/sections_demo.py`.
+- `docs/SECTIONS.md` documents the unified API surface.
+- Legacy `src/__init__.py` shim removed; explicit imports only.
+
+--- Last updated: 2025-10-23T20:40Z (section packages + example relocation + shim removed)

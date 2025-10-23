@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Autonomous K4 cracker daemon.
 
-Runs the PipelineExecutor (via the sample pipeline builder) against one or more
-ciphertexts and stops when a candidate passes a plausibility score threshold.
+Runs a lightweight K4 pipeline (constructed inline, no deprecated wrapper
+imports) against one or more ciphertexts and exits when a candidate passes a
+plausibility score threshold.
 
-This is intended to let the system iterate without manual intervention.
+All former wrapper indirection (`run_pipeline_sample.py`) removed to enforce
+explicit pipeline composition using public factories under `kryptos.k4.pipeline`.
 """
 
 from __future__ import annotations
@@ -18,18 +20,38 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from kryptos.k4.executor import PipelineConfig, PipelineExecutor
+from kryptos.k4.pipeline import (
+    make_hill_constraint_stage,
+    make_masking_stage,
+    make_transposition_adaptive_stage,
+    make_transposition_stage,
+)
 
-def load_build_pipeline(repo_root: Path):
-    """Load build_pipeline from scripts/tools/run_pipeline_sample.py using file import."""
-    import importlib.util
 
-    path = repo_root / 'scripts' / 'tools' / 'run_pipeline_sample.py'
-    spec = importlib.util.spec_from_file_location('run_pipeline_sample', str(path))
-    if spec is None or spec.loader is None:
-        raise ImportError(f'Could not load {path}')
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)  # type: ignore
-    return mod.build_pipeline
+def build_pipeline(parallel_variants: int = 0) -> PipelineExecutor:
+    """Construct a default exploratory pipeline executor.
+
+    (Formerly loaded from deprecated wrapper.)
+    """
+    stages = [
+        make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=50, partial_min=-850.0),
+        make_transposition_adaptive_stage(),
+        make_transposition_stage(),
+        make_masking_stage(name="masking", null_chars=["X"], limit=15),
+    ]
+    cfg = PipelineConfig(
+        ordering=stages,
+        candidate_cap_per_stage=30,
+        pruning_top_n=12,
+        crib_bonus_threshold=5.0,
+        adaptive_thresholds={"hill": -500.0},
+        artifact_root="artifacts",
+        label="daemon-run",
+        enable_attempt_log=True,
+        parallel_hill_variants=parallel_variants,
+    )
+    return PipelineExecutor(cfg)
 
 
 def find_latest_run_artifact(artifact_root: Path) -> Path | None:
@@ -91,22 +113,16 @@ def main(argv: list[str]) -> int:
     repo_root = Path(__file__).resolve().parents[2]
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
+    # Build executor directly
     try:
-        build_pipeline = load_build_pipeline(repo_root)
-    except (ImportError, FileNotFoundError) as exc:
-        logging.exception('Failed to load sample pipeline builder: %s', exc)
-        return 2
-
-    # Build executor
-    try:
-        ex = build_pipeline()
-    except Exception as exc:  # noqa: BLE001 (pipeline builder may raise many types)
-        logging.exception('Failed to build pipeline executor: %s', exc)
+        ex = build_pipeline(parallel_variants=int(args.parallel_variants))
+    except Exception as exc:  # noqa: BLE001
+        logging.exception('Failed to construct pipeline: %s', exc)
         return 2
 
     # configure
     ex.config.artifact_root = str(args.artifact_root)
-    ex.config.parallel_hill_variants = int(args.parallel_variants)
+    # parallel variants already set during build
 
     # prepare ciphertexts
     ciphers: list[str] = []

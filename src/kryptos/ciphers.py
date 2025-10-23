@@ -7,6 +7,7 @@ is performed here; callers configure logging externally.
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -78,12 +79,89 @@ def double_rotational_transposition(text: str) -> str:
 
 def _rotate_right(matrix: list[list[str]]) -> list[list[str]]:
     rows = len(matrix)
-    cols = len(matrix[0]) if rows else 0
+    if rows == 0:
+        return []
+    cols = len(matrix[0])
     return [[matrix[r][c] for r in range(rows - 1, -1, -1)] for c in range(cols)]
+
+
+def rotate_matrix_right_90(matrix: Sequence[Sequence[str]]) -> list[list[str]]:
+    """Public helper: rotate matrix 90 degrees clockwise.
+
+    Accepts any sequence-of-sequences containing strings; returns a list of lists.
+    """
+    rows = len(matrix)
+    if rows == 0:
+        return []
+    cols = len(matrix[0])
+    out: list[list[str]] = [["" for _ in range(rows)] for _ in range(cols)]
+    for r in range(rows):
+        for c in range(cols):
+            out[c][rows - 1 - r] = matrix[r][c]
+    return out
+
+
+def transposition_decrypt(ciphertext: str, key: str | None = None) -> str:
+    """Legacy rotational transposition wrapper kept for backward compatibility.
+
+    If key is provided, perform columnar permutation reconstruction; else defer to
+    canonical Kryptos K3 double rotational algorithm.
+    """
+    clean = ''.join(ciphertext.split())
+    if clean.startswith('?'):
+        clean = clean[1:]
+    if key is None:
+        return kryptos_k3_decrypt(clean)
+    width = 86
+    height = 4
+    needed = width * height
+    if len(clean) < needed:
+        clean = clean.ljust(needed, 'X')
+    if len(clean) != needed:
+        raise ValueError(f"Expected ciphertext length {needed}, got {len(clean)}")
+    key_up = ''.join(c for c in key.upper() if c.isalpha())
+    repeated_key = (key_up * ((width // len(key_up)) + 1))[:width]
+    key_tuples = sorted((ch, idx) for idx, ch in enumerate(repeated_key))
+    col_order = [idx for _ch, idx in key_tuples]
+    cols: list[str] = []
+    start = 0
+    for _ in range(width):
+        cols.append(clean[start : start + height])
+        start += height
+    grid = [["" for _ in range(width)] for _ in range(height)]
+    for order, orig_col in enumerate(col_order):
+        col_text = cols[order]
+        for r in range(height):
+            grid[r][orig_col] = col_text[r]
+    return ''.join(''.join(row) for row in grid)
+
+
+def polybius_decrypt(ciphertext: str, key_square: Sequence[Sequence[str]]) -> str:
+    """Decrypt Polybius pairs using provided 5x5 key square.
+
+    Raises ValueError for malformed key square or invalid ciphertext pairs.
+    """
+    if len(key_square) != 5 or any(len(row) != 5 for row in key_square):
+        raise ValueError("Key square must be a 5x5 grid.")
+    if len(ciphertext) % 2 != 0:
+        raise ValueError("Ciphertext length must be even.")
+    pairs = [ciphertext[i : i + 2] for i in range(0, len(ciphertext), 2)]
+    out: list[str] = []
+    for pair in pairs:
+        try:
+            r = int(pair[0]) - 1
+            c = int(pair[1]) - 1
+            out.append(key_square[r][c])
+        except (ValueError, IndexError) as exc:
+            raise ValueError(f"Invalid pair in ciphertext: {pair}") from exc
+    return ''.join(out)
 
 
 __all__ = [
     "vigenere_decrypt",
     "kryptos_k3_decrypt",
     "double_rotational_transposition",
+    "rotate_matrix_right_90",
+    "transposition_decrypt",
+    "polybius_decrypt",
 ]

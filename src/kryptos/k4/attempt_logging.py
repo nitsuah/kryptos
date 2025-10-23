@@ -11,6 +11,7 @@ import os
 from datetime import datetime
 from typing import Any
 
+from ..paths import ensure_reports_dir
 from .pipeline import get_clock_attempt_log, get_hill_attempt_log
 from .transposition import get_transposition_attempt_log
 
@@ -22,7 +23,7 @@ def _ensure_dir(path: str) -> None:
 
 
 def persist_attempt_logs(
-    out_dir: str = 'reports',
+    out_dir: str | None = None,
     label: str = 'K4',
     clear: bool = True,
     limit: int = DEF_LIMIT,
@@ -46,6 +47,8 @@ def persist_attempt_logs(
         'clock_attempts': clock[:limit],
         'transposition_attempts': trans[:limit],
     }
+    if out_dir is None:
+        out_dir = str(ensure_reports_dir())
     _ensure_dir(out_dir)
     ts = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
     path = os.path.join(out_dir, f'attempts_{label.lower()}_{ts}.json')

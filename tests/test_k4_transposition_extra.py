@@ -1,6 +1,6 @@
 import unittest
 
-from src.k4 import transposition
+from kryptos.k4 import transposition
 
 
 class TestTranspositionExtra(unittest.TestCase):

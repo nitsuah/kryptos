@@ -3,7 +3,16 @@
 > Policy: No more shims, fallback import ladders, or duplicate modules. We delete, migrate, and
 unify. Every item below either gets implemented properly or removed.
 
+## Other Docs
+
+- REORG.md
+- SECTIONS.md
+- TOMORROW_PLAN.md
+- EXPERIMENTAL_TOOLING.md
+- 10KFT.md
+
 ## Guiding Principles
+
 - Single canonical namespace: all library code lives under `kryptos/` (including K4 logic under
 `kryptos/k4/`).
 - No duplicate modules or parallel implementations.
@@ -17,15 +26,19 @@ policies.
 - Deprecations use `warnings.warn(DeprecationWarning)` until removal.
 
 ## High Impact Debt (Tackle First)
-1. Split namespace (`src/k4/` vs `src/kryptos/`). 2. Duplicate scoring modules
-(`src/scoring/fitness.py` & `src/kryptos/scoring/fitness.py`). 3. Reporting duplication
-(`src/report.py` + shim `src/kryptos/report.py`). 4. Re-export / fallback import shims in
-`kryptos/__init__.py`. 5. Logging side-effects in library (e.g. `kryptos/ciphers.py`). 6. Hardcoded
-root/artifact paths sprinkled in scripts. 7. Build artifacts (`kryptos.egg-info/`) residing under
-`src/`. 8. Cryptographic stub functions (`polybius_decrypt`, `transposition_decrypt`) with no
-roadmap.
+
+1. Split namespace (historical `src/k4/` vs `kryptos/k4/`). (Completed) 2. Duplicate scoring modules
+(`src/scoring/fitness.py` & `src/kryptos/scoring/fitness.py`). (Removed; single source) 3. Reporting
+duplication (`src/report.py` + shim `src/kryptos/report.py`). (Completed; canonical
+`kryptos/reporting.py`) 4. Section inconsistency (K1/K2 logic in `main.py` & `ciphers.py`, K3 inside
+`ciphers.py`, K4 isolated). (Completed: k1/, k2/, k3/ packages + sections mapping) 5. Re-export /
+fallback import shims in `kryptos/__init__.py`. (Pending review/pruning) 6. Logging side-effects in
+library (historic prints). (Pending) 7. Hardcoded root/artifact paths sprinkled in scripts.
+(Pending) 8. Build artifacts (`kryptos.egg-info/`) residing under `src/`. (Pending) 9. Cryptographic
+stub / legacy helpers without roadmap (evaluate `transposition_decrypt`). (Pending decision)
 
 ## Medium Impact Debt
+
 - Script proliferation (daemon variants, tuning scripts with near-identical logic).
 - Spy extractor logic living only in script form.
 - Multiple pipeline sample / demo wrappers.
@@ -36,10 +49,11 @@ supply).
 - Mixed dependency declarations (`pyproject.toml` & `requirements.txt`).
 - Unstructured config objects and argument parsing spread across scripts.
 - Print statements in package code (e.g. tuning evaluation output).
-- Empty / placeholder package dirs (`src/kryptos/stages/`, unused `scripts/tuning` shim
-directories).
+- Removed legacy duplicate dirs (previous `src/k4/`, `src/scoring/`, `src/stages/`, stray
+`kryptos/stages/`).
 
 ## Lower Impact / Polish
+
 - Deprecated inline comments vs formal deprecation warnings.
 - Experimental tools with unclear relevance (`aggregate_spy_phrases.py`, `summarize_crib_hits.py`,
 `holdout_score.py`, `k3_double_rotation.py`).
@@ -51,20 +65,31 @@ directories).
 - Lack of error-path test coverage for scoring fallbacks and parsing failures.
 
 ## Concrete Action Items
+
 (Reflects current TODO list; updated here for clarity. Each item results in code or deletion — no
 new shims.)
 
 ### Phase A: Structural Consolidation (Single PR target)
-- Move `src/k4/` → `src/kryptos/k4/`; update all imports. Remove all multi-path import fallbacks.
-- Keep only one scoring module: adopt richer implementation; delete duplicate.
-- Migrate `src/report.py` into `kryptos/reporting.py`; delete shim.
-- Purge re-export blocks from `kryptos/__init__.py`; expose explicit curated API.
+
+- Move `src/k4/` → `kryptos/k4/`; update all imports. Remove all multi-path import fallbacks.
+(Completed)
+- Keep only one scoring module: adopt richer implementation; delete duplicate. (Completed)
+- Migrate `src/report.py` into `kryptos/reporting.py`; delete shim. (Completed)
+- Unify section layout: introduce `kryptos/k1/`, `kryptos/k2/`, `kryptos/k3/` packages each with
+`decrypt()`; deprecate orchestration in `main.py` & raw `kryptos_k3_decrypt` exposure. (Completed)
+- Provide `kryptos/sections.py` discovery mapping: `{'K1': k1.decrypt, 'K2': k2.decrypt, 'K3':
+k3.decrypt, 'K4': k4.decrypt_best}`. (Completed placeholder for K4)
+- Add `kryptos/k4/decrypt_best()` convenience wrapper over pipeline default. (Completed)
+- Refactor `main.py` into example or CLI entrypoint (`examples/run_sections.py` or
+`kryptos/cli/sections.py`). (Completed example refactor)
+- Purge re-export blocks from `kryptos/__init__.py`; expose explicit curated API. (In progress)
 - Remove `logging.basicConfig` calls from any library modules.
 - Add `kryptos/paths.py` with `get_repo_root()` sentinel and `build_artifact_path()` helpers.
 - Delete `kryptos.egg-info/` from version control; update `.gitignore`.
 - Implement or delete crypto stubs; prefer delete if not on near roadmap.
 
 ### Phase B: CLI & Workflow Unification
+
 - Introduce `kryptos/cli/` package with argparse (or click) subcommands: `pipeline`, `daemon`,
 `tuning`, `spy`, `report`.
 - Merge daemons into single configurable loop.
@@ -74,12 +99,14 @@ new shims.)
 - Remove pipeline sample wrappers after verifying parity.
 
 ### Phase C: Scoring & Adapter Enhancements
+
 - Implement positional crib weighting & partial match scoring.
 - Externalize ngram & crib sources; make loader explicit.
 - Add comprehensive tests for scoring error paths & improvements.
 - Implement stage adapters (hill, transposition, masking, berlin clock) or prune the interface TODO.
 
 ### Phase D: Quality & Tooling
+
 - Introduce `kryptos/logging.py` with setup helper and documented usage.
 - Replace prints with logging across package.
 - Pre-commit configuration (ruff/black/mdformat, tests).
@@ -90,13 +117,31 @@ new shims.)
 - Document final public API surface in README.
 
 ### Phase E: Operational Refinements
+
+- tbd
+
+### Phase F: Documentation Re-Org
+
+- Create `docs/SECTIONS.md` (uniform K1–K4 API surface & usage examples). (Completed)
+- Archive dated planning docs (`PLAN.md`, older strategy snapshots) into `docs/archive/` after
+summarizing deltas.
+- Relocate deep dive `K4_STRATEGY.md` to `docs/sections/K4.md`; keep top-level index lean.
+- Add `DEPRECATIONS.md` capturing removal timeline (legacy `src/*`, shims, soon direct K3 decrypt
+alias).
+- Merge autopilot usage details from `TOMORROW_PLAN.md` into `AUTOPILOT.md`; archive the plan file.
+- Update `10KFT.md` to reflect unified section packages, removal of legacy duplicates, and canonical
+reporting.
+- Introduce `docs/ARCHIVE/` index listing archived files with brief rationale.
+
 - Replace raw sleeps with a scheduler/backoff helper.
 - Unify configuration into `kryptos/config` with validation (dataclasses + type checks or pydantic).
 - Eliminate any side-effect executing imports.
 - Remove `mock_stage.py` if not upgraded to a proper example.
 
 ## No-Shim Enforcement Checklist
+
 Before merging a structural PR:
+
 - [ ] No file named `shim` or containing 're-export shim' comment.
 - [ ] No import fallback ladders (single, direct import paths only).
 - [ ] No duplicate filename existing in two library paths.
@@ -105,11 +150,13 @@ logger).
 - [ ] `.egg-info` not tracked.
 
 ## Test & Verification Additions
+
 - New tests for: root/path helpers, artifact path builder, logging setup idempotence, scoring new
 features, stage adapters, deprecation warnings emission.
 - Coverage gate ensures removed duplicates do not leave untested gaps.
 
 ## Metrics We Will Track Post-Cleanup
+
 | Metric | Current (est.) | Target |
 | ------ | -------------- | ------ |
 | Duplicate module pairs | 2+ | 0 |
@@ -120,12 +167,20 @@ features, stage adapters, deprecation warnings emission.
 | Unimplemented TODOs in scoring | 3 | 0 |
 
 ## Open Questions (Resolve During Phase A)
+
 - Keep or remove unfinished Berlin clock scoring stub? (Decide: integrate or delete.)
 - Implement cryptographic stubs vs future roadmap? (Delete now; reintroduce when spec defined.)
 - Argparse vs click for CLI? (Default argparse unless complex UX required.)
 
 ## Immediate Next Step
-Proceed with Phase A migration (move `src/k4` into `src/kryptos/k4`, update imports, delete
-duplicate scoring & reporting shim) WITHOUT adding compatibility shims.
 
---- Last updated: 2025-10-23
+Reporting & paths consolidation: migrate any remaining reporting shim to `kryptos/reporting.py`,
+introduce `kryptos/paths.py` + `kryptos/logging.py`, then delete stale references.
+
+Verification note: Physical duplicate directories under `src/` (`src/k4`, `src/scoring`,
+`src/stages`) and legacy duplicate modules (`src/analysis.py`, `src/ciphers.py`, `src/report.py`)
+removed; canonical reporting at `kryptos/reporting.py`; `src/__init__.py` shim removed (no `src`
+imports remain); `main.py` removed (example now under scripts/experimental/examples); autopilot demo
+compatibility shim deleted and tests updated to canonical path; tests green (154 passed, 4 skipped).
+
+--- Last updated: 2025-10-23T20:25Z (section packages + K4 decrypt_best + SECTIONS doc updated)

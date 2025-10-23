@@ -1,6 +1,6 @@
 """Tiny K4 demo runner.
 
-Runs a short, fast composite pipeline using existing stage factories in src.k4
+Runs a short, fast composite pipeline using existing stage factories in kryptos.k4
 and writes artifacts under artifacts/demo/run_<ts>/.
 
 This is intended to be fast and safe for CI/local experimentation.
@@ -8,39 +8,19 @@ This is intended to be fast and safe for CI/local experimentation.
 
 from __future__ import annotations
 
-import os
-import sys
 from datetime import datetime
 from pathlib import Path
 
+from kryptos.k4 import (
+    make_hill_constraint_stage,
+    make_masking_stage,
+    persist_attempt_logs,
+    run_composite_pipeline,
+)
+
 
 def run_demo(limit: int = 10):
-    # Prefer installed package import, fall back to src/ in workspace or adding project root
-    try:
-        from kryptos.src.k4 import (
-            make_hill_constraint_stage,
-            make_masking_stage,
-            persist_attempt_logs,
-            run_composite_pipeline,
-        )
-    except ImportError:
-        try:
-            from src.k4 import (
-                make_hill_constraint_stage,
-                make_masking_stage,
-                persist_attempt_logs,
-                run_composite_pipeline,
-            )
-        except ImportError:
-            PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-            if PROJECT_ROOT not in sys.path:
-                sys.path.insert(0, PROJECT_ROOT)
-            from src.k4 import (
-                make_hill_constraint_stage,
-                make_masking_stage,
-                persist_attempt_logs,
-                run_composite_pipeline,
-            )
+    # Unified import (legacy src.k4 removed)
 
     # tiny cipher and minimal stages for demo speed
     cipher = 'OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTW'

@@ -13,9 +13,9 @@ Related documents / breadcrumbs:
 
 - Top priorities (next iteration):
 
-- [ ] 1) Finish focused unit tests for `src/k4/scoring.py` to cover edge branches and rare code
+- [ ] 1) Finish focused unit tests for `kryptos/k4/scoring.py` to cover edge branches and rare code
 paths. Acceptance: scoring tests green and file coverage >= 95%.
-- [ ] 2) Add unit tests for `src/k4/transposition.py` covering early-exit/route edge cases.
+- [ ] 2) Add unit tests for `kryptos/k4/transposition.py` covering early-exit/route edge cases.
 Acceptance: transposition tests green and file coverage >= 90%.
 - [ ] 3) Wire and validate a deterministic tiny tuning sweep (canonical:
 `scripts/tuning/crib_weight_sweep.py`) with small budgets. Acceptance: artifacts written to
@@ -35,9 +35,9 @@ below.
 
 Timetable (practical schedule)
 
-- Day 0 (now, 0–4 hours): finish scoring tests (in-progress). Acceptance: `src/k4/scoring.py` >95%
-coverage; tests green locally.
-- Day 0 (next 2–4 hours): add transposition tests. Acceptance: `src/k4/transposition.py` >90%
+- Day 0 (now, 0–4 hours): finish scoring tests (in-progress). Acceptance: `kryptos/k4/scoring.py`
+>95% coverage; tests green locally.
+- Day 0 (next 2–4 hours): add transposition tests. Acceptance: `kryptos/k4/transposition.py` >90%
 coverage; tests green.
 - Day 0–1 (3–6 hours): wire tiny deterministic tuning sweep (4 combos) in
 `scripts/tune_pipeline.py`. Acceptance: `artifacts/tuning_runs/*.csv` with 4 rows and headers.

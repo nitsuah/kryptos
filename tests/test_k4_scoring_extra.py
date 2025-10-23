@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from k4 import scoring
+from kryptos.k4 import scoring
 
 
 def test_berlin_clock_validator_variants():

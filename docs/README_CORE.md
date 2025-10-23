@@ -52,7 +52,7 @@ gating.
 - Scoring utilities: n-grams, chi-square, crib & positional bonuses, entropy and wordlist heuristics
 - Tuning harness and a minimal daemon runner for long-running sweeps (`scripts/daemon_runner.py`)
 
-## Modules (under `src/k4/`)
+## Modules (under `kryptos/k4/`)
 
 - `scoring.py` — scoring primitives and composite functions
 - `hill_cipher.py`, `hill_constraints.py` — hill math and constrained key derivation
@@ -82,13 +82,21 @@ from k4.pipeline import make_hill_constraint_stage, make_masking_stage
 from k4.executor import PipelineConfig, PipelineExecutor
 
 stages = [
-	make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=40, partial_min=-900.0),
-	make_masking_stage(name="masking", null_chars=["X"], limit=15),
+    make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=40, partial_min=-900.0),
+    make_masking_stage(name="masking", null_chars=["X"], limit=15),
 ]
-cfg = PipelineConfig(ordering=stages, candidate_cap_per_stage=25, pruning_top_n=10,
-					 crib_bonus_threshold=5.0, adaptive_thresholds={"hill": -500.0},
-					 artifact_root="artifacts", artifact_run_subdir="k4_runs", label="sample-run", enable_attempt_log=True,
-					 parallel_hill_variants=0)
+cfg = PipelineConfig(
+    ordering=stages,
+    candidate_cap_per_stage=25,
+    pruning_top_n=10,
+    crib_bonus_threshold=5.0,
+    adaptive_thresholds={"hill": -500.0},
+    artifact_root="artifacts",
+    artifact_run_subdir="k4_runs",
+    label="sample-run",
+    enable_attempt_log=True,
+    parallel_hill_variants=0,
+)
 PipelineExecutor(cfg).run("OBKRUOXOGHULBSOLIFB")
 ```
 

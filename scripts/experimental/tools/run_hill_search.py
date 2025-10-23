@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """DEPRECATED: ad-hoc hill search harness.
 
-All reusable Hill logic lives in `src/k4/hill_search.py` and `src/k4/hill_constraints.py`.
+All reusable Hill logic now lives in `kryptos/k4/hill_search.py` and `kryptos/k4/hill_constraints.py`.
 Planned removal after hypothesis adapter lands.
 
 Replacement usage:
-    from k4.hill_search import score_decryptions  # type: ignore
+    from kryptos.k4 import hill_search
+    score_decryptions = hill_search.score_decryptions
     score_decryptions(ciphertext, keys, limit=1000)
 """
 
@@ -14,7 +15,6 @@ from __future__ import annotations
 import argparse
 import datetime
 import random
-import sys
 from pathlib import Path
 
 
@@ -46,15 +46,10 @@ def main() -> int:
     parser.add_argument('--out', type=str, default=None)
     args = parser.parse_args()
 
-    repo = Path.cwd()
-    if repo not in sys.path:
-        sys.path.insert(0, str(repo / 'src'))
+    from kryptos.k4 import hill_search  # type: ignore
 
-    try:
-        from k4.hill_search import score_decryptions  # type: ignore
-    except ImportError as e:
-        print('Failed to import k4.hill_search (deprecated script):', e)
-        return 2
+    score_decryptions = hill_search.score_decryptions
+    repo = Path.cwd()
 
     # read ciphertext
     cpath = Path(args.cipher)

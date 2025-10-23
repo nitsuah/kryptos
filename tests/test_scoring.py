@@ -1,6 +1,6 @@
 import math
 
-import k4.scoring as scoring
+from kryptos.k4 import scoring
 
 
 def test_chi_square_empty_and_nonempty():

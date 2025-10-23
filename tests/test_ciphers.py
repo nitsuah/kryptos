@@ -7,7 +7,7 @@ import logging
 import os
 import unittest
 
-from src.ciphers import kryptos_k3_decrypt, vigenere_decrypt
+from kryptos.ciphers import kryptos_k3_decrypt, vigenere_decrypt
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

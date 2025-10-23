@@ -15,8 +15,8 @@ promoted or removed.
 
 - `spy_eval` logic moved into `src/kryptos/tuning/spy_eval.py` (old `scripts/tuning/spy_eval.py`
 deprecated).
-- Example/demo scripts relocated into `scripts/experimental/examples/` with a temporary shim at
-`scripts/examples/run_autopilot_demo.py` for tests.
+- Example/demo scripts relocated into `scripts/experimental/examples/`. All temporary shims removed;
+tests updated to point to canonical paths.
 
 ## Deprecated (Pending Removal)
 
@@ -26,11 +26,12 @@ deprecated).
 | scripts/experimental/tools/run_hill_canonical.py | Thin wrapper | k4.hill_constraints.decrypt_and_score | Next PR |
 | scripts/experimental/tools/run_pipeline_sample.py | Pipeline sample wrapper | Direct package pipeline usage | Next PR |
 | scripts/tuning/spy_eval.py | Legacy evaluation harness | kryptos.tuning.spy_eval | After stability check |
-| scripts/experimental/examples/run_full_smoke.py | Chained demo wrapper | Explicit package calls / tests | After hypothesis tests |
+| scripts/experimental/examples/run_full_smoke.py | Chained demo wrapper | Explicit package calls / tests | Pending review |
 
 ## Promotion Criteria
 
 Promote an experimental script ONLY if:
+
 - It implements novel reusable logic not present in `src/`.
 - At least one test or documented workflow depends on it AND refactoring into package improves
 reuse.
@@ -38,6 +39,7 @@ reuse.
 ## Deletion Criteria
 
 Delete a deprecated script once:
+
 - No docs reference it OR docs updated with package example.
 - No tests import or execute it.
 
@@ -45,6 +47,7 @@ Delete a deprecated script once:
 
 1. Implement Hill hypothesis adapter using existing package functions. 2. Remove deprecated hill
 wrappers once tests reference adapter. 3. Convert smoke/demo scripts to pure package examples in
-docs. 4. Re-run full test suite & update this file with completed deletions.
+docs or consolidate into CLI. 4. Re-run full test suite & update this file with completed deletions.
+5. Introduce CLI entrypoints to replace remaining example wrappers (`decrypt`, `autopilot`, `tune`).
 
 Updated: 2025-10-23 """

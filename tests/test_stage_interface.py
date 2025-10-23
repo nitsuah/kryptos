@@ -5,8 +5,7 @@ import unittest
 from collections.abc import Iterable
 from typing import Any
 
-from src.stages.interface import StageContext
-from src.stages.mock_stage import MockStage
+from kryptos.stages import MockStage, StageContext
 
 __all__ = [
     "load_ngram_data",

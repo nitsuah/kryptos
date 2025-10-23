@@ -6,26 +6,13 @@ Usage: python scripts/tools/holdout_score.py --weight 0.65 --out artifacts/repor
 
 import argparse
 import csv
-import sys
 from pathlib import Path
 
 
-def load_scoring(repo_root: Path):
-    try:
-        from kryptos.k4 import scoring as hold_scoring
+def load_scoring():
+    from kryptos.k4 import scoring as hold_scoring
 
-        return hold_scoring
-    except Exception:
-        try:
-            from src.k4 import scoring as hold_scoring
-
-            return hold_scoring
-        except Exception:
-            if str(repo_root / 'src') not in sys.path:
-                sys.path.insert(0, str(repo_root / 'src'))
-            import k4.scoring as hold_scoring
-
-            return hold_scoring
+    return hold_scoring
 
 
 def main() -> int:
@@ -34,8 +21,7 @@ def main() -> int:
     parser.add_argument('--out', type=str, default='artifacts/reports/holdout.csv')
     args = parser.parse_args()
 
-    repo_root = Path.cwd()
-    scoring = load_scoring(repo_root)
+    scoring = load_scoring()
 
     HOLDOUT = [
         'IN THE QUIET AFTERNOON THE SHADOWS GREW LONG ON THE FLOOR',
@@ -49,7 +35,7 @@ def main() -> int:
         withc = scoring.combined_plaintext_score_with_external_cribs(s, external_cribs=[], crib_weight=chosen_w)
         rows.append({'sample': s, 'base': base, 'with': withc, 'delta': withc - base})
 
-    outp = repo_root / args.out
+    outp = Path(args.out)
     outp.parent.mkdir(parents=True, exist_ok=True)
     with outp.open('w', newline='', encoding='utf-8') as fh:
         writer = csv.DictWriter(fh, fieldnames=['sample', 'base', 'with', 'delta'])

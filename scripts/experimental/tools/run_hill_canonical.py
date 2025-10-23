@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""DEPRECATED: thin wrapper around `k4.hill_constraints.decrypt_and_score`.
+"""DEPRECATED: thin wrapper around `kryptos.k4.hill_constraints.decrypt_and_score`.
 
 Replacement usage:
-    from k4 import hill_constraints as hc  # type: ignore
+    from kryptos.k4 import hill_constraints as hc
     results = hc.decrypt_and_score(ciphertext, prune_3x3=True, partial_len=60, partial_min=-800.0)
 
 Scheduled for removal after tests switch to adapter.
@@ -24,9 +24,9 @@ if str(repo / 'src') not in sys.path:
     sys.path.insert(0, str(repo / 'src'))
 
 try:
-    from k4 import hill_constraints as hc  # type: ignore
+    from kryptos.k4 import hill_constraints as hc  # canonical import
 except ImportError as e:
-    print('Failed to import k4.hill_constraints (deprecated script):', e)
+    print('Failed to import kryptos.k4.hill_constraints (deprecated script):', e)
     raise
 
 cfg = repo / 'config' / 'config.json'

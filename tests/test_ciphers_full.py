@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.ciphers import (
+from kryptos.ciphers import (
     double_rotational_transposition,
     kryptos_k3_decrypt,
     polybius_decrypt,

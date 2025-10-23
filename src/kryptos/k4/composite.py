@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ..paths import ensure_reports_dir
 from .attempt_logging import persist_attempt_logs  # new import
 from .pipeline import Pipeline, Stage, StageResult
 from .reporting import generate_candidate_artifacts
@@ -85,7 +86,7 @@ def run_composite_pipeline(
     ciphertext: str,
     stages: list[Stage],
     report: bool = True,
-    report_dir: str = 'reports',
+    report_dir: str | None = None,
     limit: int = 100,
     weights: dict[str, float] | None = None,
     normalize: bool = True,
@@ -143,6 +144,9 @@ def run_composite_pipeline(
         fused_candidates = fuse_scores_weighted(candidates_for_fusion, weights, use_normalized=normalize)
         out['fused'] = fused_candidates[:limit]
     if report:
+        # Canonicalize report_dir
+        if report_dir is None or report_dir == 'reports':
+            report_dir = str(ensure_reports_dir())
         artifact_source = fused_candidates if fused_candidates else aggregated
         candidates_for_artifact = [
             {

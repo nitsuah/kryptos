@@ -1,29 +1,35 @@
 # K4 Roadmap
 
 Detailed plan for advancing Kryptos K4 analysis.
+
 ## Roadmap Guidelines
+
 
 High-level milestones for the next phases. This is intentionally short and actionable.
 
 1. Stabilize core scoring & transposition tests
-   - Add focused unit tests for `src/k4/scoring.py` and `src/k4/transposition.py`.
-   - Acceptance: tests green and file coverage targets met (scoring >=95%, transposition >=90%).
 
-2. Tuning harness and deterministic sweeps
-   - Wire and validate a tiny deterministic tuning sweep harness
-     (`scripts/tuning/crib_weight_sweep.py`).
-   - Acceptance: reproducible CSV artifacts in `artifacts/tuning_runs/` for small grids.
+- Add focused unit tests for `kryptos/k4/scoring.py` and `kryptos/k4/transposition.py`.
+- Acceptance: tests green and file coverage targets met (scoring >=95%, transposition >=90%).
 
-3. Autopilot & SPY integration
-   - Ensure `scripts/dev/ask_triumverate.py` computes or uses a conservative SPY `min_conf` and that
-     `scripts/dev/spy_extractor.py` writes curated hints to `agents/LEARNED.md`.
+1. Tuning harness and deterministic sweeps
 
-4. Demos, CI and reproducibility
-   - Add demo runner artifacts and CI steps to validate example runs produce expected artifact
-     shapes.
+- Wire and validate a tiny deterministic tuning sweep harness
+(`scripts/tuning/crib_weight_sweep.py`).
+- Acceptance: reproducible CSV artifacts in `artifacts/tuning_runs/` for small grids.
 
-5. Long-run automation
-   - Implement the long-loop daemon/runner to rotate parameter sets and retain run history.
+1. Autopilot & SPY integration
+
+- Ensure `scripts/dev/ask_triumverate.py` computes or uses a conservative SPY `min_conf` and that
+`scripts/dev/spy_extractor.py` writes curated hints to `agents/LEARNED.md`.
+
+1. Demos, CI and reproducibility
+
+- Add demo runner artifacts and CI steps to validate example runs produce expected artifact shapes.
+
+1. Long-run automation
+
+- Implement the long-loop daemon/runner to rotate parameter sets and retain run history.
 
 ### Notes
 
@@ -33,9 +39,9 @@ smoke test.
 ## High-Level Planned Modules / Enhancements
 
 - Short term (0-7 days):
- - Harden autopilot (OPS/ SPY / Q) with conservative defaults and evaluation-driven thresholds.
- - Add tiny tuning sweep and demo pipelines; wire to artifacts/ for traceability.
- - Improve test coverage around scoring and transposition components.
+- Harden autopilot (OPS/ SPY / Q) with conservative defaults and evaluation-driven thresholds.
+- Add tiny tuning sweep and demo pipelines; wire to artifacts/ for traceability.
+- Improve test coverage around scoring and transposition components.
 Short term (0-7 days):
 - Harden autopilot (OPS/ SPY / Q) with conservative defaults and evaluation-driven thresholds.
 - Add tiny tuning sweep and demo pipelines; wire to artifacts/ for traceability.

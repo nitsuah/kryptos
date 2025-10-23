@@ -13,10 +13,10 @@ scoring heuristics.
 Related documents / quick links:
 
 - Core docs: `docs/README_CORE.md`
+- Sections API: `docs/SECTIONS.md`
 - K4 strategy: `docs/K4_STRATEGY.md`
 - Autopilot: `docs/AUTOPILOT.md`
-- Plan: `docs/PLAN.md`
-- Roadmap: `ROADMAP.md`
+- Technical debt & roadmap: `docs/TECHDEBT.md`
 
 **K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in
 copper that nobody has cracked in 30+ years. We're using Python to systematically try every
@@ -108,18 +108,15 @@ rate & trigram entropy heuristics.
 
 ## K4 Analysis Toolkit (New / Updated Modules)
 
-Located under `src/k4/`:
+Located under `kryptos/k4/` (migrated from `src/k4/`):
 
 Details and module-level examples for K4 have been moved to `docs/K4_STRATEGY.md` (K4-specific
 notes) and `docs/README_CORE.md` (code-level examples).
 
-## Roadmap
+## Roadmap & Technical Debt
 
-Detailed future plans (candidate reporting, Berlin Clock expansion, pruning heuristics, extended
-Hill search, masking strategies) have moved to `ROADMAP.md` → see the full document here: [Roadmap
-Guide](./ROADMAP.md).
-
-See full document in `docs/K4_STRATEGY.md` – includes current completion status and next actions.
+See `docs/TECHDEBT.md` for current prioritized work (sections unified, K4 composite decrypt, CLI &
+logging helpers upcoming) and `docs/K4_STRATEGY.md` for solver-specific exploration notes.
 
 ## Recent changes
 
@@ -157,32 +154,40 @@ See `LICENSE`.
 - `docs/README_CORE.md` — project reference and examples
 - `docs/K4_STRATEGY.md` — K4-specific strategy and notes
 
-If you prefer to run an example pipeline, use direct package calls (see snippet below). The old
-`scripts/experimental/tools/run_pipeline_sample.py` is deprecated.
+If you prefer to run an example pipeline, use the example script:
 
-Minimal example:
+```bash
+python -m kryptos.examples.sections_demo
+```
+
+Or invoke the composite K4 search directly:
 
 ```python
-from k4.pipeline import make_hill_constraint_stage, make_masking_stage
-from k4.executor import PipelineConfig, PipelineExecutor
+from kryptos.k4 import decrypt_best
+result = decrypt_best(K4_CIPHERTEXT, limit=40, adaptive=True)
+print(result.plaintext, result.score)
+```
+
+Minimal lower-level pipeline construction (for experimentation):
+
+```python
+from kryptos.k4.pipeline import (
+  make_hill_constraint_stage,
+  make_masking_stage,
+  make_transposition_adaptive_stage,
+  make_transposition_stage,
+  Pipeline,
+)
+from kryptos.k4.composite import run_composite_pipeline
 
 stages = [
-    make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=40, partial_min=-900.0),
-    make_masking_stage(name="masking", null_chars=["X"], limit=15),
+  make_masking_stage(limit=20),
+  make_transposition_adaptive_stage(),
+  make_transposition_stage(),
+  make_hill_constraint_stage(partial_len=50, partial_min=-850.0),
 ]
-cfg = PipelineConfig(
-    ordering=stages,
-    candidate_cap_per_stage=25,
-    pruning_top_n=10,
-    crib_bonus_threshold=5.0,
-    adaptive_thresholds={"hill": -500.0},
-    artifact_root="artifacts",
-    artifact_run_subdir="k4_runs",
-    label="sample-run",
-    enable_attempt_log=True,
-    parallel_hill_variants=0,
-)
-PipelineExecutor(cfg).run("OBKRUOXOGHULBSOLIFB")
+out = run_composite_pipeline(K4_CIPHERTEXT, stages, report=False, limit=30, adaptive=True)
+print(out['aggregated'][0]['text'])
 ```
 
 ### Artifact Layout
@@ -193,7 +198,7 @@ Pipeline-generated run directories may be grouped under an optional subdirectory
 artifacts/
   k4_runs/          # pipeline executor runs (run_YYYYMMDDTHHMMSS when artifact_run_subdir is set)
   tuning_runs/      # tuning/daemon sweep runs (run_*)
-  reports/          # reporting outputs (top candidates, aggregated attempts)
+  reports/          # reporting outputs (top candidates, aggregated attempts) (now under artifacts/)
   decisions/        # autopilot / plan artifacts (JSON summaries)
   logs/             # runtime / diagnostic logs
   output/           # miscellaneous generated outputs / crib extracts

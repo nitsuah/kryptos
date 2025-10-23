@@ -10,27 +10,14 @@ This script will:
 from __future__ import annotations
 
 import csv
-import importlib
-import sys
 import time
 from pathlib import Path
 
-_here = Path(__file__).resolve()
-ROOT = _here
-for p in _here.parents:
-    if (p / 'pyproject.toml').exists():
-        ROOT = p
-        break
-print(f'[run_sweep_on_artifact_samples] repo root resolved to {ROOT}')
-SRC = ROOT / 'src'
+from kryptos.k4 import scoring
 
-# Prefer package import; fall back to adding src/ to sys.path
-try:
-    scoring = importlib.import_module('src.k4.scoring')
-except ImportError:
-    if str(SRC) not in sys.path:
-        sys.path.insert(0, str(SRC))
-    scoring = importlib.import_module('k4.scoring')
+_here = Path(__file__).resolve()
+ROOT = next((p for p in _here.parents if (p / 'pyproject.toml').exists()), _here)
+print(f'[run_sweep_on_artifact_samples] repo root resolved to {ROOT}')
 
 
 def load_cribs(path: Path) -> list[str]:

@@ -255,6 +255,7 @@ def combined_plaintext_score(text: str) -> float:
 # Cached wrapper (memoization for repeated scoring of identical plaintexts)
 @lru_cache(maxsize=10000)
 def combined_plaintext_score_cached(text: str) -> float:
+    """Cached version of combined_plaintext_score."""
     return combined_plaintext_score(text)
 
 

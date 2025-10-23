@@ -6,15 +6,11 @@ Ensures combined_plaintext_score still returns a finite float and does not raise
 from __future__ import annotations
 
 import math
-import sys
 import unittest
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+from kryptos.k4 import scoring as scoring_mod
 
-from src.k4 import combined_plaintext_score  # noqa: E402
-from src.k4 import scoring as scoring_mod  # noqa: E402
+combined_plaintext_score = scoring_mod.combined_plaintext_score
 
 
 class TestScoringFallback(unittest.TestCase):
@@ -22,18 +18,18 @@ class TestScoringFallback(unittest.TestCase):
         text = "THISISATESTPLAINTEXTWITHSOMECOMMONTERMSBERLINCLOCK"
         original = combined_plaintext_score(text)
         # Backup original tables
-        big = scoring_mod.BIGRAMS
-        tri = scoring_mod.TRIGRAMS
-        quad = scoring_mod.QUADGRAMS
+        big = dict(scoring_mod.BIGRAMS)
+        tri = dict(scoring_mod.TRIGRAMS)
+        quad = dict(scoring_mod.QUADGRAMS)
         try:
-            scoring_mod.BIGRAMS = {}
-            scoring_mod.TRIGRAMS = {}
-            scoring_mod.QUADGRAMS = {}
+            scoring_mod.BIGRAMS.clear()
+            scoring_mod.TRIGRAMS.clear()
+            scoring_mod.QUADGRAMS.clear()
             fallback = combined_plaintext_score(text)
         finally:
-            scoring_mod.BIGRAMS = big
-            scoring_mod.TRIGRAMS = tri
-            scoring_mod.QUADGRAMS = quad
+            scoring_mod.BIGRAMS.update(big)
+            scoring_mod.TRIGRAMS.update(tri)
+            scoring_mod.QUADGRAMS.update(quad)
         self.assertIsInstance(fallback, float)
         self.assertFalse(math.isnan(fallback))
         self.assertTrue(math.isfinite(fallback))

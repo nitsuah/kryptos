@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from src.scoring.fitness import compute_meta_and_score
+from kryptos.scoring.fitness import compute_meta_and_score
+from kryptos.stages.interface import DEFAULT_WEIGHTS, CandidateResult, Stage, StageContext
 
-from .interface import DEFAULT_WEIGHTS, CandidateResult, Stage, StageContext
+__all__ = ["MockStage"]
 
 
 class MockStage(Stage):
@@ -18,6 +19,3 @@ class MockStage(Stage):
             meta = compute_meta_and_score(v, DEFAULT_WEIGHTS)
             results.append(CandidateResult(text=v, score=meta["score"], meta=meta))
         return results
-
-
-# TODO: Extend with parameter-driven generation logic.

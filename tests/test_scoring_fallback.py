@@ -5,7 +5,7 @@ import unittest
 from collections.abc import Iterable
 from typing import Any
 
-from src.scoring.fitness import score_candidate
+from kryptos.scoring.fitness import score_candidate
 
 __all__ = [
     "load_ngram_data",

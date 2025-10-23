@@ -5,7 +5,7 @@ from pathlib import Path
 def test_demo_writes_plan(tmp_path, monkeypatch):
     # Run the example demo script which writes artifacts to artifacts/demo/run_<ts>
     repo = Path(__file__).resolve().parents[1]
-    demo_script = repo / 'scripts' / 'examples' / 'run_autopilot_demo.py'
+    demo_script = repo / 'scripts' / 'experimental' / 'examples' / 'run_autopilot_demo.py'
     assert demo_script.exists(), 'demo script must exist'
 
     # Run the script

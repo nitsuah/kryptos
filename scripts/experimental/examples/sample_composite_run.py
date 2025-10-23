@@ -1,54 +1,19 @@
 """Sample composite pipeline run producing artifacts & attempt logs.
 Run after installing the package (pip install -e .).
-Falls back to temporary sys.path tweak if not installed.
+Uses unified `kryptos.k4` namespace (legacy `src.k4` removed).
 """
 
-import os
-import sys
-
-try:
-    from kryptos.src.k4 import (
-        make_berlin_clock_stage,
-        make_hill_constraint_stage,
-        make_masking_stage,
-        make_transposition_adaptive_stage,
-        make_transposition_multi_crib_stage,
-        persist_attempt_logs,
-        run_composite_pipeline,
-    )
-except Exception:
-    try:
-        from src.k4 import (
-            make_berlin_clock_stage,
-            make_hill_constraint_stage,
-            make_masking_stage,
-            make_transposition_adaptive_stage,
-            make_transposition_multi_crib_stage,
-            persist_attempt_logs,
-            run_composite_pipeline,
-        )
-    except Exception:
-        PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        if PROJECT_ROOT not in sys.path:
-            sys.path.insert(0, PROJECT_ROOT)
-        try:
-            from src.k4 import (
-                make_berlin_clock_stage,
-                make_hill_constraint_stage,
-                make_masking_stage,
-                make_transposition_adaptive_stage,
-                make_transposition_multi_crib_stage,
-                persist_attempt_logs,
-                run_composite_pipeline,
-            )
-        except ImportError as e2:
-            msg = (
-                "Failed to import 'src.k4' even after adding PROJECT_ROOT to sys.path. "
-                f"Ensure the package is installed or the source is available at '{PROJECT_ROOT}'.\n"
-                f"Original error: {e2}"
-            )
-            raise ImportError(msg) from e2
 from collections.abc import Sequence
+
+from kryptos.k4 import (
+    make_berlin_clock_stage,
+    make_hill_constraint_stage,
+    make_masking_stage,
+    make_transposition_adaptive_stage,
+    make_transposition_multi_crib_stage,
+    persist_attempt_logs,
+    run_composite_pipeline,
+)
 
 CIPHER_K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 

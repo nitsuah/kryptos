@@ -1,11 +1,127 @@
-"""K4 analysis namespace (lazy exports).
+"""K4 public API exports.
 
-To keep import side-effects low and avoid circular initialization during
-migration, heavy submodules are not imported eagerly. Public symbols are
-exposed via ``__getattr__`` on first access.
+High-level convenience entry points over internal pipeline & solver modules.
+Heavy components are imported lazily inside functions to keep import overhead low
+when only the orchestrator is required.
 """
 
+from __future__ import annotations
+
+from dataclasses import dataclass
 from importlib import import_module as _imp
+from typing import Any
+
+__all__ = ["decrypt_best", "DecryptResult"]
+
+
+@dataclass(slots=True)
+class DecryptResult:
+    """Structured result returned by :func:`decrypt_best`.
+
+    Attributes
+    ----------
+    plaintext: Best plaintext candidate selected (fused ranking if available).
+    score: Score associated with the selected plaintext.
+    candidates: Top candidate list (each a mapping with text/score/metadata) after fusion or aggregation.
+    profile: Execution profiling / diagnostics (stage durations, adaptive diagnostics, etc.).
+    artifacts: Optional artifact file paths produced (reports, attempt logs, etc.).
+    attempt_log: Optional attempt log path.
+    lineage: Ordered list of stage names executed.
+    metadata: Free-form extra metadata (versioning, strategy labels, parameters).
+    """
+
+    plaintext: str
+    score: float
+    candidates: list[dict[str, Any]]
+    profile: dict[str, Any]
+    artifacts: dict[str, Any] | None = None
+    attempt_log: str | None = None
+    lineage: list[str] | None = None
+    metadata: dict[str, Any] | None = None
+
+
+def decrypt_best(
+    ciphertext: str,
+    *,
+    strategy: str = "default",
+    limit: int = 50,
+    weights: dict[str, float] | None = None,
+    adaptive: bool = False,
+    report: bool = False,
+    report_dir: str = "reports",
+) -> DecryptResult:
+    """Run a composite multi-stage search and return the best plaintext candidate.
+
+    Parameters
+    ----------
+    ciphertext: Raw K4 ciphertext (whitespace preserved; internal logic will trim as needed).
+    strategy: Named stage bundle; currently only "default" recognized.
+    limit: Max number of aggregated (and fused) candidates retained.
+    weights: Optional manual stage weights for fusion (stage name -> weight).
+        If ``adaptive`` is True provided weights are ignored.
+    adaptive: If True, derive weights heuristically from candidate linguistic metrics.
+    report: If True, generate artifact bundle (PNG, JSON summaries) under report_dir.
+    report_dir: Directory root for artifacts.
+
+    Returns
+    -------
+    DecryptResult: Structured result with best plaintext & diagnostics.
+    """
+
+    # Lazy imports to avoid heavy module cost on import
+    from .composite import run_composite_pipeline
+    from .pipeline import (
+        Stage,
+        make_berlin_clock_stage,
+        make_masking_stage,
+        make_transposition_adaptive_stage,
+        make_transposition_stage,
+    )
+
+    clean_ct = ''.join(ciphertext.split())
+
+    if strategy != "default":  # placeholder for future strategies
+        raise ValueError(f"Unknown strategy '{strategy}' (only 'default' currently supported)")
+
+    # Default stage bundle (ordered): masking -> adaptive transposition -> transposition -> berlin clock
+    stages: list[Stage] = [
+        make_masking_stage(limit=30),
+        make_transposition_adaptive_stage(),
+        make_transposition_stage(),
+        make_berlin_clock_stage(limit=40),
+    ]
+
+    pipeline_out = run_composite_pipeline(
+        clean_ct,
+        stages=stages,
+        report=report,
+        report_dir=report_dir,
+        limit=limit,
+        weights=weights,
+        adaptive=adaptive,
+    )
+
+    fused = pipeline_out.get("fused") or []
+    aggregated = pipeline_out.get("aggregated", [])
+    best_list = fused if fused else aggregated
+    best_plain = best_list[0]["text"] if best_list else clean_ct
+    best_score = best_list[0].get("fused_score", best_list[0].get("score", 0.0)) if best_list else 0.0
+    lineage = [r.name for r in pipeline_out.get("results", [])]
+    artifacts = pipeline_out.get("artifacts")
+    attempt_log = pipeline_out.get("attempt_log")
+    profile = pipeline_out.get("profile", {})
+    metadata = {"stage_strategy": strategy}
+    return DecryptResult(
+        plaintext=best_plain,
+        score=best_score,
+        candidates=best_list,
+        profile=profile,
+        artifacts=artifacts,
+        attempt_log=attempt_log,
+        lineage=lineage,
+        metadata=metadata,
+    )
+
 
 _LAZY_MAP = {
     # Pipeline & stages
@@ -30,6 +146,10 @@ _LAZY_MAP = {
     'baseline_stats': ('kryptos.k4.scoring', 'baseline_stats'),
     'quadgram_score': ('kryptos.k4.scoring', 'quadgram_score'),
     'crib_bonus': ('kryptos.k4.scoring', 'crib_bonus'),
+    # Segmentation utilities
+    'generate_partitions': ('kryptos.k4.segmentation', 'generate_partitions'),
+    'partitions_for_k4': ('kryptos.k4.segmentation', 'partitions_for_k4'),
+    'slice_by_partition': ('kryptos.k4.segmentation', 'slice_by_partition'),
     # Transposition core
     'apply_columnar_permutation': ('kryptos.k4.transposition', 'apply_columnar_permutation'),
     'search_columnar': ('kryptos.k4.transposition', 'search_columnar'),
@@ -80,6 +200,8 @@ _LAZY_MAP = {
     # Cribs utilities
     'annotate_cribs': ('kryptos.k4.cribs', 'annotate_cribs'),
     'normalize_cipher': ('kryptos.k4.cribs', 'normalize_cipher'),
+    # Substitution solver
+    'solve_substitution': ('kryptos.k4.substitution_solver', 'solve_substitution'),
     # Module objects (allow `from kryptos.k4 import transposition` etc.)
     # (Handled by explicit module passthroughs below rather than lazy attr lookup.)
 }

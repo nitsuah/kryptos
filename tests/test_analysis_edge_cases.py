@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.analysis import check_cribs, frequency_analysis
+from kryptos.analysis import check_cribs, frequency_analysis
 
 
 class TestAnalysisEdgeCases(unittest.TestCase):

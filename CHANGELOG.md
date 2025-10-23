@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- 2025-10-23: Migrated legacy `src/k4/` package into unified `kryptos/k4/` namespace; updated
+imports, tests, and docs; removed path mutation side-effects from sample scripts.
+
 - 2025-10-22: Introduced autopilot flow (Q/OPS/SPY), SPY evaluation harness and conservative
 extractor, demo smoke CI workflow, and packaging & docs improvements.- Pending: route scoring
 refinement, multiprocessing, advanced Hill assemblies.

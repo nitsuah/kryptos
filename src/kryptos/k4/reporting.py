@@ -12,6 +12,7 @@ import os
 from collections.abc import Sequence
 from datetime import datetime
 
+from ..paths import ensure_reports_dir
 from .scoring import baseline_stats
 
 
@@ -29,11 +30,14 @@ def write_candidates_json(
     cipher_label: str,
     ciphertext: str,
     candidates: list[dict],
-    output_path: str = 'reports/k4_candidates.json',
+    output_path: str | None = None,
     limit: int = 50,
     lineage: list[str] | None = None,
 ) -> str:
     """Write detailed candidate list (limited) to JSON. Returns path."""
+    if output_path is None:
+        base = ensure_reports_dir()
+        output_path = str(base / 'k4_candidates.json')
     _ensure_dir(os.path.dirname(output_path) or '.')
     ranked = sorted(candidates, key=lambda c: c.get('score', 0.0), reverse=True)[:limit]
     enriched = []
@@ -71,10 +75,13 @@ def write_candidates_json(
 
 def write_candidates_csv(
     candidates: list[dict],
-    output_path: str = 'reports/k4_candidates.csv',
+    output_path: str | None = None,
     limit: int = 50,
 ) -> str:
     """Write summary CSV: rank, score, source, key_hash, text_prefix. Returns path."""
+    if output_path is None:
+        base = ensure_reports_dir()
+        output_path = str(base / 'k4_candidates.csv')
     _ensure_dir(os.path.dirname(output_path) or '.')
     ranked = sorted(candidates, key=lambda c: c.get('score', 0.0), reverse=True)[:limit]
     with open(output_path, 'w', newline='', encoding='utf-8') as fh:
@@ -99,12 +106,14 @@ def generate_candidate_artifacts(
     cipher_label: str,
     ciphertext: str,
     candidates: list[dict],
-    out_dir: str = 'reports',
+    out_dir: str | None = None,
     limit: int = 50,
     write_csv: bool = True,
     lineage: list[str] | None = None,
 ) -> dict[str, str]:
     """Generate JSON (and optionally CSV) artifacts; return dict of paths."""
+    if out_dir is None:
+        out_dir = str(ensure_reports_dir())
     _ensure_dir(out_dir)
     json_path = os.path.join(out_dir, 'k4_candidates.json')
     paths = {

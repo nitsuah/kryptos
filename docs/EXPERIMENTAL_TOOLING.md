@@ -1,4 +1,4 @@
-"""Experimental Tooling Inventory ================================
+# Experimental Tooling Inventory ================================
 
 Overview of scripts under `scripts/experimental/` with purpose and disposition.
 
@@ -24,6 +24,7 @@ Overview of scripts under `scripts/experimental/` with purpose and disposition.
 | tools/k3_double_rotation.py | Demonstrates K3 double rotation | Keep |
 
 Promotion Candidate Notes:
+
 - Reporting-focused tools (condensed report, top candidates) could become `kryptos.report` helpers.
 - Holdout scoring may move into `kryptos.scoring` if reused by tests or CI.
 
