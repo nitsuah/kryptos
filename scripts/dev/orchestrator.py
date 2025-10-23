@@ -70,7 +70,7 @@ def simulate_action(persona_name: str, persona_text: str) -> str:
             plan = persona_text.split('PLAN_CHECK:', 1)[1].strip()
             # if the plan requests a recommendation, produce a short deterministic suggestion
             if any(k in plan.lower() for k in ('recommend', 'best next', 'choose', 'what is best')):
-                rec, just = recommend_next_action()
+                rec, just, _meta = recommend_next_action()
                 return f"Q_SUMMARY:\tRecommendation -> {rec}. {just} LEARN: tooling_ready"
             return f"Q_SUMMARY:\tPlan reviewed -> {plan}. Prepared tooling scaffold (placeholder). LEARN: tooling_ready"
         return "Q_SUMMARY:\tPrepared tooling scaffold (placeholder). LEARN: tooling_ready"
@@ -82,40 +82,56 @@ def simulate_action(persona_name: str, persona_text: str) -> str:
     return "UNKNOWN_PERSONA"
 
 
-def recommend_next_action() -> tuple[str, str]:
-    """Return a short (1-line) recommendation and a one-sentence justification.
+def recommend_next_action() -> tuple[str, str, dict]:
+    """Return a structured plan dict describing the recommended next action.
 
-    Deterministic quick policy used for fast triage:
-      - If OPS automation isn't present, recommend finishing OPS automation.
-      - Else if there are tuning artifacts but no SPY extractor, recommend implementing SPY extractor.
-      - Otherwise recommend pushing the branch and opening a PR.
+    We produce both a human-friendly short recommendation and a structured
+    plan so callers can act programmatically. The returned tuple is:
+      (recommendation_text: str, justification: str, plan: dict)
+
+    Minimal plan schema:
+      { 'action': 'run_ops'|'analyze_artifacts'|'push_pr'|'noop',
+        'params': {...},
+        'metadata': {...}
+      }
     """
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     tr_dir = os.path.join(repo_root, 'artifacts', 'tuning_runs')
     has_artifacts = os.path.exists(tr_dir) and any(os.path.isdir(os.path.join(tr_dir, d)) for d in os.listdir(tr_dir))
+
     # detect a simple SPY extractor presence
     spy_extractor_path = os.path.join(repo_root, 'scripts', 'dev', 'spy_extractor.py')
     has_spy = os.path.exists(spy_extractor_path)
+
     # detect ops_run_tuning presence: prefer an in-module callable or the presence of the sweep script
     has_ops = callable(globals().get('ops_run_tuning'))
     if not has_ops:
         sweep_script = os.path.join(repo_root, 'scripts', 'tuning', 'crib_weight_sweep.py')
         has_ops = os.path.exists(sweep_script)
 
+    metadata = {
+        'has_artifacts': bool(has_artifacts),
+        'has_spy': bool(has_spy),
+        'has_ops': bool(has_ops),
+        'tuning_runs_dir': tr_dir,
+    }
+
     if not has_ops:
-        return (
-            'finish OPS automation',
-            'OPS automation is not available programmatically yet, so enable OPS to run tuning end-to-end.',
-        )
+        rec = 'finish OPS automation'
+        just = 'OPS automation is not available programmatically yet, so enable OPS to run tuning end-to-end.'
+        plan = {'action': 'noop', 'params': {}, 'metadata': metadata}
+        return rec, just, plan
+
     if has_artifacts and not has_spy:
-        return (
-            'implement SPY extractor',
-            'there are tuning artifacts to analyze but no SPY extractor to summarize conservative cribs.',
-        )
-    return (
-        "push branch & open PR",
-        "the code, tests, and basic automation are in place; opening a PR captures the changes and requests review.",
-    )
+        rec = 'implement SPY extractor'
+        just = 'there are tuning artifacts to analyze but no SPY extractor to summarize conservative cribs.'
+        plan = {'action': 'analyze_artifacts', 'params': {'run_dir': tr_dir}, 'metadata': metadata}
+        return rec, just, plan
+
+    rec = 'push branch & open PR'
+    just = 'the code, tests, and basic automation are in place; opening a PR captures the changes and requests review.'
+    plan = {'action': 'push_pr', 'params': {}, 'metadata': metadata}
+    return rec, just, plan
 
 
 def ops_run_tuning(

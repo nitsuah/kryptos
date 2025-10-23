@@ -37,15 +37,37 @@ def run_plan_check(
 
     # If autopilot enabled and no explicit plan_text provided, ask triumverate for next action.
     if autopilot and not plan_text:
-        rec, just = orch.recommend_next_action()
+        rec, just, plan = orch.recommend_next_action()
         plan_text = f"Recommendation: {rec}. Reason: {just}"
         print(f"[AUTOPILOT] Triumverate recommends: {rec} -- {just}")
 
         # Execute a small set of safe, idempotent actions automatically when recommended.
-        rec_lower = rec.lower()
-        # If triumverate wants an OPS run and ops_run_tuning is available, run it.
-        if 'ops' in rec_lower or ('run' in rec_lower and 'crib' in rec_lower):
-            if hasattr(orch, 'ops_run_tuning'):
+        # Use the structured plan.action for deterministic dispatch.
+        action = plan.get('action') if isinstance(plan, dict) else None
+
+        # If triumverate asks to run OPS or analyze artifacts, run it.
+        if action in ('run_ops', 'analyze_artifacts'):
+            # Prefer the existing manager daemon's run_sweep if it's available to avoid
+            # duplicating sweep logic and respect the canonical manager implementation.
+            run_path = None
+            try:
+                from scripts.dev import manager_daemon as mgr  # type: ignore
+
+                try:
+                    print(f"[AUTOPILOT] Executing manager_daemon.run_sweep (dry_run={dry_run})...")
+                    # manager.run_sweep expects a param mapping; use a small default grid
+                    params = {'pruning_top_n': 15, 'candidate_cap': 40}
+                    csv_path = mgr.run_sweep(params, dry_run=dry_run)
+                    run_path = csv_path.parent
+                    if run_path:
+                        print(f"[AUTOPILOT] Manager wrote tuning artifacts to: {run_path}")
+                except Exception:
+                    run_path = None
+            except Exception:
+                # manager not available; fall back to orchestrator's OPS hook if present
+                run_path = None
+
+            if run_path is None and hasattr(orch, 'ops_run_tuning'):
                 try:
                     print(f"[AUTOPILOT] Executing recommended OPS run (dry_run={dry_run})...")
                     run_path = orch.ops_run_tuning(weights=weights, dry_run=dry_run)
@@ -105,8 +127,9 @@ def run_plan_check(
                     print(f"[AUTOPILOT] OPS execution failed: {e}")
 
         # If triumverate recommends pushing a branch & opening a PR, attempt to use gh cli.
-        if 'push' in rec_lower and 'pr' in rec_lower or 'open pr' in rec_lower:
+        if action == 'push_pr':
             try:
+                import shutil
                 import subprocess
 
                 # try to create a PR with gh if available
@@ -138,18 +161,9 @@ def run_plan_check(
                         finally:
                             tf.close()
 
-                # use --body-file to include decision; fall back to --fill
-                cmd = ['gh', 'pr', 'create']
-                if body_file:
-                    cmd += ['--body-file', body_file, '--fill']
-                else:
-                    cmd += ['--fill', '--web']
-                res = subprocess.run(cmd, cwd=str(repo_root))
-                if res.returncode == 0:
-                    print('[AUTOPILOT] gh CLI launched PR creation flow (or created PR).')
-                else:
-                    print('[AUTOPILOT] gh CLI not available or failed; printing compare URL instead.')
-                    # fallback: print compare URL using current branch name and decision contents
+                # if gh isn't on PATH, skip trying to run it and fall back to printing compare URL
+                if shutil.which('gh') is None:
+                    print('[AUTOPILOT] gh CLI not found; skipping gh PR creation and printing compare URL.')
                     br = subprocess.check_output(
                         ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
                         cwd=str(repo_root),
@@ -160,7 +174,6 @@ def run_plan_check(
                         cwd=str(repo_root),
                         encoding='utf-8',
                     ).strip()
-                    # normalise origin url to https://github.com/<owner>/<repo>.git
                     if origin.endswith('.git'):
                         origin = origin[:-4]
                     if origin.startswith('git@'):
@@ -171,6 +184,39 @@ def run_plan_check(
                         print('\n--- Decision preview ---')
                         print(open(body_file, encoding='utf-8').read())
                         print('--- End decision preview ---\n')
+                else:
+                    # use --body-file to include decision; fall back to --fill
+                    cmd = ['gh', 'pr', 'create']
+                    if body_file:
+                        cmd += ['--body-file', body_file, '--fill']
+                    else:
+                        cmd += ['--fill', '--web']
+                    res = subprocess.run(cmd, cwd=str(repo_root))
+                    if res.returncode == 0:
+                        print('[AUTOPILOT] gh CLI launched PR creation flow (or created PR).')
+                    else:
+                        print('[AUTOPILOT] gh CLI failed; printing compare URL instead.')
+                        br = subprocess.check_output(
+                            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+                            cwd=str(repo_root),
+                            encoding='utf-8',
+                        ).strip()
+                        origin = subprocess.check_output(
+                            ['git', 'remote', 'get-url', 'origin'],
+                            cwd=str(repo_root),
+                            encoding='utf-8',
+                        ).strip()
+                        # normalise origin url to https://github.com/<owner>/<repo>.git
+                        if origin.endswith('.git'):
+                            origin = origin[:-4]
+                        if origin.startswith('git@'):
+                            origin = origin.replace(':', '/').replace('git@', 'https://')
+                        compare = f"{origin}/compare/main...{br}?expand=1"
+                        print(f'[AUTOPILOT] PR compare URL: {compare}')
+                        if body_file:
+                            print('\n--- Decision preview ---')
+                            print(open(body_file, encoding='utf-8').read())
+                            print('--- End decision preview ---\n')
             except Exception as e:
                 print(f"[AUTOPILOT] Failed to create PR automatically: {e}")
 
@@ -306,7 +352,7 @@ def run_plan_check(
                                         if chosen_w is not None:
                                             withc = hold_scoring.combined_plaintext_score_with_external_cribs(
                                                 s,
-                                                cribs=[],
+                                                external_cribs=[],
                                                 crib_weight=chosen_w,
                                             )
                                         else:
