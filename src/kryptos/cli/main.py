@@ -7,6 +7,7 @@ from pathlib import Path
 from kryptos.k4 import decrypt_best
 from kryptos.k4 import scoring as k4_scoring
 from kryptos.k4.attempt_logging import persist_attempt_logs
+from kryptos.k4.report import write_condensed_report, write_top_candidates_markdown
 from kryptos.k4.tuning import (
     pick_best_weight_from_rows,
     run_crib_weight_sweep,
@@ -15,6 +16,7 @@ from kryptos.k4.tuning import (
 from kryptos.k4.tuning.artifacts import end_to_end_process
 from kryptos.k4.tuning.crib_sweep import WeightSweepRow
 from kryptos.sections import SECTIONS
+from kryptos.spy import extract as spy_module_extract
 from kryptos.tuning import spy_eval
 
 
@@ -132,6 +134,15 @@ def build_parser() -> argparse.ArgumentParser:
     sp_spy_extract.add_argument('--runs', type=Path, default=Path('artifacts/tuning_runs'), help='Root runs directory')
     sp_spy_extract.add_argument('--min-conf', type=float, default=0.25, help='Minimum confidence threshold')
     sp_spy_extract.set_defaults(func=cmd_spy_extract)
+
+    sp_tuning_report = sub.add_parser(
+        'tuning-report',
+        help='Generate condensed CSV and top candidates markdown for a run',
+    )
+    sp_tuning_report.add_argument('--run-dir', type=Path, required=True, help='Path to tuning run directory')
+    sp_tuning_report.add_argument('--top-n', dest='top_n', type=int, default=10, help='Top candidates markdown limit')
+    sp_tuning_report.add_argument('--no-markdown', action='store_true', help='Skip markdown generation')
+    sp_tuning_report.set_defaults(func=cmd_tuning_report)
     return p
 
 
@@ -258,14 +269,27 @@ def cmd_spy_eval(args: argparse.Namespace) -> int:
 
 
 def cmd_spy_extract(args: argparse.Namespace) -> int:
-    # leverage spy_eval.run_extractor_on_run per run
+    # Use new spy module extraction (latest run only) or iterate runs
     tokens_by_run = {}
     for run_dir in args.runs.iterdir():
         if run_dir.is_dir() and run_dir.name.startswith('run_'):
-            toks = spy_eval.run_extractor_on_run(run_dir, min_conf=args.min_conf)
-            if toks:
-                tokens_by_run[run_dir.name] = sorted(toks)
+            matches = spy_module_extract(min_conf=args.min_conf, run_dir=run_dir)
+            if matches:
+                tokens_by_run[run_dir.name] = sorted({t for m in matches for t in m.tokens})
     print(json.dumps({'min_conf': args.min_conf, 'extracted': tokens_by_run}, indent=2))
+    return 0
+
+
+def cmd_tuning_report(args: argparse.Namespace) -> int:
+    if not args.run_dir.exists() or not args.run_dir.is_dir():
+        print(json.dumps({'error': 'run_dir_not_found', 'path': str(args.run_dir)}))
+        return 2
+    condensed_path = write_condensed_report(args.run_dir)
+    md_path = None
+    if not args.no_markdown:
+        md_path = write_top_candidates_markdown(args.run_dir, top_n=args.top_n)
+    out = {'condensed_csv': str(condensed_path), 'markdown': str(md_path) if md_path else None}
+    print(json.dumps(out, indent=2))
     return 0
 
 

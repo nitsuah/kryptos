@@ -70,6 +70,11 @@ def _make_fake_run(root: Path) -> Path:
         'weight,sample,baseline,with_cribs,delta\n1.0,SAMP,0.0,1.0,1.0\n',
         encoding='utf-8',
     )
+    # add a detail file to allow condensed report
+    (run_dir / 'weight_1_0_details.csv').write_text(
+        'sample,delta\nSAMP,1.0\n',
+        encoding='utf-8',
+    )
     return run_dir
 
 
@@ -104,3 +109,13 @@ def test_spy_extract(tmp_path: Path, capsys):
     out = capsys.readouterr().out
     data = json.loads(out)
     assert 'min_conf' in data and 'extracted' in data
+
+
+def test_tuning_report(tmp_path: Path, capsys):
+    runs_root = tmp_path / 'tuning_runs'
+    run_dir = _make_fake_run(runs_root)
+    _invoke(['tuning-report', '--run-dir', str(run_dir), '--top-n', '1'])
+    out = capsys.readouterr().out
+    data = json.loads(out)
+    assert 'condensed_csv' in data
+    assert data['markdown'] is not None

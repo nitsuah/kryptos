@@ -98,10 +98,11 @@ def append_learned(note: str) -> str:
     return line
 
 
-def extract(min_conf: float = 0.0, cribs_path: Path = CRIBS_DEFAULT) -> list[SpyMatch]:
+def extract(min_conf: float = 0.0, cribs_path: Path = CRIBS_DEFAULT, run_dir: Path | None = None) -> list[SpyMatch]:
+    """Extract SPY matches for a given run directory (or latest if None)."""
     cribs = load_cribs(cribs_path)
-    run = find_latest_run()
-    if not run:
+    run = run_dir if run_dir is not None else find_latest_run()
+    if run is None:
         return []
     matches = scan_run(run, cribs)
     kept: list[SpyMatch] = []

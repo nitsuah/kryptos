@@ -62,7 +62,7 @@ run_ops_tiny_sweep)
 | run_sweep_on_artifact_samples.py | REMOVE | Covered by weight sweep CLI. |
 | clean_and_summarize_matches.py | REMOVE | end_to_end_process covers. |
 | summarize_crib_hits.py | REMOVE | crib_hit_counts integrated. |
-| aggregate_spy_phrases.py | MIGRATE | Fold into future kryptos.spy aggregation API. |
+| aggregate_spy_phrases.py | REMOVE (Replaced) | Logic in `kryptos.spy.aggregate_phrases`. |
 | extract_spy_cribs.py | AUDIT | Security/determinism review before promotion. |
 | collect_sanborn_sources.py | KEEP | External fetch helper; possible relocation. |
 | k3_double_rotation.py | HISTORICAL | Preserve; move to docs/archive/. |
@@ -78,7 +78,7 @@ run_ops_tiny_sweep)
 | autopilot_daemon.py | KEEP | Long-running orchestrator. |
 | cracker_daemon.py | KEEP | Worker daemon. |
 | manager_daemon.py | KEEP | Supervisor logic. |
-| spy_extractor.py | MIGRATE | Move into kryptos.spy namespace; delete after integration. |
+| (removed) spy_extractor.py | Removed (Replaced) | Logic lives in `kryptos.spy.extractor.extract`. |
 | run_plan.py | KEEP | Plan execution harness. |
 | create_pr.py | AUDIT | Check for secret leakage; potential automation move. |
 | migrate_run_artifacts.py | KEEP | Temporary migration aid. |
@@ -101,9 +101,10 @@ run_ops_tiny_sweep)
 
 ## Duplicate / Redundant Files
 
-spy_eval.py (script) removed; package implementation + CLI subcommand in place.
-generate_top_candidates.py removed; replaced by `kryptos.k4.report.write_top_candidates_markdown`.
-condensed_tuning_report.py removed; replaced by `kryptos.k4.report.write_condensed_report`.
+spy_eval.py removed; package implementation + CLI subcommand in place. generate_top_candidates.py
+removed; replaced by `kryptos.k4.report.write_top_candidates_markdown`. condensed_tuning_report.py
+removed; replaced by `kryptos.k4.report.write_condensed_report`. aggregate_spy_phrases.py removed;
+replaced by `kryptos.spy.aggregate_phrases`.
 
 ## Immediate Execution Plan (Refreshed)
 

@@ -46,7 +46,8 @@ scoring.
 - Tuning: pure functions under `kryptos.k4.tuning` (`run_crib_weight_sweep`, `tiny_param_sweep`,
 `pick_best_weight_from_rows`, artifact utilities) and tests.
 - CLI: subcommands (sections, k4-decrypt, k4-attempts, tuning-crib-weight-sweep, tuning-pick-best,
-tuning-summarize-run, tuning-tiny-param-sweep, tuning-holdout-score, spy-eval, spy-extract).
+tuning-summarize-run, tuning-tiny-param-sweep, tuning-holdout-score, tuning-report, spy-eval, spy-
+extract).
 - Artifact utilities: consolidated under `kryptos.k4.tuning.artifacts` replacing legacy summarizer
 scripts.
 
@@ -244,7 +245,7 @@ for r in rows:
 ```
 
 Legacy wrapper scripts have been removed; all functionality now lives in the CLI subcommands and
-direct APIs under `kryptos.k4.tuning.*`.
+direct APIs under `kryptos.k4.tuning.*` and `kryptos.spy` (extraction & phrase aggregation).
 
 ## Artifacts
 

@@ -16,7 +16,7 @@ Overview of scripts under `scripts/experimental/` with purpose and disposition.
 | (removed) tools/run_sweep_on_artifact_samples.py | Crib sweep on existing artifacts | Removed (weight sweep CLI supersedes) | N/A | 2025-10-23 | CLI sweep present |
 | (removed) tools/clean_and_summarize_matches.py | Clean matches & summarize | Removed (artifacts pipeline) | N/A | 2025-10-23 | end_to_end_process available |
 | (removed) tools/summarize_crib_hits.py | Count crib hits per run | Removed (artifacts pipeline) | N/A | 2025-10-23 | crib_hit_counts integrated |
-| tools/aggregate_spy_phrases.py | Aggregate SPY tokens | Migrate | Fold into future kryptos.spy aggregation API | Dec 2025 | spy namespace refactor |
+| (removed) tools/aggregate_spy_phrases.py | Aggregate SPY tokens | Removed (Replaced) | Consolidated into kryptos.spy.aggregate_phrases | 2025-10-23 | spy namespace implemented |
 | tools/extract_spy_cribs.py | Extract probable crib tokens | Audit | Security/determinism review then promote | Jan 2026 | review + tests |
 | tools/collect_sanborn_sources.py | Fetch & summarize Sanborn sources | Keep (external fetch) | Keep | -- | None |
 | tools/k3_double_rotation.py | K3 rotation demo | Keep (historical example) | Keep (tag historical) | -- | None |
@@ -31,8 +31,9 @@ into `kryptos.k4.report` (see `write_condensed_report`, `write_top_candidates_ma
 - `run_hill_search.py` → remove (diagnostic logic should live in a dedicated test or debug module if
 still needed).
 - `holdout_score.py` → evaluate for promotion if integrated into test/CI flows.
-- SPY related tools (`aggregate_spy_phrases.py`, `extract_spy_cribs.py`) may consolidate into future
-`kryptos.spy` namespace.
+- SPY related tools now partially consolidated: `aggregate_spy_phrases.py` replaced by
+`kryptos.spy.aggregate_phrases`; extractor logic migrated to `kryptos.spy.extract` (future removal
+of `scripts/dev/spy_extractor.py`). `extract_spy_cribs.py` remains under audit before promotion.
 
 Deprecation Path Legend:
 
