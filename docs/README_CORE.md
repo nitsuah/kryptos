@@ -21,7 +21,7 @@ K4-specific strategy and deep technical notes live under `docs/K4_STRATEGY.md`.
 - Technical debt tracker: `docs/TECHDEBT.md`
 - Sections API: `docs/SECTIONS.md`
 - Experimental tooling inventory: `docs/EXPERIMENTAL_TOOLING.md`
-- CLI: `kryptos --help` (sections, k4-decrypt, k4-attempts; tuning subcommands forthcoming)
+- CLI: `kryptos --help` (sections, k4-decrypt, k4-attempts, tuning-*, spy-*)
 - Tuning APIs: `kryptos.k4.tuning.*` (weight sweeps, tiny param sweeps, artifact summarization)
 - Tests: `tests/` (pytest / unittest)
 
@@ -45,7 +45,8 @@ Related documents / breadcrumbs:
 scoring.
 - Tuning: pure functions under `kryptos.k4.tuning` (`run_crib_weight_sweep`, `tiny_param_sweep`,
 `pick_best_weight_from_rows`, artifact utilities) and tests.
-- CLI: base subcommands (sections listing, k4 decrypt, attempts). Tuning subcommands in progress.
+- CLI: subcommands (sections, k4-decrypt, k4-attempts, tuning-crib-weight-sweep, tuning-pick-best,
+tuning-summarize-run, tuning-tiny-param-sweep, tuning-holdout-score, spy-eval, spy-extract).
 - Artifact utilities: consolidated under `kryptos.k4.tuning.artifacts` replacing legacy summarizer
 scripts.
 
@@ -75,20 +76,20 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-2. Run the test suite:
+1. Run the test suite:
 
 ```bash
 pytest -q  # or: python -m unittest discover -s tests
 ```
 
-3. Decrypt sections via CLI:
+1. Decrypt sections via CLI:
 
 ```bash
 kryptos sections
-kryptos k4-decrypt --limit 25 --adaptive --report
+kryptos k4-decrypt --cipher data/k4_cipher.txt --limit 25 --adaptive --report
 ```
 
-4. Programmatic K4 sample:
+1. Programmatic K4 sample:
 
 ```python
 from kryptos.k4 import decrypt_best
@@ -96,6 +97,103 @@ from kryptos.k4 import decrypt_best
 result = decrypt_best("OBKRUOXOGHULBSOLIFB", limit=25, adaptive=True, report=True)
 print(result.plaintext, result.score)
 ```
+
+## CLI Subcommands & Usage
+
+Run `kryptos --help` for full details. Core workflows:
+
+### Sections Listing
+
+```bash
+kryptos sections
+```
+
+### K4 Decrypt
+
+```bash
+kryptos k4-decrypt --cipher data/k4_cipher.txt --limit 40 --adaptive --report
+```
+
+Writes artifacts (candidates, attempts) when `--report` is used; prints JSON (plaintext, score,
+lineage).
+
+### Attempt Log Flush
+
+```bash
+kryptos k4-attempts --label k4
+```
+
+Persist in-memory attempt logs to `artifacts/attempts_<label>_<timestamp>.json`.
+
+### Crib Weight Sweep
+
+```bash
+kryptos tuning-crib-weight-sweep --weights 0.25,0.5,1.0,1.5 --cribs BERLIN,CLOCK --samples data/holdout_samples.txt --json
+```
+
+Outputs per-weight delta rows (baseline vs with-crib scoring). Omit `--json` for human-readable
+lines.
+
+### Pick Best Weight
+
+```bash
+kryptos tuning-pick-best --csv artifacts/tuning_runs/run_20251023T120000/crib_weight_sweep.csv
+```
+
+Returns `{ "best_weight": <float> }` based on the maximum mean delta.
+
+### Summarize Run
+
+```bash
+kryptos tuning-summarize-run --run-dir artifacts/tuning_runs/run_20251023T120000
+```
+
+Generates cleaned summary + crib hit counts; skip writing artifacts with `--no-write`.
+
+### Tiny Param Sweep
+
+```bash
+kryptos tuning-tiny-param-sweep
+```
+
+Deterministic miniature sweep (debug/demo).
+
+### Holdout Score
+
+```bash
+kryptos tuning-holdout-score --weight 1.0 --no-write
+```
+
+Computes mean delta for holdout sentences at the chosen crib weight; omit `--no-write` to write CSV.
+
+### SPY Evaluation
+
+```bash
+kryptos spy-eval --labels data/spy_eval_labels.csv --runs artifacts/tuning_runs --thresholds 0.0,0.25,0.5,0.75
+```
+
+Prints precision/recall/F1 metrics and best threshold.
+
+### SPY Extraction
+
+```bash
+kryptos spy-extract --runs artifacts/tuning_runs --min-conf 0.30
+```
+
+Outputs tokens per run meeting confidence threshold.
+
+### End‑to‑End Example Chain
+
+```bash
+kryptos k4-decrypt --cipher data/k4_cipher.txt --limit 50 --adaptive --report > decrypt.json
+kryptos tuning-crib-weight-sweep --weights 0.5,1.0,1.5 --cribs BERLIN,CLOCK --json > sweep.json
+kryptos tuning-pick-best --csv artifacts/tuning_runs/run_*/crib_weight_sweep.csv > best_weight.json
+kryptos tuning-holdout-score --weight 1.0 --no-write > holdout.json
+kryptos spy-eval --labels data/spy_eval_labels.csv --runs artifacts/tuning_runs --thresholds 0.0,0.25,0.5,0.75 > spy_eval.json
+kryptos spy-extract --runs artifacts/tuning_runs --min-conf 0.25 > spy_tokens.json
+```
+
+Sequence: decrypt → sweep → select weight → validate holdout → spy evaluate → spy extract.
 
 ## Tuning & Artifact Post‑Processing
 
@@ -117,8 +215,8 @@ for r in rows:
     print(r.weight, r.score_delta)
 ```
 
-Legacy wrapper scripts remain temporarily for backwards compatibility and will be replaced by CLI
-tuning subcommands (`kryptos tuning ...`).
+Legacy wrapper scripts have been removed; all functionality now lives in the CLI subcommands and
+direct APIs under `kryptos.k4.tuning.*`.
 
 ## Artifacts
 

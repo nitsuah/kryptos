@@ -120,6 +120,122 @@ logging helpers upcoming) and `docs/K4_STRATEGY.md` for solver-specific explorat
 
 ## Recent changes
 
+## CLI Usage Examples (New)
+
+The `kryptos` CLI aggregates decryption, tuning, and SPY analysis workflows. Use `kryptos --help` to
+view all subcommands. Below are common end‑to‑end examples.
+
+### List Sections
+
+```bash
+kryptos sections
+```
+
+### Composite K4 Decrypt
+
+Decrypt K4 ciphertext from a file, limit candidates, enable adaptive fusion, and write artifacts:
+
+```bash
+kryptos k4-decrypt --cipher data/k4_cipher.txt --limit 40 --adaptive --report
+```
+
+Outputs JSON containing top plaintext, score, lineage, and artifact paths. Artifacts (candidates,
+attempts) are written under `artifacts/` when `--report` is used.
+
+### Persist Attempt Logs
+
+Flush in-memory attempt logs to a timestamped JSON file:
+
+```bash
+kryptos k4-attempts --label k4
+```
+
+### Tuning: Crib Weight Sweep
+
+Run a sweep across candidate weights for optional cribs and samples:
+
+```bash
+kryptos tuning-crib-weight-sweep --weights 0.25,0.5,1.0,1.5 \
+  --cribs BERLIN,CLOCK \
+  --samples data/holdout_samples.txt --json
+```
+
+Emits JSON rows: each weight with baseline vs with‑crib deltas.
+
+### Tuning: Pick Best Weight
+
+Select best performing weight from a prior sweep CSV:
+
+```bash
+kryptos tuning-pick-best --csv artifacts/tuning_runs/run_20251023T120000/crib_weight_sweep.csv
+```
+
+Returns `{ "best_weight": <float> }`.
+
+### Tuning: Summarize Run
+
+Clean and summarize a tuning run directory (crib hit counts, aggregates). Writes artifacts unless
+`--no-write` is provided:
+
+```bash
+kryptos tuning-summarize-run --run-dir artifacts/tuning_runs/run_20251023T120000
+```
+
+### Tuning: Tiny Param Sweep
+
+Deterministic miniature parameter sweep (debug/demo):
+
+```bash
+kryptos tuning-tiny-param-sweep
+```
+
+### Tuning: Holdout Score
+
+Compute mean scoring deltas for a chosen crib weight over representative holdout samples:
+
+```bash
+kryptos tuning-holdout-score --weight 1.25 --out artifacts/reports/holdout.csv
+```
+
+Use `--no-write` to skip CSV output and only print JSON.
+
+### SPY Evaluation
+
+Evaluate extraction confidence thresholds against labeled runs:
+
+```bash
+kryptos spy-eval --labels data/spy_eval_labels.csv --runs artifacts/tuning_runs --thresholds 0.10,0.25,0.40,0.55
+```
+
+Outputs precision/recall/F1 per threshold plus `best_threshold`.
+
+### SPY Extraction
+
+Extract SPY tokens at minimum confidence from all run_* directories:
+
+```bash
+kryptos spy-extract --runs artifacts/tuning_runs --min-conf 0.30
+```
+
+Returns mapping of run directory → extracted tokens.
+
+### End‑to‑End Flow (Example)
+
+```bash
+cp data/k4_cipher.txt work_cipher.txt
+kryptos k4-decrypt --cipher work_cipher.txt --limit 50 --adaptive --report > decrypt.json
+kryptos k4-attempts --label k4
+kryptos tuning-crib-weight-sweep --weights 0.5,1.0,1.5 --cribs BERLIN,CLOCK --json > sweep.json
+# Assume sweep CSV written separately; pick best
+kryptos tuning-pick-best --csv artifacts/tuning_runs/run_*/crib_weight_sweep.csv
+kryptos tuning-holdout-score --weight 1.0 --no-write > holdout.json
+kryptos spy-eval --labels data/spy_eval_labels.csv --runs artifacts/tuning_runs --thresholds 0.0,0.25,0.5,0.75 > spy_eval.json
+kryptos spy-extract --runs artifacts/tuning_runs --min-conf 0.25 > spy_tokens.json
+```
+
+You now have: decrypt.json, sweep.json, holdout.json, spy_eval.json, spy_tokens.json summarizing the
+pipeline, tuning, and extraction outputs.
+
 - 2025-10-22: Added offline autopilot flow (Q/OPS/SPY), conservative SPY extractor with evaluation
 harness, demo smoke CI and packaging improvements. See `docs/AUTOPILOT.md` for details.
 
