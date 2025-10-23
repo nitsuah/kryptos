@@ -281,8 +281,11 @@ def combined_plaintext_score_extended(text: str) -> float:
     """Extended combined score including berlin clock pattern bonus (small weight)."""
     base = combined_plaintext_score(text)
     pattern = berlin_clock_pattern_validator(text)
-    # weight bonus modestly to avoid overpowering n-gram scoring
-    return base + 25.0 * pattern['pattern_bonus']
+    # Positional letter distribution score (added later): assess per-position (mod period)
+    # letter frequency alignment to English to penalize clustered atypical distributions.
+    pos_score = positional_letter_deviation_score(text)
+    # weight bonuses modestly to avoid overpowering n-gram scoring
+    return base + 25.0 * pattern['pattern_bonus'] + 30.0 * pos_score
 
 
 # --- Advanced linguistic metrics -------------------------------------------
@@ -444,6 +447,46 @@ def repeating_bigram_fraction(text: str) -> float:
     return repeats / len(bigrams)
 
 
+def positional_letter_deviation_score(text: str, period: int = 5) -> float:
+    """Return a normalized positional letter deviation score in [0,1].
+
+    The text is partitioned into `period` positional buckets by index modulo period.
+    For each bucket we compute a chi-square statistic versus expected English letter
+    frequencies. Each bucket contributes 1/(1+chi) so lower deviation (smaller chi)
+    yields a value approaching 1, high deviation approaches 0. Final score is the
+    average across non-empty buckets. Short texts or texts with insufficient letters
+    return 0.0.
+
+    Rationale: Natural plaintext tends to distribute common letters more evenly across
+    positions; transposition or random shuffles can create positional clustering that
+    inflates per-bucket chi-square. This metric gently rewards balanced distributions.
+    """
+    letters = [c for c in text.upper() if c.isalpha()]
+    n = len(letters)
+    if n < period * 2:  # need at least two cycles for stability
+        return 0.0
+    buckets: list[list[str]] = [[] for _ in range(period)]
+    for i, c in enumerate(letters):
+        buckets[i % period].append(c)
+    partials: list[float] = []
+    for bucket in buckets:
+        bn = len(bucket)
+        if bn == 0:
+            continue
+        counts = Counter(bucket)
+        chi = 0.0
+        for letter, exp_pct in LETTER_FREQ.items():
+            expected = exp_pct * bn / 100.0
+            if expected <= 0:
+                continue
+            obs = counts.get(letter, 0)
+            chi += (obs - expected) ** 2 / expected
+        partials.append(1.0 / (1.0 + chi))
+    if not partials:
+        return 0.0
+    return sum(partials) / len(partials)
+
+
 def combined_plaintext_score_with_positions(text: str, positional: dict[str, Sequence[int]], window: int = 5) -> float:
     """Combined plaintext score augmented with positional crib bonuses."""
     base = combined_plaintext_score(text)
@@ -529,6 +572,7 @@ __all__ = [
     'bigram_gap_variance',
     'berlin_clock_pattern_validator',
     'combined_plaintext_score_extended',
+    'positional_letter_deviation_score',
     'load_cribs_from_file',
     'combined_plaintext_score_with_external_cribs',
 ]

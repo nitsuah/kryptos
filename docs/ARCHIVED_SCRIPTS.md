@@ -65,7 +65,7 @@ run_ops_tiny_sweep)
 | aggregate_spy_phrases.py | REMOVE (Replaced) | Logic in `kryptos.spy.aggregate_phrases`. |
 | extract_spy_cribs.py | AUDIT | Security/determinism review before promotion. |
 | collect_sanborn_sources.py | KEEP | External fetch helper; possible relocation. |
-| k3_double_rotation.py | HISTORICAL | Preserve; move to docs/archive/. |
+| k3_double_rotation.py | HISTORICAL (MOVED) | Relocated to docs/archive/k3_double_rotation.py |
 | remove_top_level_wrappers.py | KEEP | Internal cleanup utility. |
 | auto_remove_compat_wrappers.py | KEEP | Internal cleanup utility. |
 

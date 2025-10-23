@@ -3,7 +3,7 @@ from kryptos import __all__
 EXPECTED_MIN = {
     '__version__',
     'vigenere_decrypt',
-    'kryptos_k3_decrypt',
+    'k3_decrypt',
     'double_rotational_transposition',
     'frequency_analysis',
     'check_cribs',

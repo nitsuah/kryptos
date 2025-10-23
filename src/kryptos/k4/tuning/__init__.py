@@ -1,11 +1,11 @@
-"""Tuning utilities for K4 scoring heuristics.
+"""Canonical K4 tuning utilities.
 
-This subpackage centralizes lightweight experimental helpers that were
-previously implemented as ad-hoc scripts under ``scripts/tuning``.
+Authoritative home for crib weight sweep + param sweep helpers. Legacy
+script duplicates under ``scripts/tuning`` are being deprecated; import
+from this package instead of filesystem scripts.
 
-Only stable, side‑effect free functions are exported here so they can be
-unit tested and (optionally) wired into the CLI. File / artifact emitting
-logic stays thin and is orchestrated by wrappers or future CLI commands.
+Export list intentionally small: only pure functions without side-effects.
+Artifact emission belongs in CLI wrappers.
 """
 
 from .crib_sweep import (

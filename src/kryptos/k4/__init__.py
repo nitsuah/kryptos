@@ -22,7 +22,7 @@ class DecryptResult:
     ----------
     plaintext: Best plaintext candidate selected (fused ranking if available).
     score: Score associated with the selected plaintext.
-    candidates: Top candidate list (each a mapping with text/score/metadata) after fusion or aggregation.
+    candidates: Top candidate list (each a mapping with text/score/metadata) after aggregation.
     profile: Execution profiling / diagnostics (stage durations, adaptive diagnostics, etc.).
     artifacts: Optional artifact file paths produced (reports, attempt logs, etc.).
     attempt_log: Optional attempt log path.

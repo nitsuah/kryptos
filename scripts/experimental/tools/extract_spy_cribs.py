@@ -27,7 +27,7 @@ OUT_DIR = ROOT / 'agents' / 'output'
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT_PATH = OUT_DIR / 'spy_cribs.tsv'
 
-QUOTE_RE = re.compile(r'"([A-Za-z0-9 \-\.,;:!\'\(\)]+)"')
+QUOTE_RE = re.compile(r'"([A-Za-z][A-Za-z0-9 \-\.,;:!\'\(\)]{2,})"')  # require leading letter + >=3 chars
 NEARBY_CTX_RE = re.compile(r'\b(said|stated|wrote|reported|noted)\b', re.I)
 TOKEN_CLEAN_RE = re.compile(r'[^A-Z]')
 
@@ -40,6 +40,9 @@ def scan_file(path: Path):
     findings = []
     for m in QUOTE_RE.finditer(text):
         excerpt = m.group(1).strip()
+        # Cap excerpt length to avoid huge context noise
+        if len(excerpt) > 180:
+            continue
         if not excerpt:
             continue
         # Heuristic: pick tokens separated by whitespace and punctuation

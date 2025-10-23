@@ -53,7 +53,7 @@ def vigenere_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False
     return ''.join(out)
 
 
-def kryptos_k3_decrypt(ciphertext: str) -> str:
+def k3_decrypt(ciphertext: str) -> str:
     """Decrypt Kryptos K3 via documented double rotational transposition (no Vigenère)."""
     clean = ''.join(ciphertext.split())
     if clean.startswith('?'):
@@ -114,7 +114,7 @@ def transposition_decrypt(ciphertext: str, key: str | None = None) -> str:
     if clean.startswith('?'):
         clean = clean[1:]
     if key is None:
-        return kryptos_k3_decrypt(clean)
+        return k3_decrypt(clean)
     width = 86
     height = 4
     needed = width * height
@@ -162,7 +162,7 @@ def polybius_decrypt(ciphertext: str, key_square: Sequence[Sequence[str]]) -> st
 
 __all__ = [
     "vigenere_decrypt",
-    "kryptos_k3_decrypt",
+    "k3_decrypt",
     "double_rotational_transposition",
     "rotate_matrix_right_90",
     "transposition_decrypt",

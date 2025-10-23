@@ -7,7 +7,7 @@ import logging
 import os
 import unittest
 
-from kryptos.ciphers import kryptos_k3_decrypt, vigenere_decrypt
+from kryptos.ciphers import k3_decrypt, vigenere_decrypt
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -53,7 +53,7 @@ class TestCiphers(unittest.TestCase):
             "IINSERTEDTHECANDLEANDPEEREDINTHEHOTAIRESCAPINGFROMTHECHAMBERCAUSEDTHEFLAMETOFLICKER"
             "BUTPRESENTLYDETAILSOFTHEROOMWITHINEMERGEDFROMTHEMISTXCANYOUSEEANYTHINGQ"
         )
-        decrypted_text_k3 = kryptos_k3_decrypt(ciphertext_k3)
+        decrypted_text_k3 = k3_decrypt(ciphertext_k3)
         self.assertEqual(decrypted_text_k3.replace(" ", ""), expected_plaintext_k3)
 
 
