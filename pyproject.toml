@@ -21,7 +21,7 @@ version = "0.0.1"
 description = "Kryptos tooling and autopilot harness"
 authors = [ { name = "nitsuah" } ]
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 keywords = ["kryptos","autopilot","crypto"]
 classifiers = [
 	"Programming Language :: Python :: 3",
