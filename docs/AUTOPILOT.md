@@ -38,19 +38,17 @@ conf` threshold is applied to that normalized confidence to decide which tokens 
 
 Example: evaluating thresholds
 
-You can evaluate thresholds locally using the `spy_eval` harness. For example, to print
-precision/recall/F1 for common thresholds:
+Evaluate thresholds (package API):
 
 ```powershell
-python -c "from scripts.tuning import spy_eval; print(spy_eval.evaluate('data/spy_eval_labels.csv',
- 'artifacts/tuning_runs'))"
+python -c "from kryptos.tuning import spy_eval; print(spy_eval.evaluate(Path('data/spy_eval_labels.csv'), Path('artifacts/tuning_runs')))"
 ```
 
-Or programmatically select the best threshold (precision-first) and print it:
+Programmatic selection (precision-first):
 
 ```python
 from pathlib import Path
-from scripts.tuning import spy_eval
+from kryptos.tuning import spy_eval
 
 labels = Path('data/spy_eval_labels.csv')
 runs = Path('artifacts/tuning_runs')
@@ -126,5 +124,5 @@ python scripts/demo/run_k4_demo.py --limit 5
 Try a quick smoke-run (demo → tiny OPS sweep → SPY extractor → condensed report):
 
 ```powershell
-python scripts/examples/run_full_smoke.py
+python scripts/experimental/examples/run_full_smoke.py  # deprecated; replace with direct package calls soon
 ```

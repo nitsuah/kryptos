@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""Run a short hill-search using random invertible matrices and report top decryptions.
+"""DEPRECATED: ad-hoc hill search harness.
 
-This is a quick diagnostic harness (not exhaustive). It uses 3x3 integer matrices mod 26.
+All reusable Hill logic lives in `src/k4/hill_search.py` and `src/k4/hill_constraints.py`.
+Planned removal after hypothesis adapter lands.
+
+Replacement usage:
+    from k4.hill_search import score_decryptions  # type: ignore
+    score_decryptions(ciphertext, keys, limit=1000)
 """
 
 from __future__ import annotations
@@ -46,9 +51,9 @@ def main() -> int:
         sys.path.insert(0, str(repo / 'src'))
 
     try:
-        from k4.hill_search import score_decryptions
-    except Exception as e:
-        print('Failed to import hill_search:', e)
+        from k4.hill_search import score_decryptions  # type: ignore
+    except ImportError as e:
+        print('Failed to import k4.hill_search (deprecated script):', e)
         return 2
 
     # read ciphertext

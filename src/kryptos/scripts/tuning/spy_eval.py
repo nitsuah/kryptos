@@ -6,7 +6,12 @@ script available as `kryptos.scripts.tuning.spy_eval`.
 
 from importlib import import_module
 
-_mod = import_module('scripts.tuning.spy_eval')
+# Prefer the package-level implementation if present; fall back to the script path for
+# backward compatibility.
+try:
+    _mod = import_module('kryptos.tuning.spy_eval')
+except ImportError:
+    _mod = import_module('scripts.tuning.spy_eval')
 
 # Re-export functions used by tests
 load_labels = _mod.load_labels

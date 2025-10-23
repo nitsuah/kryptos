@@ -157,8 +157,25 @@ See `LICENSE`.
 - `docs/README_CORE.md` — project reference and examples
 - `docs/K4_STRATEGY.md` — K4-specific strategy and notes
 
-If you prefer to run an example pipeline, see `scripts/tools/run_pipeline_sample.py` for a minimal
-programmatic example.
+If you prefer to run an example pipeline, use direct package calls (see snippet below). The old
+`scripts/experimental/tools/run_pipeline_sample.py` is deprecated.
+
+Minimal example:
+
+```python
+from k4.pipeline import make_hill_constraint_stage, make_masking_stage
+from k4.executor import PipelineConfig, PipelineExecutor
+
+stages = [
+	make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=40, partial_min=-900.0),
+	make_masking_stage(name="masking", null_chars=["X"], limit=15),
+]
+cfg = PipelineConfig(ordering=stages, candidate_cap_per_stage=25, pruning_top_n=10,
+					 crib_bonus_threshold=5.0, adaptive_thresholds={"hill": -500.0},
+					 artifact_root="artifacts", label="sample-run", enable_attempt_log=True,
+					 parallel_hill_variants=0)
+PipelineExecutor(cfg).run("OBKRUOXOGHULBSOLIFB")
+```
 
 ## References & Research
 

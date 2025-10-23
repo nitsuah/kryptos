@@ -74,8 +74,23 @@ pip install -r requirements.txt
 python -m unittest discover -s tests
 ```
 
-1. Run a tiny pipeline sample (see `scripts/tools/run_pipeline_sample.py` for an example of how to
-call the pipeline programmatically).
+1. Run a tiny pipeline sample (preferred: direct package usage; legacy script
+`run_pipeline_sample.py` is deprecated):
+
+```python
+from k4.pipeline import make_hill_constraint_stage, make_masking_stage
+from k4.executor import PipelineConfig, PipelineExecutor
+
+stages = [
+	make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=40, partial_min=-900.0),
+	make_masking_stage(name="masking", null_chars=["X"], limit=15),
+]
+cfg = PipelineConfig(ordering=stages, candidate_cap_per_stage=25, pruning_top_n=10,
+					 crib_bonus_threshold=5.0, adaptive_thresholds={"hill": -500.0},
+					 artifact_root="artifacts", label="sample-run", enable_attempt_log=True,
+					 parallel_hill_variants=0)
+PipelineExecutor(cfg).run("OBKRUOXOGHULBSOLIFB")
+```
 
 ## How to Use the Tuning Harness
 

@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Run canonical hill_constraints.decrypt_and_score and print top candidates."""
+"""DEPRECATED: thin wrapper around `k4.hill_constraints.decrypt_and_score`.
+
+Replacement usage:
+    from k4 import hill_constraints as hc  # type: ignore
+    results = hc.decrypt_and_score(ciphertext, prune_3x3=True, partial_len=60, partial_min=-800.0)
+
+Scheduled for removal after tests switch to adapter.
+"""
 
 import json
 import sys
@@ -11,9 +18,9 @@ if str(repo / 'src') not in sys.path:
     sys.path.insert(0, str(repo / 'src'))
 
 try:
-    from k4 import hill_constraints as hc
-except Exception as e:
-    print('Failed to import k4.hill_constraints:', e)
+    from k4 import hill_constraints as hc  # type: ignore
+except ImportError as e:
+    print('Failed to import k4.hill_constraints (deprecated script):', e)
     raise
 
 cfg = repo / 'config' / 'config.json'

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Minimal executable sample to exercise PipelineExecutor.
+"""DEPRECATED: minimal pipeline sample wrapper.
 
-Creates a small pipeline (hill constraint + masking) and runs it on a short
-slice of the K4 ciphertext. Produces artifacts under artifacts/run_<timestamp>/.
-
-Usage (PowerShell):
-    python scripts/tools/run_pipeline_sample.py
+Scheduled for removal once docs updated.
+Use direct package calls (example shortened):
+    from k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
+    from k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
 """
 
 from __future__ import annotations
@@ -25,11 +24,11 @@ for p in (str(ROOT), str(SRC_DIR)):
 try:  # prefer installed package
     from kryptos.src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
     from kryptos.src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
-except Exception:  # fallback to workspace src/ layout
+except ImportError:  # fallback to workspace src/ layout
     try:
         from src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
         from src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
-    except Exception:
+    except ImportError:
         # finally, rely on the earlier sys.path insert to resolve `k4` top-level package
         from k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
         from k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore

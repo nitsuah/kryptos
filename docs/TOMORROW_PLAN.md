@@ -33,9 +33,11 @@ Set conservative defaults or mock those dependencies in tests.
 - What: Update `docs/AUTOPILOT.md` with a succinct usage example showing how to call
 `scripts/dev/ask_triumverate.py` programmatically and the expected structure of the plan dict:
 `{action: str, params: dict, recommendation_text: str, justification: str, metadata: dict}`. Add an
-example `scripts/examples/run_autopilot_demo.py` that produces a dry-run plan and prints it.
+example (now deprecated path) `scripts/experimental/examples/run_autopilot_demo.py` that produces a
+dry-run plan and prints it; prefer future direct package call.
 - Commands:
-  - Edit `docs/AUTOPILOT.md` and add the example script to `scripts/examples/`.
+  - Edit `docs/AUTOPILOT.md` and ensure package import examples (`from kryptos.tuning import
+    spy_eval`).
 - Blockers: Decide whether the `src/kryptos/` shims are kept or replaced; prefer minimal changes
 during documentation.
 
@@ -46,8 +48,9 @@ Nice-to-have if time remains:
 How we'll verify:
 - `pre-commit run --all-files` passes locally
 - `pytest -q` completes with a passing suite (match baseline)
-- `docs/AUTOPILOT.md` contains usage + plan contract; `scripts/examples/run_autopilot_demo.py` runs
-and prints a plan dict
+- `docs/AUTOPILOT.md` contains usage + plan contract; demo now lives under
+`scripts/experimental/examples/run_autopilot_demo.py` (shim retained temporarily). and prints a plan
+dict
 
 Notes / decisions to defer:
 - Major refactor of package layout (large invasive changes) — defer until after the PR review to

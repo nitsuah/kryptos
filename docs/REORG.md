@@ -1,0 +1,50 @@
+"""Repository Reorganization & Wrapper Policy ===========================================
+
+Purpose: document decisions for separating reusable package logic from ad-hoc / wrapper scripts and
+define a clear deprecation & promotion lifecycle.
+
+## Policy
+
+- Reusable logic (algorithms, scoring, pipeline assembly) MUST live under `src/`.
+- Scripts under `scripts/` are wrappers or operational entrypoints (CLI, daemon, tuning harness).
+- Experimental scripts live under `scripts/experimental/` and are not considered stable; they may be
+promoted or removed.
+- No new persistent scripts unless they directly enable an end-to-end hypothesis test or user demo.
+
+## Moved / Ported
+
+- `spy_eval` logic moved into `src/kryptos/tuning/spy_eval.py` (old `scripts/tuning/spy_eval.py`
+deprecated).
+- Example/demo scripts relocated into `scripts/experimental/examples/` with a temporary shim at
+`scripts/examples/run_autopilot_demo.py` for tests.
+
+## Deprecated (Pending Removal)
+
+| Script | Reason | Replacement | Removal Target |
+|--------|--------|-------------|----------------|
+| scripts/experimental/tools/run_hill_search.py | Ad-hoc key gen & scoring | k4.hill_search.score_decryptions | Next PR |
+| scripts/experimental/tools/run_hill_canonical.py | Thin wrapper | k4.hill_constraints.decrypt_and_score | Next PR |
+| scripts/experimental/tools/run_pipeline_sample.py | Pipeline sample wrapper | Direct package pipeline usage | Next PR |
+| scripts/tuning/spy_eval.py | Legacy evaluation harness | kryptos.tuning.spy_eval | After stability check |
+| scripts/experimental/examples/run_full_smoke.py | Chained demo wrapper | Explicit package calls / tests | After hypothesis tests |
+
+## Promotion Criteria
+
+Promote an experimental script ONLY if:
+- It implements novel reusable logic not present in `src/`.
+- At least one test or documented workflow depends on it AND refactoring into package improves
+reuse.
+
+## Deletion Criteria
+
+Delete a deprecated script once:
+- No docs reference it OR docs updated with package example.
+- No tests import or execute it.
+
+## Next Cleanup Steps
+
+1. Implement Hill hypothesis adapter using existing package functions. 2. Remove deprecated hill
+wrappers once tests reference adapter. 3. Convert smoke/demo scripts to pure package examples in
+docs. 4. Re-run full test suite & update this file with completed deletions.
+
+Updated: 2025-10-23 """

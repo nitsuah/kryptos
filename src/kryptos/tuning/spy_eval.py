@@ -1,16 +1,7 @@
-"""DEPRECATED: legacy SPY evaluation harness (moved into package).
+"""Package-level SPY evaluation harness.
 
-Use `from kryptos.tuning import spy_eval` for the maintained implementation.
-This file will be removed after a grace period.
-
-Original description:
-
-SPY evaluation harness
-
-Scans tuning runs and computes precision/recall/F1 for SPY extractor matches
-against a labeled CSV of expected crib tokens per run.
-
-Labels CSV format: run_dir,token
+This is a near-copy of `scripts/tuning/spy_eval.py` moved into the package so tests and
+imports are robust when the project is installed or run inside venvs.
 """
 
 from __future__ import annotations
@@ -33,32 +24,24 @@ def load_labels(path: Path) -> dict[str, set[str]]:
     return out
 
 
-def select_best_threshold(labels_path: Path, runs_root: Path, thresholds: list[float] | None = None) -> float:
-    """Select the threshold preferring precision (more conservative extraction).
-
-    The selection now prefers the threshold with the highest precision. If
-    multiple thresholds share the same precision, pick the one with the
-    highest F1 as a tie-breaker. Returns 0.0 if no data is available.
-    """
-    res = evaluate(labels_path, runs_root, thresholds=thresholds)
+def select_best_threshold(labels_p: Path, runs_root_p: Path, thresholds: list[float] | None = None) -> float:
+    res = evaluate(labels_p, runs_root_p, thresholds=thresholds)
     if not res:
         return 0.0
-    # pick threshold with max precision; tie-breaker picks the higher F1
     best_th = 0.0
     best_prec = -1.0
     best_f1 = -1.0
-    for th, (prec_v, _rec_v, f1_v) in res.items():
+    for t_h, (prec_v, _rec_v, f1_v) in res.items():
         if prec_v > best_prec or (prec_v == best_prec and f1_v > best_f1):
             best_prec = prec_v
             best_f1 = f1_v
-            best_th = th
+            best_th = t_h
     return float(best_th)
 
 
 def run_extractor_on_run(run_dir: Path, min_conf: float = 0.0) -> set[str]:
-    # import the installed package's spy_extractor and call scan_run directly
     try:
-        from kryptos.scripts.dev import spy_extractor as spy_mod  # still script-level wrapper
+        from kryptos.scripts.dev import spy_extractor as spy_mod
     except ImportError:
         return set()
 
@@ -75,11 +58,11 @@ def run_extractor_on_run(run_dir: Path, min_conf: float = 0.0) -> set[str]:
 
 
 def evaluate(
-    labels_path: Path,
-    runs_root: Path,
+    labels_p: Path,
+    runs_root_p: Path,
     thresholds: list[float] | None = None,
 ) -> dict[float, tuple[float, float, float]]:
-    labels = load_labels(labels_path)
+    labels = load_labels(labels_p)
     if thresholds is None:
         thresholds = [0.0, 0.25, 0.5, 0.75]
     out: dict[float, tuple[float, float, float]] = {}
@@ -87,7 +70,7 @@ def evaluate(
         tp = 0
         fp = 0
         fn = 0
-        for run_dir in runs_root.iterdir():
+        for run_dir in runs_root_p.iterdir():
             if not run_dir.is_dir() or not run_dir.name.startswith('run_'):
                 continue
             run_name = run_dir.name
