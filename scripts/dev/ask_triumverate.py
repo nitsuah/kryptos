@@ -55,7 +55,9 @@ def run_plan_check(
                             import sys
 
                             try:
-                                subprocess.check_call([sys.executable, str(spy_path)])
+                                # allow configuring a conservative min confidence via env
+                                min_conf = os.environ.get('SPY_MIN_CONF', '0.25')
+                                subprocess.check_call([sys.executable, str(spy_path), '--min-conf', str(min_conf)])
                                 print('[AUTOPILOT] SPY extractor completed')
                             except Exception as e:
                                 print(f"[AUTOPILOT] SPY extractor failed: {e}")
@@ -123,7 +125,8 @@ def run_plan_check(
                             import sys
 
                             print('Invoking SPY extractor on run artifacts...')
-                            subprocess.check_call([sys.executable, str(spy_path)])
+                            min_conf = os.environ.get('SPY_MIN_CONF', '0.25')
+                            subprocess.check_call([sys.executable, str(spy_path), '--min-conf', str(min_conf)])
                             print('SPY extractor completed')
                         except Exception as e:
                             print(f'SPY extractor failed: {e}')

@@ -80,11 +80,14 @@ def scan_run(run_dir: Path, cribs: set[str]) -> list[tuple[str, str, float]]:
 
 def append_learned(note: str) -> None:
     LEARNED.parent.mkdir(parents=True, exist_ok=True)
+    from datetime import datetime
+
+    ts = datetime.utcnow().isoformat()
     with LEARNED.open('a', encoding='utf-8') as fh:
-        fh.write(f"- {note}\n")
+        fh.write(f"- {ts} SPY: {note}\n")
 
 
-def main():
+def main(min_conf: float = 0.0) -> int:
     cribs = load_cribs(CRIBS)
     run = find_latest_run()
     if not run:
@@ -100,6 +103,9 @@ def main():
     notes_written = 0
     for fname, matches, delta in res:
         conf = 0.0 if max_delta <= 0 else float(delta) / float(max_delta)
+        if conf < float(min_conf):
+            # skip low-confidence matches
+            continue
         note = f"SPY_MATCH {fname}: {matches} (delta={delta:.6f}, conf={conf:.2f})"
         append_learned(note)
         print(note)
@@ -110,4 +116,9 @@ def main():
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    import argparse
+
+    p = argparse.ArgumentParser(description='Conservative SPY extractor')
+    p.add_argument('--min-conf', type=float, default=0.0, help='Minimum confidence (0-1) to record matches')
+    args = p.parse_args()
+    raise SystemExit(main(min_conf=args.min_conf))
