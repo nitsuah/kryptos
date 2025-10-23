@@ -20,6 +20,39 @@ experiment traces and reproducible results.
 
 - `examples/` — Small example programs that show how to wire the package for quick experiments.
 
+## Package layout details (src/k4 and src/kryptos)
+
+- `src/k4/` — The canonical K4 implementation and runtime plumbing used by tuning and demo scripts.
+  - Key responsibilities: job execution (parallel variants), scoring, hill/crib algorithms, and
+    pipeline composition. Files of interest include `executor.py` (runs variants and aggregates
+    results), `hill_search.py` and `hill_constraints.py` (hill-cipher specific search and
+    constraints), `scoring.py` (scoring functions used by tuners), and `reporting.py` (helpers
+    that format experiment outputs into artifacts/). This package is the primary place to look
+    when changing runtime behavior or adding new solver variants.
+
+- `src/kryptos/` — Higher-level package utilities and connectors that sit above `src/k4`.
+  - Key responsibilities: glue code, analysis utilities, and convenience modules used by
+    experiments and CI. This area contains `analysis.py`, higher-level `report.py` helpers,
+    and `scripts/` shims that allow repo-level scripts to be exposed as package-importable
+    modules for tests and tooling.
+
+### Note on the `spy_eval` shim and packaging
+
+There is an existing shim at `src/kryptos/scripts/tuning/spy_eval.py` which imports the filesystem
+script `scripts/tuning/spy_eval.py` and re-exports functions for tests. Importing directly from
+`scripts.*` paths can lead to brittle imports when running inside venvs or when the package is
+installed.
+
+Recommended fixes:
+
+- Preferred: Move the canonical `spy_eval` implementation into the package (for example,
+`src/kryptos/tuning/spy_eval.py`) and update callers to import `kryptos.tuning.spy_eval`.
+- Alternative: Replace the shim with a small package-level wrapper that imports the
+implementation from the canonical package location (not from `scripts.*`).
+
+If you'd like, I can perform the preferred fix and port `scripts/tuning/spy_eval.py` into the
+package and update import sites in a follow-up commit.
+
 ## Core python scripts (ELI5)
 
 - `kryptos/src/k4/executor.py` — Runs job variants in parallel and collects results. ELI5: "It tries
