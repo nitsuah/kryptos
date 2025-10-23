@@ -14,9 +14,10 @@ High-level milestones for the next phases. This is intentionally short and actio
 
 1. Tuning harness and deterministic sweeps
 
-- Wire and validate a tiny deterministic tuning sweep harness
-(`scripts/tuning/crib_weight_sweep.py`).
-- Acceptance: reproducible CSV artifacts in `artifacts/tuning_runs/` for small grids.
+- Wire and validate a tiny deterministic tuning sweep harness (now provided by
+`kryptos.k4.tuning.run_crib_weight_sweep`). A thin legacy script wrapper remains temporarily.
+- Acceptance: reproducible CSV artifacts in `artifacts/tuning_runs/` for small grids (invoked via
+API or forthcoming CLI `kryptos tuning crib-weight-sweep`).
 
 1. Autopilot & SPY integration
 

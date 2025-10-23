@@ -16,11 +16,7 @@ unify. Every item below either gets implemented properly or removed.
 - Single canonical namespace: all library code lives under `kryptos/` (including K4 logic under
 `kryptos/k4/`).
 - No duplicate modules or parallel implementations.
-- No script contains core logic: scripts become thin CLI wrappers delegating to package functions.
-- Imports are stable (`from kryptos...`). No `from src.k4`, no `from k4`, no `from kryptos.src.k4`.
-- Library modules NEVER call `logging.basicConfig` or print; use a logger configured externally.
-- Broad `except Exception:` is forbidden. Catch explicit exceptions or let them surface.
-- Artifacts managed via helper functions, not ad-hoc path concatenation.
+REORG.md SECTIONS.md EXPERIMENTAL_TOOLING.md 10KFT.md AUTOPILOT.md ROADMAP.md
 - Documentation consolidated. Plans and deprecated notes move to one location with lifecycle
 policies.
 - Deprecations use `warnings.warn(DeprecationWarning)` until removal.
@@ -31,12 +27,9 @@ policies.
 (`src/scoring/fitness.py` & `src/kryptos/scoring/fitness.py`). (Removed; single source) 3. Reporting
 duplication (`src/report.py` + shim `src/kryptos/report.py`). (Completed; canonical
 `kryptos/reporting.py`) 4. Section inconsistency (K1/K2 logic in `main.py` & `ciphers.py`, K3 inside
-`ciphers.py`, K4 isolated). (Completed: k1/, k2/, k3/ packages + sections mapping) 5. Re-export /
-fallback import shims in `kryptos/__init__.py`. (Pending review/pruning) 6. Logging side-effects in
 library (historic prints). (Pending) 7. Hardcoded root/artifact paths sprinkled in scripts.
 (Pending) 8. Build artifacts (`kryptos.egg-info/`) residing under `src/`. (Pending) 9. Cryptographic
 stub / legacy helpers without roadmap (evaluate `transposition_decrypt`). (Pending decision)
-
 ## Medium Impact Debt
 
 - Script proliferation (daemon variants, tuning scripts with near-identical logic).
@@ -44,19 +37,15 @@ stub / legacy helpers without roadmap (evaluate `transposition_decrypt`). (Pendi
 - Multiple pipeline sample / demo wrappers.
 - Unimplemented scoring TODOs (positional crib weighting, partial matches, external ngram + crib
 supply).
-- Sleep-based daemon loops (`time.sleep`) instead of structured scheduling/backoff.
-- Stage adapter TODOs and `mock_stage.py` placeholder.
-- Mixed dependency declarations (`pyproject.toml` & `requirements.txt`).
-- Unstructured config objects and argument parsing spread across scripts.
 - Print statements in package code (e.g. tuning evaluation output).
 - Removed legacy duplicate dirs (previous `src/k4/`, `src/scoring/`, `src/stages/`, stray
 `kryptos/stages/`).
-
 ## Lower Impact / Polish
 
 - Deprecated inline comments vs formal deprecation warnings.
-- Experimental tools with unclear relevance (`aggregate_spy_phrases.py`, `summarize_crib_hits.py`,
-`holdout_score.py`, `k3_double_rotation.py`).
+`holdout_score.py`, `k3_double_rotation.py`). Post-processing scripts (`summarize_crib_hits.py`,
+`clean_and_summarize_matches.py`) migrated into `kryptos.k4.tuning.artifacts` (schedule removal of
+legacy wrappers after deprecation window).
 - Missing centralized logging setup helper.
 - Lack of a consolidated CLI entry point grouping subcommands.
 - Scattered plan & reorg docs; need README + CONTRIBUTING + DEPRECATIONS + API section.
@@ -128,7 +117,8 @@ summarizing deltas.
 - Relocate deep dive `K4_STRATEGY.md` to `docs/sections/K4.md`; keep top-level index lean.
 - Add `DEPRECATIONS.md` capturing removal timeline (legacy `src/*`, shims, soon direct K3 decrypt
 alias).
-- Merge autopilot usage details from `TOMORROW_PLAN.md` into `AUTOPILOT.md`; archive the plan file.
+- (Completed) Autopilot usage details merged; `TOMORROW_PLAN.md` archived
+(`archive/TOMORROW_PLAN_2025-10-23.md`).
 - Update `10KFT.md` to reflect unified section packages, removal of legacy duplicates, and canonical
 reporting.
 - Introduce `docs/ARCHIVE/` index listing archived files with brief rationale.

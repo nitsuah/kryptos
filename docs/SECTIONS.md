@@ -98,10 +98,10 @@ for cand in result.candidates[:5]:
 
 ## Roadmap
 
-1. Add uniform exception types (`KryptosDecryptError`). 2. Add stricter Protocol & typing for
-heterogeneous section callables. 3. Document deterministic test vectors for each section. 4. Wire
-CLI subcommands: `kryptos decrypt k1 --key PALIMPSEST ...` & `kryptos decrypt k4`. 5. Persist
-standardized artifact bundle schema & version in `DecryptResult.metadata`.
+1. Add uniform exception types (`KryptosDecryptError`). 2. Stricter Protocol & typing for
+heterogeneous section callables. 3. Deterministic test vectors for each section documented here.
+4. Expand CLI: introduce unified `kryptos decrypt k1|k2|k3|k4` and tuning subcommands (in progress).
+5. Persist standardized artifact bundle schema & version in `DecryptResult.metadata`.
 
 ## Deprecations
 
@@ -111,4 +111,4 @@ will be discouraged in favor of the uniform section modules for high-level usage
 
 ---
 
-Last updated: (auto) section scaffolding phase, unify-packages milestone.
+Last updated: 2025-10-23 (CLI base present; decrypt subcommand consolidation pending)

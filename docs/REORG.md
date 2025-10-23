@@ -1,11 +1,12 @@
-"""Repository Reorganization & Wrapper Policy ===========================================
+Repository Reorganization & Wrapper Policy ===========================================
 
 Purpose: document decisions for separating reusable package logic from ad-hoc / wrapper scripts and
 define a clear deprecation & promotion lifecycle.
 
 ## Policy
 
-- Reusable logic (algorithms, scoring, pipeline assembly) MUST live under `src/`.
+- Reusable logic (algorithms, scoring, pipeline assembly) MUST live under the `kryptos/` package
+	(single canonical namespace).
 - Scripts under `scripts/` are wrappers or operational entrypoints (CLI, daemon, tuning harness).
 - Experimental scripts live under `scripts/experimental/` and are not considered stable; they may be
 promoted or removed.
@@ -13,8 +14,7 @@ promoted or removed.
 
 ## Moved / Ported
 
-- `spy_eval` logic moved into `src/kryptos/tuning/spy_eval.py` (old `scripts/tuning/spy_eval.py`
-deprecated).
+- `spy_eval` logic migrated into `kryptos/tuning/spy_eval.py`.
 - Example/demo scripts relocated into `scripts/experimental/examples/`. All temporary shims removed;
 tests updated to point to canonical paths.
 
@@ -25,7 +25,7 @@ tests updated to point to canonical paths.
 | scripts/experimental/tools/run_hill_search.py | Ad-hoc key gen & scoring | k4.hill_search.score_decryptions | Next PR |
 | (removed) scripts/experimental/tools/run_hill_canonical.py | Thin wrapper | k4.hill_constraints.decrypt_and_score | Removed (API consolidated) |
 | (removed) scripts/experimental/tools/run_pipeline_sample.py | Pipeline sample wrapper | Direct package pipeline usage | Removed (CLI + direct API) |
-| scripts/tuning/spy_eval.py | Legacy evaluation harness | kryptos.tuning.spy_eval | After stability check |
+| scripts/tuning/spy_eval.py | Legacy evaluation harness | kryptos.tuning.spy_eval | Remove after CLI spy eval |
 | scripts/experimental/examples/run_full_smoke.py | Chained demo wrapper | Explicit package calls / tests | Pending review |
 
 ## Promotion Criteria
@@ -49,5 +49,9 @@ Delete a deprecated script once:
 wrappers once tests reference adapter. 3. Convert smoke/demo scripts to pure package examples in
 docs or consolidate into CLI. 4. Re-run full test suite & update this file with completed deletions.
 5. Introduce CLI entrypoints to replace remaining example wrappers (`decrypt`, `autopilot`, `tune`).
+(In progress: base CLI present; tuning/spy pending)
 
-Updated: 2025-10-23 """
+Status Snapshot (2025-10-23): Unified package complete, tuning & artifacts modules promoted, docs
+archival ongoing, CLI base shipped.
+
+Updated: 2025-10-23

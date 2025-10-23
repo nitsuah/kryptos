@@ -15,11 +15,12 @@ Related documents / breadcrumbs:
 - Q (Planner): produces a short plan or single-line recommended next action. Implemented in
 `scripts/dev/ask_triumverate.py` and helpers.
 - OPS (Operational Tuner): runs tuning sweeps to measure sensitivity to crib weights and other
-parameters. Key scripts: `scripts/tuning/crib_weight_sweep.py`,
-`scripts/tuning/tiny_tuning_sweep.py`.
+parameters. Canonical APIs: `kryptos.k4.tuning.run_crib_weight_sweep`,
+`kryptos.k4.tuning.tiny_param_sweep`, and artifact helpers in `kryptos.k4.tuning.artifacts` (legacy
+script wrappers pending CLI promotion).
 - SPY (Conservative Extractor): scans tuning run CSV artifacts and extracts high-confidence quoted
-tokens present in `docs/sources/sanborn_crib_candidates.txt`. Implemented in
-`scripts/dev/spy_extractor.py`.
+tokens present in `docs/sources/sanborn_crib_candidates.txt`. Implemented presently as
+`scripts/dev/spy_extractor.py` (will migrate to a CLI subcommand `kryptos spy extract`).
 
 ## SPY threshold selection
 
@@ -36,12 +37,17 @@ or runs available), the autopilot will fall back to a conservative default of `0
 specific match delta and `max_delta` is the maximum delta observed in that run's scan. The `--min-
 conf` threshold is applied to that normalized confidence to decide which tokens to emit.
 
-Example: evaluating thresholds
-
-Evaluate thresholds (package API):
+Example: evaluating thresholds (package API):
 
 ```powershell
-python -c "from kryptos.tuning import spy_eval; print(spy_eval.evaluate(Path('data/spy_eval_labels.csv'), Path('artifacts/tuning_runs')))"
+python - <<'PY'
+from pathlib import Path
+from kryptos.tuning import spy_eval
+labels = Path('data/spy_eval_labels.csv')
+runs = Path('artifacts/tuning_runs')
+print('Eval summary:', spy_eval.evaluate(labels, runs))
+print('Best threshold:', spy_eval.select_best_threshold(labels, runs))
+PY
 ```
 
 Programmatic selection (precision-first):
@@ -59,8 +65,9 @@ print('Best threshold:', best)
 ## Artifacts
 
 - Tuning runs: `artifacts/tuning_runs/run_<timestamp>/` containing `crib_weight_sweep.csv` and
-`weight_*_details.csv`.
-- Demo runs: `artifacts/demo/run_<timestamp>/` produced by `scripts/demo/run_k4_demo.py`.
+per-weight detail CSVs.
+- Demo runs: `artifacts/demo/run_<timestamp>/` (legacy demo script; consider CLI `k4-demo`).
+- Decision artifacts: `artifacts/decisions/decision_<timestamp>.json`.
 
 ## Autonomous daemons
 
@@ -112,17 +119,29 @@ pip install -e .
 1. Run the autopilot in dry-run:
 
 ```powershell
-python scripts/dev/ask_triumverate.py --dry-run
+python scripts/dev/ask_triumverate.py --dry-run  # (CLI subcommand forthcoming: kryptos autopilot)
 ```
 
 1. Run the demo:
 
 ```powershell
-python scripts/demo/run_k4_demo.py --limit 5
+python scripts/demo/run_k4_demo.py --limit 5  # or: kryptos k4-decrypt --limit 5 --report
 ```
 
 Try a quick smoke-run (demo → tiny OPS sweep → SPY extractor → condensed report):
 
 ```powershell
-python scripts/experimental/examples/run_full_smoke.py  # deprecated; replace with direct package calls soon
+# Deprecated: replace with direct package tuning & artifacts API calls (forthcoming CLI)
+python scripts/experimental/examples/run_full_smoke.py
 ```
+
+## Forthcoming CLI Enhancements
+
+Planned subcommands to replace legacy scripts:
+
+- `kryptos tuning crib-weight-sweep` → `run_crib_weight_sweep`
+- `kryptos tuning summarize-run` → `kryptos.k4.tuning.artifacts.end_to_end_process`
+- `kryptos spy extract` → conservative SPY token extraction
+- `kryptos spy eval` → threshold evaluation (`kryptos.tuning.spy_eval`)
+
+--- Last updated: 2025-10-23 (tuning API promotion + CLI roadmap)

@@ -15,19 +15,21 @@ K4-specific strategy and deep technical notes live under `docs/K4_STRATEGY.md`.
 
 ### Quick links
 
-- Documentation: `docs/README_CORE.md` (project reference)
-- K4 strategy: `docs/K4_STRATEGY.md` (K4-specific notes)
-- Roadmap: `ROADMAP.md`
-- Daily plan: `PLAN.md`
-- Tuning/daemon runner: `scripts/tune_pipeline.py`, `scripts/daemon_runner.py`
-- Tests: `tests/` (run with `python -m unittest discover -s tests`)
+- Core reference (this file): `docs/README_CORE.md`
+- K4 strategy: `docs/K4_STRATEGY.md`
+- Roadmap: `docs/ROADMAP.md`
+- Technical debt tracker: `docs/TECHDEBT.md`
+- Sections API: `docs/SECTIONS.md`
+- Experimental tooling inventory: `docs/EXPERIMENTAL_TOOLING.md`
+- CLI: `kryptos --help` (sections, k4-decrypt, k4-attempts; tuning subcommands forthcoming)
+- Tuning APIs: `kryptos.k4.tuning.*` (weight sweeps, tiny param sweeps, artifact summarization)
+- Tests: `tests/` (pytest / unittest)
 
 Related documents / breadcrumbs:
 
-- Autopilot & SPY: `AUTOPILOT.md`
-- Plan: `PLAN.md`
-- Roadmap: `../ROADMAP.md`
-- Top-level README: `../README.md`
+- Autopilot & SPY: `docs/AUTOPILOT.md`
+- Reorg policy: `docs/REORG.md`
+- Top-level README: `README.md`
 
 ### Highlights
 
@@ -36,12 +38,16 @@ Related documents / breadcrumbs:
 - Attempt logging and reproducible artifacts (JSON/CSV output under `artifacts/`)
 - Tuning harness and a minimal daemon runner for automated sweeps
 
-## Current Progress
+## Current Progress (Snapshot)
 
-- Implemented K1–K3 verified tooling and tests.
-- K4: implemented multi-stage pipeline scaffolding, scoring utilities, attempt logging, and adaptive
-gating.
-- Added unit tests and a tuning harness scaffold; artifacts written to `artifacts/` during runs.
+- K1–K3: unified decrypt helpers (`kryptos.k1.decrypt`, etc.) + sections mapping.
+- K4: multi-stage pipeline (hill, transposition, masking, Berlin Clock) with adaptive gating &
+scoring.
+- Tuning: pure functions under `kryptos.k4.tuning` (`run_crib_weight_sweep`, `tiny_param_sweep`,
+`pick_best_weight_from_rows`, artifact utilities) and tests.
+- CLI: base subcommands (sections listing, k4 decrypt, attempts). Tuning subcommands in progress.
+- Artifact utilities: consolidated under `kryptos.k4.tuning.artifacts` replacing legacy summarizer
+scripts.
 
 ## Features (summary)
 
@@ -66,57 +72,64 @@ gating.
 
 ```bash
 pip install -r requirements.txt
+pip install -e .
 ```
 
-1. Run the test suite:
+2. Run the test suite:
 
 ```bash
-python -m unittest discover -s tests
+pytest -q  # or: python -m unittest discover -s tests
 ```
 
-1. Run a tiny pipeline sample (preferred: direct package usage; legacy script Legacy
-`run_pipeline_sample.py` was removed; use the CLI or `kryptos.k4.decrypt_best` directly. Artifacts
-emit under `artifacts/reports/` (attempts, candidates) plus any run grouping dirs:
+3. Decrypt sections via CLI:
+
+```bash
+kryptos sections
+kryptos k4-decrypt --limit 25 --adaptive --report
+```
+
+4. Programmatic K4 sample:
 
 ```python
-from k4.pipeline import make_hill_constraint_stage, make_masking_stage
-from k4.executor import PipelineConfig, PipelineExecutor
+from kryptos.k4 import decrypt_best
 
-stages = [
-    make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=40, partial_min=-900.0),
-    make_masking_stage(name="masking", null_chars=["X"], limit=15),
-]
-cfg = PipelineConfig(
-    ordering=stages,
-    candidate_cap_per_stage=25,
-    pruning_top_n=10,
-    crib_bonus_threshold=5.0,
-    adaptive_thresholds={"hill": -500.0},
-    artifact_root="artifacts",
-    artifact_run_subdir="k4_runs",
-    label="sample-run",
-    enable_attempt_log=True,
-    parallel_hill_variants=0,
-)
-PipelineExecutor(cfg).run("OBKRUOXOGHULBSOLIFB")
+result = decrypt_best("OBKRUOXOGHULBSOLIFB", limit=25, adaptive=True, report=True)
+print(result.plaintext, result.score)
 ```
 
-## How to Use the Tuning Harness
+## Tuning & Artifact Post‑Processing
 
-- `scripts/tuning/tune_pipeline.py` contains a small sweep harness. For safe local experiments, use
-the dry-run mode or set small candidate budgets.
-- The daemon runner `scripts/daemon_runner.py` provides a minimal long-loop runner that writes CSV
-artifacts to `artifacts/tuning_runs/` and retains the last 20 runs.
+Prefer direct APIs over scripts:
+
+- Weight sweep: `from kryptos.k4.tuning import run_crib_weight_sweep`
+- Pick best weight: `from kryptos.k4.tuning import pick_best_weight_from_rows`
+- Tiny param sweep: `from kryptos.k4.tuning import tiny_param_sweep`
+- Artifact cleaning & summary: `from kryptos.k4.tuning.artifacts import end_to_end_process`
+
+Example weight sweep:
+
+```python
+from pathlib import Path
+from kryptos.k4.tuning import run_crib_weight_sweep
+
+rows = run_crib_weight_sweep(weights=[0.5, 1.0, 1.5], run_dir=Path('artifacts/tuning_runs'))
+for r in rows:
+    print(r.weight, r.score_delta)
+```
+
+Legacy wrapper scripts remain temporarily for backwards compatibility and will be replaced by CLI
+tuning subcommands (`kryptos tuning ...`).
 
 ## Artifacts
 
-- Attempt logs and run summaries are placed under `artifacts/k4_runs/run_<timestamp>/` (pipeline
-runs) or `artifacts/tuning_runs/run_<timestamp>/` when using the tuning harness or daemon.
+- Pipeline runs: `artifacts/k4_runs/run_<timestamp>/`
+- Tuning runs: `artifacts/tuning_runs/run_<timestamp>/` (CSV sweeps, per-weight details)
+- Reports / summaries: produced via `kryptos.k4.tuning.artifacts` helpers
 
 ## Roadmap & Contributing
 
-- See `ROADMAP.md` for the detailed roadmap.
-- Contribution guidelines are in `CONTRIBUTING.md`.
+- Roadmap: `docs/ROADMAP.md`
+- Contributing guidelines: `CONTRIBUTING.md`
 
 ## Data Sources
 
@@ -125,6 +138,7 @@ files are missing.
 
 ## License & References
 
-- See `LICENSE` for licensing.
-- References and further reading are in the original README and in-line documentation within
-`docs/`.
+- License: `LICENSE`
+- References: top-level README + docstrings + strategy docs.
+
+--- Last updated: 2025-10-23 (CLI + tuning API consolidation)

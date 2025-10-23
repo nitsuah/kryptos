@@ -8,8 +8,8 @@ Related documents / breadcrumbs:
 
 - Project core: `README_CORE.md`
 - Autopilot: `AUTOPILOT.md`
-- Plan: `PLAN.md`
 - Roadmap: `../ROADMAP.md`
+- Tuning APIs: `kryptos.k4.tuning.*` (weight sweeps, tiny param sweeps, artifact summarization)
 
 ## Current Progress (K4-specific)
 
@@ -41,11 +41,14 @@ plaintexts.
 
 ## Tuning & Daemon Notes
 
-- `scripts/tuning/tune_pipeline.py` contains a minimal sweep harness intended for quick parameter
-experimentation (use small budgets for local runs).
-- `scripts/daemon_runner.py` is a conservative long-loop runner that can execute the tuning harness,
-apply simple filtering (top-N), and rotate/retain artifacts. It includes a dry-run mode for safe
-testing.
+Prefer direct package APIs over legacy scripts:
+
+- `kryptos.k4.tuning.run_crib_weight_sweep` — primary weight sweep harness.
+- `kryptos.k4.tuning.tiny_param_sweep` — deterministic micro-grid for smoke validation.
+- `kryptos.k4.tuning.artifacts` — cleaning & summarization (`end_to_end_process`).
+
+Legacy scripts (`scripts/tuning/`, certain experimental examples) will be replaced by forthcoming
+CLI subcommands (`kryptos tuning ...`).
 
 ## Artifacts and format
 
@@ -213,4 +216,4 @@ diagonal snake) & perimeter-in/out variants.
 
 (See README for links; add matrix conjecture, entropy references.)
 
---- Updated: 2025-10-21
+--- Updated: 2025-10-23 (tuning APIs promoted; plan doc archived)

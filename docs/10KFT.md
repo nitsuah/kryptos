@@ -60,9 +60,9 @@ them down if they look confident."
 chooses a conservative threshold (precision-first). ELI5: "It tests how picky the extractor should
 be so we trust what it finds."
 
-- `scripts/tuning/crib_weight_sweep.py` — OPS tuning harness that sweeps crib weight parameters and
-logs results. ELI5: "It tries different weights for crib signals to see which makes the system
-perform better."
+- `kryptos.k4.tuning.run_crib_weight_sweep` — Programmatic OPS tuning harness that sweeps crib
+weight parameters and returns structured rows (wrapper script still exists). ELI5: "It tries
+different weights for crib signals to see which makes the system perform better."
 
 - `scripts/demo/run_k4_demo.py` — A small demo runner that executes the k4 pipeline and saves
 artifacts for review. ELI5: "Runs a demo job and stores its outputs so you can inspect how the
@@ -99,8 +99,9 @@ It's intentionally compact — think sequence steps rather than full design docs
 
 - `kryptos/scripts/dev/orchestrator.py` prepares a run, records metadata (e.g., `max_delta`) and
 calls OPS tuning routines.
-- OPS tuning scripts (e.g., `scripts/tuning/crib_weight_sweep.py`) sweep parameters and write
-artifacts under `artifacts/`.
+- OPS tuning now uses package APIs (e.g., `kryptos.k4.tuning.run_crib_weight_sweep`) to sweep
+parameters and then persists artifacts under `artifacts/` (script wrappers will migrate to CLI
+subcommands).
 
 1. Executor runs job variants
 

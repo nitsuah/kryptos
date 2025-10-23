@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- Added `kryptos.k4.tuning` module (weight sweeps, tiny param sweeps, best-weight selection).
+- Added `kryptos.k4.tuning.artifacts` (match file cleaning, run summarization, crib hit counts, end-
+to-end process helper).
+- CLI foundation: sections listing, k4 decrypt, attempts (tuning subcommands planned).
+- Documentation reorganization & archival of dated plan docs.
 - Pending: route scoring refinement, multiprocessing, advanced Hill assemblies.
 
 ## [2025-10-20] Adaptive & Route Expansion
