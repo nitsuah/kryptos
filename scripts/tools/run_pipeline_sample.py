@@ -22,17 +22,17 @@ for p in (str(ROOT), str(SRC_DIR)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
-# Try a few import fallbacks depending on how the workspace is invoked
-try:  # pragma: no cover - import resolution logic
-    from src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
-    from src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
-except ImportError:  # pragma: no cover
+try:  # prefer installed package
+    from kryptos.src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
+    from kryptos.src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
+except Exception:  # fallback to workspace src/ layout
     try:
+        from src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
+        from src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
+    except Exception:
+        # finally, rely on the earlier sys.path insert to resolve `k4` top-level package
         from k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
         from k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
-    except ImportError:  # pragma: no cover
-        from kryptos.src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
-        from kryptos.src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
 
 # Short slice of K4 for quick run
 CIPHERTEXT = "OBKRUOXOGHULBSOLIFB"

@@ -1,12 +1,17 @@
 # KRYPTOS — Core Documentation
 
-This file contains the detailed project overview, features, modules, and quick-start examples for the KRYPTOS project. The top-level `README.md` is intentionally concise — use this document for in-depth reference.
+This file contains the detailed project overview, features, modules, and quick-start examples for
+the KRYPTOS project. The top-level `README.md` is intentionally concise — use this document for in-
+depth reference.
 
 ## TL;DR
 
-K4 is the unsolved section of the Kryptos sculpture. This repository contains a toolkit to explore layered cipher hypotheses (Hill, transposition, masking, Berlin Clock shift hypotheses) and a configurable pipeline to score and rank candidate plaintexts.
+K4 is the unsolved section of the Kryptos sculpture. This repository contains a toolkit to explore
+layered cipher hypotheses (Hill, transposition, masking, Berlin Clock shift hypotheses) and a
+configurable pipeline to score and rank candidate plaintexts.
 
-This repository contains code, tests, data, and documentation to run and extend experiments. K4-specific strategy and deep technical notes live under `docs/K4_STRATEGY.md`.
+This repository contains code, tests, data, and documentation to run and extend experiments.
+K4-specific strategy and deep technical notes live under `docs/K4_STRATEGY.md`.
 
 ### Quick links
 
@@ -16,6 +21,13 @@ This repository contains code, tests, data, and documentation to run and extend 
 - Daily plan: `PLAN.md`
 - Tuning/daemon runner: `scripts/tune_pipeline.py`, `scripts/daemon_runner.py`
 - Tests: `tests/` (run with `python -m unittest discover -s tests`)
+
+Related documents / breadcrumbs:
+
+- Autopilot & SPY: `AUTOPILOT.md`
+- Plan: `PLAN.md`
+- Roadmap: `../ROADMAP.md`
+- Top-level README: `../README.md`
 
 ### Highlights
 
@@ -27,7 +39,8 @@ This repository contains code, tests, data, and documentation to run and extend 
 ## Current Progress
 
 - Implemented K1–K3 verified tooling and tests.
-- K4: implemented multi-stage pipeline scaffolding, scoring utilities, attempt logging, and adaptive gating.
+- K4: implemented multi-stage pipeline scaffolding, scoring utilities, attempt logging, and adaptive
+  gating.
 - Added unit tests and a tuning harness scaffold; artifacts written to `artifacts/` during runs.
 
 ## Features (summary)
@@ -61,16 +74,20 @@ pip install -r requirements.txt
 python -m unittest discover -s tests
 ```
 
-1. Run a tiny pipeline sample (see `scripts/tools/run_pipeline_sample.py` for an example of how to call the pipeline programmatically).
+1. Run a tiny pipeline sample (see `scripts/tools/run_pipeline_sample.py` for an example of how to
+call the pipeline programmatically).
 
 ## How to Use the Tuning Harness
 
-- `scripts/tuning/tune_pipeline.py` contains a small sweep harness. For safe local experiments, use the dry-run mode or set small candidate budgets.
-- The daemon runner `scripts/daemon_runner.py` provides a minimal long-loop runner that writes CSV artifacts to `artifacts/tuning_runs/` and retains the last 20 runs.
+- `scripts/tuning/tune_pipeline.py` contains a small sweep harness. For safe local experiments, use
+  the dry-run mode or set small candidate budgets.
+- The daemon runner `scripts/daemon_runner.py` provides a minimal long-loop runner that writes CSV
+  artifacts to `artifacts/tuning_runs/` and retains the last 20 runs.
 
 ## Artifacts
 
-- Attempt logs and run summaries are placed under `artifacts/run_<timestamp>/` or `artifacts/tuning_runs/run_<timestamp>/` when using the tuning harness or daemon.
+- Attempt logs and run summaries are placed under `artifacts/run_<timestamp>/` or
+  `artifacts/tuning_runs/run_<timestamp>/` when using the tuning harness or daemon.
 
 ## Roadmap & Contributing
 
@@ -79,9 +96,11 @@ python -m unittest discover -s tests
 
 ## Data Sources
 
-- N-gram and frequency data live in `data/` as TSVs; the code falls back to reasonable defaults when files are missing.
+- N-gram and frequency data live in `data/` as TSVs; the code falls back to reasonable defaults when
+  files are missing.
 
 ## License & References
 
 - See `LICENSE` for licensing.
-- References and further reading are in the original README and in-line documentation within `docs/`.
+- References and further reading are in the original README and in-line documentation within
+  `docs/`.

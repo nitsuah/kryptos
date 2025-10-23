@@ -124,7 +124,9 @@ class PipelineExecutor:
             return res
 
         with ThreadPoolExecutor(max_workers=variant_ct) as ex:
-            futures = [ex.submit(_variant_call, p_len, p_min) for p_len, p_min in zip(partial_lens, partial_mins)]
+            futures = []
+            for p_len, p_min in zip(partial_lens, partial_mins, strict=True):
+                futures.append(ex.submit(_variant_call, p_len, p_min))
             for fut in as_completed(futures):
                 try:
                     r = fut.result()

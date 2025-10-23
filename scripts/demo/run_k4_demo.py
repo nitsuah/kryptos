@@ -15,22 +15,40 @@ from pathlib import Path
 
 
 def run_demo(limit: int = 10):
-    # try to import from src.k4; make-work if not installed
+    # Prefer installed package import, fall back to src/ in workspace or adding project root
     try:
-        from src.k4 import make_hill_constraint_stage, make_masking_stage, persist_attempt_logs, run_composite_pipeline
-    except Exception:
-        PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        if PROJECT_ROOT not in sys.path:
-            sys.path.insert(0, PROJECT_ROOT)
-        from src.k4 import make_hill_constraint_stage, make_masking_stage, persist_attempt_logs, run_composite_pipeline
+        from kryptos.src.k4 import (
+            make_hill_constraint_stage,
+            make_masking_stage,
+            persist_attempt_logs,
+            run_composite_pipeline,
+        )
+    except ImportError:
+        try:
+            from src.k4 import (
+                make_hill_constraint_stage,
+                make_masking_stage,
+                persist_attempt_logs,
+                run_composite_pipeline,
+            )
+        except ImportError:
+            PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+            if PROJECT_ROOT not in sys.path:
+                sys.path.insert(0, PROJECT_ROOT)
+            from src.k4 import (
+                make_hill_constraint_stage,
+                make_masking_stage,
+                persist_attempt_logs,
+                run_composite_pipeline,
+            )
 
     # tiny cipher and minimal stages for demo speed
-    CIPHER = 'OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTW'
+    cipher = 'OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTW'
     stages = [make_hill_constraint_stage(partial_len=30, partial_min=-200.0), make_masking_stage(limit=5)]
 
     weights = None
     run_composite_pipeline(
-        CIPHER,
+        cipher,
         stages,
         report=False,
         weights=weights,

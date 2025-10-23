@@ -4,6 +4,15 @@ Detailed plan for advancing Kryptos K4 analysis.
 
 ## High-Level Planned Modules / Enhancements
 
+- Short term (0-7 days):
+ - Harden autopilot (OPS/ SPY / Q) with conservative defaults and evaluation-driven thresholds.
+ - Add tiny tuning sweep and demo pipelines; wire to artifacts/ for traceability.
+ - Improve test coverage around scoring and transposition components.
+Short term (0-7 days):
+- Harden autopilot (OPS/ SPY / Q) with conservative defaults and evaluation-driven thresholds.
+- Add tiny tuning sweep and demo pipelines; wire to artifacts/ for traceability.
+- Improve test coverage around scoring and transposition components.
+
 - Layered / composite transposition + substitution search pruning. (IN PROGRESS: basic columnar partial-score pruning added)
 - Expanded Berlin Clock enumeration (full lamp state/time modeling, parity & quarter markers). (PARTIALLY IMPLEMENTED: full lamp state & enumeration utilities; pipeline stage added `make_berlin_clock_stage`)
 - Recursive masking / null removal heuristics. (PENDING)

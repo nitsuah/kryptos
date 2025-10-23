@@ -36,7 +36,9 @@ class TestK4Scaffold(unittest.TestCase):
         part = (12, 12, 12, 12, 12, 12, 12, 13)  # sums to 97
         segs = self.src.slice_by_partition(text, part)
         self.assertEqual(len(segs), len(part))
-        self.assertTrue(all(len(s) == expected for s, expected in zip(segs, part)))
+        # ensure each segment length matches the partition sizes
+        for s, expected in zip(segs, part, strict=True):
+            self.assertEqual(len(s), expected)
 
     def test_scoring_basic(self):
         """Test basic plaintext scoring functionality."""
