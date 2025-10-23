@@ -29,11 +29,19 @@ def _load_state() -> dict:
 
 
 def _save_state(state: dict) -> None:
+    # Ensure parent directory exists before writing state file (CI may not have 'agents/')
+    parent = os.path.dirname(STATE_PATH)
+    if parent and not os.path.exists(parent):
+        os.makedirs(parent, exist_ok=True)
     with open(STATE_PATH, 'w', encoding='utf-8') as fh:
         json.dump(state, fh, indent=2)
 
 
 def _append_learned(note: str) -> None:
+    # Ensure parent directory for LEARNED.md exists
+    learned_parent = os.path.dirname(LEARNED_MD)
+    if learned_parent and not os.path.exists(learned_parent):
+        os.makedirs(learned_parent, exist_ok=True)
     with open(LEARNED_MD, 'a', encoding='utf-8') as fh:
         fh.write(f"- {datetime.utcnow().isoformat()} {note}\n")
 
