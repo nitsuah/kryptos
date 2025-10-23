@@ -4,6 +4,7 @@ Writes `crib_weight_sweep.csv` and per-weight `<w>_details.csv` into a
 timestamped artifacts folder under `artifacts/tuning_runs/`.
 """
 
+import argparse
 import csv
 import sys
 import time
@@ -39,12 +40,24 @@ SAMPLES = [
 
 
 def run():
+    parser = argparse.ArgumentParser(description='Run crib weight sweep')
+    parser.add_argument('--weights', type=str, default=None, help='Comma-separated weights, e.g. 0.1,0.5,1.0')
+    parser.add_argument('--dry-run', action='store_true', help='Dry run flag (no external side-effects)')
+    args = parser.parse_args()
+
     from k4 import scoring
 
     cribs_path = ROOT / "docs" / "sources" / "sanborn_crib_candidates.txt"
     cribs = load_cribs(cribs_path)
 
-    weights = [0.1, 0.5, 1.0]
+    if args.weights:
+        try:
+            weights = [float(x.strip()) for x in args.weights.split(',') if x.strip()]
+        except Exception:
+            print("Invalid --weights value, falling back to defaults")
+            weights = [0.1, 0.5, 1.0]
+    else:
+        weights = [0.1, 0.5, 1.0]
 
     ts = time.strftime("%Y%m%dT%H%M%S")
     run_dir = ROOT / "artifacts" / "tuning_runs" / f"run_{ts}"
