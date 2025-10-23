@@ -94,8 +94,11 @@ def recommend_next_action() -> tuple[str, str]:
     # detect a simple SPY extractor presence
     spy_extractor_path = os.path.join(repo_root, 'scripts', 'dev', 'spy_extractor.py')
     has_spy = os.path.exists(spy_extractor_path)
-    # detect ops_run_tuning presence
-    has_ops = hasattr(sys.modules.get(__name__), 'ops_run_tuning')
+    # detect ops_run_tuning presence: prefer an in-module callable or the presence of the sweep script
+    has_ops = callable(globals().get('ops_run_tuning'))
+    if not has_ops:
+        sweep_script = os.path.join(repo_root, 'scripts', 'tuning', 'crib_weight_sweep.py')
+        has_ops = os.path.exists(sweep_script)
 
     if not has_ops:
         return (

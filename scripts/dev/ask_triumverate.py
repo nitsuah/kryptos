@@ -23,15 +23,83 @@ def load_orchestrator():
     raise RuntimeError(f"Failed to load orchestrator at {orch_path}")
 
 
-def run_plan_check(plan_text: str | None = None):
+def run_plan_check(plan_text: str | None = None, autopilot: bool = True):
     orch = load_orchestrator()
     personas = orch.load_personas()
+
+    # If autopilot enabled and no explicit plan_text provided, ask triumverate for next action.
+    if autopilot and not plan_text:
+        rec, just = orch.recommend_next_action()
+        plan_text = f"Recommendation: {rec}. Reason: {just}"
+        print(f"[AUTOPILOT] Triumverate recommends: {rec} -- {just}")
+
+        # Execute a small set of safe, idempotent actions automatically when recommended.
+        rec_lower = rec.lower()
+        # If triumverate wants an OPS run and ops_run_tuning is available, run it (dry-run).
+        if 'ops' in rec_lower or 'run' in rec_lower and 'crib' in rec_lower:
+            if hasattr(orch, 'ops_run_tuning'):
+                try:
+                    print('[AUTOPILOT] Executing recommended OPS run (dry-run)...')
+                    run_path = orch.ops_run_tuning(dry_run=True)
+                    if run_path:
+                        print(f"[AUTOPILOT] OPS wrote tuning artifacts to: {run_path}")
+                        # run SPY extractor automatically if present
+                        spy_path = Path(__file__).resolve().parents[2] / 'scripts' / 'dev' / 'spy_extractor.py'
+                        if spy_path.exists():
+                            import subprocess
+                            import sys
+
+                            try:
+                                subprocess.check_call([sys.executable, str(spy_path)])
+                                print('[AUTOPILOT] SPY extractor completed')
+                            except Exception as e:
+                                print(f"[AUTOPILOT] SPY extractor failed: {e}")
+                except Exception as e:
+                    print(f"[AUTOPILOT] OPS execution failed: {e}")
+
+        # If triumverate recommends pushing a branch & opening a PR, attempt to use gh cli.
+        if 'push' in rec_lower and 'pr' in rec_lower or 'open pr' in rec_lower:
+            try:
+                import subprocess
+
+                # try to create a PR with gh if available
+                print('[AUTOPILOT] Attempting to create GitHub PR using gh CLI...')
+                # run in repo root
+                repo_root = Path(__file__).resolve().parents[2]
+                # use --fill to pre-populate title/body from last commit
+                res = subprocess.run(['gh', 'pr', 'create', '--fill', '--web'], cwd=str(repo_root))
+                if res.returncode == 0:
+                    print('[AUTOPILOT] gh CLI launched PR creation flow (or created PR).')
+                else:
+                    print('[AUTOPILOT] gh CLI not available or failed; printing compare URL instead.')
+                    # fallback: print compare URL using current branch name
+                    # get current branch
+                    br = subprocess.check_output(
+                        ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+                        cwd=str(repo_root),
+                        encoding='utf-8',
+                    ).strip()
+                    origin = subprocess.check_output(
+                        ['git', 'remote', 'get-url', 'origin'],
+                        cwd=str(repo_root),
+                        encoding='utf-8',
+                    ).strip()
+                    # normalise origin url to https://github.com/<owner>/<repo>.git
+                    if origin.endswith('.git'):
+                        origin = origin[:-4]
+                    if origin.startswith('git@'):
+                        origin = origin.replace(':', '/').replace('git@', 'https://')
+                    compare = f"{origin}/compare/main...{br}?expand=1"
+                    print(f'[AUTOPILOT] PR compare URL: {compare}')
+            except Exception as e:
+                print(f"[AUTOPILOT] Failed to create PR automatically: {e}")
+
     # if plan provided, append a small plan note to Q prompt
     if plan_text and "Q" in personas:
         personas["Q"] = personas["Q"] + f"\n\n# PLAN_CHECK: {plan_text}\n"
         # simple parsing: if plan asks to run crib_weight_sweep, or OPS_RUN env var set, invoke OPS
         plan_lower = (plan_text or '').lower()
-        wants_run = 'crib_weight_sweep' in plan_lower
+        wants_run = 'crib_weight_sweep' in plan_lower or 'run' in plan_lower and 'crib' in plan_lower
         ops_run_env = os.environ.get('OPS_RUN', '')
         if wants_run or ops_run_env.lower() in ('1', 'true', 'yes'):
             # make OPS aware of the run request
