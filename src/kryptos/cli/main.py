@@ -5,8 +5,13 @@ import json
 from pathlib import Path
 
 from kryptos.k4 import decrypt_best
+from kryptos.k4 import scoring as k4_scoring
 from kryptos.k4.attempt_logging import persist_attempt_logs
-from kryptos.k4.tuning import pick_best_weight_from_rows, run_crib_weight_sweep, tiny_param_sweep
+from kryptos.k4.tuning import (
+    pick_best_weight_from_rows,
+    run_crib_weight_sweep,
+    tiny_param_sweep,
+)
 from kryptos.k4.tuning.artifacts import end_to_end_process
 from kryptos.k4.tuning.crib_sweep import WeightSweepRow
 from kryptos.sections import SECTIONS
@@ -100,6 +105,22 @@ def build_parser() -> argparse.ArgumentParser:
     sp_tuning_tiny = sub.add_parser('tuning-tiny-param-sweep', help='Run tiny deterministic param sweep')
     sp_tuning_tiny.set_defaults(func=cmd_tuning_tiny_param_sweep)
 
+    # Tuning: holdout score (replacement for scripts/tools/holdout_score.py)
+    sp_tuning_holdout = sub.add_parser('tuning-holdout-score', help='Compute holdout scoring deltas for a crib weight')
+    sp_tuning_holdout.add_argument('--weight', type=float, required=True, help='Crib weight to score')
+    sp_tuning_holdout.add_argument(
+        '--out',
+        type=Path,
+        default=Path('artifacts/reports/holdout.csv'),
+        help='Output CSV path',
+    )
+    sp_tuning_holdout.add_argument(
+        '--no-write',
+        action='store_true',
+        help='Do not write CSV, just print JSON summary',
+    )
+    sp_tuning_holdout.set_defaults(func=cmd_tuning_holdout_score)
+
     # SPY evaluation
     sp_spy_eval = sub.add_parser('spy-eval', help='Evaluate SPY thresholds and print metrics')
     sp_spy_eval.add_argument('--labels', type=Path, default=Path('data/spy_eval_labels.csv'), help='Labels CSV path')
@@ -189,6 +210,38 @@ def cmd_tuning_summarize_run(args: argparse.Namespace) -> int:
 def cmd_tuning_tiny_param_sweep(_args: argparse.Namespace) -> int:
     rows = tiny_param_sweep()
     print(json.dumps(rows, indent=2))
+    return 0
+
+
+def cmd_tuning_holdout_score(args: argparse.Namespace) -> int:
+    # Minimal representative holdout samples (formerly in holdout_score.py)
+    holdout_samples = [
+        'IN THE QUIET AFTERNOON THE SHADOWS GREW LONG ON THE FLOOR',
+        'THE SECRET MESSAGE WAS HIDDEN IN PLAIN SIGHT AMONG THE TEXT',
+    ]
+    chosen_w = float(args.weight)
+    rows = []
+    for s in holdout_samples:
+        base = k4_scoring.combined_plaintext_score(s)
+        withc = k4_scoring.combined_plaintext_score_with_external_cribs(s, external_cribs=[], crib_weight=chosen_w)
+        rows.append({'sample': s, 'base': base, 'with': withc, 'delta': withc - base})
+
+    mean_delta = sum(r['delta'] for r in rows) / len(rows) if rows else None
+    out = {'weight': chosen_w, 'mean_delta': mean_delta, 'rows': rows}
+    if args.no_write:
+        print(json.dumps(out, indent=2))
+        return 0
+    # write CSV
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    import csv
+
+    with args.out.open('w', newline='', encoding='utf-8') as fh:
+        w = csv.DictWriter(fh, fieldnames=['sample', 'base', 'with', 'delta'])
+        w.writeheader()
+        for r in rows:
+            w.writerow(r)
+    print(json.dumps(out, indent=2))
+    print(str(args.out))
     return 0
 
 

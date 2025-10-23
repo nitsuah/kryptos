@@ -22,11 +22,11 @@ tests updated to point to canonical paths.
 
 | Script | Reason | Replacement | Removal Target |
 |--------|--------|-------------|----------------|
-| (removed) scripts/experimental/tools/run_hill_search.py | Ad-hoc key gen & scoring | k4.hill_search.score_decryptions | Removed 2025-10-23 |
-| (removed) scripts/experimental/tools/run_hill_canonical.py | Thin wrapper | k4.hill_constraints.decrypt_and_score | Removed (API consolidated) |
-| (removed) scripts/experimental/tools/run_pipeline_sample.py | Pipeline sample wrapper | Direct package pipeline usage | Removed (CLI + direct API) |
-| scripts/tuning/spy_eval.py | Legacy evaluation harness | kryptos.tuning.spy_eval | Remove after CLI spy eval |
-| (removed) scripts/experimental/examples/run_full_smoke.py | Chained demo wrapper | CLI examples & individual commands | Removed 2025-10-23 |
+| (stub) scripts/experimental/tools/run_hill_search.py | Ad-hoc key gen & scoring | k4.hill_search.score_decryptions | Delete after hill search tests |
+| (stub) scripts/experimental/tools/run_hill_canonical.py | Thin wrapper | k4.hill_constraints.decrypt_and_score | Delete after adapter test |
+| (stub) scripts/experimental/tools/run_pipeline_sample.py | Pipeline sample wrapper | Direct package pipeline usage | Delete after README pipeline example |
+| (stub) scripts/experimental/examples/run_full_smoke.py | Chained demo wrapper | CLI examples & individual commands | Delete after CLI chain example added |
+| scripts/tuning/spy_eval.py | Legacy evaluation harness | kryptos.tuning.spy_eval | Remove duplicate after ensuring package path used |
 
 ## Promotion Criteria
 
@@ -48,7 +48,8 @@ Delete a deprecated script once:
 1. Implement Hill hypothesis adapter using existing package functions. 2. Remove deprecated hill
 wrappers once tests reference adapter. 3. Convert smoke/demo scripts to pure package examples in
 docs or consolidate into CLI. 4. Re-run full test suite & update this file with completed deletions.
-5. Introduce CLI entrypoints to replace remaining example wrappers (`decrypt`, `autopilot`, `tune`).
+
+1. Introduce CLI entrypoints to replace remaining example wrappers (`decrypt`, `autopilot`, `tune`).
 (In progress: base CLI present; tuning/spy pending)
 
 Status Snapshot (2025-10-23): Unified package complete, tuning & artifacts modules promoted, docs
