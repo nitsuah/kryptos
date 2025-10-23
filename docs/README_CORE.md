@@ -61,11 +61,11 @@ pip install -r requirements.txt
 python -m unittest discover -s tests
 ```
 
-1. Run a tiny pipeline sample (see `scripts/run_pipeline_sample.py` for an example of how to call the pipeline programmatically).
+1. Run a tiny pipeline sample (see `scripts/tools/run_pipeline_sample.py` for an example of how to call the pipeline programmatically).
 
 ## How to Use the Tuning Harness
 
-- `scripts/tune_pipeline.py` contains a small sweep harness. For safe local experiments, use the dry-run mode or set small candidate budgets.
+- `scripts/tuning/tune_pipeline.py` contains a small sweep harness. For safe local experiments, use the dry-run mode or set small candidate budgets.
 - The daemon runner `scripts/daemon_runner.py` provides a minimal long-loop runner that writes CSV artifacts to `artifacts/tuning_runs/` and retains the last 20 runs.
 
 ## Artifacts

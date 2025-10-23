@@ -26,7 +26,7 @@ This document collects K4-specific strategy, modules, and operational notes used
 
 ## Tuning & Daemon Notes
 
-- `scripts/tune_pipeline.py` contains a minimal sweep harness intended for quick parameter experimentation (use small budgets for local runs).
+- `scripts/tuning/tune_pipeline.py` contains a minimal sweep harness intended for quick parameter experimentation (use small budgets for local runs).
 - `scripts/daemon_runner.py` is a conservative long-loop runner that can execute the tuning harness, apply simple filtering (top-N), and rotate/retain artifacts. It includes a dry-run mode for safe testing.
 
 ## Artifacts and format

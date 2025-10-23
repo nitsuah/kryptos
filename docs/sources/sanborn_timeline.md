@@ -1,12 +1,16 @@
 # Sanborn timeline (working)
-
-This file is a working timeline of public statements, interviews, and primary sources where Jim Sanborn discusses Kryptos. Fill entries with a short quote, date, and source URL. Use the helper script `scripts/collect_sanborn_sources.py` to fetch and generate entries automatically from a list of URLs.
+This file is a working timeline of public statements, interviews, and primary sources where Jim Sanborn discusses Kryptos. Fill entries with a short quote, date, and source URL. Use the helper script `scripts/tools/collect_sanborn_sources.py` to fetch and generate entries automatically from a list of URLs.
 
 Format (one entry per section):
 
 - Date: YYYY-MM-DD
 - Source: URL
 - Title: Page title or interview name
+If you prefer automatic collection, place a newline-separated list of URLs in `scripts/sources_urls.txt` and run:
+
+```bash
+python scripts/tools/collect_sanborn_sources.py scripts/sources_urls.txt docs/sources/sanborn_timeline.md
+```
 - Excerpt: Short quoted excerpt (1-2 sentences)
 - Notes: Why this may be relevant to K4 (crib candidate, theme, time clue, directional hint, etc.)
 
@@ -27,7 +31,7 @@ Automatic collection
 If you prefer automatic collection, place a newline-separated list of URLs in `scripts/sources_urls.txt` and run:
 
 ```bash
-python scripts/collect_sanborn_sources.py scripts/sources_urls.txt docs/sources/sanborn_timeline.md
+python scripts/tools/collect_sanborn_sources.py scripts/sources_urls.txt docs/sources/sanborn_timeline.md
 ```
 
 The script will fetch each URL, extract the title and first paragraph, and append an entry to the timeline. Always manually verify quoted excerpts against the original page before using any crib as a hard constraint.
@@ -117,3 +121,11 @@ The script will fetch each URL, extract the title and first paragraph, and appen
 - Title: "Questions for Kryptos' Creator — Wired"
 - Excerpt: "For the student of cryptography it's always helpful to gather as much information as possible when zeroing in on and encoding a system... I made reference in the encoded text to something I could have carried out."
 - Notes: Interview transcript with Jim Sanborn (Kim Zetter). Contains several first-person statements about intent, use of lodestones, references to coordinate clues and staged difficulty across the courtyard pieces — high-value for crib/context generation.
+
+---
+
+- Date: 2009-07-14
+- Source: https://www.aaa.si.edu/collections/interviews/oral-history-interview-jim-sanborn-15700
+- Title: "Oral history interview with Jim Sanborn, 2009 Jul 14-16"
+- Excerpt: Transcript available from the Archives of American Art (Avis Berman interview). Usage conditions apply; the transcript contains first-person recollections about the commissioning and conceptualization of Kryptos and related public commissions.
+- Notes: Primary-source oral-history transcript — consult the Archives of American Art transcript for direct quotes (downloadable PDF). This record supports adding historically-grounded crib candidates but the transcript has usage restrictions; only metadata added here.

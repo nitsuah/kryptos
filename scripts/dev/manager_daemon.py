@@ -1,24 +1,20 @@
-"""Minimal daemon/manager to orchestrate tuning sweeps and archive results.
+"""Copy of manager_daemon for scripts/dev (shim content retained).
 
-Usage: import and call run() or execute as a script. Contains a dry-run mode
-that doesn't execute heavy jobs (useful for tests).
-
-This file intentionally avoids network calls and runs the existing tuning
-script via its Python entrypoint if present.
+This file is a copy of the original `scripts/manager_daemon.py` and placed under
+`scripts/dev/` as part of the reorganization. It will be the canonical location for
+daemon tooling.
 """
 
 from __future__ import annotations
 
-import argparse
 import csv
 import datetime
 import json
 import shutil
-import time
 from collections.abc import Iterable, Mapping
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 ARTIFACT_DIR = ROOT / "artifacts" / "tuning_runs"
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -50,21 +46,29 @@ def run_sweep(params: Mapping[str, int], dry_run: bool = False) -> Path:
         try:
             import importlib.util
 
-            spec = importlib.util.spec_from_file_location("tune_pipeline", str(ROOT / "scripts" / "tune_pipeline.py"))
+            spec = importlib.util.spec_from_file_location(
+                "tune_pipeline",
+                str(ROOT / "scripts" / "tuning" / "tune_pipeline.py"),
+            )
             mod = importlib.util.module_from_spec(spec) if spec else None
             if spec and mod:
                 spec.loader.exec_module(mod)  # type: ignore
                 # Expect mod.run_sweep to accept params and return iterable of dict rows
                 raw = getattr(mod, "run_sweep", None)
                 if raw:
-                    for row in raw(params):
+                    # raw may be a callable returning rows or an iterable of rows
+                    if callable(raw):
+                        rows = raw(params)
+                    else:
+                        rows = list(raw)
+                    for row in rows:
                         results.append(row)
                 else:
                     # fallback: write a small placeholder
                     results.append({"param_set": json.dumps(params), "run": 0, "best_score": 0.0})
             else:
                 results.append({"param_set": json.dumps(params), "run": 0, "best_score": 0.0})
-        except Exception:
+        except (OSError, ImportError):
             # Do not allow daemon to crash; record an error row
             results.append({"param_set": json.dumps(params), "run": 0, "best_score": -1.0, "error": "exception"})
 
@@ -82,64 +86,7 @@ def run_sweep(params: Mapping[str, int], dry_run: bool = False) -> Path:
     for old in runs[20:]:
         try:
             shutil.rmtree(old)
-        except Exception:
+        except OSError:
             pass
 
     return csv_path
-
-
-def filter_top_candidates(csv_path: Path, top_n: int = 5) -> Path:
-    """Simple filter that reads summary CSV and writes top_n rows by best_score."""
-    rows = []
-    with csv_path.open("r", encoding="utf-8", newline="") as fh:
-        reader = csv.DictReader(fh)
-        for r in reader:
-            try:
-                score = float(r.get("best_score") or 0.0)
-            except Exception:
-                score = -9999.0
-            r["_score_f"] = score
-            rows.append(r)
-    rows.sort(key=lambda r: r["_score_f"], reverse=True)
-    out = csv_path.with_name(csv_path.stem + "_top.csv")
-    with out.open("w", encoding="utf-8", newline="") as fh:
-        if not rows:
-            fh.write("")
-            return out
-        keys = [k for k in rows[0].keys() if not k.startswith("_")]
-        writer = csv.DictWriter(fh, fieldnames=keys)
-        writer.writeheader()
-        for r in rows[:top_n]:
-            writer.writerow({k: r.get(k, "") for k in keys})
-    return out
-
-
-def run(loop_delay: int = 10, dry_run: bool = True):
-    """Main loop: iterate param grid and run sweep for each set.
-
-    loop_delay: seconds between param sets (keeps loop friendly).
-    dry_run: when True, do not execute heavy operations.
-    """
-    try:
-        while True:
-            for params in default_param_grid():
-                csvp = run_sweep(params, dry_run=dry_run)
-                filter_top_candidates(csvp, top_n=3)
-                # friendly sleep between runs
-                time.sleep(loop_delay)
-            # one pass completed; brief pause
-            time.sleep(loop_delay)
-    except KeyboardInterrupt:
-        print("Daemon stopped by user")
-
-
-def _main():
-    p = argparse.ArgumentParser()
-    p.add_argument("--dry-run", action="store_true", help="Do not execute heavy jobs; produce deterministic output.")
-    p.add_argument("--delay", type=int, default=2, help="Seconds delay between runs (default: 2).")
-    args = p.parse_args()
-    run(loop_delay=args.delay, dry_run=args.dry_run)
-
-
-if __name__ == "__main__":
-    _main()

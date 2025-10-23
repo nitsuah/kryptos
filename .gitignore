@@ -38,3 +38,4 @@ MANIFEST
 /data/*.generated
 reports/
 artifacts/
+agents/

@@ -2,7 +2,7 @@
 """Fetch a list of URLs and append a simple timeline entry to a target markdown file.
 
 Usage:
-    python scripts/collect_sanborn_sources.py urls.txt docs/sources/sanborn_timeline.md
+    python scripts/tools/collect_sanborn_sources.py urls.txt docs/sources/sanborn_timeline.md
 
 Notes: requires `requests` and `beautifulsoup4` if run locally.
 """
@@ -55,6 +55,5 @@ def main(urls_path: str, out_md: str) -> None:
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        print('Usage: python scripts/collect_sanborn_sources.py urls.txt out.md')
+        print('Usage: python scripts/tools/collect_sanborn_sources.py urls.txt out.md')
         sys.exit(2)
-    main(sys.argv[1], sys.argv[2])

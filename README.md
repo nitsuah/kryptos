@@ -109,7 +109,7 @@ See `LICENSE`.
 - `docs/README_CORE.md` — project reference and examples
 - `docs/K4_STRATEGY.md` — K4-specific strategy and notes
 
-If you prefer to run an example pipeline, see `scripts/run_pipeline_sample.py` for a minimal programmatic example.
+If you prefer to run an example pipeline, see `scripts/tools/run_pipeline_sample.py` for a minimal programmatic example.
 
 ## References & Research
 

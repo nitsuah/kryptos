@@ -157,4 +157,9 @@ def search_columnar_adaptive(
     return all_results[:50]
 
 
-__all__ = ['apply_columnar_permutation', 'search_columnar', 'search_columnar_adaptive', 'get_transposition_attempt_log']
+__all__ = [
+    'apply_columnar_permutation',
+    'search_columnar',
+    'search_columnar_adaptive',
+    'get_transposition_attempt_log',
+]

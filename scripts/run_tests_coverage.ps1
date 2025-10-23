@@ -1,1 +1,1 @@
-pwsh -NoLogo -Command "pytest --cov=src --cov-report=term-missing"
+pwsh -NoLogo -Command "& './scripts/lint/run_tests_coverage.ps1'"
