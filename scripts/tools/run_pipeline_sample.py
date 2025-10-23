@@ -1,10 +1,11 @@
+#!/usr/bin/env python3
 """Minimal executable sample to exercise PipelineExecutor.
 
 Creates a small pipeline (hill constraint + masking) and runs it on a short
 slice of the K4 ciphertext. Produces artifacts under artifacts/run_<timestamp>/.
 
 Usage (PowerShell):
-    python scripts/run_pipeline_sample.py
+    python scripts/tools/run_pipeline_sample.py
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ import sys
 from pathlib import Path
 
 # Ensure repository root on path when executing as a script.
-ROOT = Path(__file__).resolve().parents[1]  # kryptos project root
+ROOT = Path(__file__).resolve().parents[2]  # kryptos project root
 SRC_DIR = ROOT / 'src'
 # Ensure both repo root and src are importable depending on environment
 for p in (str(ROOT), str(SRC_DIR)):

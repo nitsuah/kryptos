@@ -79,7 +79,7 @@ Completed (2025-10-21):
 - Pipeline executor with candidate pruning & artifact logging (attempt_log.jsonl + summary.json).
 - Automated spacing / lint autofix tooling (pep8_spacing_autofix.py) for consistent style compliance.
 - Pruning logic & pattern bonus tests (test_executor_pruning_and_pattern.py).
-- Minimal runnable sample script (scripts/run_pipeline_sample.py).
+- Minimal runnable sample script (scripts/tools/run_pipeline_sample.py).
 
 Next Iteration Targets:
 

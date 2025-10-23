@@ -8,12 +8,12 @@ Writes `crib_integration.csv` into a timestamped folder under
 """
 
 import csv
+import sys
 import time
 from pathlib import Path
-import sys
 
 # ensure src/ is importable when running from the repo root
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
 sys.path.insert(0, str(SRC))
 

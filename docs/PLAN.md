@@ -6,7 +6,7 @@ Top priorities (day-of):
 
 - [ ] 1) Add focused unit tests for `src/k4/scoring.py` to cover the remaining branches (approx lines 135-157 and related edge cases). Target 95%+ file coverage for scoring.
 - [ ] 2) Add 3–4 unit tests for `src/k4/transposition.py` exercising early-exit paths, route edge-cases, and constraint fall-throughs to push that file >90% coverage.
-- [ ] 3) Wire a deterministic tiny tuning sweep (in `scripts/tune_pipeline.py`) that runs with minimal budgets and writes a CSV of run results to `artifacts/tuning_runs/` for quick inspection.
+- [ ] 3) Wire a deterministic tiny tuning sweep (in `scripts/tuning/tune_pipeline.py`) that runs with minimal budgets and writes a CSV of run results to `artifacts/tuning_runs/` for quick inspection.
 - [ ] 4) Run full test suite with coverage and confirm overall coverage remains >= 92% and that new tests are stable.
 
 Progress note:

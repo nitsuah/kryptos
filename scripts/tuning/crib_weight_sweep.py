@@ -5,12 +5,12 @@ timestamped artifacts folder under `artifacts/tuning_runs/`.
 """
 
 import csv
+import sys
 import time
 from pathlib import Path
-import sys
 
 # Ensure src/ is importable when running from repo root
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
 sys.path.insert(0, str(SRC))
 

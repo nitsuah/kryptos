@@ -14,7 +14,7 @@ from pathlib import Path
 
 # Ensure src/ is on sys.path so `from k4 import scoring` resolves when running
 # the script from the workspace root.
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
 sys.path.insert(0, str(SRC))
 
@@ -53,9 +53,6 @@ def run():
             scores = []
             for s in SAMPLES:
                 stats = scoring.baseline_stats(s)
-                # Compose a weighted score: ngram component scaled, penalize chi-square,
-                # and apply crib multiplier. This mirrors combined_plaintext_score but
-                # allows parameterization for the tiny sweep.
                 ngram_sum = stats["bigram_score"] + stats["trigram_score"] + stats["quadgram_score"]
                 score = (
                     params["ngram_weight"] * ngram_sum

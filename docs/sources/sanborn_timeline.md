@@ -1,12 +1,16 @@
 # Sanborn timeline (working)
-
-This file is a working timeline of public statements, interviews, and primary sources where Jim Sanborn discusses Kryptos. Fill entries with a short quote, date, and source URL. Use the helper script `scripts/collect_sanborn_sources.py` to fetch and generate entries automatically from a list of URLs.
+This file is a working timeline of public statements, interviews, and primary sources where Jim Sanborn discusses Kryptos. Fill entries with a short quote, date, and source URL. Use the helper script `scripts/tools/collect_sanborn_sources.py` to fetch and generate entries automatically from a list of URLs.
 
 Format (one entry per section):
 
 - Date: YYYY-MM-DD
 - Source: URL
 - Title: Page title or interview name
+If you prefer automatic collection, place a newline-separated list of URLs in `scripts/sources_urls.txt` and run:
+
+```bash
+python scripts/tools/collect_sanborn_sources.py scripts/sources_urls.txt docs/sources/sanborn_timeline.md
+```
 - Excerpt: Short quoted excerpt (1-2 sentences)
 - Notes: Why this may be relevant to K4 (crib candidate, theme, time clue, directional hint, etc.)
 
@@ -27,7 +31,7 @@ Automatic collection
 If you prefer automatic collection, place a newline-separated list of URLs in `scripts/sources_urls.txt` and run:
 
 ```bash
-python scripts/collect_sanborn_sources.py scripts/sources_urls.txt docs/sources/sanborn_timeline.md
+python scripts/tools/collect_sanborn_sources.py scripts/sources_urls.txt docs/sources/sanborn_timeline.md
 ```
 
 The script will fetch each URL, extract the title and first paragraph, and append an entry to the timeline. Always manually verify quoted excerpts against the original page before using any crib as a hard constraint.

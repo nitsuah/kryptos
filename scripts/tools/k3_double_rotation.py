@@ -2,15 +2,15 @@
 """Minimal reproducible K3 double rotational transposition helper.
 
 Usage:
-    python scripts/k3_double_rotation.py
+    python scripts/tools/k3_double_rotation.py
 
 Outputs the derived plaintext (with DESPARATLY) from config K3 ciphertext.
 """
 
 import json
-import os
+from pathlib import Path
 
-CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
+CONFIG_PATH = Path(__file__).resolve().parents[2] / 'config' / 'config.json'
 
 
 def load_k3():
@@ -29,18 +29,13 @@ def rotate_right(matrix):
 
 
 def k3_double_rotation(ct: str) -> str:
-    # First grid 24x14
     cols1, rows1 = 24, 14
     m1 = [list(ct[i * cols1 : (i + 1) * cols1]) for i in range(rows1)]
-    # Rotate
     m2 = rotate_right(m1)
-    # Flatten
     t1 = ''.join(''.join(r) for r in m2)
-    # Re-chunk into 8-col rows
     cols2 = 8
     rows2 = len(t1) // cols2
     m3 = [list(t1[i * cols2 : (i + 1) * cols2]) for i in range(rows2)]
-    # Second rotate
     m4 = rotate_right(m3)
     return ''.join(''.join(r) for r in m4)
 
