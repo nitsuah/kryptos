@@ -124,16 +124,19 @@ def main(argv: list[str]) -> int:
             'OBKRUOXOGHULBSOLIFB',
         ]
 
-    # scoring helper import (from package scoring)
+    # scoring helper import (prefer package import, then fallback to src layout)
     try:
-        from kryptos.src.k4 import scoring as scoring_mod  # type: ignore
+        from kryptos.k4 import scoring as scoring_mod  # type: ignore
     except Exception:
         try:
             from src.k4 import scoring as scoring_mod  # type: ignore
         except Exception:
-            # last resort: attempt to import by adjusting sys.path
+            # last resort: adjust sys.path and try plain package import
             sys.path.insert(0, str(repo_root / 'src'))
-            from k4 import scoring as scoring_mod  # type: ignore
+            try:
+                from k4 import scoring as scoring_mod  # type: ignore
+            except Exception:
+                scoring_mod = None
 
     it = 0
     while True:
@@ -162,9 +165,11 @@ def main(argv: list[str]) -> int:
                 # top stores text_prefix; try to recover more by reading attempt_log if needed
                 candidate_text = top.get('text_prefix', '')
                 try:
+                    if scoring_mod is None:
+                        raise RuntimeError('scoring module not available')
                     score = scoring_mod.combined_plaintext_score(candidate_text)
                 except Exception:
-                    logging.exception('Scoring failed; skipping')
+                    logging.exception('Scoring failed or module missing; skipping')
                     score = 0.0
 
                 logging.info('Top candidate score=%.3f threshold=%.3f', score, args.score_threshold)

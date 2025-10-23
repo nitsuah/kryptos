@@ -182,7 +182,8 @@ def run_plan_check(
                     print(f'[AUTOPILOT] PR compare URL: {compare}')
                     if body_file:
                         print('\n--- Decision preview ---')
-                        print(open(body_file, encoding='utf-8').read())
+                        with open(body_file, encoding='utf-8') as _bf:
+                            print(_bf.read())
                         print('--- End decision preview ---\n')
                 else:
                     # use --body-file to include decision; fall back to --fill
@@ -322,7 +323,7 @@ def run_plan_check(
                                 try:
                                     # lazy import scoring same as sweep
                                     try:
-                                        from kryptos.src.k4 import scoring as hold_scoring
+                                        from kryptos.k4 import scoring as hold_scoring
                                     except Exception:
                                         try:
                                             from src.k4 import scoring as hold_scoring

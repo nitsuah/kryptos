@@ -5,13 +5,18 @@ This file intentionally delegates implementation to the top-level
 preserving imports that reference `kryptos.ciphers`.
 """
 
-from ciphers import (
-    double_rotational_transposition,
-    kryptos_k3_decrypt,
-    polybius_decrypt,
-    transposition_decrypt,
-    vigenere_decrypt,
-)
+try:
+    from ciphers import (
+        double_rotational_transposition,
+        kryptos_k3_decrypt,
+        polybius_decrypt,
+        transposition_decrypt,
+        vigenere_decrypt,
+    )
+except ImportError as e:
+    raise ImportError(
+        "Could not import top-level 'ciphers' module; ensure 'src' is on PYTHONPATH." f" Original error: {e}",
+    ) from e
 
 __all__ = [
     'double_rotational_transposition',
