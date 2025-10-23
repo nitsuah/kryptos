@@ -64,6 +64,36 @@ print('Best threshold:', best)
 `weight_*_details.csv`.
 - Demo runs: `artifacts/demo/run_<timestamp>/` produced by `scripts/demo/run_k4_demo.py`.
 
+## Autonomous daemons
+
+- `scripts/dev/autopilot_daemon.py` — periodically invokes the triumverate
+(`ask_triumverate.run_plan_check`) and exits when a safe decision artifact is created. Useful for
+background tuning and sweep automation.
+- `scripts/dev/cracker_daemon.py` — runs the K4 pipeline repeatedly against ciphertext(s) and writes
+a decision artifact when a candidate passes a plausibility threshold.
+
+All decisions are written to:
+
+```powershell
+artifacts/decisions/decision_<timestamp>.json
+```
+
+Each decision JSON includes: time, run_dir, best_weight, spy_min_conf, spy_precision, holdout
+results and `holdout_pass`.
+
+## Safety: no user decisions required
+
+- The autopilot will not auto-apply changes unless safety checks pass. Default safety policy:
+
+  - `AUTOPILOT_SAFE_PREC` (env var): minimum required SPY precision to auto-apply (default `0.9`).
+  - `AUTOPILOT_MAX_REGRESSION` (env var): allowed negative mean delta on holdout (default `0.0`).
+
+- If precision cannot be computed because no labeled matches exist, the system will not auto-apply
+and will instead write a decision JSON for human review.
+
+- If you prefer manual control, call the driver with `--no-autopilot` or run `ask_triumverate.py`
+directly and inspect the decision JSONs under `artifacts/decisions/`.
+
 ## CI
 
 - Fast CI (`.github/workflows/ci-fast.yml`) runs tests quickly and installs the package in editable

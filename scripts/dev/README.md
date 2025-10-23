@@ -36,6 +36,34 @@ python scripts/dev/ask_triumverate.py --dry-run
 python scripts/dev/ask_triumverate.py
 ```
 
+## Daemons (autonomous runs)
+
+- `scripts/dev/autopilot_daemon.py` — periodically invokes the triumverate
+(`ask_triumverate.run_plan_check`) and stops when a safe decision is produced. Useful for continuous
+background tuning when you want the system to run unattended.
+- `scripts/dev/cracker_daemon.py` — repeatedly runs the K4 pipeline against ciphertext(s) and writes
+a decision artifact when a candidate exceeds a plausibility score threshold.
+
+Examples:
+
+```powershell
+# Run the autopilot loop in dry-run mode every 5 minutes
+python scripts/dev/autopilot_daemon.py --interval 300 --dry-run
+
+# Run the cracker daemon against a ciphertext, stopping when candidate score >= 0.9
+python scripts/dev/cracker_daemon.py --cipher 'OBKRUOXOGHULBSOLIFB' --score-threshold 0.9
+```
+
+## Safety / No-user-decision guarantee
+
+- The autopilot will not auto-apply changes unless safety checks pass. By default the safety gate
+requires `AUTOPILOT_SAFE_PREC=0.9` (90% precision) and no negative regression on the holdout set
+(`AUTOPILOT_MAX_REGRESSION=0.0`).
+- All automated decisions are written as JSON under `artifacts/decisions/decision_<timestamp>.json`
+for audit and review.
+- If you want manual control, run `scripts/dev/ask_triumverate.py --no-autopilot` to prevent any
+autopilot actions.
+
 - To override the computed threshold explicitly:
 
 ```powershell
