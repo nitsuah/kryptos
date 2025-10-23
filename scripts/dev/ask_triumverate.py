@@ -145,6 +145,24 @@ def run_plan_check(
         print(ln.strip())
 
 
+def _parse_weights(s: str | None) -> list[float] | None:
+    if not s:
+        return None
+    try:
+        return [float(x.strip()) for x in s.split(',') if x.strip()]
+    except Exception:
+        return None
+
+
 if __name__ == "__main__":
-    plan = os.environ.get("PLAN", None)
-    run_plan_check(plan)
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Autopilot triumverate runner')
+    parser.add_argument('--plan', type=str, default=None, help='Plan text to append to Q prompt')
+    parser.add_argument('--weights', type=str, default=None, help='Comma-separated weights to pass to OPS')
+    parser.add_argument('--dry-run', dest='dry_run', action='store_true', help='Run OPS in dry-run mode')
+    parser.add_argument('--no-autopilot', dest='autopilot', action='store_false', help="Don't auto-query triumverate")
+    args = parser.parse_args()
+
+    weights = _parse_weights(args.weights)
+    run_plan_check(args.plan, autopilot=args.autopilot, weights=weights, dry_run=args.dry_run)
