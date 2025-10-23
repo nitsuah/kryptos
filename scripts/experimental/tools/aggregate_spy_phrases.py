@@ -9,7 +9,13 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        ROOT = p
+        break
+print(f'[aggregate_spy_phrases] repo root resolved to {ROOT}')
 IN_PATH = ROOT / 'agents' / 'output' / 'spy_cribs.tsv'
 OUT_PATH = ROOT / 'agents' / 'output' / 'spy_crib_phrases.tsv'
 
@@ -24,7 +30,7 @@ def run():
             parts = line.rstrip('\n').split('\t')
             if len(parts) != 4:
                 continue
-            token, src, excerpt, conf = parts
+            _token, src, excerpt, conf = parts
             # Use excerpt as key (full phrase); prefer highest confidence order: high>med>low
             prev = phrases.get(excerpt)
             rank = {'low': 0, 'med': 1, 'high': 2}

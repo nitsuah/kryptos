@@ -12,7 +12,13 @@ import json
 import sys
 from pathlib import Path
 
-repo = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+repo = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        repo = p
+        break
+print(f'[run_hill_canonical] repo root resolved to {repo}')
 # ensure src is importable
 if str(repo / 'src') not in sys.path:
     sys.path.insert(0, str(repo / 'src'))
@@ -30,7 +36,7 @@ if cfg.exists():
         data = json.loads(cfg.read_text(encoding='utf-8'))
         if isinstance(data, dict):
             cipher = data.get('K4') or data.get('K4_CIPHER')
-    except Exception:
+    except ImportError:
         cipher = None
 if not cipher:
     cipher = 'OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR'

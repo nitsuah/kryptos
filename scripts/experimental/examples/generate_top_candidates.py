@@ -7,14 +7,26 @@ import csv
 from datetime import datetime
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        ROOT = p
+        break
+print(f'[generate_top_candidates] repo root resolved to {ROOT}')
 RUNS = ROOT / 'artifacts' / 'tuning_runs'
 OUT_DIR = ROOT / 'artifacts' / 'reports'
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-all_runs = sorted([p for p in RUNS.iterdir() if p.is_dir()], key=lambda p: p.stat().st_mtime, reverse=True)
+if not RUNS.exists():
+    raise SystemExit(f'No tuning runs root found at {RUNS}')
+all_runs = sorted(
+    [p for p in RUNS.iterdir() if p.is_dir() and p.name.startswith('run_')],
+    key=lambda p: p.stat().st_mtime,
+    reverse=True,
+)
 if not all_runs:
-    raise SystemExit('No tuning runs found')
+    raise SystemExit('No tuning runs directories found')
 
 # pick the most recent run that contains condensed_report.csv
 latest = None
@@ -30,14 +42,15 @@ rows = []
 with condensed.open('r', encoding='utf-8') as fh:
     r = csv.DictReader(fh)
     for row in r:
+        raw_delta = row.get('top_delta', '0')
         try:
-            delta = float(row.get('top_delta', '0'))
-        except Exception:
+            delta = float(raw_delta)
+        except (TypeError, ValueError):
             delta = 0.0
         rows.append({'weight': row.get('weight', ''), 'delta': delta, 'sample': row.get('sample_snippet', '')})
-
 if not rows:
-    raise SystemExit('No rows in condensed report')
+    print('Condensed report has header only; no candidate rows. Nothing to report.')
+    raise SystemExit(0)
 
 rows_sorted = sorted(rows, key=lambda x: x['delta'], reverse=True)
 top3 = rows_sorted[:3]

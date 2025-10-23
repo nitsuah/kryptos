@@ -9,7 +9,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+# Resolve repository root by walking up until pyproject.toml is found
+_here = Path(__file__).resolve()
+ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        ROOT = p
+        break
+print(f'[run_full_smoke] repo root resolved to {ROOT}')
 
 steps = [
     (ROOT / 'scripts' / 'examples' / 'run_autopilot_demo.py', 'demo'),
@@ -19,7 +26,7 @@ steps = [
 
 for script, name in steps:
     print(f'--- Running {name} ({script}) ---')
-    res = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
+    res = subprocess.run([sys.executable, str(script)], capture_output=True, text=True, check=False)
     print('exit:', res.returncode)
     print(res.stdout)
     if res.stderr:
@@ -31,11 +38,10 @@ res = subprocess.run(
     [sys.executable, str(ROOT / 'scripts' / 'examples' / 'condensed_tuning_report.py')],
     capture_output=True,
     text=True,
+    check=False,
 )
 if res.returncode == 0:
     # attempt to find the condensed_report.csv in the latest run dir
-    from pathlib import Path
-
     run_root = Path('artifacts') / 'tuning_runs'
     runs = sorted([p for p in run_root.iterdir() if p.is_dir()], key=lambda p: p.stat().st_mtime, reverse=True)
     condensed = None

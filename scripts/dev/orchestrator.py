@@ -8,12 +8,20 @@ import subprocess
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 
-AGENTS_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'agents')
-REPO_ROOT = os.path.dirname(os.path.dirname(AGENTS_DIR))
+# Robust repo root detection: ascend parents until pyproject.toml found, else take 3-level parent.
+_here = Path(__file__).resolve()
+_root = None
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        _root = p
+        break
+REPO_ROOT = str(_root or _here.parents[2])
+AGENTS_DIR = os.path.join(REPO_ROOT, 'agents')
 LOG_DIR_ARTIFACTS = os.path.join(REPO_ROOT, 'artifacts', 'logs')
 os.makedirs(LOG_DIR_ARTIFACTS, exist_ok=True)
-ARTIFACTS_STATE = os.path.join(os.path.dirname(AGENTS_DIR), 'artifacts', 'state.json')
+ARTIFACTS_STATE = os.path.join(REPO_ROOT, 'artifacts', 'state.json')
 STATE_PATH = ARTIFACTS_STATE if os.path.exists(ARTIFACTS_STATE) else os.path.join(AGENTS_DIR, 'state.json')
 LEARNED_MD = os.path.join(AGENTS_DIR, 'LEARNED.md')
 

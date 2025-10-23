@@ -103,15 +103,20 @@ def evaluate(
     return out
 
 
-if __name__ == '__main__':
+def _main() -> int:
     import argparse
 
-    p = argparse.ArgumentParser(description='Evaluate SPY extractor across thresholds')
-    p.add_argument('--labels', type=str, default='data/spy_eval_labels.csv', help='CSV of run_dir,token')
-    p.add_argument('--runs', type=str, default='artifacts/tuning_runs', help='Root tuning runs folder')
-    args = p.parse_args()
-    labels_path = Path(args.labels)
-    runs_root = Path(args.runs)
-    eval_res = evaluate(labels_path, runs_root)
-    for th, (prec_v, rec_v, f1_v) in eval_res.items():
-        print(f'th={th:.2f} prec={prec_v:.3f} rec={rec_v:.3f} f1={f1_v:.3f}')
+    parser = argparse.ArgumentParser(description='Evaluate SPY extractor across thresholds')
+    parser.add_argument('--labels', type=str, default='data/spy_eval_labels.csv', help='CSV of run_dir,token')
+    parser.add_argument('--runs', type=str, default='artifacts/tuning_runs', help='Root tuning runs folder')
+    args = parser.parse_args()
+    labels_arg = Path(args.labels)
+    runs_arg = Path(args.runs)
+    eval_res = evaluate(labels_arg, runs_arg)
+    for threshold_value, (precision, recall, f1score) in eval_res.items():
+        print(f'th={threshold_value:.2f} prec={precision:.3f} rec={recall:.3f} f1={f1score:.3f}')
+    return 0
+
+
+if __name__ == '__main__':  # pragma: no cover - manual invocation
+    raise SystemExit(_main())

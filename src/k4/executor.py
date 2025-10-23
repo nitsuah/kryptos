@@ -32,6 +32,7 @@ class PipelineConfig:
     adaptive_thresholds: dict[str, float] = field(default_factory=dict)
     retry_on_empty: dict[str, Callable[[str], str]] = field(default_factory=dict)
     artifact_root: str = "artifacts"
+    artifact_run_subdir: str | None = None  # if set, run_* dirs live under artifact_root/<subdir>/
     label: str = "K4"
     enable_attempt_log: bool = True
     parallel_hill_variants: int = 0  # if >0 run hill stage variants in parallel stub
@@ -46,7 +47,10 @@ class PipelineExecutor:
     # ---------------- Internal helpers -----------------
     def _artifact_dir(self) -> str:
         ts = datetime.utcnow().strftime('%Y%m%dT%H%M%S')
-        path = os.path.join(self.config.artifact_root, f"run_{ts}")
+        base_root = self.config.artifact_root
+        if self.config.artifact_run_subdir:
+            base_root = os.path.join(base_root, self.config.artifact_run_subdir)
+        path = os.path.join(base_root, f"run_{ts}")
         os.makedirs(path, exist_ok=True)
         return path
 

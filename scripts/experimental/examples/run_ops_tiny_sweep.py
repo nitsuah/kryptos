@@ -9,7 +9,12 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        ROOT = p
+        break
 SWEEP = ROOT / 'scripts' / 'tuning' / 'crib_weight_sweep.py'
 if not SWEEP.exists():
     raise SystemExit('crib_weight_sweep.py not found')

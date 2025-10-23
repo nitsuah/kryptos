@@ -75,7 +75,7 @@ python -m unittest discover -s tests
 ```
 
 1. Run a tiny pipeline sample (preferred: direct package usage; legacy script
-`run_pipeline_sample.py` is deprecated):
+`run_pipeline_sample.py` is deprecated). This example writes artifacts to `artifacts/k4_runs/`:
 
 ```python
 from k4.pipeline import make_hill_constraint_stage, make_masking_stage
@@ -87,7 +87,7 @@ stages = [
 ]
 cfg = PipelineConfig(ordering=stages, candidate_cap_per_stage=25, pruning_top_n=10,
 					 crib_bonus_threshold=5.0, adaptive_thresholds={"hill": -500.0},
-					 artifact_root="artifacts", label="sample-run", enable_attempt_log=True,
+					 artifact_root="artifacts", artifact_run_subdir="k4_runs", label="sample-run", enable_attempt_log=True,
 					 parallel_hill_variants=0)
 PipelineExecutor(cfg).run("OBKRUOXOGHULBSOLIFB")
 ```
@@ -101,8 +101,8 @@ artifacts to `artifacts/tuning_runs/` and retains the last 20 runs.
 
 ## Artifacts
 
-- Attempt logs and run summaries are placed under `artifacts/run_<timestamp>/` or
-`artifacts/tuning_runs/run_<timestamp>/` when using the tuning harness or daemon.
+- Attempt logs and run summaries are placed under `artifacts/k4_runs/run_<timestamp>/` (pipeline
+runs) or `artifacts/tuning_runs/run_<timestamp>/` when using the tuning harness or daemon.
 
 ## Roadmap & Contributing
 

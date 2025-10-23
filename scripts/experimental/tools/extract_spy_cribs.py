@@ -14,7 +14,13 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        ROOT = p
+        break
+print(f'[extract_spy_cribs] repo root resolved to {ROOT}')
 DOCS = ROOT / 'docs'
 SOURCES = ROOT / 'docs' / 'sources'
 OUT_DIR = ROOT / 'agents' / 'output'
@@ -29,7 +35,7 @@ TOKEN_CLEAN_RE = re.compile(r'[^A-Z]')
 def scan_file(path: Path):
     try:
         text = path.read_text(encoding='utf-8')
-    except Exception:
+    except (OSError, UnicodeDecodeError):
         return []
     findings = []
     for m in QUOTE_RE.finditer(text):
@@ -53,16 +59,16 @@ def scan_file(path: Path):
 def run_scan():
     files = []
     if DOCS.exists():
-        for p in DOCS.rglob('*.md'):
-            files.append(p)
-        for p in (DOCS / 'sources').rglob('*') if (DOCS / 'sources').exists() else []:
-            if p.is_file():
-                files.append(p)
+        for md_file in DOCS.rglob('*.md'):
+            files.append(md_file)
+        for src_file in (DOCS / 'sources').rglob('*') if (DOCS / 'sources').exists() else []:
+            if src_file.is_file():
+                files.append(src_file)
     # also scan README files at repo root
     for root_readme in ['README.md', 'README.txt']:
-        p = ROOT / root_readme
-        if p.exists():
-            files.append(p)
+        readme_path = ROOT / root_readme
+        if readme_path.exists():
+            files.append(readme_path)
     found = []
     for f in files:
         found.extend(scan_file(f))

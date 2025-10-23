@@ -13,8 +13,14 @@ import os
 import sys
 from pathlib import Path
 
-# Ensure repository root on path when executing as a script.
-ROOT = Path(__file__).resolve().parents[2]  # kryptos project root
+# Ensure repository root on path when executing as a script (sentinel search).
+_here = Path(__file__).resolve()
+ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        ROOT = p
+        break
+print(f'[run_pipeline_sample] repo root resolved to {ROOT}')
 SRC_DIR = ROOT / 'src'
 # Ensure both repo root and src are importable depending on environment
 for p in (str(ROOT), str(SRC_DIR)):

@@ -15,13 +15,19 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        ROOT = p
+        break
+print(f'[run_sweep_on_artifact_samples] repo root resolved to {ROOT}')
 SRC = ROOT / 'src'
 
 # Prefer package import; fall back to adding src/ to sys.path
 try:
     scoring = importlib.import_module('src.k4.scoring')
-except Exception:
+except ImportError:
     if str(SRC) not in sys.path:
         sys.path.insert(0, str(SRC))
     scoring = importlib.import_module('k4.scoring')

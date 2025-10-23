@@ -167,15 +167,47 @@ from k4.pipeline import make_hill_constraint_stage, make_masking_stage
 from k4.executor import PipelineConfig, PipelineExecutor
 
 stages = [
-	make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=40, partial_min=-900.0),
-	make_masking_stage(name="masking", null_chars=["X"], limit=15),
+    make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=40, partial_min=-900.0),
+    make_masking_stage(name="masking", null_chars=["X"], limit=15),
 ]
-cfg = PipelineConfig(ordering=stages, candidate_cap_per_stage=25, pruning_top_n=10,
-					 crib_bonus_threshold=5.0, adaptive_thresholds={"hill": -500.0},
-					 artifact_root="artifacts", label="sample-run", enable_attempt_log=True,
-					 parallel_hill_variants=0)
+cfg = PipelineConfig(
+    ordering=stages,
+    candidate_cap_per_stage=25,
+    pruning_top_n=10,
+    crib_bonus_threshold=5.0,
+    adaptive_thresholds={"hill": -500.0},
+    artifact_root="artifacts",
+    artifact_run_subdir="k4_runs",
+    label="sample-run",
+    enable_attempt_log=True,
+    parallel_hill_variants=0,
+)
 PipelineExecutor(cfg).run("OBKRUOXOGHULBSOLIFB")
 ```
+
+### Artifact Layout
+
+Pipeline-generated run directories may be grouped under an optional subdirectory for clarity:
+
+```text
+artifacts/
+  k4_runs/          # pipeline executor runs (run_YYYYMMDDTHHMMSS when artifact_run_subdir is set)
+  tuning_runs/      # tuning/daemon sweep runs (run_*)
+  reports/          # reporting outputs (top candidates, aggregated attempts)
+  decisions/        # autopilot / plan artifacts (JSON summaries)
+  logs/             # runtime / diagnostic logs
+  output/           # miscellaneous generated outputs / crib extracts
+```
+
+Enable grouping by passing `artifact_run_subdir="k4_runs"` to `PipelineConfig`. If you have legacy
+`artifacts/run_*` directories from older versions, migrate them safely with:
+
+```bash
+python scripts/dev/migrate_run_artifacts.py --dry-run
+python scripts/dev/migrate_run_artifacts.py
+```
+
+If no legacy directories are present the script reports that there is nothing to move.
 
 ## References & Research
 

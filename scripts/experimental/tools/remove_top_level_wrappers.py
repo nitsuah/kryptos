@@ -11,10 +11,13 @@ Run from the repository root or as:
 
 from pathlib import Path
 
-# Compute repository root as three parents up from this file
-REPO_ROOT = Path(__file__).resolve().parents[2]
-if not isinstance(REPO_ROOT, Path):
-    REPO_ROOT = Path(REPO_ROOT)
+_here = Path(__file__).resolve()
+REPO_ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        REPO_ROOT = p
+        break
+print(f'[remove_top_level_wrappers] repo root resolved to {REPO_ROOT}')
 SCRIPTS_DIR = REPO_ROOT.joinpath("scripts")
 
 markers = ("removed: use scripts/", "moved: scripts/")

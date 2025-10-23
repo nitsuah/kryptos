@@ -12,7 +12,13 @@ It prints matches, deletes them, and exits with 0.
 import re
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        ROOT = p
+        break
+print(f'[auto_remove_compat_wrappers] repo root resolved to {ROOT}')
 SCRIPTS = ROOT / "scripts"
 PATTERNS = [
     re.compile(r"Compatibility wrapper", re.I),
@@ -30,14 +36,14 @@ for p in SCRIPTS.iterdir():
         continue
     try:
         text = p.read_text(encoding='utf-8')
-    except Exception:
+    except (OSError, UnicodeDecodeError):
         continue
     if any(pat.search(text) for pat in PATTERNS):
         print(f"Deleting wrapper: {p.relative_to(ROOT)}")
         try:
             p.unlink()
             removed.append(p.relative_to(ROOT))
-        except Exception as e:
+        except OSError as e:
             print(f"Failed to delete {p}: {e}")
 
 if not removed:

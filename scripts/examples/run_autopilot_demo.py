@@ -9,8 +9,22 @@ import runpy
 import sys
 from pathlib import Path
 
+# Ensure we execute using the repository root (look for pyproject.toml as sentinel)
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sentinel = REPO_ROOT / 'pyproject.toml'
+if not sentinel.exists():
+    # fallback one more level (monorepo case)
+    maybe = REPO_ROOT.parent
+    if (maybe / 'pyproject.toml').exists():
+        REPO_ROOT = maybe
+
 HERE = Path(__file__).resolve().parent
 target = (HERE.parent / 'experimental' / 'examples' / 'run_autopilot_demo.py').resolve()
+if REPO_ROOT not in target.parents:
+    # Adjust if moved unexpectedly
+    alt = REPO_ROOT / 'scripts' / 'experimental' / 'examples' / 'run_autopilot_demo.py'
+    if alt.exists():
+        target = alt
 if not target.exists():
     print(f"Target demo script not found: {target}", file=sys.stderr)
     sys.exit(2)

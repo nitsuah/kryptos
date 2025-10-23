@@ -49,7 +49,7 @@ testing.
 
 ## Artifacts and format
 
-- Per-run artifacts are written to `artifacts/run_<timestamp>/` or
+- Per-run artifacts are written to `artifacts/k4_runs/run_<timestamp>/` or
 `artifacts/tuning_runs/run_<timestamp>/`.
 - Each run contains `summary.csv` and a `*_top.csv` filtered view for quick review.
 

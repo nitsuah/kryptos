@@ -9,7 +9,13 @@ import csv
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+_here = Path(__file__).resolve()
+ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        ROOT = p
+        break
+print(f'[clean_and_summarize_matches] repo root resolved to {ROOT}')
 ART_ROOT = ROOT / 'artifacts' / 'tuning_runs'
 
 

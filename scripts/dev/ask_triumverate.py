@@ -40,6 +40,17 @@ def run_plan_check(
         rec, just, plan = orch.recommend_next_action()
         plan_text = f"Recommendation: {rec}. Reason: {just}"
         print(f"[AUTOPILOT] Triumverate recommends: {rec} -- {just}")
+        # Emit a structured one-line JSON plan for downstream tooling (demo script parses this)
+        try:
+            structured = {
+                'action': plan.get('action') if isinstance(plan, dict) else None,
+                'recommendation': rec,
+                'justification': just,
+                'timestamp': datetime.utcnow().isoformat(),
+            }
+            print(json.dumps(structured))
+        except Exception:
+            pass
 
         # Execute a small set of safe, idempotent actions automatically when recommended.
         # Use the structured plan.action for deterministic dispatch.

@@ -10,7 +10,14 @@ Outputs the derived plaintext (with DESPARATLY) from config K3 ciphertext.
 import json
 from pathlib import Path
 
-CONFIG_PATH = Path(__file__).resolve().parents[2] / 'config' / 'config.json'
+_here = Path(__file__).resolve()
+REPO_ROOT = _here
+for p in _here.parents:
+    if (p / 'pyproject.toml').exists():
+        REPO_ROOT = p
+        break
+print(f'[k3_double_rotation] repo root resolved to {REPO_ROOT}')
+CONFIG_PATH = REPO_ROOT / 'config' / 'config.json'
 
 
 def load_k3():
