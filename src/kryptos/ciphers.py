@@ -1,18 +1,14 @@
 """Cipher implementations (Vigenère, Kryptos K3 double rotational transposition, etc.).
 
-This package-local module is now the canonical implementation. Former top-level
-`src/ciphers.py` is deprecated and will be removed; importing via `kryptos.ciphers`
-is the supported path.
+Canonical implementation for cipher helpers. No side-effect logging configuration
+is performed here; callers configure logging externally.
 """
 
 from __future__ import annotations
 
 import logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-)
+logger = logging.getLogger(__name__)
 
 KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
 
@@ -39,8 +35,8 @@ def vigenere_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False
             p_index = (c_index - k_index) % klen
             dec = KEYED_ALPHABET[p_index]
             out.append(dec)
-            if logging.getLogger().isEnabledFor(logging.DEBUG):
-                logging.debug(
+            if logger.isEnabledFor(logging.DEBUG):
+                logger.debug(
                     "[%d] C=%s K=%s -> P=%s Cidx=%d Kidx=%d Pidx=%d",
                     idx,
                     ch,
@@ -86,19 +82,8 @@ def _rotate_right(matrix: list[list[str]]) -> list[list[str]]:
     return [[matrix[r][c] for r in range(rows - 1, -1, -1)] for c in range(cols)]
 
 
-# Placeholder stubs for other cipher types referenced in __all__ (to be implemented or imported later).
-def polybius_decrypt(ciphertext: str) -> str:  # pragma: no cover - stub
-    return ciphertext
-
-
-def transposition_decrypt(ciphertext: str) -> str:  # pragma: no cover - stub
-    return ciphertext
-
-
 __all__ = [
-    'vigenere_decrypt',
-    'kryptos_k3_decrypt',
-    'double_rotational_transposition',
-    'transposition_decrypt',
-    'polybius_decrypt',
+    "vigenere_decrypt",
+    "kryptos_k3_decrypt",
+    "double_rotational_transposition",
 ]

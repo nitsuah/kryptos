@@ -334,14 +334,13 @@ def run_plan_check(
                                 try:
                                     # lazy import scoring same as sweep
                                     try:
-                                        from kryptos.k4 import scoring as hold_scoring
-                                    except Exception:
-                                        try:
-                                            from src.k4 import scoring as hold_scoring
-                                        except Exception:
-                                            if str(Path(__file__).resolve().parents[2] / 'src') not in sys.path:
-                                                sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
-                                            from k4 import scoring as hold_scoring
+                                        from kryptos.k4 import scoring as hold_scoring  # type: ignore
+                                    except ImportError:
+                                        import sys
+
+                                        if str(Path(__file__).resolve().parents[2] / 'src') not in sys.path:
+                                            sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
+                                        from kryptos.k4 import scoring as hold_scoring  # type: ignore
 
                                     # allow a configurable holdout file at data/holdout.csv
                                     holdout_file = Path(repo_root) / 'data' / 'holdout.csv'

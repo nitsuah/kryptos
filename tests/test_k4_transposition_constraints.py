@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4 import search_with_crib_at_position
+from kryptos.k4.transposition_constraints import search_with_crib_at_position
 
 
 def _make_columnar_ciphertext(plaintext: str, n_cols: int, perm: tuple[int, ...]) -> str:

@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT))
 
 from collections.abc import Sequence  # noqa: E402
 
-from src.k4.scoring import positional_crib_bonus  # noqa: E402
+from kryptos.k4.scoring import positional_crib_bonus  # noqa: E402
 
 
 class TestPositionalCribBonus(unittest.TestCase):

@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.scoring import letter_coverage
+from kryptos.k4.scoring import letter_coverage
 
 
 class TestScoringLetterCoverageEmpty(unittest.TestCase):

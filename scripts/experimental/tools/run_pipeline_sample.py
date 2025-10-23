@@ -1,43 +1,21 @@
 #!/usr/bin/env python3
 """DEPRECATED: minimal pipeline sample wrapper.
 
-Scheduled for removal once docs updated.
-Use direct package calls (example shortened):
-    from k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
-    from k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
+Scheduled for removal once docs updated. Prefer:
+
+    from kryptos.k4.pipeline import make_hill_constraint_stage, make_masking_stage
+    from kryptos.k4.executor import PipelineConfig, PipelineExecutor
+
+No module-level path mutations; safe to import without side effects.
 """
 
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 
-# Ensure repository root on path when executing as a script (sentinel search).
-_here = Path(__file__).resolve()
-ROOT = _here
-for p in _here.parents:
-    if (p / 'pyproject.toml').exists():
-        ROOT = p
-        break
-print(f'[run_pipeline_sample] repo root resolved to {ROOT}')
-SRC_DIR = ROOT / 'src'
-# Ensure both repo root and src are importable depending on environment
-for p in (str(ROOT), str(SRC_DIR)):
-    if p not in sys.path:
-        sys.path.insert(0, p)
-
-try:  # prefer installed package
-    from kryptos.src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
-    from kryptos.src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
-except ImportError:  # fallback to workspace src/ layout
-    try:
-        from src.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
-        from src.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
-    except ImportError:
-        # finally, rely on the earlier sys.path insert to resolve `k4` top-level package
-        from k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
-        from k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
+from kryptos.k4.executor import PipelineConfig, PipelineExecutor  # type: ignore
+from kryptos.k4.pipeline import make_hill_constraint_stage, make_masking_stage  # type: ignore
 
 # Short slice of K4 for quick run
 CIPHERTEXT = "OBKRUOXOGHULBSOLIFB"

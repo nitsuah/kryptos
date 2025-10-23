@@ -9,8 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from src.k4.executor import PipelineConfig, PipelineExecutor  # noqa: E402
-from src.k4.pipeline import Stage, StageResult  # noqa: E402
+from kryptos.k4.executor import PipelineConfig, PipelineExecutor  # noqa: E402
+from kryptos.k4.pipeline import Stage, StageResult  # noqa: E402
 
 
 def _make_stage(name: str, scores: list[float]) -> Stage:

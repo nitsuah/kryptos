@@ -4,7 +4,7 @@ Unit tests for K4 transposition functions.
 
 import unittest
 
-from src.k4 import apply_columnar_permutation, search_columnar
+from kryptos.k4.transposition import apply_columnar_permutation, search_columnar
 
 
 class TestK4Transposition(unittest.TestCase):

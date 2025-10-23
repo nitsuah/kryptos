@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4 import fuse_scores_weighted, normalize_scores
+from kryptos.k4 import fuse_scores_weighted, normalize_scores
 
 
 class TestK4Fusion(unittest.TestCase):

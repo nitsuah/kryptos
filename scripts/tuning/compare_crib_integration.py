@@ -42,11 +42,11 @@ SAMPLES = [
 
 def run():
     try:
-        from src.k4 import scoring
-    except Exception:
+        from kryptos.k4 import scoring  # type: ignore
+    except ImportError:
         if str(SRC) not in sys.path:
             sys.path.insert(0, str(SRC))
-        from k4 import scoring
+        from kryptos.k4 import scoring  # type: ignore
 
     docs_path = ROOT / "docs" / "sources" / "sanborn_crib_candidates.txt"
     cribs = load_cribs_from_docs(docs_path)

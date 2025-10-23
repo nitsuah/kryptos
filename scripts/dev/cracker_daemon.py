@@ -93,14 +93,14 @@ def main(argv: list[str]) -> int:
 
     try:
         build_pipeline = load_build_pipeline(repo_root)
-    except Exception as exc:
+    except (ImportError, FileNotFoundError) as exc:
         logging.exception('Failed to load sample pipeline builder: %s', exc)
         return 2
 
     # Build executor
     try:
         ex = build_pipeline()
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 (pipeline builder may raise many types)
         logging.exception('Failed to build pipeline executor: %s', exc)
         return 2
 
@@ -124,19 +124,15 @@ def main(argv: list[str]) -> int:
             'OBKRUOXOGHULBSOLIFB',
         ]
 
-    # scoring helper import (prefer package import, then fallback to src layout)
+    # scoring helper import (prefer installed/editable kryptos.k4, fallback to adding src to path)
     try:
         from kryptos.k4 import scoring as scoring_mod  # type: ignore
-    except Exception:
+    except ImportError:
+        sys.path.insert(0, str(repo_root / 'src'))
         try:
-            from src.k4 import scoring as scoring_mod  # type: ignore
-        except Exception:
-            # last resort: adjust sys.path and try plain package import
-            sys.path.insert(0, str(repo_root / 'src'))
-            try:
-                from k4 import scoring as scoring_mod  # type: ignore
-            except Exception:
-                scoring_mod = None
+            from kryptos.k4 import scoring as scoring_mod  # type: ignore
+        except ImportError:
+            scoring_mod = None
 
     it = 0
     while True:
@@ -146,7 +142,7 @@ def main(argv: list[str]) -> int:
             logging.info('Running pipeline on ciphertext: %s...', c[:40])
             try:
                 summary = ex.run(c)
-            except Exception:
+            except Exception:  # noqa: BLE001 (robust daemon loop)
                 logging.exception('Pipeline run failed for cipher: %s', c[:40])
                 continue
 
@@ -168,7 +164,7 @@ def main(argv: list[str]) -> int:
                     if scoring_mod is None:
                         raise RuntimeError('scoring module not available')
                     score = scoring_mod.combined_plaintext_score(candidate_text)
-                except Exception:
+                except Exception:  # noqa: BLE001 (scoring robustness)
                     logging.exception('Scoring failed or module missing; skipping')
                     score = 0.0
 

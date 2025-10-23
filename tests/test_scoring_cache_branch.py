@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.scoring import combined_plaintext_score_cached
+from kryptos.k4.scoring import combined_plaintext_score_cached
 
 
 class TestScoringCacheBranch(unittest.TestCase):

@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.transposition_constraints import (
+from kryptos.k4.transposition_constraints import (
     invert_columnar,
     search_with_crib,
     search_with_crib_at_position,

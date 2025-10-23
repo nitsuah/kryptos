@@ -3,7 +3,7 @@
 import unittest
 from datetime import time
 
-from src.k4 import (
+from kryptos.k4 import (
     Pipeline,
     StageResult,
     berlin_clock_shifts,

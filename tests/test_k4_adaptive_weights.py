@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4 import (
+from kryptos.k4 import (
     adaptive_fusion_weights,
     make_hill_constraint_stage,
     make_route_transposition_stage,

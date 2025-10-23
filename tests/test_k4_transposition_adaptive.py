@@ -2,7 +2,8 @@
 
 import unittest
 
-from src.k4 import Pipeline, make_transposition_adaptive_stage, search_columnar_adaptive
+from kryptos.k4.pipeline import Pipeline, make_transposition_adaptive_stage
+from kryptos.k4.transposition import search_columnar_adaptive
 
 
 class TestK4TranspositionAdaptive(unittest.TestCase):

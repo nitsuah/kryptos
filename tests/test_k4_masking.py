@@ -2,7 +2,8 @@
 
 import unittest
 
-from src.k4 import Pipeline, make_masking_stage, mask_variants, score_mask_variants
+from kryptos.k4.masking import mask_variants, score_mask_variants
+from kryptos.k4.pipeline import Pipeline, make_masking_stage
 
 
 class TestK4Masking(unittest.TestCase):

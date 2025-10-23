@@ -3,7 +3,7 @@
 import unittest
 from collections.abc import Sequence
 
-from src.k4.pipeline import Pipeline, make_transposition_multi_crib_stage
+from kryptos.k4.pipeline import Pipeline, make_transposition_multi_crib_stage
 
 
 class TestTranspositionMultiCribStageActive(unittest.TestCase):

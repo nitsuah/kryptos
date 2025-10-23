@@ -43,16 +43,13 @@ def run():
     parser.add_argument('--dry-run', action='store_true', help='Dry run flag (no external side-effects)')
     args = parser.parse_args()
 
-    # Prefer installed package import, fall back to workspace src/ layout
+    # Prefer installed/editable package import; fallback adds src/ to sys.path and retries
     try:
-        from kryptos.src.k4 import scoring
-    except Exception:
-        try:
-            from src.k4 import scoring
-        except Exception:
-            if str(SRC) not in sys.path:
-                sys.path.insert(0, str(SRC))
-            from k4 import scoring
+        from kryptos.k4 import scoring  # type: ignore
+    except ImportError:
+        if str(SRC) not in sys.path:
+            sys.path.insert(0, str(SRC))
+        from kryptos.k4 import scoring  # type: ignore
 
     cribs_path = ROOT / "docs" / "sources" / "sanborn_crib_candidates.txt"
     cribs = load_cribs(cribs_path)
@@ -60,7 +57,7 @@ def run():
     if args.weights:
         try:
             weights = [float(x.strip()) for x in args.weights.split(',') if x.strip()]
-        except Exception:
+        except ValueError:
             print("Invalid --weights value, falling back to defaults")
             weights = [0.1, 0.5, 1.0]
     else:

@@ -2,7 +2,7 @@
 
 Produces a small artifacts directory `artifacts/tuning_runs/<timestamp>/` with
 `summary.csv` and per-run `<runid>_top.csv` files. Uses the scoring API in
-`src/k4/scoring.py` to score sample plaintexts under a small parameter grid.
+`kryptos.k4.scoring` to score sample plaintexts under a small parameter grid.
 
 Safe, fast, for local experimentation.
 """
@@ -34,13 +34,13 @@ PARAM_GRID = [
 
 
 def run():
-    # Prefer package import; fall back to adding src/ to sys.path for standalone runs
+    # Prefer installed / editable package import; fall back to adding repo src/ to sys.path
     try:
-        from src.k4 import scoring
-    except Exception:
+        from kryptos.k4 import scoring  # type: ignore
+    except ImportError:
         if str(SRC) not in sys.path:
             sys.path.insert(0, str(SRC))
-        from k4 import scoring
+        from kryptos.k4 import scoring  # type: ignore
 
     ts = time.strftime("%Y%m%dT%H%M%S")
     run_dir = ARTIFACTS / f"run_{ts}"

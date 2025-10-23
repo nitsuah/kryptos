@@ -1,30 +1,21 @@
-"""Thin re-export shim for the canonical top-level modules.
+"""Public Kryptos API surface.
 
-The repository historically imported modules from the top-level `src/` layout
-(for example: `import ciphers` or `from k4 import scoring`). To support
-editable installs and avoid duplicate implementation code we keep the
-canonical implementation under `src/` and expose stable package paths via
-lightweight shims here.
-
-This file intentionally performs simple imports from the top-level modules
-and re-exports a small, well-defined public API.
+Import only the stable entry points intended for external use. Internal
+modules (pipeline stages, experimental tooling) should be accessed via their
+fully qualified paths (e.g. ``kryptos.k4.scoring``).
 """
 
-from .analysis import check_cribs, frequency_analysis
+from .analysis import check_cribs, frequency_analysis  # noqa: F401
 from .ciphers import (
     double_rotational_transposition,
     kryptos_k3_decrypt,
-    polybius_decrypt,
-    transposition_decrypt,
     vigenere_decrypt,
-)
+)  # noqa: F401
 
 __all__ = [
-    'vigenere_decrypt',
-    'kryptos_k3_decrypt',
-    'double_rotational_transposition',
-    'transposition_decrypt',
-    'polybius_decrypt',
-    'frequency_analysis',
-    'check_cribs',
+    "vigenere_decrypt",
+    "kryptos_k3_decrypt",
+    "double_rotational_transposition",
+    "frequency_analysis",
+    "check_cribs",
 ]

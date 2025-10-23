@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.cribs import annotate_cribs, normalize_cipher
+from kryptos.k4.cribs import annotate_cribs, normalize_cipher
 
 
 class TestCribsFunctions(unittest.TestCase):

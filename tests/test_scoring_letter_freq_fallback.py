@@ -2,7 +2,7 @@
 
 import unittest
 
-import src.k4.scoring as scoring
+import kryptos.k4.scoring as scoring
 
 
 class TestScoringLetterFreqFallback(unittest.TestCase):
