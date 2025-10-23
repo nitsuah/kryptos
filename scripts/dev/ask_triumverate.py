@@ -86,7 +86,7 @@ def run_plan_check(
                                 if spec and mod:
                                     spec.loader.exec_module(mod)  # type: ignore
                                     try:
-                                        best_w, stats = mod.pick_best(Path(run_path))
+                                        best_w, _stats = mod.pick_best(Path(run_path))
                                         print(f"[AUTOPILOT] pick_best_weight selected weight={best_w}")
                                     except Exception:
                                         best_w = None
@@ -249,7 +249,7 @@ def run_plan_check(
                             if spec and mod:
                                 spec.loader.exec_module(mod)  # type: ignore
                                 try:
-                                    best_w, stats = mod.pick_best(Path(run_path))
+                                    best_w, _stats = mod.pick_best(Path(run_path))
                                     print(f"[PLAN_CHECK] pick_best_weight selected weight={best_w}")
                                 except Exception:
                                     best_w = None
