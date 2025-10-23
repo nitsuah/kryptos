@@ -1,13 +1,28 @@
 name: PR annotate
 
+# Note: to allow commenting/labeling from workflows triggered by PRs (and when using
+# the GITHUB_TOKEN), explicit permissions are required. For PRs from forks, GitHub
+# restricts write operations; consider using pull_request_target for trusted runs.
+permissions:
+  pull-requests: write
+  contents: read
+
 on:
-  pull_request:
+  # use pull_request_target to allow workflows to use repo secrets safely for labeling
+  # and commenting. Be careful: this runs in the target branch context (not the PR ref).
+  pull_request_target:
     types: [opened, synchronize]
 
 jobs:
   annotate:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          # fetch the PR ref info but keep working in the target repository context
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
       - name: Label PR
         uses: actions-ecosystem/action-add-labels@v1
         with:
@@ -25,7 +40,7 @@ jobs:
             If you'd like reviewers requested automatically, set the `REVIEWERS` secret (comma-separated GitHub logins) in the repo settings and this workflow will request them.
 
       - name: Optionally request reviewers
-        if: env.REVIEWERS != ''
+        if: ${{ secrets.REVIEWERS != '' }}
         env:
           REVIEWERS: ${{ secrets.REVIEWERS }}
         run: |
