@@ -89,7 +89,8 @@ be treated as structural artifacts when analyzing pattern continuity or construc
 - **Modular pipeline architecture** (stage factories for all hypothesis families) ([learn more](https://en.wikipedia.org/wiki/Pipeline_(computing)))
 - **Columnar transposition** search (partial-score pruning) and crib-constrained inversion utilities ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher#Columnar_transposition))
 - **Multi-crib positional transposition stage** (anchors multiple cribs simultaneously) ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher))
-- **Adaptive transposition search** (`make_transposition_adaptive_stage`) with sampling + prefix caching heuristics ([learn more](https://en.wikipedia.org/wiki/Heuristic))
+- **Adaptive transposition search** (`make_transposition_adaptive_stage`) with sampling
+- prefix caching heuristics ([learn more](https://en.wikipedia.org/wiki/Heuristic))
 - **Masking/null-removal stage** exploring structural padding elimination variants ([learn more](https://en.wikipedia.org/wiki/Null_cipher))
 - **Berlin Clock shift hypothesis** (full lamp state enumeration + dual-direction application) ([learn more](https://en.wikipedia.org/wiki/Mengenlehreuhr))
 - **Weighted multi-stage fusion utilities** (`normalize_scores`, `fuse_scores_weighted`) for score aggregation ([learn more](https://en.wikipedia.org/wiki/Ensemble_learning))
