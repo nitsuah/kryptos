@@ -27,25 +27,22 @@ variants.
 - Columnar and route transposition search, including multi-crib positional anchoring and adaptive
 sampling.
 - Masking / null-removal heuristics to explore structural padding variants.
-- Berlin Clock enumeration and a small validator to score ordering/occurrence of `BERLIN`/`CLOCK` in
+- Berlin Clock enumeration and validator scoring ordering/occurrence of `BERLIN`/`CLOCK` in
 plaintexts.
 - Composite orchestration, weighted fusion of stage outputs, and per-run diagnostics.
 
 ## Key modules (under `kryptos/k4/`)
 
-- `scoring.py` — composite scoring, positional crib bonuses, and advanced metrics.
-- `hill_constraints.py`, `hill_cipher.py` — constrained key derivation and hill math.
-- `transposition.py`, `transposition_constraints.py` — route and columnar search utilities.
-- `pipeline.py`, `composite.py` — stage factory functions and pipeline orchestration.
-- `attempt_logging.py`, `reporting.py` — persistence of attempts and enriched reporting.
 
 ## Tuning & Daemon Notes
 
 Prefer direct package APIs over legacy scripts:
 
-- `kryptos.k4.tuning.run_crib_weight_sweep` — primary weight sweep harness.
-- `kryptos.k4.tuning.tiny_param_sweep` — deterministic micro-grid for smoke validation.
-- `kryptos.k4.tuning.artifacts` — cleaning & summarization (`end_to_end_process`).
+*Status:* Implemented (`rarity_weighted_crib_bonus` in `kryptos.k4.scoring`); calibration & fusion
+weight tuning pending.
+
+- `kryptos.k4.tuning.tiny_param_sweep`  deterministic micro-grid for smoke validation.
+- `kryptos.k4.tuning.artifacts`  cleaning & summarization (`end_to_end_process`).
 
 Legacy scripts (`scripts/tuning/`, certain experimental examples) will be replaced by forthcoming
 CLI subcommands (`kryptos tuning ...`).
@@ -120,6 +117,7 @@ transposition with anchored cribs. [IN PROGRESS] 3. Hill cipher (2x2, 3x3 constr
 PROGRESS] 4. Masking / null removal to expose latent structure. [COMPLETED (stage)] 5. Hybrid matrix
 + transposition chain. [PLANNED] 6. Progressive key (autokey/Berlin-lamp injection). [PLANNED]
 
+
 ### 5. Prioritization Status
 
 | Priority | Item | Status |
@@ -150,11 +148,14 @@ EAST/NORTHEAST alignment). Pending: automatic index validation test.
 Planned enhancement: rarity-weighted crib scoring augments positional crib bonus with a frequency-
 based multiplier.
 
-Algorithm sketch: 1. alignment_frequency = occurrences_of_alignment /
-total_permutations_sampled_for_window. 2. rarity_weight = 1 / (1 + alignment_frequency * k) (initial
-k = 5.0). 3. Adjust crib_bonus_component *= rarity_weight.
+Algorithm sketch:
+
+- alignment_frequency = occurrences_of_alignment / total_permutations_sampled_for_window
+- rarity_weight = 1 / (1 + alignment_frequency * k) (initial k = 5.0)
+- crib_bonus_component *= rarity_weight
 
 Calibration (see PERF.md):
+
 - Collect alignment_frequency distribution; sweep k in {1,2,5,10}.
 - Measure Spearman correlation (old vs new ranking) for top-50; target ≥0.9.
 - Select k producing uplift of rare alignments into top quartile without destabilizing high-
@@ -178,6 +179,7 @@ orientation tests (P = K*C vs C = K*P) with small sample.
 
 Next: Integrate simultaneous alignment scoring (weighted by rarity of alignment probability) and add
 route-transposition patterns.
+
 #### Adaptive Sampling (Planned Detail)
 
 Adaptive permutation sampling will dynamically tune effort per column count:
@@ -192,11 +194,13 @@ width.
 alignment patterns.
 
 Instrumentation:
+
 - Persist per-width summary objects: {cols, sampled, expanded, median_score, p95_score} in attempt
 logs.
 - Track alignment_frequency for crib placements to feed rarity-weighted scoring.
 
 Edge cases:
+
 - Sparse high outlier (single very high score) → cap expansion factor to prevent runaway sampling.
 - Uniform low scores → immediate cutoff to conserve runtime.
 - Degenerate grids (non-divisible shapes) → skip expansion logic safely.
@@ -231,6 +235,7 @@ stage correctness (positions captured). Add failure mode tests (pruned keys/perm
 - Implemented adaptive fusion weighting (wordlist_hit_rate + trigram_entropy heuristics).
 - Implemented route transposition stage (spiral / boustrophedon / diagonal variants).
 - Added positional letter deviation metric for distribution balance.
+- Marked legacy `PipelineExecutor` deprecated; future work will migrate tests to unified `Pipeline`.
 
 ### 13. Performance & Optimization
 

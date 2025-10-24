@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ..paths import ensure_reports_dir
+from ..paths import ensure_reports_dir, provenance_hash
 from .attempt_logging import persist_attempt_logs  # new import
 from .pipeline import Pipeline, Stage, StageResult
 from .reporting import generate_candidate_artifacts
@@ -102,11 +102,28 @@ def run_composite_pipeline(
     pipe = Pipeline(stages)
     stage_results = pipe.run(ciphertext)
     aggregated = aggregate_stage_candidates(stage_results)[:limit]
+    prov = provenance_hash(
+        ciphertext,
+        {
+            'stage_names': [r.name for r in stage_results],
+            'limit': limit,
+            'adaptive': adaptive,
+            'weights_provided': bool(weights),
+        },
+    )
     out: dict[str, Any] = {
         'results': stage_results,
         'aggregated': aggregated,
         'profile': {
-            'stage_durations': {r.name: r.metadata.get('duration') for r in stage_results},
+            'stage_durations_ms': {
+                r.name: (
+                    r.metadata.get('duration_ms')
+                    if r.metadata.get('duration_ms') is not None
+                    else (round(r.metadata['duration'] * 1000.0, 3) if r.metadata.get('duration') is not None else None)
+                )
+                for r in stage_results
+            },
+            'provenance_hash': prov,
         },
     }
     # Build lineage list (stage names in order)

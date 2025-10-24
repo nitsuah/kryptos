@@ -213,6 +213,69 @@ def crib_bonus(text: str) -> float:
     return bonus
 
 
+def rarity_weighted_crib_bonus(text: str) -> float:
+    """Rarity-weighted crib bonus.
+
+    Assign higher bonus to cribs composed of rarer letters (per LETTER_FREQ) so that
+    infrequent-letter cribs (e.g., containing J/Q/Z/X) contribute proportionally more
+    than common ones like THE. This mitigates overweighting of extremely frequent cribs
+    while still rewarding their presence.
+
+    Formula per crib occurrence:
+        base = len(crib)
+        rarity_factor = average( (1 / (freq(letter)/100)) for letter in crib ) normalized
+        bonus_per_occurrence = 4.0 * base * rarity_factor
+
+    Normalization: We scale by dividing each letter rarity term by the maximum rarity term
+    observed among A-Z so values are in (0,1]; then average.
+
+    Multiple occurrences of same crib each count; overlapping permitted. If CRIBS empty returns 0.
+    Missing frequency entries fall back to a neutral 1.0 factor.
+    """
+    if not CRIBS:
+        return 0.0
+    seq = ''.join(c for c in text.upper() if c.isalpha())
+    if not seq:
+        return 0.0
+    # Precompute rarity scaling
+    # Convert frequency percentage to probability; rarity term = 1 / p.
+    rarities: dict[str, float] = {}
+    max_rarity = 0.0
+    for letter, pct in LETTER_FREQ.items():
+        p = pct / 100.0 if pct > 0 else 0.0001
+        r = 1.0 / p
+        rarities[letter] = r
+        if r > max_rarity:
+            max_rarity = r
+
+    def _crib_occurrences(crib: str) -> list[int]:
+        starts = []
+        idx = seq.find(crib)
+        while idx != -1:
+            starts.append(idx)
+            idx = seq.find(crib, idx + 1)
+        return starts
+
+    total = 0.0
+    for crib in CRIBS:
+        c = crib.upper()
+        if not c or c not in seq:
+            continue
+        occs = _crib_occurrences(c)
+        # Compute rarity factor (average normalized rarities)
+        factors = []
+        for letter in c:
+            r = rarities.get(letter, 1.0)
+            if max_rarity > 0:
+                r /= max_rarity
+            factors.append(r)
+        rarity_factor = sum(factors) / len(factors) if factors else 0.0
+        base = len(c)
+        per_bonus = 4.0 * base * rarity_factor
+        total += per_bonus * len(occs)
+    return total
+
+
 def positional_crib_bonus(text: str, positional: dict[str, Sequence[int]], window: int = 5) -> float:
     """Compute bonus for cribs appearing near expected positional indices.
     positional: mapping crib -> iterable of expected start indices (0-based).
@@ -368,6 +431,7 @@ def baseline_stats(text: str) -> dict[str, float]:
         'trigram_score': trigram_score(text),
         'quadgram_score': quadgram_score(text) if QUADGRAMS else 0.0,
         'crib_bonus': crib_bonus(text),
+        'rarity_weighted_crib_bonus': rarity_weighted_crib_bonus(text),
         'combined_score': combined_plaintext_score(text),
         'index_of_coincidence': index_of_coincidence(text),
         'vowel_ratio': vowel_ratio(text),
@@ -502,7 +566,7 @@ def load_cribs_from_file(path: str | Path) -> list[str]:
     """
     try:
         p = Path(path)
-    except Exception:
+    except (TypeError, ValueError):
         return []
     if not p.exists():
         return []
@@ -517,7 +581,7 @@ def load_cribs_from_file(path: str | Path) -> list[str]:
                 token = parts[0].strip().upper() if parts else ''
                 if token.isalpha() and len(token) >= 3:
                     cribs.append(token)
-    except Exception:
+    except (OSError, UnicodeDecodeError):
         return []
     return cribs
 
@@ -555,6 +619,7 @@ __all__ = [
     'bigram_score',
     'trigram_score',
     'crib_bonus',
+    'rarity_weighted_crib_bonus',
     'quadgram_score',
     'combined_plaintext_score',
     'combined_plaintext_score_cached',

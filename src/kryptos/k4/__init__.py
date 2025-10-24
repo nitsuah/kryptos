@@ -110,7 +110,10 @@ def decrypt_best(
     artifacts = pipeline_out.get("artifacts")
     attempt_log = pipeline_out.get("attempt_log")
     profile = pipeline_out.get("profile", {})
+    prov = profile.get('provenance_hash')
     metadata = {"stage_strategy": strategy}
+    if prov:
+        metadata['provenance_hash'] = prov
     return DecryptResult(
         plaintext=best_plain,
         score=best_score,

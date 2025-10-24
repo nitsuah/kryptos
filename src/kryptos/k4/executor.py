@@ -1,8 +1,12 @@
-"""Legacy pipeline executor (to be unified with `Pipeline`).
+"""Legacy pipeline executor (DEPRECATED).
 
-Kept temporarily to avoid breaking existing tests/scripts while we finish
-namespace consolidation. Prefer using `Pipeline` + stage factories defined in
-`kryptos.k4.pipeline` for new code.
+This class remains only to support existing tests and transitional scripts.
+New code should use `Pipeline` and stage factories in `kryptos.k4.pipeline`.
+
+Deprecation plan:
+1. Maintain minimal functionality (no new features).
+2. Migrate remaining tests (`test_executor_*`) to Pipeline equivalents.
+3. Remove this module and its exports after migration (update CHANGELOG accordingly).
 """
 
 from __future__ import annotations
@@ -38,7 +42,7 @@ class PipelineConfig:
     parallel_hill_variants: int = 0  # if >0 run hill stage variants in parallel stub
 
 
-class PipelineExecutor:
+class PipelineExecutor:  # DEPRECATED: see module docstring
     def __init__(self, config: PipelineConfig):
         self.config = config
         # Track dynamic threshold adjustments per stage
@@ -297,4 +301,4 @@ class PipelineExecutor:
         return summary
 
 
-__all__ = ['PipelineConfig', 'PipelineExecutor']
+__all__ = ['PipelineConfig', 'PipelineExecutor']  # PipelineExecutor deprecated

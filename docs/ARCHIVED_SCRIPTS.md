@@ -31,7 +31,7 @@ decision)
 | pick_best_weight.py | REMOVE | Superseded by CLI pick-best subcommand. |
 | compare_crib_integration.py | AUDIT | Assess relevance; may merge into summarize-run. |
 | tiny_tuning_sweep.py | KEEP | Deterministic harness (possible test fixture). |
-| spy_eval.py | REMOVE | Superseded by package + CLI spy-eval. |
+| spy_eval.py | REMOVED | Deleted (replaced by package API + CLI spy-eval). |
 
 ## Examples
 
@@ -115,4 +115,9 @@ replaced by `kryptos.spy.aggregate_phrases`.
 package path. 6. Add `tuning-report` CLI subcommand wrapping report utilities. 7. Profile positional
 letter deviation weight and document calibration results.
 
-Updated: 2025-10-23T23:58Z
+Updated: 2025-10-24T00:10Z
+
+Change Log Addendum:
+
+- Implemented rarity-weighted crib bonus in `kryptos.k4.scoring.rarity_weighted_crib_bonus`.
+- Fully removed deprecated `spy_eval.py` legacy script.

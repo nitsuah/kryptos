@@ -16,6 +16,7 @@ This document tracks performance enhancement tasks and profiling methodology.
 | stage_duration_ms | Elapsed time per pipeline stage | timing wrapper decorator |
 | candidates_per_second | Rate of candidate generation per stage | count/elapsed |
 | cache_hit_ratio | LRU scoring cache hits vs misses | expose counters |
+| rarity_weighted_crib_bonus | Differential bonus favoring rare-letter cribs (per candidate) | scoring.rarity_weighted_crib_bonus |
 | positional_weight_impact | Delta in candidate rank shift when toggling positional deviation weight | comparison run pair |
 | memory_peak_mb | Peak RSS during composite run | psutil / tracemalloc (optional) |
 
@@ -31,9 +32,6 @@ chosen weight and justification here and in CHANGELOG.
 
 Add fields to run metadata JSON:
 
-- `provenance_hash`: SHA256 of ciphertext + normalized config JSON.
-- `stage_timings`: list of {stage, duration_ms}.
-- `scoring_weights`: map of component -> weight.
 
 ## Hotspot Profiling
 

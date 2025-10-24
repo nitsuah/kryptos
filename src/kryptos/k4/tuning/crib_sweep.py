@@ -129,7 +129,7 @@ def compare_crib_integration(
     cribs_list = [c.upper() for c in (cribs or []) if c and c.isalpha() and len(c) >= 3]
     rows: list[dict] = []
     upper_samples = ["".join(c for c in s.upper() if c.isalpha()) for s in samples]
-    for s, upper in zip(samples, upper_samples):
+    for s, upper in zip(samples, upper_samples, strict=True):
         base_stats = scoring.baseline_stats(s)
         baseline = base_stats.get("combined_score", 0.0)
         crib_bonus = 0.0
