@@ -86,8 +86,8 @@ Add tests to verify:
 
 | Item                    | Action            | Target Removal Version |
 |-------------------------|-------------------|------------------------|
-| `ask_best_next.py`      | Remove            | v0.X+2                 |
-| `run_plan.py`           | Remove            | v0.X+2                 |
+| `ask_best_next.py`      | REMOVED           | v0.X+1                 |
+| `run_plan.py`           | REMOVED           | v0.X+1                 |
 | `autopilot_daemon.py`   | REMOVED (CLI: autopilot) | v0.X+1 |
 | `manager_daemon.py`     | REMOVED (functionality folded) | v0.X+1 |
 | `cracker_daemon.py`     | REMOVED (decision logic merged) | v0.X+1 |

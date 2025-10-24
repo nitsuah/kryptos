@@ -3,32 +3,23 @@
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 import time
 from datetime import datetime
-from pathlib import Path
 
-# Robust repo root detection: ascend parents until pyproject.toml found, else take 3-level parent.
-_here = Path(__file__).resolve()
-_root = None
-for p in _here.parents:
-    if (p / 'pyproject.toml').exists():
-        _root = p
-        break
-REPO_ROOT = str(_root or _here.parents[2])
-AGENTS_DIR = os.path.join(REPO_ROOT, 'agents')
-LOG_DIR_ARTIFACTS = os.path.join(REPO_ROOT, 'artifacts', 'logs')
-os.makedirs(LOG_DIR_ARTIFACTS, exist_ok=True)
-ARTIFACTS_STATE = os.path.join(REPO_ROOT, 'artifacts', 'state.json')
-STATE_PATH = ARTIFACTS_STATE if os.path.exists(ARTIFACTS_STATE) else os.path.join(AGENTS_DIR, 'state.json')
-LEARNED_MD = os.path.join(AGENTS_DIR, 'LEARNED.md')
+from kryptos.paths import get_artifacts_root, get_logs_dir, get_repo_root
+
+REPO_ROOT = get_repo_root()
+AGENTS_DIR = REPO_ROOT / 'agents'
+LOG_DIR_ARTIFACTS = get_logs_dir()
+STATE_PATH = get_artifacts_root() / 'state.json'
+LEARNED_MD = AGENTS_DIR / 'LEARNED.md'
 
 
 def _load_state() -> dict:
-    if os.path.exists(STATE_PATH):
-        with open(STATE_PATH, encoding='utf-8') as fh:
+    if STATE_PATH.exists():
+        with STATE_PATH.open(encoding='utf-8') as fh:
             try:
                 return json.load(fh)
             except json.JSONDecodeError:
@@ -38,19 +29,15 @@ def _load_state() -> dict:
 
 def _save_state(state: dict) -> None:
     # Ensure parent directory exists before writing state file (CI may not have 'agents/')
-    parent = os.path.dirname(STATE_PATH)
-    if parent and not os.path.exists(parent):
-        os.makedirs(parent, exist_ok=True)
-    with open(STATE_PATH, 'w', encoding='utf-8') as fh:
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with STATE_PATH.open('w', encoding='utf-8') as fh:
         json.dump(state, fh, indent=2)
 
 
 def _append_learned(note: str) -> None:
     # Ensure parent directory for LEARNED.md exists
-    learned_parent = os.path.dirname(LEARNED_MD)
-    if learned_parent and not os.path.exists(learned_parent):
-        os.makedirs(learned_parent, exist_ok=True)
-    with open(LEARNED_MD, 'a', encoding='utf-8') as fh:
+    LEARNED_MD.parent.mkdir(parents=True, exist_ok=True)
+    with LEARNED_MD.open('a', encoding='utf-8') as fh:
         fh.write(f"- {datetime.utcnow().isoformat()} {note}\n")
 
 
@@ -58,9 +45,9 @@ def load_personas() -> dict[str, str]:
     mapping = {}
     state = _load_state()
     for fname in ('spy.prompt', 'q.prompt', 'ops.prompt'):
-        path = os.path.join(AGENTS_DIR, fname)
-        if os.path.exists(path):
-            with open(path, encoding='utf-8') as fh:
+        path = AGENTS_DIR / fname
+        if path.exists():
+            with path.open(encoding='utf-8') as fh:
                 text = fh.read()
                 if fname.startswith('q') and state.get('learned'):
                     notes = ' '.join([f"{n['persona']}:{n['note']}" for n in state.get('learned', [])])
@@ -116,25 +103,25 @@ def recommend_next_action() -> tuple[str, str, dict]:
         'metadata': {...}
       }
     """
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    tr_dir = os.path.join(repo_root, 'artifacts', 'tuning_runs')
-    has_artifacts = os.path.exists(tr_dir) and any(os.path.isdir(os.path.join(tr_dir, d)) for d in os.listdir(tr_dir))
+    repo_root = REPO_ROOT
+    tr_dir = get_artifacts_root() / 'tuning_runs'
+    has_artifacts = tr_dir.exists() and any(d.is_dir() for d in tr_dir.iterdir())
 
     # detect a simple SPY extractor presence
-    spy_extractor_path = os.path.join(repo_root, 'scripts', 'dev', 'spy_extractor.py')
-    has_spy = os.path.exists(spy_extractor_path)
+    spy_extractor_path = repo_root / 'scripts' / 'dev' / 'spy_extractor.py'
+    has_spy = spy_extractor_path.exists()
 
     # detect ops_run_tuning presence: prefer an in-module callable or the presence of the sweep script
     has_ops = callable(globals().get('ops_run_tuning'))
     if not has_ops:
-        sweep_script = os.path.join(repo_root, 'scripts', 'tuning', 'crib_weight_sweep.py')
-        has_ops = os.path.exists(sweep_script)
+        sweep_script = repo_root / 'scripts' / 'tuning' / 'crib_weight_sweep.py'
+        has_ops = sweep_script.exists()
 
     metadata = {
         'has_artifacts': bool(has_artifacts),
         'has_spy': bool(has_spy),
         'has_ops': bool(has_ops),
-        'tuning_runs_dir': tr_dir,
+        'tuning_runs_dir': str(tr_dir),
     }
 
     if not has_ops:
@@ -167,14 +154,12 @@ def ops_run_tuning(
     side-effects beyond writing artifacts) — the underlying script is already safe and writes to
     `artifacts/tuning_runs/run_<ts>/`.
     """
-    from pathlib import Path
-
     # repository root is two parents above this file (scripts/dev -> scripts -> repo)
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    sweep_path = os.path.join(repo_root, 'scripts', 'tuning', 'crib_weight_sweep.py')
+    repo_root = REPO_ROOT
+    sweep_path = repo_root / 'scripts' / 'tuning' / 'crib_weight_sweep.py'
 
     # build subprocess command to run the sweep script with optional args
-    cmd = [sys.executable, sweep_path]
+    cmd = [sys.executable, str(sweep_path)]
     if weights:
         cmd += ['--weights', ','.join(str(w) for w in weights)]
     if dry_run:
@@ -190,7 +175,7 @@ def ops_run_tuning(
             print(f"ops_run_tuning: attempt {attempts} running sweep script (cmd={cmd})")
             subprocess.check_call(cmd, cwd=repo_root)
             break
-        except Exception as exc:
+        except (subprocess.CalledProcessError, OSError) as exc:
             print(f"ops_run_tuning: attempt {attempts} failed with: {exc}")
             if attempts >= max_retries:
                 print(f"ops_run_tuning: exceeded max retries ({max_retries}), aborting")
@@ -199,7 +184,7 @@ def ops_run_tuning(
             print(f"ops_run_tuning: sleeping {sleep_for:.2f}s before retry")
             time.sleep(sleep_for)
 
-    tr_dir = Path(repo_root) / 'artifacts' / 'tuning_runs'
+    tr_dir = get_artifacts_root() / 'tuning_runs'
     if not tr_dir.exists():
         return ''
     runs = [p for p in tr_dir.iterdir() if p.is_dir() and p.name.startswith('run_')]
@@ -223,11 +208,11 @@ def ops_run_tuning(
                 for row in reader:
                     try:
                         d = float(row.get('delta', '0'))
-                    except Exception:
+                    except (ValueError, KeyError):
                         d = 0.0
                     if d > max_delta:
                         max_delta = d
-    except Exception:
+    except (OSError, ValueError, json.JSONDecodeError):
         max_delta = 0.0
 
     meta = {'run_dir': str(latest), 'max_delta': float(max_delta)}
@@ -240,9 +225,9 @@ def ops_run_tuning(
 def run_exchange(personas: dict[str, str], rounds: int = 2):
     ts = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
     fname = f'run_{ts}.jsonl'
-    out_path_artifacts = os.path.join(LOG_DIR_ARTIFACTS, fname)
+    out_path_artifacts = LOG_DIR_ARTIFACTS / fname
     state = _load_state()
-    with open(out_path_artifacts, 'w', encoding='utf-8') as out_art:
+    with out_path_artifacts.open('w', encoding='utf-8') as out_art:
         for r in range(rounds):
             for name, text in personas.items():
                 act = simulate_action(name, text)

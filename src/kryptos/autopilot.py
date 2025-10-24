@@ -34,20 +34,19 @@ from datetime import datetime
 from pathlib import Path
 
 from kryptos.logging import setup_logging
+from kryptos.paths import (
+    get_artifacts_root,
+    get_decisions_dir,
+    get_logs_dir,
+    get_repo_root,
+    get_tuning_runs_root,
+)
 
-# Constants / paths (resolve repo root via pyproject.toml search)
-_HERE = Path(__file__).resolve()
-_ROOT: Path | None = None
-for _p in _HERE.parents:
-    if (_p / "pyproject.toml").exists():
-        _ROOT = _p
-        break
-REPO_ROOT = _ROOT or _HERE.parents[2]
-LOG_DIR = REPO_ROOT / "artifacts" / "logs"
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-DECISIONS_DIR = REPO_ROOT / "artifacts" / "decisions"
-DECISIONS_DIR.mkdir(parents=True, exist_ok=True)
-STATE_PATH = REPO_ROOT / "artifacts" / "state.json"
+# Centralized path references via kryptos.paths
+REPO_ROOT = get_repo_root()
+LOG_DIR = get_logs_dir()
+DECISIONS_DIR = get_decisions_dir()
+STATE_PATH = get_artifacts_root() / "state.json"
 
 
 def _load_state() -> dict:
@@ -90,10 +89,15 @@ def recommend_next_action() -> tuple[str, str, dict]:
     Minimal plan schema:
       {'action': 'run_ops'|'analyze_artifacts'|'push_pr'|'noop', 'params': {...}, 'metadata': {...}}
     """
-    tr_dir = REPO_ROOT / "artifacts" / "tuning_runs"
+    tr_dir = get_tuning_runs_root()
     has_artifacts = tr_dir.exists() and any(d.is_dir() for d in tr_dir.iterdir())
-    spy_extractor = REPO_ROOT / "scripts" / "dev" / "spy_extractor.py"
-    has_spy = spy_extractor.exists()
+    # Detect presence of migrated spy extractor package instead of legacy script
+    try:
+        import kryptos.spy.extractor as _spy_mod  # noqa: F401
+
+        has_spy = True
+    except (ImportError, ModuleNotFoundError):
+        has_spy = False
     # ops availability heuristic: presence of sweep script
     has_ops = (REPO_ROOT / "scripts" / "tuning" / "crib_weight_sweep.py").exists()
     metadata = {
@@ -141,7 +145,7 @@ def _simulate_action(name: str, prompt: str) -> str:
     return "UNKNOWN_PERSONA"
 
 
-def run_exchange(plan_text: str | None = None, autopilot: bool = True, dry_run: bool = True) -> Path:
+def run_exchange(plan_text: str | None = None, autopilot: bool = True) -> Path:
     """Run a single multi-persona exchange.
 
     Writes a jsonl log file under artifacts/logs and returns the path.
@@ -204,8 +208,6 @@ def run_autopilot_loop(
     iterations: int = 0,
     interval: int = 300,
     plan: str | None = None,
-    dry_run: bool = True,
-    force: bool = False,
 ) -> int:
     """Run repeated exchanges until a safe decision is detected or iteration cap reached.
 
@@ -219,14 +221,14 @@ def run_autopilot_loop(
         it += 1
         logger.info("Autopilot loop iteration %d", it)
         try:
-            run_exchange(plan_text=plan, autopilot=True, dry_run=(dry_run and not force))
-        except Exception as exc:  # noqa: BLE001 keep loop alive
-            logger.exception("run_exchange failed: %s", exc)
+            run_exchange(plan_text=plan, autopilot=True)
+        except (RuntimeError, ValueError, OSError) as exc:
+            logger.exception("run_exchange failed (recoverable): %s", exc)
         latest = _latest_decision()
         if latest:
             try:
                 decision = json.loads(latest.read_text(encoding="utf-8"))
-            except Exception:
+            except (OSError, ValueError, json.JSONDecodeError):
                 decision = {}
             if _decision_safe(decision, safe_prec):
                 logger.info("Decision %s passes safety criteria; exiting.", latest.name)

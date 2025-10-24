@@ -16,7 +16,7 @@ def test_run_exchange_writes_log():
     logs_dir = repo_root / 'artifacts' / 'logs'
     logs_dir.mkdir(parents=True, exist_ok=True)
 
-    path = autopilot_mod.run_exchange(plan_text='please review the current plan', autopilot=False, dry_run=True)
+    path = autopilot_mod.run_exchange(plan_text='please review the current plan', autopilot=False)
     assert path.exists(), 'Expected run log path to exist'
     text = path.read_text(encoding='utf-8')
     assert 'Q_SUMMARY' in text or 'SPY_SUMMARY' in text

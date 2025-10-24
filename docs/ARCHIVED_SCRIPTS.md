@@ -13,10 +13,10 @@ before final removal).
 - AUDIT: Requires review (security, side-effects) prior to promotion or removal.
 - HISTORICAL: Preserved for provenance (tagged, not executed in CI).
 
-## Summary Counts (Post spy namespace consolidation 2025-10-23)
+## Summary Counts (Post daemon & plan wrapper removal 2025-10-24)
 
-- KEEP: 9
-- REMOVE: 14 (includes spy_extractor, generate_top_candidates, condensed_tuning_report)
+- KEEP: 8
+- REMOVE / REMOVED: 18 (added ask_best_next.py, run_plan.py, daemon set)
 - STUB: 0 (all prior stubs cleared)
 - MIGRATE: 5 (demo & autopilot examples, tiny sweep, run_ops_tiny_sweep, compare_crib_integration
 decision)
@@ -74,12 +74,12 @@ decision)
 | File | Decision | Notes |
 |------|----------|-------|
 | ask_triumverate.py | REMOVED | Consolidated into `kryptos.autopilot` + CLI `autopilot`. |
-| ask_best_next.py | REMOVE | Redundant helper; superseded by unified autopilot API. |
+| ask_best_next.py | REMOVED | Redundant helper deleted; use `kryptos autopilot --plan`. |
 | autopilot_daemon.py | REMOVED | Loop logic now in `autopilot.run_autopilot_loop`. |
 | cracker_daemon.py | REMOVED | Candidate acceptance & decision writing merged into autopilot module. |
 | manager_daemon.py | REMOVED | Parameter sweep shim deprecated; tuning handled via existing modules/CLI. |
 | (removed) spy_extractor.py | Removed (Replaced) | Logic lives in `kryptos.spy.extractor.extract`. |
-| run_plan.py | KEEP | Plan execution harness. |
+| run_plan.py | REMOVED | Plan injection handled by CLI `--plan` flag. |
 | create_pr.py | AUDIT | Check for secret leakage; potential automation move. |
 | migrate_run_artifacts.py | REMOVED | Obsolete; no legacy run_* dirs outside k4_runs. |
 | migrate_misplaced_reports.py | REMOVED | Obsolete; no misplaced src/artifacts/reports tree present. |
