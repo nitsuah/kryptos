@@ -11,11 +11,11 @@ masking, and related hybrids) with an emphasis on reproducible pipelines and sco
 
 Related documents / quick links:
 
-- Core docs: `docs/README_CORE.md`
-- Sections API: `docs/SECTIONS.md`
-- K4 strategy: `docs/K4_STRATEGY.md`
-- Autopilot: `docs/AUTOPILOT.md`
+- K4 Master Plan: `docs/K4_MASTER_PLAN.md`
+- Agents Architecture: `docs/AGENTS_ARCHITECTURE.md`
+- API Reference: `docs/API_REFERENCE.md`
 - Technical debt & roadmap: `docs/TECHDEBT.md`
+- Changelog: `docs/CHANGELOG.md`
 
 **K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in copper that nobody has
 cracked in 30+ years. We're using Python to systematically try every reasonable decryption method – techniques that
@@ -104,13 +104,13 @@ entropy heuristics
 
 Located under `kryptos/k4/` (migrated from `src/k4/`):
 
-Details and module-level examples for K4 have been moved to `docs/K4_STRATEGY.md` (K4-specific notes) and
-`docs/README_CORE.md` (code-level examples).
+Details and module-level examples for K4 have been moved to `docs/K4_MASTER_PLAN.md` for strategic planning and
+`docs/API_REFERENCE.md` for code-level API documentation.
 
 ## Roadmap & Technical Debt
 
-See `docs/TECHDEBT.md` for current prioritized work (sections unified, K4 composite decrypt, CLI & logging helpers
-upcoming) and `docs/K4_STRATEGY.md` for solver-specific exploration notes.
+See `docs/TECHDEBT.md` for current prioritized work and `docs/K4_MASTER_PLAN.md` for comprehensive strategy and solver-
+specific exploration notes.
 
 ## CLI Usage Examples
 
@@ -240,8 +240,8 @@ smoke CI and packaging improvements. See `docs/AUTOPILOT.md` for details
 The repository includes an offline autopilot flow (Q / OPS / SPY) to recommend and execute safe tuning and extraction
 steps. `ask_triumverate.py` implements a lightweight driver that can run a deterministic OPS tuning sweep and then
 invoke the conservative SPY extractor. If `SPY_MIN_CONF` is not set, the autopilot will compute a conservative threshold
-using the evaluation harness; it falls back to `0.25` when no labeled runs are available. See `docs/AUTOPILOT.md` for
-full details and CLI examples.
+using the evaluation harness; it falls back to `0.25` when no labeled runs are available. See
+`docs/AGENTS_ARCHITECTURE.md` for full details and CLI examples.
 
 ## Contributing
 
@@ -262,8 +262,10 @@ See `LICENSE`.
 
 ## Other Documentation
 
-- `docs/README_CORE.md` — project reference and examples
-- `docs/K4_STRATEGY.md` — K4-specific strategy and notes
+- `docs/K4_MASTER_PLAN.md` — Complete K4 strategy, hypothesis pipeline, and roadmap
+- `docs/AGENTS_ARCHITECTURE.md` — SPY/OPS/Q agent design and implementation
+- `docs/API_REFERENCE.md` — Python API and CLI command reference
+- `docs/TECHDEBT.md` — Technical debt tracking and cleanup status
 
 ## Code Examples
 
