@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 from pathlib import Path
 
 from kryptos.k4 import decrypt_best
@@ -15,33 +16,32 @@ from kryptos.k4.tuning import (
 )
 from kryptos.k4.tuning.artifacts import end_to_end_process
 from kryptos.k4.tuning.crib_sweep import WeightSweepRow
+from kryptos.logging import setup_logging
 from kryptos.sections import SECTIONS
 from kryptos.spy import extract as spy_module_extract
 from kryptos.tuning import spy_eval
 
 
-def _print_sections() -> None:
+def _print_sections(logger: logging.Logger) -> None:
     for name in SECTIONS:
-        print(name)
+        logger.info('%s', name)
 
 
 def cmd_sections(_args: argparse.Namespace) -> int:
-    _print_sections()
+    logger = setup_logging(logger_name='kryptos.cli')
+    _print_sections(logger)
     return 0
 
 
 def cmd_k4_decrypt(args: argparse.Namespace) -> int:
+    logger = setup_logging(logger_name='kryptos.cli')
     with open(args.cipher, encoding='utf-8') as fh:
         ciphertext = fh.read().strip()
     res = decrypt_best(ciphertext, limit=args.limit, adaptive=args.adaptive, report=args.report)
+    logger.info('k4-decrypt score=%.3f lineage=%s', res.score, res.lineage)
     print(
         json.dumps(
-            {
-                'plaintext': res.plaintext,
-                'score': res.score,
-                'lineage': res.lineage,
-                'artifacts': res.artifacts,
-            },
+            {'plaintext': res.plaintext, 'score': res.score, 'lineage': res.lineage, 'artifacts': res.artifacts},
             indent=2,
         ),
     )
@@ -49,6 +49,7 @@ def cmd_k4_decrypt(args: argparse.Namespace) -> int:
 
 
 def cmd_k4_attempts(args: argparse.Namespace) -> int:
+    setup_logging(logger_name='kryptos.cli')
     path = persist_attempt_logs(label=args.label.upper())
     print(path)
     return 0
@@ -56,6 +57,8 @@ def cmd_k4_attempts(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog='kryptos', description='Kryptos research CLI')
+    p.add_argument('--log-level', type=str, default='INFO', help='Logging level (DEBUG, INFO, WARNING, ERROR)')
+    p.add_argument('--quiet', action='store_true', help='Suppress non-error logging (JSON output only)')
     sub = p.add_subparsers(dest='command', required=True)
 
     sp_sections = sub.add_parser('sections', help='List available sections (K1-K4)')
@@ -149,6 +152,11 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:  # pragma: no cover - thin wrapper
     parser = build_parser()
     args = parser.parse_args(argv)
+    level = getattr(logging, args.log_level.upper(), logging.INFO)
+    logger = setup_logging(logger_name='kryptos.cli')
+    logger.setLevel(level)
+    if args.quiet:
+        logger.setLevel(logging.ERROR)
     return args.func(args)
 
 
@@ -162,6 +170,7 @@ def _load_samples(path: Path) -> list[str]:
 
 
 def cmd_tuning_crib_weight_sweep(args: argparse.Namespace) -> int:
+    logger = setup_logging(logger_name='kryptos.cli')
     weights = [float(w) for w in args.weights.split(',') if w.strip()]
     cribs = [c.strip().upper() for c in args.cribs.split(',') if c.strip()]
     samples = _load_samples(Path(args.samples)) if args.samples else None
@@ -170,11 +179,12 @@ def cmd_tuning_crib_weight_sweep(args: argparse.Namespace) -> int:
         print(json.dumps([r.__dict__ for r in rows], indent=2))
     else:
         for r in rows:
-            print(f"weight={r.weight} delta={r.delta:+.3f} sample='{r.sample[:60]}'")
+            logger.info("weight=%s delta=%+.3f sample='%s'", r.weight, r.delta, r.sample[:60])
     return 0
 
 
 def cmd_tuning_pick_best(args: argparse.Namespace) -> int:
+    setup_logging(logger_name='kryptos.cli')
     if not args.csv.exists():
         print(json.dumps({'error': 'csv_not_found', 'path': str(args.csv)}))
         return 2
@@ -210,6 +220,7 @@ def cmd_tuning_pick_best(args: argparse.Namespace) -> int:
 
 
 def cmd_tuning_summarize_run(args: argparse.Namespace) -> int:
+    setup_logging(logger_name='kryptos.cli')
     if not args.run_dir.exists() or not args.run_dir.is_dir():
         print(json.dumps({'error': 'run_dir_not_found', 'path': str(args.run_dir)}))
         return 2
@@ -219,12 +230,14 @@ def cmd_tuning_summarize_run(args: argparse.Namespace) -> int:
 
 
 def cmd_tuning_tiny_param_sweep(_args: argparse.Namespace) -> int:
+    setup_logging(logger_name='kryptos.cli')
     rows = tiny_param_sweep()
     print(json.dumps(rows, indent=2))
     return 0
 
 
 def cmd_tuning_holdout_score(args: argparse.Namespace) -> int:
+    setup_logging(logger_name='kryptos.cli')
     # Minimal representative holdout samples (formerly in holdout_score.py)
     holdout_samples = [
         'IN THE QUIET AFTERNOON THE SHADOWS GREW LONG ON THE FLOOR',
@@ -252,11 +265,13 @@ def cmd_tuning_holdout_score(args: argparse.Namespace) -> int:
         for r in rows:
             w.writerow(r)
     print(json.dumps(out, indent=2))
-    print(str(args.out))
+    if not args.quiet:
+        print(str(args.out))
     return 0
 
 
 def cmd_spy_eval(args: argparse.Namespace) -> int:
+    setup_logging(logger_name='kryptos.cli')
     thresholds = [float(t) for t in args.thresholds.split(',') if t.strip()]
     eval_res = spy_eval.evaluate(args.labels, args.runs, thresholds=thresholds)
     best = spy_eval.select_best_threshold(args.labels, args.runs, thresholds)
@@ -269,6 +284,7 @@ def cmd_spy_eval(args: argparse.Namespace) -> int:
 
 
 def cmd_spy_extract(args: argparse.Namespace) -> int:
+    setup_logging(logger_name='kryptos.cli')
     # Use new spy module extraction (latest run only) or iterate runs
     tokens_by_run = {}
     for run_dir in args.runs.iterdir():
@@ -281,6 +297,7 @@ def cmd_spy_extract(args: argparse.Namespace) -> int:
 
 
 def cmd_tuning_report(args: argparse.Namespace) -> int:
+    setup_logging(logger_name='kryptos.cli')
     if not args.run_dir.exists() or not args.run_dir.is_dir():
         print(json.dumps({'error': 'run_dir_not_found', 'path': str(args.run_dir)}))
         return 2
