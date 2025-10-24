@@ -27,3 +27,9 @@ def test_run_sections_demo_structure():
     # Each entry has callable
     for entry in info:
         assert callable(entry["callable"])
+
+
+def test_run_sections_demo_include_k4():
+    info = run_sections_demo(include_k4=True)
+    names = {d["name"] for d in info}
+    assert {"K1", "K2", "K3", "K4"}.issubset(names)
