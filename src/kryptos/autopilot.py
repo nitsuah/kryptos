@@ -98,8 +98,8 @@ def recommend_next_action() -> tuple[str, str, dict]:
         has_spy = True
     except (ImportError, ModuleNotFoundError):
         has_spy = False
-    # ops availability heuristic: presence of sweep script
-    has_ops = (REPO_ROOT / "scripts" / "tuning" / "crib_weight_sweep.py").exists()
+    # ops availability heuristic: presence of consolidated tuning script
+    has_ops = (REPO_ROOT / "scripts" / "tuning.py").exists()
     metadata = {
         "has_artifacts": bool(has_artifacts),
         "has_spy": bool(has_spy),
