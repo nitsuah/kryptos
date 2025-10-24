@@ -148,14 +148,14 @@ def ops_run_tuning(
     retries: int = 3,
     backoff_factor: float = 0.5,
 ) -> str | dict:
-    """Run the consolidated tuning CLI sweep command programmatically.
+    """Run the consolidated tuning CLI (tuning.py sweep) programmatically.
 
     Returns the run directory path as a string. By default this is a dry run (no network or external
     side-effects beyond writing artifacts) — the underlying script is already safe and writes to
     `artifacts/tuning_runs/run_<ts>/`.
     """
     repo_root = REPO_ROOT
-    # Use consolidated tuning.py script instead of old crib_weight_sweep.py
+    # Use consolidated tuning CLI instead of legacy crib_weight_sweep.py
     sweep_path = repo_root / 'scripts' / 'tuning.py'
 
     # build subprocess command to run the sweep command with optional args

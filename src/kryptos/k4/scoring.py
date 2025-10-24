@@ -211,6 +211,8 @@ def _get_all_cribs() -> list[str]:
     from kryptos.spy.crib_store import PROMOTED_CRIBS_PATH, load_promoted_cribs
 
     all_cribs = list(CRIBS)  # Start with config cribs
+    config_set = set(CRIBS)  # Create set once for deduplication
+
     # Check if promoted cribs file exists and load with caching
     if PROMOTED_CRIBS_PATH.exists():
         mtime = PROMOTED_CRIBS_PATH.stat().st_mtime
@@ -222,7 +224,6 @@ def _get_all_cribs() -> list[str]:
         else:
             promoted = cached[1]
         # Add promoted cribs that aren't already in config
-        config_set = set(CRIBS)
         all_cribs.extend([c for c in promoted if c not in config_set])
     return all_cribs
 

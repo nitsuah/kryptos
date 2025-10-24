@@ -1,4 +1,5 @@
 import csv
+import importlib.util
 from pathlib import Path
 
 
@@ -25,8 +26,6 @@ def test_pick_best_on_synthetic_run():
             writer.writerow(r)
 
     # Import consolidated tuning module's pick_best_weight function
-    import importlib.util
-
     tuning_path = repo / 'scripts' / 'tuning.py'
     spec = importlib.util.spec_from_file_location('tuning', str(tuning_path))
     if not spec or not spec.loader:
