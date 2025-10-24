@@ -1,4 +1,5 @@
 import importlib.util
+import subprocess
 from pathlib import Path
 
 
@@ -17,7 +18,7 @@ def test_ops_run_tuning_retries(tmp_path, monkeypatch):
         calls['count'] += 1
         # fail the first two calls, succeed on the third
         if calls['count'] < 3:
-            raise RuntimeError('simulated transient failure')
+            raise subprocess.CalledProcessError(returncode=1, cmd=cmd)
         return 0
 
     monkeypatch.setattr(mod.subprocess, 'check_call', fake_check_call)
