@@ -18,9 +18,11 @@ substitution)
 - 🟡 Hill 2x2 weak signal (-329.45, 2σ above random) - requires validation
 - 🎯 Composite hypotheses next (layered encryption testing)
 
-**Next Priorities:** 1. Test composite methods (Transposition → Hill, Vigenère → Transposition) 2. Expand Hill to 3x3
-matrices (genetic algorithm approach) 3. Add LLM/NLP intelligence to SPY (Phase 2 enhancement) 4. Optimize test
-performance (currently 335s full suite, target <180s)
+**Next Priorities:**
+
+1. Test composite methods (Transposition → Hill, Vigenère → Transposition) 2. Expand Hill to 3x3 matrices (genetic
+algorithm approach) matrices (genetic algorithm approach) 3. Add LLM/NLP intelligence to SPY and other agents to improve
+overall intelligence (Phase 2 enhancement) 4. Optimize test performance (currently 335s full suite, target <180s)
 
 **Success Criteria:** Find plaintext candidate with score > -312.06 (3σ threshold) AND contains recognizable words
 (BERLIN, CLOCK, or coherent English)
