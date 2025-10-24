@@ -14,6 +14,8 @@ import sys
 from kryptos.k4.hypotheses import (
     AutokeyHypothesis,
     BerlinClockTranspositionHypothesis,
+    BifidHypothesis,
+    FourSquareHypothesis,
     HillCipher2x2Hypothesis,
     PlayfairHypothesis,
     SimpleSubstitutionHypothesis,
@@ -42,6 +44,16 @@ HYPOTHESES = {
         'class': AutokeyHypothesis,
         'params': {},
         'description': 'Autokey cipher (Vigenère with plaintext key stream)',
+    },
+    'foursquare': {
+        'class': FourSquareHypothesis,
+        'params': {},
+        'description': 'Four-square cipher with KRYPTOS/BERLIN/CLOCK/ABSCISSA',
+    },
+    'bifid': {
+        'class': BifidHypothesis,
+        'params': {},
+        'description': 'Bifid cipher with KRYPTOS keyword (periods 5-20)',
     },
     'playfair': {
         'class': PlayfairHypothesis,
