@@ -11,6 +11,7 @@ Public functions:
 """
 
 from .autopilot_demo import run_autopilot_demo  # type: ignore  # re-export
+from .cleanup import purge_demo_artifacts  # type: ignore  # re-export
 from .k4_demo import run_demo  # type: ignore  # re-export
 from .tiny_weight_sweep import run_tiny_weight_sweep  # type: ignore  # re-export
 
@@ -100,4 +101,5 @@ __all__ = [
     "run_tiny_weight_sweep",
     "run_composite_demo",
     "run_sections_demo",
+    "purge_demo_artifacts",
 ]
