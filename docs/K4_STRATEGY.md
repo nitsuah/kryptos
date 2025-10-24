@@ -2,14 +2,55 @@
 Breadcrumb: Strategy > K4 > Technical Notes
 
 This document collects K4-specific strategy, modules, and operational notes used by the analysis pipeline. It's
-intentionally focused on the unsolved K4 piece and the specialized tooling in `kryptos/k4/` (previously `src/k4/`).
+intentionally focused on the unsolved K4 piece and the specialized tooling in `kryptos/k4/`.
 
 Related documents / breadcrumbs:
 
 - Project core: `README_CORE.md`
 - Autopilot: `AUTOPILOT.md`
-- Roadmap: `../ROADMAP.md`
-- Tuning APIs: `kryptos.k4.tuning.*` (weight sweeps, tiny param sweeps, artifact summarization)
+- Roadmap: `ROADMAP.md`
+- Next 24 Hours: `NEXT_24_HOURS.md`
+- Progress Tracker: `../K4_PROGRESS_TRACKER.md`
+
+---
+
+## 🚀 BREAKTHROUGH UPDATE (2025-10-24)
+
+**Status**: Active cryptanalysis phase - hypothesis elimination in progress
+
+**Major Shift**: Moved from infrastructure building to **systematic hypothesis testing**
+
+### What Changed
+
+1. **Hypothesis Framework Operational**
+   - `Hypothesis` protocol enables pluggable cipher testing
+   - Rapid implementation: new hypothesis in ~15 minutes
+   - Automated search scripts with JSON artifacts
+   - Evidence-based elimination with RULED_OUT.md docs
+
+2. **First Eliminations Complete** 🎯
+   - ✅ Hill 2x2 cipher - 158k keys tested in 37s (score: -329.45)
+   - ✅ Simple columnar transposition - 9 clock-widths in 0.87s (score: -350.80)
+   - Both definitively ruled out with reproducible evidence
+
+3. **Velocity Achieved**
+   - <1 minute per hypothesis (with pruning)
+   - Test suite: 227 passing (infrastructure solid)
+   - Artifact trails: full provenance in `artifacts/`
+
+### Current Approach
+
+**Philosophy**: Systematic elimination > brute force guessing
+
+- Test cipher methods in priority order (simple → complex)
+- Generate evidence for negative results (equally valuable)
+- Build statistical baseline (random scoring distribution)
+- Narrow solution space methodically
+
+**Next 5 Hypotheses** (see `NEXT_24_HOURS.md`): 1. Random baseline scoring (infrastructure) 2. Vigenère with key lengths
+1-20 3. Playfair with KRYPTOS keyword 4. Berlin Clock Vigenère 5. Composite: Transposition → Hill
+
+---
 
 ## Current Progress (K4-specific)
 

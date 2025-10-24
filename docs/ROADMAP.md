@@ -3,6 +3,61 @@ Breadcrumb: Overview > Roadmap > Roadmap
 
 Detailed plan for advancing Kryptos K4 analysis.
 
+---
+
+## ⚡ CURRENT FOCUS: HYPOTHESIS ELIMINATION (2025-10-24)
+
+**Status**: Active cryptanalysis in progress **Goal**: Systematically eliminate cipher methods with evidence
+**Momentum**: 2 hypotheses ruled out in <1 hour
+
+### Recently Eliminated (with Evidence)
+
+1. ✅ **Hill 2x2 cipher** (2025-10-24)
+   - Search: 158,000 invertible matrices exhaustively tested
+   - Duration: 37 seconds
+   - Best score: -329.45 (highly negative)
+   - Evidence: `artifacts/hill_2x2_searches/RULED_OUT.md`
+
+2. ✅ **Simple columnar transposition** (2025-10-24)
+   - Search: Berlin Clock period widths (5, 6, 7, 8, 10, 11, 12, 15, 24)
+   - Duration: 0.87 seconds with adaptive pruning
+   - Best score: -350.80 (highly negative)
+   - Evidence: `artifacts/transposition_searches/RULED_OUT.md`
+
+### Next 5 Hypotheses to Test (Priority Order)
+
+1. 🎯 **Vigenère with key lengths 1-20** (HIGH PRIORITY)
+   - Rationale: Standard classical cipher, fast to test
+   - Implementation: Enumerate all key lengths, test top N keys per length
+   - Expected duration: <2 minutes
+   - Success criteria: Find candidate with score >0 OR eliminate definitively
+
+2. 🎯 **Playfair with KRYPTOS keyword** (HIGH PRIORITY)
+   - Rationale: Sanborn used KRYPTOS as K2 key, common in classical crypto
+   - Implementation: Test KRYPTOS + common variants (KRYPTO, ABSCISSA, etc.)
+   - Expected duration: <1 minute
+   - Success criteria: Known words (BERLIN, CLOCK) appear in plaintext
+
+3. 🎯 **Random baseline scoring** (INFRASTRUCTURE)
+   - Rationale: Need statistical threshold to distinguish signal from noise
+   - Implementation: Generate 10,000 random A-Z plaintexts, score distribution
+   - Expected duration: <5 minutes
+   - Success criteria: Establish mean, σ, percentiles for null hypothesis
+
+4. 🔄 **Berlin Clock Vigenère** (MEDIUM PRIORITY)
+   - Rationale: Clock referenced in K4 literature, temporal key stream plausible
+   - Implementation: Test lamp state sequences as shift keys
+   - Expected duration: <5 minutes
+   - Success criteria: Score significantly above random baseline
+
+5. 🔄 **Composite: Transposition → Hill 2x2** (MEDIUM PRIORITY)
+   - Rationale: K4 may use layered methods (K1-K3 combined transposition + substitution)
+   - Implementation: Apply transposition first, then Hill search on result
+   - Expected duration: ~30 minutes (combinatorial)
+   - Success criteria: Find candidate with linguistic structure
+
+---
+
 ## Roadmap Guidelines
 
 

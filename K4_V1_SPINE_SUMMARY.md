@@ -10,10 +10,13 @@ candidate ranking → recorded decision artifact.
 ## Implemented Components
 
 ### 1. Hypothesis Protocol + Hill Stub
+
 **Files Created**:
+
 - `src/kryptos/k4/hypotheses.py` - Protocol defining hypothesis interface + HillCipherHypothesisStub
 
 **Tests**:
+
 - `tests/test_k4_hypotheses.py` - Previously skipped test now passing
 - Reduced skipped hypothesis tests from 3 to 2
 
@@ -22,13 +25,17 @@ candidate ranking → recorded decision artifact.
 ---
 
 ### 2. Dynamic Crib Promotion Store
+
 **Files Created**:
+
 - `src/kryptos/spy/crib_store.py` - Load/save/promote functions with promotion rules
 
 **Tests**:
+
 - `tests/test_crib_store.py` - 6 tests covering promotion logic, validation, and size limits
 
 **Promotion Rules**:
+
 - Token must be A-Z only (uppercase)
 - Length >= 3
 - Confidence >= 0.8
@@ -40,13 +47,17 @@ candidate ranking → recorded decision artifact.
 ---
 
 ### 3. Crib-Aware Scoring Integration
+
 **Files Modified**:
+
 - `src/kryptos/k4/scoring.py` - Added `_get_all_cribs()` with mtime-cached promoted crib loading
 
 **Tests**:
+
 - `tests/test_crib_aware_scoring.py` - 2 tests verifying promoted cribs increase ranking
 
 **Changes**:
+
 - `crib_bonus()` - Now includes promoted cribs
 - `rarity_weighted_crib_bonus()` - Now includes promoted cribs
 - Mtime-based cache prevents redundant file reads
@@ -56,17 +67,22 @@ candidate ranking → recorded decision artifact.
 ---
 
 ### 4. Autopilot Crib Update Hook
+
 **Files Modified**:
+
 - `src/kryptos/autopilot.py` - Added `_update_cribs_from_spy()` and integration into `run_exchange()`
 
 **Tests**:
+
 - `tests/test_autopilot_crib_update.py` - Verifies crib update event logging
 
 **Exception Handling**:
+
 - Confirmed autopilot already uses narrow exception handling (RuntimeError, ValueError, OSError)
 - Crib update failures logged but don't fail exchange
 
 **Logging**:
+
 - Structured JSON event: `{"event": "cribs_updated", "cribs_total": X, "new": Y, "timestamp": ...}`
 
 **Impact**: Autopilot loop now automatically updates crib store after each exchange.
@@ -74,10 +90,13 @@ candidate ranking → recorded decision artifact.
 ---
 
 ### 5. Performance Guard Test
+
 **Files Created**:
+
 - `tests/test_k4_performance.py` - Smoke test for composite pipeline runtime
 
 **Constraints**:
+
 - Small run (limit=5) must complete < 5 seconds
 - Skippable via `PERF_DISABLE=1` environment variable
 - Catches major performance regressions
@@ -87,11 +106,14 @@ candidate ranking → recorded decision artifact.
 ---
 
 ### 6. Deprecation Documentation
+
 **Files Modified**:
+
 - `docs/DEPRECATIONS.md` - Added K4 v1 Spine section
 - `docs/ARCHIVED_SCRIPTS.md` - Updated timestamp and notes
 
 **Status**:
+
 - Legacy script audit complete
 - Most marked REMOVE items already deleted
 - Remaining items documented with target dates
@@ -103,14 +125,15 @@ candidate ranking → recorded decision artifact.
 
 ## Test Results
 
-```
+```text
 Total Tests: 226
 Passed: 226
 Failed: 0
 Skipped: Reduced (1 hypothesis test unskipped)
 ```
 
-### New Tests Added (9 total):
+### New Tests Added (9 total)
+
 1. `test_k4_hypotheses.py::test_hill_cipher_candidate` 2. `test_crib_store.py::test_save_and_load_observation` 3.
 `test_crib_store.py::test_promote_cribs_requires_two_runs` 4. `test_crib_store.py::test_promote_requires_min_confidence`
 5. `test_crib_store.py::test_promote_requires_valid_token` 6. `test_crib_store.py::test_load_promoted_cribs` 7.
@@ -127,9 +150,6 @@ Skipped: Reduced (1 hypothesis test unskipped)
 promotion pipeline** - Observations persisted, promotion rules enforced, consumed by scoring ✅ **Autopilot loop
 cribs_updated logging** - Structured event with total/new counts ✅ **Performance guard** - Small run < 5s smoke test
 added ✅ **Deprecated legacy script list documented** - DEPRECATIONS.md updated with removal dates ✅ **All tests green**
-- 226 tests passing
-
----
 
 ## Files Created (7)
 
@@ -166,7 +186,7 @@ Infrastructure not required yet 5. ❌ Physical deletion of pick_best_weight.py 
 
 ## Commit Message Suggestions
 
-```
+```text
 feat(k4): add hypothesis protocol + hill stub
 
 Introduces Hypothesis protocol defining generate_candidates() interface.
@@ -174,7 +194,7 @@ Adds HillCipherHypothesisStub returning deterministic test candidate.
 Unskips and implements test_hill_cipher_candidate (previously skipped).
 ```
 
-```
+```text
 feat(spy): crib store + promotion rules
 
 Implements dynamic crib promotion with configurable rules:
@@ -186,7 +206,7 @@ Implements dynamic crib promotion with configurable rules:
 Adds observations.jsonl append-only log and promoted_cribs.txt cache.
 ```
 
-```
+```text
 feat(scoring): crib-aware ranking with promoted cribs
 
 Modifies crib_bonus() and rarity_weighted_crib_bonus() to include
@@ -195,7 +215,7 @@ redundant file reads. Tests verify ranking improves for crib-containing
 candidates.
 ```
 
-```
+```text
 feat(autopilot): crib update hook + narrowed exceptions
 
 Adds _update_cribs_from_spy() called after each exchange.
@@ -203,14 +223,14 @@ Logs structured cribs_updated event with total/new counts.
 Exception handling confirmed narrow (IOError/OSError/ValueError).
 ```
 
-```
+```text
 test(perf): small composite runtime guard
 
 Adds smoke test asserting small decrypt_best(limit=5) completes < 5s.
 Skippable via PERF_DISABLE=1. Catches major performance regressions.
 ```
 
-```
+```text
 chore(legacy): update deprecation docs for K4 v1 spine
 
 Documents remaining legacy script (pick_best_weight.py) with removal date.
