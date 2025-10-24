@@ -75,7 +75,7 @@ def _persona_prompts() -> dict[str, str]:
             if fname.startswith("q") and state.get("learned"):
                 notes = " ".join(f"{n['persona']}:{n['note']}" for n in state.get("learned", []))
                 txt += f"\n\n# LEARNED_SUMMARY: {notes}\n"
-            mapping[fname.split(".")[0].upper()] = txt
+            mapping[fname.split(".", maxsplit=1)[0].upper()] = txt
     # Conservative fallbacks for CI/tests
     mapping.setdefault("Q", "Q_PLACEHOLDER: Provide short recommendation or review.")
     mapping.setdefault("OPS", "OPS_PLACEHOLDER: Manage tuning runs; idle.")
