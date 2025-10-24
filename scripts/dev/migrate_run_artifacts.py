@@ -11,6 +11,7 @@ Skips if target already exists. Safe to re-run.
 from __future__ import annotations
 
 import argparse
+import logging
 import shutil
 from pathlib import Path
 
@@ -44,18 +45,18 @@ def main() -> int:
     args = p.parse_args()
     root = Path(args.artifacts_root)
     if not root.exists():
-        print(f'Artifacts root not found: {root}')
+        logging.error('Artifacts root not found: %s', root)
         return 2
     moves = migrate(root, dry_run=args.dry_run)
     if args.dry_run:
         if not moves:
-            print('No legacy run_ directories to migrate.')
+            logging.info('No legacy run_ directories to migrate.')
         else:
-            print('Planned moves:')
+            logging.info('Planned moves:')
             for src, dst in moves:
-                print(f'  {src} -> {dst}')
+                logging.info('  %s -> %s', src, dst)
     else:
-        print(f'Migrated {len(moves)} directories.')
+        logging.info('Migrated %d directories.', len(moves))
     return 0
 
 

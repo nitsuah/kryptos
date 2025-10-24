@@ -5,6 +5,7 @@ Safe to run multiple times; skips if destinations already exist.
 
 from __future__ import annotations
 
+import logging
 import shutil
 
 from kryptos.paths import _PROJECT_ROOT, REPORTS_DIR, ensure_reports_dir  # type: ignore[attr-defined]
@@ -14,7 +15,7 @@ MISPLACED = _PROJECT_ROOT / 'src' / 'artifacts' / 'reports'
 
 def migrate() -> None:
     if not MISPLACED.exists() or not MISPLACED.is_dir():
-        print('No misplaced reports directory found.')
+        logging.info('No misplaced reports directory found.')
         return
     ensure_reports_dir()
     moved = 0
@@ -22,11 +23,11 @@ def migrate() -> None:
         if item.is_file():
             dest = REPORTS_DIR / item.name
             if dest.exists():
-                print(f'Skip {item.name} (already exists at destination)')
+                logging.info('Skip %s (already exists at destination)', item.name)
                 continue
             shutil.move(str(item), str(dest))
             moved += 1
-    print(f'Migrated {moved} files to {REPORTS_DIR}')
+    logging.info('Migrated %d files to %s', moved, REPORTS_DIR)
     # Optionally remove empty tree
     try:
         if not any(MISPLACED.iterdir()):

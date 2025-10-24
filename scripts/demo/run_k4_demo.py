@@ -8,30 +8,31 @@ This is intended to be fast and safe for CI/local experimentation.
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from pathlib import Path
 
-from kryptos.k4 import (
-    make_hill_constraint_stage,
-    make_masking_stage,
-    persist_attempt_logs,
-    run_composite_pipeline,
-)
+from kryptos.k4 import make_hill_constraint_stage, make_masking_stage, persist_attempt_logs, run_composite_pipeline
+from kryptos.logging import setup_logging
 
 
 def run_demo(limit: int = 10):
-    # Unified import (legacy src.k4 removed)
+    """Run a very small K4 composite pipeline and persist attempt logs.
+
+    Returns the artifact directory path as a string.
+    """
+    setup_logging(level=logging.INFO, logger_name="kryptos.demo")
+    log = logging.getLogger("kryptos.demo")
 
     # tiny cipher and minimal stages for demo speed
     cipher = 'OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTW'
     stages = [make_hill_constraint_stage(partial_len=30, partial_min=-200.0), make_masking_stage(limit=5)]
 
-    weights = None
     run_composite_pipeline(
         cipher,
         stages,
         report=False,
-        weights=weights,
+        weights=None,
         normalize=True,
         adaptive=False,
         limit=limit,
@@ -43,7 +44,7 @@ def run_demo(limit: int = 10):
 
     # persist attempt logs into the demo directory
     persist_attempt_logs(out_dir=str(out_dir), label='K4-DEMO', clear=False)
-    print('Demo complete. Artifacts written to:', out_dir)
+    log.info('Demo complete. Artifacts written to: %s', out_dir)
     return str(out_dir)
 
 

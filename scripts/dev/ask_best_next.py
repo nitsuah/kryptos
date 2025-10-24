@@ -1,5 +1,10 @@
+"""DEPRECATED wrapper: use `ask_triumverate.py` directly or forthcoming CLI subcommand.
+
+Will be removed after logging migration completes (tracked in TECHDEBT.md).
+"""
+
+import logging
 import os
-import sys
 from pathlib import Path
 
 
@@ -13,17 +18,25 @@ def main() -> None:
     )
 
     # Prefer package import; fall back to inserting repo root on sys.path
-    try:
-        from kryptos.scripts.dev.ask_triumverate import run_plan_check
-    except Exception:
-        repo = Path(__file__).resolve().parents[2]
-        if str(repo) not in sys.path:
-            sys.path.insert(0, str(repo))
-        from scripts.dev.ask_triumverate import run_plan_check
+    # Always load ask_triumverate by file path to avoid fragile package imports.
+    repo = Path(__file__).resolve().parents[2]
+    ask_path = repo / 'scripts' / 'dev' / 'ask_triumverate.py'
+    import importlib.util
 
-    print('Asking triumverate for best next action...')
+    spec = importlib.util.spec_from_file_location('ask_triumverate_mod', str(ask_path))
+    if spec and spec.loader:
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+        run_plan_check = getattr(mod, 'run_plan_check', None)
+    else:
+        raise RuntimeError(f'Failed to load ask_triumverate at {ask_path}')
+    if run_plan_check is None:
+        raise RuntimeError('run_plan_check not found in ask_triumverate module')
+
+    logging.warning('[DEPRECATED] ask_best_next.py will be removed; call ask_triumverate.run_plan_check directly.')
+    logging.info('Asking triumverate for best next action...')
     run_plan_check(os.environ['PLAN'])
-    print('Done')
+    logging.info('Done')
 
 
 if __name__ == '__main__':

@@ -6,9 +6,12 @@ timestamped artifacts folder under `artifacts/tuning_runs/`.
 
 import argparse
 import csv
+import logging
 import sys
 import time
 from pathlib import Path
+
+from kryptos.logging import setup_logging
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
@@ -38,6 +41,8 @@ SAMPLES = [
 
 
 def run():
+    setup_logging(level=logging.INFO, logger_name="kryptos.tuning")
+    log = logging.getLogger("kryptos.tuning")
     """Thin wrapper delegating to kryptos.k4.tuning.run_crib_weight_sweep.
 
     Retained temporarily while we migrate toward CLI subcommands.
@@ -63,7 +68,7 @@ def run():
         try:
             weights = [float(x.strip()) for x in args.weights.split(',') if x.strip()]
         except ValueError:
-            print("Invalid --weights value, falling back to defaults")
+            log.warning("Invalid --weights value, falling back to defaults")
             weights = [0.1, 0.5, 1.0]
     else:
         weights = [0.1, 0.5, 1.0]
@@ -107,7 +112,7 @@ def run():
                     ],
                 )
 
-    print(f"Wrote crib weight sweep artifacts to: {run_dir}")
+    log.info("Wrote crib weight sweep artifacts to: %s", run_dir)
 
 
 if __name__ == "__main__":

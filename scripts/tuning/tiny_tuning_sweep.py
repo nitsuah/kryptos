@@ -8,9 +8,12 @@ Safe, fast, for local experimentation.
 """
 
 import csv
+import logging
 import sys
 import time
 from pathlib import Path
+
+from kryptos.logging import setup_logging
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
@@ -34,6 +37,8 @@ PARAM_GRID = [
 
 
 def run():
+    setup_logging(level=logging.INFO, logger_name="kryptos.tuning")
+    log = logging.getLogger("kryptos.tuning")
     # Prefer installed / editable package import; fall back to adding repo src/ to sys.path
     try:
         from kryptos.k4 import scoring  # type: ignore
@@ -85,7 +90,7 @@ def run():
                 for r, (samp, sc) in enumerate(scores, start=1):
                     pw.writerow([r, samp, f"{sc:.6f}"])
 
-    print(f"Wrote tuning artifacts to: {run_dir}")
+    log.info("Wrote tuning artifacts to: %s", run_dir)
 
 
 if __name__ == "__main__":

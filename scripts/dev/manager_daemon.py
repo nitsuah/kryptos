@@ -1,8 +1,7 @@
-"""Copy of manager_daemon for scripts/dev (shim content retained).
+"""DEPRECATED manager daemon shim.
 
-This file is a copy of the original `scripts/manager_daemon.py` and placed under
-`scripts/dev/` as part of the reorganization. It will be the canonical location for
-daemon tooling.
+Superseded by calibration/tuning harness (kryptos.k4.calibration & tuning scripts).
+Scheduled for removal after CLI unification.
 """
 
 from __future__ import annotations
@@ -51,23 +50,44 @@ def run_sweep(params: Mapping[str, int], dry_run: bool = False) -> Path:
                 str(ROOT / "scripts" / "tuning" / "tune_pipeline.py"),
             )
             mod = importlib.util.module_from_spec(spec) if spec else None
-            if spec and mod:
-                spec.loader.exec_module(mod)  # type: ignore
-                # Expect mod.run_sweep to accept params and return iterable of dict rows
+            if spec and mod and spec.loader:
+                spec.loader.exec_module(mod)  # type: ignore[attr-defined]
                 raw = getattr(mod, "run_sweep", None)
-                if raw:
-                    # raw may be a callable returning rows or an iterable of rows
-                    if callable(raw):
-                        rows = raw(params)
-                    else:
-                        rows = list(raw)
-                    for row in rows:
-                        results.append(row)
+                if callable(raw):  # expected callable
+                    try:
+                        generated = raw(params)  # type: ignore[arg-type]
+                        if generated is None:
+                            results.append(
+                                {"param_set": json.dumps(params), "run": 0, "best_score": 0.0, "note": "empty result"},
+                            )
+                        else:
+                            # If not iterable (single dict), wrap
+                            if isinstance(generated, dict):
+                                results.append(generated)
+                            else:
+                                # Accept common iterable types
+                                if isinstance(generated, (list, tuple, set)):
+                                    for row in generated:
+                                        results.append(row)
+                                else:
+                                    results.append(
+                                        {
+                                            "param_set": json.dumps(params),
+                                            "run": 0,
+                                            "best_score": 0.0,
+                                            "note": "non-iter result",
+                                        },
+                                    )
+                    except Exception:
+                        results.append(
+                            {"param_set": json.dumps(params), "run": 0, "best_score": -1.0, "note": "call failed"},
+                        )
                 else:
-                    # fallback: write a small placeholder
-                    results.append({"param_set": json.dumps(params), "run": 0, "best_score": 0.0})
+                    results.append(
+                        {"param_set": json.dumps(params), "run": 0, "best_score": 0.0, "note": "no callable"},
+                    )
             else:
-                results.append({"param_set": json.dumps(params), "run": 0, "best_score": 0.0})
+                results.append({"param_set": json.dumps(params), "run": 0, "best_score": 0.0, "note": "spec missing"})
         except (OSError, ImportError):
             # Do not allow daemon to crash; record an error row
             results.append({"param_set": json.dumps(params), "run": 0, "best_score": -1.0, "error": "exception"})

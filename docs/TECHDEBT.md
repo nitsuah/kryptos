@@ -93,7 +93,7 @@ k3.decrypt, 'K4': k4.decrypt_best}`. (Completed placeholder for K4)
 - Merge daemons into single configurable loop.
 - Consolidate tuning scripts into subcommands (sweep, eval, pick-weight).
 - Integrate spy extractor logic into `kryptos/spy/extractor.py`; script becomes trivial wrapper.
-	(Completed — legacy script removed)
+(Completed — legacy script removed)
 - Provide `pipeline.build_default()` and use across demo/daemon/tuning.
 - Remove pipeline sample wrappers after verifying parity.
 
@@ -168,6 +168,54 @@ features, stage adapters, deprecation warnings emission.
 | Fallback import ladders | >10 | 0 |
 | Unimplemented TODOs in scoring | 3 | 0 |
 
+### Logging Rollout Status (2025-10-23)
+
+Completed:
+
+- Central logging helper `kryptos.logging.setup_logging` implemented and adopted by CLI.
+- CLI subcommands migrated from print-only to mixed logging + JSON (with `--quiet` suppression).
+- Legacy shim scripts (`spy_eval`, autopilot demo) now minimal and slated for eventual removal.
+- Public API export gap (`k3_decrypt`) restored to satisfy tests.
+
+Outstanding script migrations (prints remain; convert to logging in phased order):
+
+1. Dev operational scripts (`scripts/dev/*`): retry loops, daemon orchestration, plan execution. 2.
+Tuning scripts (`scripts/tuning/*`): artifact path/status lines; change prints to logger.info and
+add `--json`/`--quiet` parity. 3. Experimental examples/tools: educational output acceptable;
+introduce optional `--log-level` to silence in automated runs. 4. Demo scripts: convert status
+messages to `kryptos.demo` logger for consistency. 5. Lint/check tooling: keep direct prints (they
+are user-facing diagnostics) but annotate as intentional.
+
+Target migration sequence:
+
+- Phase 1 (Dev): spy_extractor, orchestrator, ask_triumverate, create_pr.
+- Phase 2 (Tuning): pick_best_weight, crib_weight_sweep, compare_crib_integration,
+run_rarity_calibration.
+- Phase 3 (Demos/Examples): run_k4_demo, sample_composite_demo, sections_demo.
+- Phase 4 (Experimental tools optional): aggregate_spy_phrases, generate_top_candidates.
+
+Policy: After Phase 2 completion, metric "Library prints" must be 0 (only scripts allowed). After
+Phase 3, all remaining prints are either test fixtures or interactive tools.
+
+Follow-up Tasks:
+
+- Add `tests/test_dev_logging.py` verifying orchestrator and spy_extractor logging usage.
+- Document logging usage patterns in `README.md` / new `LOGGING.md`.
+- Schedule removal of shim scripts (spy_eval, autopilot demo stub) after two minor releases once CI
+confirms unused.
+
+Risks & Mitigations:
+
+- Excessive log volume during brute-force runs: add rate-limited progress logger or periodic
+summaries.
+- Accidental double handlers: existing idempotent marker `_kryptos_handler` prevents duplication.
+
+Success Criteria:
+
+- All dev/tuning scripts accept `--log-level` and optionally `--quiet`.
+- No prints remain in package modules (excluding deliberate stdout JSON emission in CLI).
+- Logging documentation and deprecation timeline published.
+
 ## Open Questions (Resolve During Phase A)
 
 - Keep or remove unfinished Berlin clock scoring stub? (Decide: integrate or delete.)
@@ -184,4 +232,5 @@ purged; reporting consolidated; spy extractor migrated; positional letter deviat
 integrated; artifact path standardized under `artifacts/k4_runs/`.
 
 --- Last updated: 2025-10-23T23:57Z (spy namespace, artifact path consolidation, positional
-deviation metric, new calibration & provenance tasks)
+deviation metric, new calibration & provenance tasks) --- Last updated: 2025-10-23T24:30Z (CLI
+logging rollout; compatibility shims; logging migration plan added)

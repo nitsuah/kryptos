@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""Autopilot daemon: periodically run the triumverate and stop on a safe decision.
+"""DEPRECATED Autopilot daemon.
 
-This script imports and calls `run_plan_check` from `scripts/dev/ask_triumverate.py`.
-It watches `artifacts/decisions` for the latest decision JSON and exits when the
-decision meets safety criteria (holdout_pass True and spy_precision >= SAFE_PREC if
-precision is available).
+Use unified forthcoming CLI subcommand (planned: `kryptos cli autopilot --loop`).
+Will be removed after daemon merge. Tracks decisions in `artifacts/decisions`.
 """
 
 from __future__ import annotations
@@ -47,22 +45,19 @@ def main(argv: list[str]) -> int:
     repo_root = Path(__file__).resolve().parents[2]
 
     # import the runner via file path to avoid package import issues
-    try:
-        import importlib.util
+    import importlib.util
 
-        ask_path = repo_root / 'scripts' / 'dev' / 'ask_triumverate.py'
-        spec = importlib.util.spec_from_file_location('ask_triumverate_mod', str(ask_path))
-        if spec is None or spec.loader is None:
-            raise ImportError('Could not load ask_triumverate')
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)  # type: ignore
-        run_plan_check = mod.run_plan_check
-    except Exception:
-        # last resort: try package-style import
-        try:
-            from scripts.dev.ask_triumverate import run_plan_check  # type: ignore
-        except Exception:
-            raise
+    ask_path = repo_root / 'scripts' / 'dev' / 'ask_triumverate.py'
+    spec = importlib.util.spec_from_file_location('ask_triumverate_mod', str(ask_path))
+    if not (spec and spec.loader):
+        logging.error('Failed to load ask_triumverate at %s', ask_path)
+        return 2
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)  # type: ignore[attr-defined]
+    run_plan_check_obj = getattr(mod, 'run_plan_check', None)
+    if not callable(run_plan_check_obj):
+        logging.error('run_plan_check missing from ask_triumverate module')
+        return 2
 
     SAFE_PREC = float(__import__("os").environ.get("AUTOPILOT_SAFE_PREC", "0.9"))
 
@@ -73,9 +68,11 @@ def main(argv: list[str]) -> int:
         it += 1
         logging.info("Autopilot iteration %d starting", it)
         try:
-            run_plan_check(plan_text=args.plan, autopilot=True, dry_run=(not args.force and args.dry_run))
-        except Exception as exc:  # keep the loop alive on unexpected errors
+            run_plan_check_obj(plan_text=args.plan, autopilot=True, dry_run=(not args.force and args.dry_run))
+        except (RuntimeError, ValueError) as exc:  # expected operational errors
             logging.exception("run_plan_check failed: %s", exc)
+        except Exception as exc:  # noqa: BLE001 keep daemon alive for any unforeseen issue
+            logging.exception('Unexpected error in run_plan_check: %s', exc)
 
         # check for latest decision
         latest = find_latest_decision(repo_root)
@@ -89,7 +86,7 @@ def main(argv: list[str]) -> int:
                 if prec is not None:
                     try:
                         prec_ok = float(prec) >= SAFE_PREC
-                    except Exception:
+                    except (TypeError, ValueError):
                         prec_ok = False
 
                 if hold_ok and prec_ok:

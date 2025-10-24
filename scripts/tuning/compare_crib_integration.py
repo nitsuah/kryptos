@@ -8,9 +8,12 @@ Writes `crib_integration.csv` into a timestamped folder under
 """
 
 import csv
+import logging
 import sys
 import time
 from pathlib import Path
+
+from kryptos.logging import setup_logging
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
@@ -41,6 +44,8 @@ SAMPLES = [
 
 
 def run():
+    setup_logging(level=logging.INFO, logger_name="kryptos.tuning")
+    log = logging.getLogger("kryptos.tuning")
     try:
         from kryptos.k4 import scoring  # type: ignore
     except ImportError:
@@ -78,7 +83,7 @@ def run():
             with_crib = baseline + crib_bonus
             writer.writerow([s[:80], f"{baseline:.6f}", f"{with_crib:.6f}", len(cribs)])
 
-    print(f"Wrote crib integration comparison to: {out_path}")
+    log.info("Wrote crib integration comparison to: %s", out_path)
 
 
 if __name__ == "__main__":
