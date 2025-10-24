@@ -385,6 +385,79 @@ class VigenereHypothesis:
         return candidates_list[:limit]
 
 
+class AutokeyHypothesis:
+    """Autokey cipher - Vigenère variant using plaintext as key stream.
+
+    After an initial primer (keyword), the decrypted plaintext itself becomes
+    the key stream. Harder to break than standard Vigenère because the key
+    depends on the plaintext.
+
+    Example: Key=KRYPTOS, cipher=ABC... → decrypt first char with K, second
+    with R, third with Y, fourth with plaintext[0], fifth with plaintext[1]...
+    """
+
+    def __init__(self, primers: list[str] | None = None):
+        """Initialize Autokey hypothesis.
+
+        Args:
+            primers: Keywords to use as initial key (default: Kryptos-related words)
+        """
+        self.primers = primers or [
+            'KRYPTOS',
+            'BERLIN',
+            'CLOCK',
+            'ABSCISSA',
+            'PALIMPSEST',
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZ',  # Full alphabet
+        ]
+
+    def _autokey_decrypt(self, ciphertext: str, primer: str) -> str:
+        """Decrypt using autokey cipher."""
+        alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        ct_clean = ''.join(c for c in ciphertext.upper() if c.isalpha())
+        plaintext = ''
+
+        for i, c in enumerate(ct_clean):
+            # Key is: primer + plaintext so far
+            key_stream = primer + plaintext
+            if i < len(key_stream):
+                key_char = key_stream[i]
+            else:
+                # Should not happen if primer long enough
+                key_char = 'A'
+
+            ct_idx = alphabet.index(c)
+            key_idx = alphabet.index(key_char)
+            pt_idx = (ct_idx - key_idx) % 26
+            plaintext += alphabet[pt_idx]
+
+        return plaintext
+
+    def generate_candidates(self, ciphertext: str, limit: int = 10) -> list[Candidate]:
+        """Generate candidates by testing autokey with various primers."""
+        from .scoring import combined_plaintext_score
+
+        candidates_list = []
+
+        for primer in self.primers:
+            primer_upper = primer.upper()
+            plaintext = self._autokey_decrypt(ciphertext, primer_upper)
+            score = combined_plaintext_score(plaintext)
+
+            candidates_list.append(
+                Candidate(
+                    id=f"autokey_{primer_upper}",
+                    plaintext=plaintext,
+                    key_info={'type': 'autokey', 'primer': primer_upper},
+                    score=score,
+                ),
+            )
+
+        # Sort by score and return top candidates
+        candidates_list.sort(key=lambda c: c.score, reverse=True)
+        return candidates_list[:limit]
+
+
 class PlayfairHypothesis:
     """Playfair cipher with Sanborn-related keywords.
 
@@ -498,3 +571,11 @@ class PlayfairHypothesis:
         # Sort by score and return top candidates
         candidates_list.sort(key=lambda c: c.score, reverse=True)
         return candidates_list[:limit]
+
+
+class FourSquareHypothesis:
+    pass
+
+
+class BifidHypothesis:
+    pass

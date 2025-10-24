@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Quick test of expanded Vigenère hypothesis."""
 
-from kryptos.k4.constants import K4_CIPHERTEXT
 from kryptos.k4.hypotheses import VigenereHypothesis
+
+K4_CIPHERTEXT = 'OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK'
 
 h = VigenereHypothesis(
     min_key_length=1,

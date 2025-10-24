@@ -12,6 +12,7 @@ import argparse
 import sys
 
 from kryptos.k4.hypotheses import (
+    AutokeyHypothesis,
     BerlinClockTranspositionHypothesis,
     HillCipher2x2Hypothesis,
     PlayfairHypothesis,
@@ -36,6 +37,11 @@ HYPOTHESES = {
             'explicit_keywords': ['BERLIN', 'CLOCK', 'KRYPTOS', 'ABSCISSA', 'PALIMPSEST'],
         },
         'description': 'Vigenère cipher with frequency analysis + explicit keywords',
+    },
+    'autokey': {
+        'class': AutokeyHypothesis,
+        'params': {},
+        'description': 'Autokey cipher (Vigenère with plaintext key stream)',
     },
     'playfair': {
         'class': PlayfairHypothesis,
