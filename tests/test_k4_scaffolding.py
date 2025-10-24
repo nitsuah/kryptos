@@ -60,8 +60,27 @@ class TestK4Scaffold(unittest.TestCase):
         self.assertIsInstance(score, float)
         self.assertIsInstance(mapping, dict)
 
-    def test_placeholder_k4_ciphertext(self):
-        self.skipTest("Real K4 ciphertext integration pending.")
+    def test_real_k4_ciphertext_structure(self):
+        """Test that real K4 ciphertext fragment can be loaded and scored."""
+        # K4 first 74 characters (before the "?" section)
+        k4_fragment = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+
+        # Verify structure
+        self.assertEqual(len(k4_fragment), 74, "K4 first fragment should be 74 characters")
+        self.assertTrue(k4_fragment.isalpha(), "K4 should be all alphabetic")
+        self.assertTrue(k4_fragment.isupper(), "K4 should be all uppercase")
+
+        # Test that it can be scored
+        score = self.combined_plaintext_score(k4_fragment)
+        self.assertIsInstance(score, float)
+
+        # K4 ciphertext should score poorly (should be indistinguishable from random)
+        # Below our 2σ threshold (-326.68)
+        self.assertLess(
+            score,
+            -300.0,
+            f"K4 ciphertext should score poorly (random-like), got {score:.2f}",
+        )
 
 
 if __name__ == '__main__':

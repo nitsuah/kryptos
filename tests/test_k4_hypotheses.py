@@ -4,6 +4,7 @@ import unittest
 
 from kryptos.k4.hypotheses import (
     BerlinClockTranspositionHypothesis,
+    BerlinClockVigenereHypothesis,
     HillCipher2x2Hypothesis,
     PlayfairHypothesis,
     VigenereHypothesis,
@@ -37,10 +38,6 @@ class TestK4Hypotheses(unittest.TestCase):
                 candidates[1].score,
                 "Candidates should be sorted by score (highest first)",
             )
-
-    @unittest.skip("Transposition constraint hypothesis not implemented")
-    def test_transposition_candidate(self):
-        pass
 
     def test_transposition_berlin_clock_constraints(self):
         """Test BerlinClockTranspositionHypothesis searches clock-inspired column widths."""
@@ -134,9 +131,22 @@ class TestK4Hypotheses(unittest.TestCase):
                 "Candidates should be sorted by score (highest first)",
             )
 
-    @unittest.skip("Berlin clock vigenere hypothesis not implemented")
     def test_berlin_clock_vigenere_candidate(self):
-        pass
+        """Test BerlinClockVigenereHypothesis generates valid candidates."""
+        hyp = BerlinClockVigenereHypothesis(hours=[12, 18, 0])  # Test subset
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        # Should return candidates
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        # Validate structure
+        c = candidates[0]
+        self.assertIsInstance(c.plaintext, str, "Plaintext must be string")
+        self.assertEqual(c.key_info['type'], 'berlin_clock_vigenere')
+        self.assertIn('hour', c.key_info, "Should include hour in key_info")
+        self.assertIsInstance(c.score, (int, float), "Score must be numeric")
 
 
 if __name__ == '__main__':
