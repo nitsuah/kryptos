@@ -234,3 +234,33 @@ integrated; artifact path standardized under `artifacts/k4_runs/`.
 --- Last updated: 2025-10-23T23:57Z (spy namespace, artifact path consolidation, positional
 deviation metric, new calibration & provenance tasks) --- Last updated: 2025-10-23T24:30Z (CLI
 logging rollout; compatibility shims; logging migration plan added)
+
+## Organizational Refactor Plan (Proposed)
+
+Goal: Reduce root-level module clutter and clarify separation between infrastructure (core), domain
+logic (sections, scoring), and public API exports.
+
+Target structure: 1. `kryptos/core/` — move `logging.py`, `paths.py`, `deprecation.py`. 2.
+`kryptos/sections/` — retain existing `k1/`, `k2/`, `k3/`, `k4/` plus a lightweight `sections.py`
+mapping. 3. Optional `kryptos/analysis/` — migrate heavier analytical helpers from `analysis.py` if
+expansion continues. 4. Keep `reporting.py` root-level (user-facing). 5. Evaluate `ciphers.py`
+constants; if minimal keep, otherwise relocate into `core/constants.py`.
+
+Phased tasks:
+- Phase 1: Introduce `core/` package with copies of modules; add deprecation warnings in old
+locations.
+- Phase 2: Update internal imports & tests; remove fallback ladders.
+- Phase 3: Document changes (README + DEPRECATIONS.md) and remove old stubs after one minor release.
+
+Backward compatibility strategy:
+- Old root modules emit `DeprecationWarning` for one minor version.
+- Public API (`kryptos.__init__`) continues to re-export stable names like `setup_logging`.
+
+Risks & mitigations:
+- External code relying on deep imports: mitigate with deprecation window.
+- Over-segmentation: limit new packages to `core/` unless justified by growth.
+
+Success metrics:
+- Root-level Python files (excluding `__init__.py`) reduced to <=3.
+- Zero import fallback ladders.
+- All deprecation warnings removed after window.

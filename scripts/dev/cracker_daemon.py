@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-"""Autonomous K4 cracker daemon.
+"""Autonomous K4 cracker daemon (refactored to composite API).
 
-Runs a lightweight K4 pipeline (constructed inline, no deprecated wrapper
-imports) against one or more ciphertexts and exits when a candidate passes a
-plausibility score threshold.
+Runs a lightweight multi-stage K4 composite pipeline using `run_composite_pipeline` and exits
+when a candidate passes a plausibility score threshold.
 
-All former wrapper indirection (`run_pipeline_sample.py`) removed to enforce
-explicit pipeline composition using public factories under `kryptos.k4.pipeline`.
+DEPRECATED NOTE: Former PipelineExecutor usage removed. This script will be merged into a unified
+CLI subcommand (`kryptos cli autopilot --cracker`) and then removed after the deprecation window.
 """
 
 from __future__ import annotations
@@ -20,7 +19,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from kryptos.k4.executor import PipelineConfig, PipelineExecutor
+from kryptos.k4 import persist_attempt_logs, run_composite_pipeline
 from kryptos.k4.pipeline import (
     make_hill_constraint_stage,
     make_masking_stage,
@@ -29,29 +28,14 @@ from kryptos.k4.pipeline import (
 )
 
 
-def build_pipeline(parallel_variants: int = 0) -> PipelineExecutor:
-    """Construct a default exploratory pipeline executor.
-
-    (Formerly loaded from deprecated wrapper.)
-    """
-    stages = [
+def _build_stages() -> list:
+    """Construct default exploratory composite stage list."""
+    return [
         make_hill_constraint_stage(name="hill", prune_3x3=True, partial_len=50, partial_min=-850.0),
         make_transposition_adaptive_stage(),
         make_transposition_stage(),
         make_masking_stage(name="masking", null_chars=["X"], limit=15),
     ]
-    cfg = PipelineConfig(
-        ordering=stages,
-        candidate_cap_per_stage=30,
-        pruning_top_n=12,
-        crib_bonus_threshold=5.0,
-        adaptive_thresholds={"hill": -500.0},
-        artifact_root="artifacts",
-        label="daemon-run",
-        enable_attempt_log=True,
-        parallel_hill_variants=parallel_variants,
-    )
-    return PipelineExecutor(cfg)
 
 
 def find_latest_run_artifact(artifact_root: Path) -> Path | None:
@@ -101,7 +85,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument('--cipher-file', type=Path, default=None, help='File with one ciphertext per line')
     parser.add_argument('--interval', type=int, default=60, help='Seconds between runs')
     parser.add_argument('--score-threshold', type=float, default=0.9, help='Plausibility score threshold to accept')
-    parser.add_argument('--parallel-variants', type=int, default=0, help='Set PipelineExecutor.parallel_hill_variants')
+    parser.add_argument('--adaptive', action='store_true', help='Enable adaptive fusion weighting')
     parser.add_argument(
         '--artifact-root',
         type=Path,
@@ -113,16 +97,7 @@ def main(argv: list[str]) -> int:
     repo_root = Path(__file__).resolve().parents[2]
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
-    # Build executor directly
-    try:
-        ex = build_pipeline(parallel_variants=int(args.parallel_variants))
-    except Exception as exc:  # noqa: BLE001
-        logging.exception('Failed to construct pipeline: %s', exc)
-        return 2
-
-    # configure
-    ex.config.artifact_root = str(args.artifact_root)
-    # parallel variants already set during build
+    stages = _build_stages()
 
     # prepare ciphertexts
     ciphers: list[str] = []
@@ -155,48 +130,57 @@ def main(argv: list[str]) -> int:
         it += 1
         logging.info('Cracker loop iteration %d', it)
         for c in ciphers:
-            logging.info('Running pipeline on ciphertext: %s...', c[:40])
+            logging.info('Running composite pipeline on ciphertext: %s...', c[:40])
             try:
-                summary = ex.run(c)
-            except Exception:  # noqa: BLE001 (robust daemon loop)
-                logging.exception('Pipeline run failed for cipher: %s', c[:40])
+                comp = run_composite_pipeline(
+                    c,
+                    stages,
+                    report=True,
+                    report_dir=str(args.artifact_root),
+                    limit=50,
+                    adaptive=args.adaptive,
+                    normalize=True,
+                )
+            except Exception:  # noqa: BLE001 keep daemon alive
+                logging.exception('Composite run failed for cipher: %s', c[:40])
                 continue
 
-            # find latest run dir under artifact_root
-            run_dir = find_latest_run_artifact(Path(ex.config.artifact_root))
-            if not run_dir:
-                logging.warning('No run artifacts found; continuing')
+            # aggregated or fused candidates
+            fused = comp.get('fused') or []
+            aggregated = comp.get('aggregated') or []
+            ranking = fused if fused else aggregated
+            logging.info('Top candidates (first 3): %s', [r.get('text')[:25] for r in ranking[:3]])
+
+            if not ranking:
+                logging.info('No candidates produced; continuing')
                 continue
 
-            tops = read_top_candidates(run_dir)
-            logging.info('Top candidates (first 3): %s', tops[:3])
+            best = ranking[0]
+            candidate_text = best.get('text', '')
+            try:
+                if scoring_mod is None:
+                    raise RuntimeError('scoring module unavailable')
+                score = scoring_mod.combined_plaintext_score(candidate_text)
+            except Exception:  # noqa: BLE001
+                logging.exception('Scoring failed; assigning score=0.0')
+                score = 0.0
 
-            # compute plausibility for the top candidate using combined_plaintext_score
-            if tops:
-                top = tops[0]
-                # top stores text_prefix; try to recover more by reading attempt_log if needed
-                candidate_text = top.get('text_prefix', '')
-                try:
-                    if scoring_mod is None:
-                        raise RuntimeError('scoring module not available')
-                    score = scoring_mod.combined_plaintext_score(candidate_text)
-                except Exception:  # noqa: BLE001 (scoring robustness)
-                    logging.exception('Scoring failed or module missing; skipping')
-                    score = 0.0
-
-                logging.info('Top candidate score=%.3f threshold=%.3f', score, args.score_threshold)
-                if score >= args.score_threshold:
-                    decision = {
-                        'time': datetime.utcnow().isoformat(),
-                        'cipher': c,
-                        'candidate_prefix': candidate_text,
-                        'score': score,
-                        'run_dir': str(run_dir),
-                        'summary': summary,
-                    }
-                    write_decision(repo_root, decision)
-                    logging.info('Acceptable candidate found; decision written and exiting')
-                    return 0
+            logging.info('Best candidate score=%.3f threshold=%.3f', score, args.score_threshold)
+            if score >= args.score_threshold:
+                # Persist attempt logs (already in composite artifacts) and write decision
+                persist_attempt_logs(out_dir=str(args.artifact_root), label='CRACKER', clear=False)
+                decision = {
+                    'time': datetime.utcnow().isoformat(),
+                    'cipher': c,
+                    'candidate_prefix': candidate_text[:80],
+                    'score': score,
+                    'artifact_root': str(args.artifact_root),
+                    'adaptive': bool(args.adaptive),
+                    'provenance_hash': comp.get('profile', {}).get('provenance_hash'),
+                }
+                write_decision(repo_root, decision)
+                logging.info('Acceptable candidate found; decision written and exiting')
+                return 0
 
         logging.info('No acceptable candidate yet; sleeping %d seconds', args.interval)
         time.sleep(args.interval)
