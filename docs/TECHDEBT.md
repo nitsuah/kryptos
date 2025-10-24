@@ -27,26 +27,33 @@ policies.
 (`src/scoring/fitness.py` & `src/kryptos/scoring/fitness.py`). (Removed; single source) 3. Reporting
 duplication (`src/report.py` + shim `src/kryptos/report.py`). (Completed; canonical
 `kryptos/reporting.py`) 4. Section inconsistency (K1/K2 logic in `main.py` & `ciphers.py`, K3 inside
-library (historic prints). (Pending) 7. Hardcoded root/artifact paths sprinkled in scripts.
-(Pending) 8. Build artifacts (`kryptos.egg-info/`) residing under `src/`. (Pending) 9. Cryptographic
-stub / legacy helpers without roadmap (evaluate `transposition_decrypt`). (Pending decision)
+library). (Pending cleanup of residual references) 5. Positional letter deviation weight calibration
+& evaluation dataset (new) — tune composite weight to avoid overfitting. 6. Artifact provenance
+hashing & compression option (new) — ensure reproducibility & storage efficiency. 7. Hardcoded
+root/artifact paths sprinkled in scripts. (Pending; standardize via helper) 8. Build artifacts
+(`kryptos.egg-info/`) residing under `src/`. (Pending) 9. Cryptographic stub / legacy helpers
+without roadmap (evaluate `transposition_decrypt`). (Pending decision)
 ## Medium Impact Debt
 
 - Script proliferation (daemon variants, tuning scripts with near-identical logic).
-- Spy extractor logic living only in script form.
+- Spy extractor logic living only in script form. (Resolved: migrated to `kryptos.spy.*`)
 - Multiple pipeline sample / demo wrappers.
 - Unimplemented scoring TODOs (positional crib weighting, partial matches, external ngram + crib
-supply).
+	supply).
 - Print statements in package code (e.g. tuning evaluation output).
+- Central logging helper absent (plan: introduce `kryptos.logging.setup()` and replace prints).
+(New)
 - Removed legacy duplicate dirs (previous `src/k4/`, `src/scoring/`, `src/stages/`, stray
 `kryptos/stages/`).
 ## Lower Impact / Polish
 
 - Deprecated inline comments vs formal deprecation warnings.
-`holdout_score.py`, `k3_double_rotation.py`). Post-processing scripts (`summarize_crib_hits.py`,
-`clean_and_summarize_matches.py`) migrated into `kryptos.k4.tuning.artifacts` (schedule removal of
-legacy wrappers after deprecation window).
+	`holdout_score.py`, `k3_double_rotation.py`). Post-processing scripts (`summarize_crib_hits.py`,
+	`clean_and_summarize_matches.py`) migrated into `kryptos.k4.tuning.artifacts` (schedule removal of
+	legacy wrappers after deprecation window).
 - Missing centralized logging setup helper.
+- Demo runner legacy path (`scripts/demo/run_k4_demo.py`) pending migration to examples + CLI doc.
+(New)
 - Lack of a consolidated CLI entry point grouping subcommands.
 - Scattered plan & reorg docs; need README + CONTRIBUTING + DEPRECATIONS + API section.
 - Missing K4 canonical ciphertext test fixture.
@@ -84,12 +91,14 @@ k3.decrypt, 'K4': k4.decrypt_best}`. (Completed placeholder for K4)
 - Merge daemons into single configurable loop.
 - Consolidate tuning scripts into subcommands (sweep, eval, pick-weight).
 - Integrate spy extractor logic into `kryptos/spy/extractor.py`; script becomes trivial wrapper.
+	(Completed — legacy script removed)
 - Provide `pipeline.build_default()` and use across demo/daemon/tuning.
 - Remove pipeline sample wrappers after verifying parity.
 
 ### Phase C: Scoring & Adapter Enhancements
 
 - Implement positional crib weighting & partial match scoring.
+- Positional letter deviation weight calibration & evaluation corpus build. (New)
 - Externalize ngram & crib sources; make loader explicit.
 - Add comprehensive tests for scoring error paths & improvements.
 - Implement stage adapters (hill, transposition, masking, berlin clock) or prune the interface TODO.
@@ -97,6 +106,7 @@ k3.decrypt, 'K4': k4.decrypt_best}`. (Completed placeholder for K4)
 ### Phase D: Quality & Tooling
 
 - Introduce `kryptos/logging.py` with setup helper and documented usage.
+- Artifact provenance: add hash/version stamping to run metadata. (New)
 - Replace prints with logging across package.
 - Pre-commit configuration (ruff/black/mdformat, tests).
 - CI workflow (install, lint, test, coverage, artifact summary).
@@ -167,10 +177,9 @@ features, stage adapters, deprecation warnings emission.
 Reporting & paths consolidation: migrate any remaining reporting shim to `kryptos/reporting.py`,
 introduce `kryptos/paths.py` + `kryptos/logging.py`, then delete stale references.
 
-Verification note: Physical duplicate directories under `src/` (`src/k4`, `src/scoring`,
-`src/stages`) and legacy duplicate modules (`src/analysis.py`, `src/ciphers.py`, `src/report.py`)
-removed; canonical reporting at `kryptos/reporting.py`; `src/__init__.py` shim removed (no `src`
-imports remain); `main.py` removed (example now under scripts/experimental/examples); autopilot demo
-compatibility shim deleted and tests updated to canonical path; tests green (154 passed, 4 skipped).
+Verification note: Physical duplicate directories under `src/` removed; legacy duplicate modules
+purged; reporting consolidated; spy extractor migrated; positional letter deviation metric
+integrated; artifact path standardized under `artifacts/k4_runs/`.
 
---- Last updated: 2025-10-23T20:25Z (section packages + K4 decrypt_best + SECTIONS doc updated)
+--- Last updated: 2025-10-23T23:57Z (spy namespace, artifact path consolidation, positional
+deviation metric, new calibration & provenance tasks)

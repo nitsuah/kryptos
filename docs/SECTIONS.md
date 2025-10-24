@@ -53,6 +53,18 @@ kryptos k4-decrypt --cipher path/to/k4.txt --limit 30 --adaptive --report
 
 Or invoke programmatically with `kryptos.k4.decrypt_best` for K4.
 
+Forthcoming unified CLI pattern (planned):
+
+```bash
+kryptos decrypt k1 --cipher data/k1.txt --key PALIMPSEST
+kryptos decrypt k2 --cipher data/k2.txt --key ABSCISSA
+kryptos decrypt k3 --cipher data/k3.txt
+kryptos decrypt k4 --cipher data/k4.txt --limit 40 --adaptive --report
+```
+
+When `--report` is supplied for K4, artifacts (attempt logs, candidate summaries) are written under
+`artifacts/k4_runs/run_<timestamp>/`.
+
 ### Decrypt K1 with a Candidate Key
 
 ```python
@@ -111,4 +123,4 @@ will be discouraged in favor of the uniform section modules for high-level usage
 
 ---
 
-Last updated: 2025-10-23 (CLI base present; decrypt subcommand consolidation pending)
+Last updated: 2025-10-23T23:55Z (unified decrypt CLI preview + artifact path reference)

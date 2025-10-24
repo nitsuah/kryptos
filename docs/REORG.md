@@ -14,19 +14,23 @@ promoted or removed.
 
 ## Moved / Ported
 
-- `spy_eval` logic migrated into `kryptos/tuning/spy_eval.py`.
-- Example/demo scripts relocated into `scripts/experimental/examples/`. All temporary shims removed;
-tests updated to point to canonical paths.
+- `spy_eval` logic migrated into `kryptos/k4/tuning/spy_eval.py`.
+- SPY extractor & phrase aggregation migrated into `kryptos/spy/` (legacy script removed).
+- Example/demo scripts progressively relocating into `examples/` and CLI usage (`kryptos
+k4-decrypt`).
+- Report generation consolidated in `kryptos.k4.report` (markdown + condensed CSV).
+- K4 run artifacts standardized under `artifacts/k4_runs/`.
 
 ## Deprecated (Pending Removal)
 
 | Script | Reason | Replacement | Removal Target |
 |--------|--------|-------------|----------------|
-| (stub) scripts/experimental/tools/run_hill_search.py | Ad-hoc key gen & scoring | k4.hill_search.score_decryptions | Delete after hill search tests |
-| (stub) scripts/experimental/tools/run_hill_canonical.py | Thin wrapper | k4.hill_constraints.decrypt_and_score | Delete after adapter test |
-| (stub) scripts/experimental/tools/run_pipeline_sample.py | Pipeline sample wrapper | Direct package pipeline usage | Delete after README pipeline example |
-| (stub) scripts/experimental/examples/run_full_smoke.py | Chained demo wrapper | CLI examples & individual commands | Delete after CLI chain example added |
-| scripts/tuning/spy_eval.py | Legacy evaluation harness | kryptos.tuning.spy_eval | Remove duplicate after ensuring package path used |
+| scripts/experimental/examples/run_ops_tiny_sweep.py | Legacy tiny sweep wrapper | `kryptos tuning-tiny-param-sweep` | Nov 2025 (after CLI test coverage) |
+| scripts/experimental/examples/run_full_smoke.py | Chained demo wrapper | CLI chain example | Removed (2025-10-23) |
+| scripts/demo/run_k4_demo.py | Demo runner (legacy path) | `kryptos k4-decrypt --report` | Dec 2025 (migrate to examples) |
+| scripts/tuning/compare_crib_integration.py | Ad-hoc comparison | summarize-run/report subcommands | Jan 2026 (decision) |
+| scripts/tuning/pick_best_weight.py | Superseded selection logic | tuning-pick-best CLI | Removed (2025-10-23) |
+| scripts/tuning/spy_eval.py | Legacy evaluation harness | `kryptos spy-eval` (package API) | Removed (2025-10-23) |
 
 ## Promotion Criteria
 
@@ -45,14 +49,14 @@ Delete a deprecated script once:
 
 ## Next Cleanup Steps
 
-1. Implement Hill hypothesis adapter using existing package functions. 2. Remove deprecated hill
-wrappers once tests reference adapter. 3. Convert smoke/demo scripts to pure package examples in
-docs or consolidate into CLI. 4. Re-run full test suite & update this file with completed deletions.
+1. Remove legacy demo runner (`run_k4_demo.py`) after CLI example snippet published. 2. Decide fate
+of `compare_crib_integration.py` (merge or delete) and update docs. 3. Remove
+`run_ops_tiny_sweep.py` post CLI tiny sweep test stabilization. 4. Add `tuning-report` CLI
+subcommand wrapping report utilities. 5. Calibrate positional letter deviation weight (document
+evaluation results). 6. Centralize logging setup (`kryptos.logging` helper) and remove stray print
+statements. 7. Add artifact provenance hash & compression option.
 
-1. Introduce CLI entrypoints to replace remaining example wrappers (`decrypt`, `autopilot`, `tune`).
-(In progress: base CLI present; tuning/spy pending)
+Status Snapshot (2025-10-23T23:52Z): Spy & tuning namespaces consolidated, report module integrated,
+artifact paths standardized, CLI subcommands live for core tuning & spy operations.
 
-Status Snapshot (2025-10-23): Unified package complete, tuning & artifacts modules promoted, docs
-archival ongoing, CLI base shipped.
-
-Updated: 2025-10-23
+Updated: 2025-10-23T23:52Z

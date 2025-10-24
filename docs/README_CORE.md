@@ -35,7 +35,8 @@ Related documents / breadcrumbs:
 
 - Modular pipeline for multi-stage hypothesis testing (pipeline, composite runners)
 - Scoring utilities (n-grams, chi-square, crib/positional bonuses, entropy metrics)
-- Attempt logging and reproducible artifacts (JSON/CSV output under `artifacts/`)
+- Attempt logging and reproducible artifacts (CSV/JSON output under `artifacts/k4_runs/` for K4
+pipeline runs)
 - Tuning harness and a minimal daemon runner for automated sweeps
 
 ## Current Progress (Snapshot)
@@ -58,6 +59,8 @@ scripts.
 - Masking/null removal stage and Berlin Clock shift hypotheses
 - Composite pipeline orchestration, attempt logging, and CSV/JSON artifacts
 - Scoring utilities: n-grams, chi-square, crib & positional bonuses, entropy and wordlist heuristics
+    - Positional letter deviation metric (periodic bucket chi-square -> normalized) rewarding
+        balanced per-position distributions (mitigates false positives from structured transpositions)
 - Tuning harness and a minimal daemon runner for long-running sweeps (`scripts/daemon_runner.py`)
 
 ## Modules (under `kryptos/k4/`)
@@ -247,6 +250,37 @@ for r in rows:
 Legacy wrapper scripts have been removed; all functionality now lives in the CLI subcommands and
 direct APIs under `kryptos.k4.tuning.*` and `kryptos.spy` (extraction & phrase aggregation).
 
+### Positional Letter Deviation Metric
+
+Added in October 2025 to improve ranking stability.
+
+Rationale: Plain English tends not to cluster common letters in fixed periodic positions. After
+certain transposition or masking operations, artificial patterns emerge (e.g., vowels
+disproportionately in one column modulo period). The positional metric partitions text into `period`
+buckets by index modulo period (default 5) and computes a chi-square divergence per bucket against
+English letter frequencies. Each bucket contributes `1/(1+chi)`; the final score is the mean across
+non-empty buckets, yielding a value in [0,1]. A higher score indicates more even positional
+distribution. The extended combined score applies a modest weight so n-gram statistics remain
+primary.
+
+Usage:
+
+```python
+from kryptos.k4.scoring import positional_letter_deviation_score, combined_plaintext_score_extended
+val = positional_letter_deviation_score(candidate_plaintext)
+rank = combined_plaintext_score_extended(candidate_plaintext)
+```
+
+Interpretation guidelines:
+
+- <0.20: likely random/structured artifact
+- 0.20–0.45: weak candidate
+- 0.45–0.70: plausible English-like distribution
+- >0.70: strong positional balance (inspect other metrics)
+
+
+The thresholds are heuristic and may shift after larger evaluation sets.
+
 ## Artifacts
 
 - Pipeline runs: `artifacts/k4_runs/run_<timestamp>/`
@@ -268,4 +302,4 @@ files are missing.
 - License: `LICENSE`
 - References: top-level README + docstrings + strategy docs.
 
---- Last updated: 2025-10-23 (CLI + tuning API consolidation)
+--- Last updated: 2025-10-23T23:50Z (artifact path consolidation + positional metric)

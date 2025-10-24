@@ -54,23 +54,26 @@ Promotion Criteria: 1. Script encapsulates reusable logic beneficial to users. 2
 as a pure function/module without side-effecting global paths. 3. Minimal test harness added
 (pytest) with deterministic behavior.
 
-Metrics Snapshot (post report module integration 2025-10-23):
+Metrics Snapshot (post spy namespace + artifact path consolidation 2025-10-23):
 
-- Removed: 12
-- Keep (stable or evaluation): 10
-- Migrate planned: 7
-- Audit: 3
+- Removed: 14 (includes spy_extractor, generate_top_candidates, condensed_tuning_report, hill
+wrappers)
+- Keep (stable or evaluation): 9
+- Migrate planned: 5 (remaining demo/autopilot example promotions, tiny sweep example,
+compare_crib_integration decision, ops tiny sweep)
+- Audit: 2 (extract_spy_cribs.py, create_pr.py)
 - Historical: 1
 
 Backlog (ordered, refreshed):
 
-1. Introduce kryptos.spy namespace; migrate aggregation/extractor; delete scripts. 2. Promote demo &
-autopilot examples into kryptos.examples; remove duplicate experimental copy. 3. Remove
-run_ops_tiny_sweep & pick_best_weight after confirming CLI coverage (migrate any residual helpers).
-4. Audit extract_spy_cribs.py (security, determinism) then promote or restrict. 5. Tag
-k3_double_rotation.py historical and relocate to docs/archive/. 6. Fold compare_crib_integration.py
-into summarize-run or remove. 7. Add optional CLI reporting subcommand (`tuning-report`) wrapping
-report module utilities.
+1. Finalize demo migration: convert `run_k4_demo.py` into documented CLI example and remove legacy
+script. 2. Evaluate need for `examples/run_ops_tiny_sweep.py`; remove after CLI tiny sweep tests
+stabilized. 3. Decide fate of `compare_crib_integration.py`: merge into summarize-run or delete. 4.
+Audit `tools/extract_spy_cribs.py` (security/determinism); write focused tests; decide promote vs
+remove. 5. Audit `scripts/dev/create_pr.py` for secret leakage; relocate or remove. 6. Add CLI
+`tuning-report` subcommand wrapping report module utilities (write_condensed_report,
+write_top_candidates_markdown). 7. Performance profiling: positional letter deviation weight
+calibration; add doc note & potential CLI flag.
 
 ## Next Immediate Actions
 
@@ -79,4 +82,4 @@ report module utilities.
 optional).
 - Plan spy namespace extraction (design sketch, then tests).
 
-Updated: 2025-10-23 (inventory synced post report module integration)
+Updated: 2025-10-23T23:47Z (spy namespace complete; artifact path consolidated; backlog refreshed)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 from ..paths import ensure_reports_dir
@@ -144,9 +145,12 @@ def run_composite_pipeline(
         fused_candidates = fuse_scores_weighted(candidates_for_fusion, weights, use_normalized=normalize)
         out['fused'] = fused_candidates[:limit]
     if report:
-        # Canonicalize report_dir
+        # Canonicalize report_dir; default now under artifacts/k4_runs
         if report_dir is None or report_dir == 'reports':
-            report_dir = str(ensure_reports_dir())
+            base = Path(ensure_reports_dir()).parent  # points to artifacts/<timestamp> parent
+            k4_root = base / 'k4_runs'
+            k4_root.mkdir(parents=True, exist_ok=True)
+            report_dir = str(k4_root)
         artifact_source = fused_candidates if fused_candidates else aggregated
         candidates_for_artifact = [
             {

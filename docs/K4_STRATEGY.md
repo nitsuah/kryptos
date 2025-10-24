@@ -55,6 +55,8 @@ CLI subcommands (`kryptos tuning ...`).
 - Per-run artifacts are written to `artifacts/k4_runs/run_<timestamp>/` or
 `artifacts/tuning_runs/run_<timestamp>/`.
 - Each run contains `summary.csv` and a `*_top.csv` filtered view for quick review.
+- Extended scoring now includes positional letter deviation (bucketed chi-square balance) to
+penalize structured transposition artifacts.
 
 ## Next K4 priorities (short)
 
@@ -144,6 +146,19 @@ EAST/NORTHEAST alignment). Pending: automatic index validation test.
 - Wordlist hit rate, trigram entropy, bigram gap variance.
 - Weighted fusion (stage-normalized min-max).
 - Memoized combined score (LRU cache).
+- Positional letter deviation metric integrated into extended composite score.
+Planned enhancement: rarity-weighted crib scoring augments positional crib bonus with a frequency-
+based multiplier.
+
+Algorithm sketch: 1. alignment_frequency = occurrences_of_alignment /
+total_permutations_sampled_for_window. 2. rarity_weight = 1 / (1 + alignment_frequency * k) (initial
+k = 5.0). 3. Adjust crib_bonus_component *= rarity_weight.
+
+Calibration (see PERF.md):
+- Collect alignment_frequency distribution; sweep k in {1,2,5,10}.
+- Measure Spearman correlation (old vs new ranking) for top-50; target ≥0.9.
+- Select k producing uplift of rare alignments into top quartile without destabilizing high-
+confidence candidates.
 
 ### 8. Hill Cipher Path (Current State)
 
@@ -163,6 +178,31 @@ orientation tests (P = K*C vs C = K*P) with small sample.
 
 Next: Integrate simultaneous alignment scoring (weighted by rarity of alignment probability) and add
 route-transposition patterns.
+#### Adaptive Sampling (Planned Detail)
+
+Adaptive permutation sampling will dynamically tune effort per column count:
+
+- Bootstrap: sample a small fixed batch (e.g. 200 permutations) and compute median and 95th
+percentile scores.
+- Expansion: if 95th percentile exceeds calibrated threshold (see PERF.md) expand sampling (2–4x)
+for that column width.
+- Early cutoff: if both median and p95 below low-quality boundary, abort further sampling for that
+width.
+- Rarity boost: increase exploration depth (expansion factor) for widths generating uncommon crib
+alignment patterns.
+
+Instrumentation:
+- Persist per-width summary objects: {cols, sampled, expanded, median_score, p95_score} in attempt
+logs.
+- Track alignment_frequency for crib placements to feed rarity-weighted scoring.
+
+Edge cases:
+- Sparse high outlier (single very high score) → cap expansion factor to prevent runaway sampling.
+- Uniform low scores → immediate cutoff to conserve runtime.
+- Degenerate grids (non-divisible shapes) → skip expansion logic safely.
+
+Success criteria: ≥30% reduction in low-quality permutations versus baseline exhaustive search while
+preserving top-10 candidate set (no loss of previous top scores in validation diffs).
 
 ### 10. Berlin Clock Key Stream (Current State)
 
@@ -190,6 +230,7 @@ stage correctness (positions captured). Add failure mode tests (pruned keys/perm
 - Added automated crib index validation test.
 - Implemented adaptive fusion weighting (wordlist_hit_rate + trigram_entropy heuristics).
 - Implemented route transposition stage (spiral / boustrophedon / diagonal variants).
+- Added positional letter deviation metric for distribution balance.
 
 ### 13. Performance & Optimization
 
@@ -205,15 +246,19 @@ ciphertext + parameters.
 
 ### 15. Updated Next Actions
 
-1. Refine route transposition scoring (add positional crib bonus integration). 2. Expand 3x3 Hill
-assemblies (spiral, column zigzag) + orientation flip tests. 3. Probability-weighted multi-crib
-scoring (rarity weighting vs simple bonus). 4. Multiprocessing / parallel stage execution
-benchmarking. 5. Failure mode tests for pruning (assert pruned recorded correctly). 6. Refine
-adaptive fusion weighting thresholds (entropy band & bonuses). 7. Add diagonal-start variants (anti-
-diagonal snake) & perimeter-in/out variants.
+1. Calibrate positional letter deviation weight (evaluate impact across historical candidate sets).
+2. Refine route transposition scoring (add positional crib bonus integration). 3. Expand 3x3 Hill
+assemblies (spiral, column zigzag) + orientation flip tests. 4. Probability-weighted multi-crib
+scoring (rarity weighting vs simple bonus). 5. Multiprocessing / parallel stage execution
+benchmarking. 6. Failure mode tests for pruning (assert pruned recorded correctly). 7. Refine
+adaptive fusion weighting thresholds (entropy band & bonuses). 8. Add diagonal-start variants (anti-
+diagonal snake) & perimeter-in/out variants. 9. Implement adaptive transposition sampling loop with
+per-width metrics & validation benchmarks. 10. Integrate rarity-weighted crib scoring and complete
+calibration sweep (k parameter selection).
 
 ### 16. References
 
 (See README for links; add matrix conjecture, entropy references.)
 
---- Updated: 2025-10-23 (tuning APIs promoted; plan doc archived)
+--- Updated: 2025-10-23T23:50Z (positional deviation metric + next actions weight calibration +
+adaptive sampling & rarity-weighted crib scoring plan)

@@ -13,14 +13,14 @@ before final removal).
 - AUDIT: Requires review (security, side-effects) prior to promotion or removal.
 - HISTORICAL: Preserved for provenance (tagged, not executed in CI).
 
-## Summary Counts (Post report module integration 2025-10-23)
+## Summary Counts (Post spy namespace consolidation 2025-10-23)
 
-- KEEP: 10
-- REMOVE: 12 (includes generate_top_candidates consolidated)
+- KEEP: 9
+- REMOVE: 14 (includes spy_extractor, generate_top_candidates, condensed_tuning_report)
 - STUB: 0 (all prior stubs cleared)
-- MIGRATE: 7 (spy aggregation/extraction, tiny sweep, demo & autopilot examples, pick_best_weight,
-run_ops_tiny_sweep)
-- AUDIT: 3 (extract_spy_cribs.py, create_pr.py, compare_crib_integration.py)
+- MIGRATE: 5 (demo & autopilot examples, tiny sweep, run_ops_tiny_sweep, compare_crib_integration
+decision)
+- AUDIT: 2 (extract_spy_cribs.py, create_pr.py)
 - HISTORICAL: 1 (k3_double_rotation.py)
 
 ## Core Tuning Scripts
@@ -28,7 +28,7 @@ run_ops_tiny_sweep)
 | File | Decision | Notes |
 |------|----------|-------|
 | crib_weight_sweep.py | KEEP | Canonical sweep; CLI subcommand mirrors behavior. |
-| pick_best_weight.py | MIGRATE | Fold logic into CLI/report module after tests. |
+| pick_best_weight.py | REMOVE | Superseded by CLI pick-best subcommand. |
 | compare_crib_integration.py | AUDIT | Assess relevance; may merge into summarize-run. |
 | tiny_tuning_sweep.py | KEEP | Deterministic harness (possible test fixture). |
 | spy_eval.py | REMOVE | Superseded by package + CLI spy-eval. |
@@ -108,12 +108,11 @@ replaced by `kryptos.spy.aggregate_phrases`.
 
 ## Immediate Execution Plan (Refreshed)
 
-1. Create `kryptos.spy` namespace; migrate `spy_extractor.py` & `aggregate_spy_phrases.py`; delete
-scripts post tests. 2. Remove `run_ops_tiny_sweep.py` & `pick_best_weight.py` after confirming all
-tuning flows covered via CLI + report module. 3. Audit `extract_spy_cribs.py` (security,
-determinism) then promote or restrict. 4. Relocate `k3_double_rotation.py` to `docs/archive/` and
-tag HISTORICAL. 5. Fold `compare_crib_integration.py` into summarize-run or remove. 6. Promote demo
-& autopilot examples into `kryptos.examples` package path. 7. (Optional) Add `tuning-report` CLI
-subcommand wrapping report module utilities.
+1. Finalize removal of legacy demo runner after CLI example addition. 2. Remove
+`run_ops_tiny_sweep.py` post tiny sweep CLI test stabilization. 3. Audit `extract_spy_cribs.py`
+(security/determinism) and decide promote vs remove. 4. Fold or delete `compare_crib_integration.py`
+(merge into summarize-run/report). 5. Migrate autopilot & demo examples into `examples/` canonical
+package path. 6. Add `tuning-report` CLI subcommand wrapping report utilities. 7. Profile positional
+letter deviation weight and document calibration results.
 
-Updated: 2025-10-23
+Updated: 2025-10-23T23:58Z

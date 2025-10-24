@@ -22,7 +22,7 @@ API or forthcoming CLI `kryptos tuning crib-weight-sweep`).
 1. Autopilot & SPY integration
 
 - Ensure `scripts/dev/ask_triumverate.py` computes or uses a conservative SPY `min_conf` and that
-`scripts/dev/spy_extractor.py` writes curated hints to `agents/LEARNED.md`.
+`kryptos.spy.extractor` writes curated hints (legacy script removed).
 
 1. Demos, CI and reproducibility
 
@@ -39,14 +39,17 @@ smoke test.
 
 ## High-Level Planned Modules / Enhancements
 
-- Short term (0-7 days):
-- Harden autopilot (OPS/ SPY / Q) with conservative defaults and evaluation-driven thresholds.
-- Add tiny tuning sweep and demo pipelines; wire to artifacts/ for traceability.
-- Improve test coverage around scoring and transposition components.
 Short term (0-7 days):
-- Harden autopilot (OPS/ SPY / Q) with conservative defaults and evaluation-driven thresholds.
-- Add tiny tuning sweep and demo pipelines; wire to artifacts/ for traceability.
-- Improve test coverage around scoring and transposition components.
+- Harden autopilot (OPS / SPY / Q) with conservative defaults and evaluation-driven thresholds.
+- Add tiny tuning sweep and demo pipelines; wire to `artifacts/k4_runs/` and
+`artifacts/tuning_runs/` for traceability.
+- Improve test coverage around scoring and transposition components (increase positional deviation
+coverage).
+- Calibrate positional letter deviation weight (collect distribution stats across historical runs).
+- Implement adaptive transposition sampling (bootstrap batch, conditional expansion, early cutoff)
+with per-column metrics.
+- Integrate rarity-weighted crib scoring multiplier (frequency-indexed) and perform k sweep
+calibration.
 
 - Layered / composite transposition + substitution search pruning. (IN PROGRESS: basic columnar
 partial-score pruning added)
@@ -113,8 +116,9 @@ tracking.
 ## Metrics Expansion (Status: PARTIAL)
 
 Positional crib weighting implemented (`positional_crib_bonus`,
-`combined_plaintext_score_with_positions`). Quadgram support added (`quadgram_score`). Future
-metrics: spacing analysis, entropy refinement.
+`combined_plaintext_score_with_positions`). Quadgram support added (`quadgram_score`). Positional
+letter deviation metric added (distribution balance). Future metrics: spacing analysis, entropy
+refinement, positional deviation weight calibration study, rarity-weighted crib bonus multiplier.
 
 ## Status Tracking
 
@@ -148,4 +152,4 @@ Next Iteration Targets:
 - Berlin Clock deep pattern alignment scoring (lamp temporal sequencing bonuses beyond ordering
 stub).
 
-Last updated: 2025-10-21
+Last updated: 2025-10-23 (spy namespace + positional deviation metric + artifact path consolidation)

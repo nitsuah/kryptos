@@ -18,14 +18,15 @@ Related documents / breadcrumbs:
 parameters. Canonical APIs: `kryptos.k4.tuning.run_crib_weight_sweep`,
 `kryptos.k4.tuning.tiny_param_sweep`, and artifact helpers in `kryptos.k4.tuning.artifacts` (legacy
 script wrappers pending CLI promotion).
-- SPY (Conservative Extractor): scans tuning run CSV artifacts and extracts high-confidence quoted
-tokens present in `docs/sources/sanborn_crib_candidates.txt`. Implemented presently as
-`scripts/dev/spy_extractor.py` (will migrate to a CLI subcommand `kryptos spy extract`).
+- SPY (Conservative Extractor): scans tuning run attempt CSV artifacts and extracts high-confidence
+quoted tokens present in `docs/sources/sanborn_crib_candidates.txt`. Implemented via
+`kryptos.spy.extractor` (legacy `scripts/dev/spy_extractor.py` deprecated; use package API or CLI
+subcommand `kryptos spy extract`).
 
 ## SPY threshold selection
 
 - The SPY extractor accepts a minimum confidence via `SPY_MIN_CONF` env var or `--min-conf` CLI.
-- If unset, the autopilot will call `kryptos.scripts.tuning.spy_eval.select_best_threshold` which
+-- If unset, the autopilot will call `kryptos.k4.tuning.spy_eval.select_best_threshold` which
 evaluates precision/recall/F1 across thresholds and now *prefers precision* (conservative
 extraction). Tie-breaker is F1.
 
@@ -66,7 +67,9 @@ print('Best threshold:', best)
 
 - Tuning runs: `artifacts/tuning_runs/run_<timestamp>/` containing `crib_weight_sweep.csv` and
 per-weight detail CSVs.
-- Demo runs: `artifacts/demo/run_<timestamp>/` (legacy demo script; consider CLI `k4-demo`).
+- K4 pipeline runs: `artifacts/k4_runs/run_<timestamp>/` containing composite pipeline summaries.
+- Demo runs: `artifacts/demo/run_<timestamp>/` (legacy; consolidating into `k4_runs` or examples
+CLI).
 - Decision artifacts: `artifacts/decisions/decision_<timestamp>.json`.
 
 ## Autonomous daemons
@@ -122,10 +125,14 @@ pip install -e .
 python scripts/dev/ask_triumverate.py --dry-run  # (CLI subcommand forthcoming: kryptos autopilot)
 ```
 
-1. Run the demo:
+1. Run a short K4 demo:
 
 ```powershell
-python scripts/demo/run_k4_demo.py --limit 5  # or: kryptos k4-decrypt --limit 5 --report
+# Preferred
+kryptos k4-decrypt --limit 5 --report
+
+# Legacy demo script (pending migration)
+python scripts/demo/run_k4_demo.py --limit 5
 ```
 
 Try a quick smoke-run (demo → tiny OPS sweep → SPY extractor → condensed report):
@@ -142,6 +149,6 @@ Planned subcommands to replace legacy scripts:
 - `kryptos tuning crib-weight-sweep` → `run_crib_weight_sweep`
 - `kryptos tuning summarize-run` → `kryptos.k4.tuning.artifacts.end_to_end_process`
 - `kryptos spy extract` → conservative SPY token extraction
-- `kryptos spy eval` → threshold evaluation (`kryptos.tuning.spy_eval`)
+- `kryptos spy eval` → threshold evaluation (`kryptos.k4.tuning.spy_eval`)
 
---- Last updated: 2025-10-23 (tuning API promotion + CLI roadmap)
+--- Last updated: 2025-10-23T23:45Z (spy namespace migration + artifact path consolidation)
