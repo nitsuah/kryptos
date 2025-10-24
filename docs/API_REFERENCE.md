@@ -1,6 +1,8 @@
---- title: Kryptos Public API Reference version: 2025-10-23 Breadcrumb: Overview > API > Reference ---
-
 # Kryptos Public API Reference
+
+Reference version: 2025-10-23
+
+Breadcrumb: Overview > API > Reference ---
 
 This document enumerates the stable, supported Python entry points and CLI subcommands. Items not listed here are
 considered internal and may change without notice.

@@ -12,9 +12,9 @@ to-end process helper).
 ## [2025-10-23] Spy Namespace & Positional Scoring
 
 - Introduced `kryptos.spy` namespace (extractor + phrase aggregation) replacing legacy
-	`scripts/dev/spy_extractor.py` and `aggregate_spy_phrases.py`.
-- Added positional letter deviation metric integrated into `combined_plaintext_score_extended` to
-	penalize over-structured transposition artifacts and reward balanced per-position distributions.
+- `scripts/dev/spy_extractor.py` and `aggregate_spy_phrases.py`.
+- Added positional letter deviation metric integrated into `combined_plaintext_score_extended`
+- to penalize over-structured transposition artifacts and reward balanced per-position distributions.
 - Consolidated tuning & report logic; removed deprecated markdown and condensed report generator
 scripts.
 - Reorganized K4 pipeline artifact output under `artifacts/k4_runs/run_<timestamp>/`.

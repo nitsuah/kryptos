@@ -294,7 +294,7 @@ print(f"Best score: {max(r.best_score for r in results)}")
 
 ## 🔍 Q Agent: Quality Assurance
 
-### Planned Implementation (v1.0)
+### Planned Implementation (v1.1)
 
 **Status:** 📋 Planned (not yet implemented)
 

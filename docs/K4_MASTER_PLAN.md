@@ -9,6 +9,7 @@
 **Mission:** Solve Kryptos K4 through systematic cipher hypothesis testing and elimination.
 
 **Current State:**
+
 - ✅ Infrastructure operational (249 tests passing)
 - ✅ 6 hypotheses tested (Hill 2x2, Vigenère, Playfair, Transposition, Simple substitution, Random baseline)
 - ✅ SPY agent v1.0 deployed (pattern recognition)
@@ -28,6 +29,7 @@ English)
 ### Why K4 is Hard
 
 **The Challenge:**
+
 - **Length**: Only 97 characters (statistical methods need more data)
 - **Sculptor's Intent**: Jim Sanborn designed K4 to be "extremely difficult"
 - **No Known Plaintext**: Unlike K1-K3, no confirmed cribs
@@ -35,6 +37,7 @@ English)
 - **Time**: Unsolved since 1990 (34+ years)
 
 **What We Know:**
+
 - K1: Simple substitution (PALIMPSEST keyword)
 - K2: Vigenère (ABSCISSA keyword)
 - K3: Transposition (columnar)
@@ -42,6 +45,7 @@ English)
 - Final passage: 97 characters on the sculpture
 
 **Why Others Failed:**
+
 - NSA, CIA cryptanalysts couldn't break it
 - Academic researchers tried standard methods
 - Brute force unfeasible for many cipher types
@@ -57,6 +61,7 @@ space 4. **Automation First**: Infrastructure enables rapid testing 5. **Agent A
 scale + intelligence
 
 **Advantages:**
+
 - Modern infrastructure (Python 3.12, pytest, pyproject.toml)
 - Standardized scoring (`combined_plaintext_score()`)
 - Hypothesis protocol (pluggable cipher testing)
@@ -106,21 +111,21 @@ scale + intelligence
 
 **Initiatives:**
 
-5. **Transposition → Hill 2x2**
+1. **Transposition → Hill 2x2**
    - Top 20 transpositions × 1,000 Hill keys = 20,000 combinations
    - Duration: ~30 minutes
    - Tests: If weak Hill signal becomes strong after transposition
 
-6. **Vigenère → Transposition**
+1. **Vigenère → Transposition**
    - Top 50 Vigenère keys × 100 transpositions = 5,000 combinations
    - Duration: ~20 minutes
    - Tests: If Vigenère partially decrypts, then transposition reveals plaintext
 
-7. **Substitution → Transposition**
+1. **Substitution → Transposition**
    - All simple substitutions × top 100 transpositions
    - Tests: Classic two-layer approach
 
-8. **Hill 3x3 → Transposition**
+1. **Hill 3x3 → Transposition**
    - Sampled 3x3 matrices × transposition
    - Much larger key space than 2x2
 
@@ -130,32 +135,32 @@ scale + intelligence
 
 **Initiatives:**
 
-9. **Autokey Cipher**
+1. **Autokey Cipher**
    - Vigenère variant: uses plaintext as key stream after primer
    - Primers: KRYPTOS, BERLIN, CLOCK, alphabet
    - Harder to break than standard Vigenère
 
-10. **Four-Square Cipher**
+1. **Four-Square Cipher**
     - Uses 4 keyed grids for digraph substitution
     - Keywords: All combinations of KRYPTOS/BERLIN/CLOCK/ABSCISSA
     - ~100 combinations
 
-11. **Bifid Cipher**
+1. **Bifid Cipher**
     - Combines Polybius square + transposition
     - Test periods 5-20 with KRYPTOS keyword
     - Classical cipher, period-dependent
 
-12. **Homophonic Substitution**
+1. **Homophonic Substitution**
     - Multiple ciphertext chars → one plaintext letter
     - Analyze frequency clusters
     - Common in Renaissance cryptography
 
-13. **Fractional Morse Hypothesis**
+1. **Fractional Morse Hypothesis**
     - Test if K4 encodes Morse (dots/dashes) then converts to letters
     - BERLIN → Morse → letter encoding
     - Matches sculptor's communication themes
 
-14. **Berlin Clock Vigenère**
+1. **Berlin Clock Vigenère**
     - Use Berlin Clock lamp sequences as keys
     - Test all 24 hours (00:00-23:00)
     - Duration: ~5 minutes
@@ -166,23 +171,23 @@ scale + intelligence
 
 **Initiatives:**
 
-15. **Hill Genetic Algorithm**
+1. **Hill Genetic Algorithm**
     - Start from best Hill 2x2 (-329.45)
     - Mutate matrix elements, test offspring
     - Converge to local optimum
     - Useful for large matrices (3x3, 4x4)
 
-16. **Crib-Guided Search**
+1. **Crib-Guided Search**
     - Force BERLIN or CLOCK at specific positions (sliding window)
     - Dramatically reduces key space
     - Works for: Hill, Vigenère, Playfair, etc.
 
-17. **Simulated Annealing**
+1. **Simulated Annealing**
     - Metaheuristic for key space exploration
     - Accept worse candidates probabilistically
     - Escape local optima
 
-18. **Bayesian Key Recovery**
+1. **Bayesian Key Recovery**
     - Use prior probabilities for key elements
     - Update beliefs based on partial decryptions
     - Intelligent search order
@@ -193,7 +198,7 @@ scale + intelligence
 
 **Initiatives:**
 
-19. **OPS Agent: Execution Orchestrator**
+1. **OPS Agent: Execution Orchestrator**
     - Queue management for hypothesis pipeline
     - Parallel execution (multiprocessing)
     - Resource monitoring (CPU/memory)
@@ -201,14 +206,14 @@ scale + intelligence
     - Progress tracking
     - Result aggregation
 
-20. **Q Agent: Quality Assurance**
+1.  **Q Agent: Quality Assurance**
     - Sanity tests (all candidates)
     - Statistical validation (compare to baseline)
     - Anomaly detection (unusual patterns)
     - False positive filtering
     - Confidence scoring
 
-21. **SPY Agent v2.0: LLM/NLP Intelligence**
+1.  **SPY Agent v2.0: LLM/NLP Intelligence**
     - Phase 1: Classic NLP (spaCy, NLTK, CMU Dict) - no API costs
     - Phase 2: Transformer embeddings (sentence-transformers) - local execution
     - Phase 3: LLM integration (OpenAI/Anthropic) - optional, ~$0.01-0.10 per batch
@@ -221,12 +226,14 @@ scale + intelligence
 ### Statistical Baseline
 
 **Random Scoring Distribution** (10,000 samples):
+
 - Mean: -355.92
 - Std Dev: 14.62
 - 2σ threshold (95% confidence): -326.68
 - 3σ threshold (99.7% confidence): -312.06
 
 **Interpretation:**
+
 - Scores < -326.68: Not significant (within random noise)
 - Scores -326.68 to -312.06: Weak signal (investigate)
 - Scores > -312.06: Strong signal (likely real)
@@ -244,11 +251,13 @@ search
 ### Positive Controls
 
 **Known Plaintext Tests:**
+
 - Encrypt known English text with each hypothesis
 - Verify decryption recovers original
 - Ensures implementation correctness
 
 **Cross-Validation:**
+
 - Test on K1-K3 with known keys
 - Should reproduce documented solutions
 
@@ -262,17 +271,17 @@ search
 
 **Initiatives:**
 
-22. **Score Distribution Comparison**
+1. **Score Distribution Comparison**
     - Plot histograms per hypothesis
     - Look for bimodal distributions (signal + noise)
     - Identify which methods show clustering
 
-23. **Substring Correlation**
+1. **Substring Correlation**
     - Extract top 100 candidates per hypothesis
     - Find common substrings (length ≥5)
     - Reveals partial decryptions
 
-24. **Pattern Overlap**
+1. **Pattern Overlap**
     - Apply SPY to all top candidates
     - Find common patterns (repeats, palindromes, cribs)
     - May indicate composite method
@@ -280,6 +289,7 @@ search
 ### Hypothesis Ranking Dashboard
 
 **Automated Report:**
+
 - All hypotheses tested
 - Best scores per hypothesis
 - Signals detected (2σ, 3σ)
@@ -319,25 +329,25 @@ search
 
 ### Next 2 Weeks
 
-6. **Composite methods** (8 hours)
+1. **Composite methods** (8 hours)
    - Transposition → Hill
    - Vigenère → Transposition
    - Substitution → Transposition
 
-7. **New cipher families** (12 hours)
+1. **New cipher families** (12 hours)
    - Autokey, Four-Square, Bifid, Homophonic, Morse
 
-8. **OPS agent** (16 hours)
+1. **OPS agent** (16 hours)
    - Parallel execution framework
    - Queue + resource management
    - Result aggregation
 
-9. **Q agent** (12 hours)
+1. **Q agent** (12 hours)
    - Statistical validation
    - Anomaly detection
    - Confidence scoring
 
-10. **SPY v2.0 upgrade** (20 hours)
+1. **SPY v2.0 upgrade** (20 hours)
     - Phase 1: spaCy/NLTK integration
     - Phase 2: Transformer embeddings
     - Phase 3: LLM API (optional)
@@ -357,6 +367,7 @@ leaked hints)
 **End Goal:** Agent-driven hypothesis discovery
 
 **Components:**
+
 - OPS: Orchestrates 24/7 hypothesis testing
 - SPY: Analyzes all candidates, flags interesting patterns
 - Q: Validates results, filters false positives
@@ -395,15 +406,18 @@ detailed analysis report 5. Cross-check with Sanborn themes
 ## Resources & Constraints
 
 ### Compute Budget
+
 - Local machine: sufficient for most searches
 - Parallel execution: 8 cores available
 - Cloud: can scale if needed (AWS/GCP)
 
 ### Time Budget
+
 - Active development: 20-40 hours/week
 - Timeline: 2-3 months for comprehensive search
 
 ### Cost Budget
+
 - Infrastructure: $0 (local execution)
 - LLM API (Phase 3): ~$10-50 for batch analysis
 - Cloud compute (if needed): ~$50-100/month
@@ -413,16 +427,19 @@ detailed analysis report 5. Cross-check with Sanborn themes
 ## Success Metrics
 
 ### Weekly Targets
+
 - Hypotheses tested: 5-10 per week
 - Test suite: Maintain 100% pass rate
 - Documentation: Keep current with each sprint
 
 ### Monthly Targets
+
 - Hypotheses tested: 25-50 cumulative
 - Agent implementation: OPS + Q operational
 - SPY upgrade: Phase 1 NLP complete
 
 ### Project Success
+
 - K4 solved OR
 - Comprehensive elimination (50+ hypotheses ruled out with evidence) OR
 - Strong signal identified requiring human expert analysis
