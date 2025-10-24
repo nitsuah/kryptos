@@ -20,12 +20,12 @@ docs.
 * Removed deprecated experimental scripts: `run_full_smoke.py`, `run_hill_search.py`,
 `clean_and_summarize_matches.py`, `summarize_crib_hits.py`, `run_pipeline_sample.py` (functionality
 migrated to package APIs & CLI subcommands).
-* Legacy executor (`PipelineExecutor`) scheduled for deprecation once tests migrate to `Pipeline`.
+* Removed legacy executor (`PipelineExecutor`) and migrated tests to `Pipeline` & composite helpers.
 
 ### Pending
 
 * Route scoring refinement, multiprocessing enhancements, advanced Hill assemblies.
-* Migration of tests off `PipelineExecutor` (deprecated) toward unified `Pipeline` abstraction.
+* Rarity weighting calibration harness & positional deviation weight tuning.
 
 ## [2025-10-20] Adaptive & Route Expansion
 

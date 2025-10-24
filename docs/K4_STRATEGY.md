@@ -235,7 +235,6 @@ stage correctness (positions captured). Add failure mode tests (pruned keys/perm
 - Implemented adaptive fusion weighting (wordlist_hit_rate + trigram_entropy heuristics).
 - Implemented route transposition stage (spiral / boustrophedon / diagonal variants).
 - Added positional letter deviation metric for distribution balance.
-- Marked legacy `PipelineExecutor` deprecated; future work will migrate tests to unified `Pipeline`.
 
 ### 13. Performance & Optimization
 
