@@ -60,4 +60,13 @@ version/date. Items move to ARCHIVED_SCRIPTS.md after physical deletion.
 - [ ] ARCHIVED_SCRIPTS.md updated
 - [ ] CI workflows updated (no invocation of deprecated script)
 
-Last updated: 2025-10-24T01:02Z
+## K4 v1 Spine (2025-10-23)
+
+Following the k4-milestones branch work, the following legacy items are scheduled for deprecation:
+
+| Item | Type | Replacement | Target Removal | Notes |
+|------|------|-------------|----------------|-------|
+| scripts/tuning/pick_best_weight.py | Script | CLI `kryptos tuning pick-best` | 2025-11-15 | Superseded by CLI subcommand |
+| Broad exception catches in dev scripts | Pattern | Narrow IOError/OSError/ValueError | Ongoing | Code quality improvement |
+
+Last updated: 2025-10-23T20:00Z

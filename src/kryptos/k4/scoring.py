@@ -99,8 +99,8 @@ else:
 CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
 WORDLIST: set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
 
-# Cache for promoted cribs with mtime tracking
-_promoted_cribs_cache: tuple[float, set[str]] | None = None
+# Cache for promoted cribs with mtime tracking (mtime, cribs_set)
+_promoted_cribs_cache: dict[str, tuple[float, set[str]]] = {}
 
 # Berlin Clock pattern reference words (stub for pattern validator)
 BERLIN_CLOCK_TERMS = {'BERLIN', 'CLOCK'}
@@ -208,18 +208,19 @@ def quadgram_score(text: str) -> float:
 
 def _get_all_cribs() -> list[str]:
     """Get combined list of config cribs + promoted cribs (with mtime cache)."""
-    global _promoted_cribs_cache
     from kryptos.spy.crib_store import PROMOTED_CRIBS_PATH, load_promoted_cribs
 
     all_cribs = list(CRIBS)  # Start with config cribs
     # Check if promoted cribs file exists and load with caching
     if PROMOTED_CRIBS_PATH.exists():
         mtime = PROMOTED_CRIBS_PATH.stat().st_mtime
-        if _promoted_cribs_cache is None or _promoted_cribs_cache[0] != mtime:
+        cache_key = "promoted"
+        cached = _promoted_cribs_cache.get(cache_key)
+        if cached is None or cached[0] != mtime:
             promoted = load_promoted_cribs()
-            _promoted_cribs_cache = (mtime, promoted)
+            _promoted_cribs_cache[cache_key] = (mtime, promoted)
         else:
-            promoted = _promoted_cribs_cache[1]
+            promoted = cached[1]
         # Add promoted cribs that aren't already in config
         config_set = set(CRIBS)
         all_cribs.extend([c for c in promoted if c not in config_set])

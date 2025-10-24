@@ -113,7 +113,7 @@ Fold or delete `compare_crib_integration.py` (merge into summarize-run/report). 
 into `examples/` canonical package path. 6. Add `tuning-report` CLI subcommand wrapping report utilities. 7. Profile
 positional letter deviation weight and document calibration results.
 
-Updated: 2025-10-24T00:45Z (migrated run_k4_demo.py & run_autopilot_demo.py to kryptos.examples.*)
+Updated: 2025-10-23T20:00Z (K4 v1 Spine: hypothesis protocol + dynamic crib promotion + autopilot crib hook)
 
 Change Log Addendum:
 
