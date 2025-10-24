@@ -14,7 +14,7 @@ import sys
 import textwrap
 from pathlib import Path
 
-MAX_WIDTH = 100
+MAX_WIDTH = 120  # align with markdownlint configured line length
 
 
 def should_skip_line(line: str) -> bool:

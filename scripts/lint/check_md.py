@@ -1,9 +1,12 @@
 """Small markdown checker for common style issues.
 
-Rules:
-- No leading-space list markers (lines starting with ' - ' or ' * ')
-- No trailing whitespace
-- Max line length 120
+Rules enforced (lightweight superseding markdownlint baseline):
+- No trailing whitespace.
+- Max line length (default 120) outside code fences / tables / URLs.
+- Disallow list markers with a leading space before bullet (" - ", " * ").
+
+Explicitly ALLOW fenced code blocks (MD046 style=fenced in .markdownlint.json).
+We DO NOT enforce indented code style.
 
 Run from repo root.
 """
@@ -16,12 +19,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MD_PATHS = [ROOT / 'docs', ROOT / 'README.md']
 IGNORED_DIRS = [ROOT / 'docs' / 'sources']
+CONFIG_FILE = ROOT / '.markdownlint.json'
 
-errs = 0
+MAX_LINE = 120
+if CONFIG_FILE.exists():
+    try:
+        import json
+
+        cfg = json.loads(CONFIG_FILE.read_text(encoding='utf-8'))
+        md013 = cfg.get('MD013') or {}
+        MAX_LINE = int(md013.get('line_length', MAX_LINE))
+    except Exception:  # pragma: no cover - config parse failures fall back silently
+        MAX_LINE = 120
 
 
 def check_file(path: Path) -> int:
-    global errs
+    errs_local = 0
     in_code = False
     with path.open(encoding='utf-8') as fh:
         for i, ln in enumerate(fh, start=1):
@@ -33,21 +46,20 @@ def check_file(path: Path) -> int:
                 continue
             if in_code:
                 continue
-            # skip obvious non-paragraph lines: URLs, tables
             if 'http://' in line or 'https://' in line:
                 continue
             if '|' in line and not line.strip().startswith('|-'):
                 continue
             if line.endswith(' '):
                 print(f"{path}:{i}: trailing whitespace")
-                errs += 1
-            if len(line) > 120:
+                errs_local += 1
+            if len(line) > MAX_LINE:
                 print(f"{path}:{i}: line too long ({len(line)})")
-                errs += 1
+                errs_local += 1
             if line.startswith(' - ') or line.startswith(' * '):
                 print(f"{path}:{i}: leading-space list marker")
-                errs += 1
-    return 0
+                errs_local += 1
+    return errs_local
 
 
 def iter_md_files():
@@ -63,10 +75,11 @@ def iter_md_files():
 
 
 def main():
+    total = 0
     for f in iter_md_files():
-        check_file(f)
-    if errs:
-        print(f"Found {errs} markdown issues")
+        total += check_file(f)
+    if total:
+        print(f"Found {total} markdown issues")
         sys.exit(2)
     print("No markdown issues detected")
     return 0

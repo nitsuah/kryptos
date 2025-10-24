@@ -2,18 +2,17 @@
 
 Breadcrumb: Overview > Core > Detailed Reference
 
-This file contains the detailed project overview, features, modules, and quick-start examples for
-the KRYPTOS project. The top-level `README.md` is intentionally concise — use this document for in-
-depth reference.
+This file contains the detailed project overview, features, modules, and quick-start examples for the KRYPTOS project.
+The top-level `README.md` is intentionally concise — use this document for in- depth reference.
 
 ## TL;DR
 
-K4 is the unsolved section of the Kryptos sculpture. This repository contains a toolkit to explore
-layered cipher hypotheses (Hill, transposition, masking, Berlin Clock shift hypotheses) and a
-configurable pipeline to score and rank candidate plaintexts.
+K4 is the unsolved section of the Kryptos sculpture. This repository contains a toolkit to explore layered cipher
+hypotheses (Hill, transposition, masking, Berlin Clock shift hypotheses) and a configurable pipeline to score and rank
+candidate plaintexts.
 
-This repository contains code, tests, data, and documentation to run and extend experiments.
-K4-specific strategy and deep technical notes live under `docs/K4_STRATEGY.md`.
+This repository contains code, tests, data, and documentation to run and extend experiments. K4-specific strategy and
+deep technical notes live under `docs/K4_STRATEGY.md`.
 
 ### Quick links
 
@@ -35,32 +34,15 @@ Related documents / breadcrumbs:
 
 ### Highlights
 
-- Modular pipeline for multi-stage hypothesis testing (pipeline, composite runners)
-- Scoring utilities (n-grams, chi-square, crib/positional bonuses, entropy metrics)
-- Attempt logging and reproducible artifacts (CSV/JSON output under `artifacts/k4_runs/` for K4
 pipeline runs)
-- Tuning harness and a minimal daemon runner for automated sweeps
 
 ## Current Progress (Snapshot)
 
-- K1–K3: unified decrypt helpers (`kryptos.k1.decrypt`, etc.) + sections mapping.
-- K4: multi-stage pipeline (hill, transposition, masking, Berlin Clock) with adaptive gating &
-scoring.
-- Tuning: pure functions under `kryptos.k4.tuning` (`run_crib_weight_sweep`, `tiny_param_sweep`,
-`pick_best_weight_from_rows`, artifact utilities) and tests.
-- CLI: subcommands (sections, k4-decrypt, k4-attempts, tuning-crib-weight-sweep, tuning-pick-best,
-tuning-summarize-run, tuning-tiny-param-sweep, tuning-holdout-score, tuning-report, spy-eval, spy-
-extract).
-- Artifact utilities: consolidated under `kryptos.k4.tuning.artifacts` replacing legacy summarizer
-scripts.
+scoring. `pick_best_weight_from_rows`, artifact utilities) and tests. tuning-summarize-run, tuning- tiny-param-sweep,
+tuning-holdout-score, tuning-report, spy-eval, spy- extract). scripts.
 
 ## Features (summary)
 
-- Hill cipher solving (2x2, 3x3) with pruning and crib support
-- Columnar & route transposition search, including multi-crib positional anchoring
-- Masking/null removal stage and Berlin Clock shift hypotheses
-- Composite pipeline orchestration, attempt logging, and CSV/JSON artifacts
-- Scoring utilities: n-grams, chi-square, crib & positional bonuses, entropy and wordlist heuristics
     - Positional letter deviation metric (periodic bucket chi-square -> normalized) rewarding
         balanced per-position distributions (mitigates false positives from structured transpositions)
 - Tuning harness and a minimal daemon runner for long-running sweeps (`scripts/daemon_runner.py`)
@@ -120,8 +102,7 @@ kryptos sections
 kryptos k4-decrypt --cipher data/k4_cipher.txt --limit 40 --adaptive --report
 ```
 
-Writes artifacts (candidates, attempts) when `--report` is used; prints JSON (plaintext, score,
-lineage).
+Writes artifacts (candidates, attempts) when `--report` is used; prints JSON (plaintext, score, lineage).
 
 ### Attempt Log Flush
 
@@ -137,8 +118,7 @@ Persist in-memory attempt logs to `artifacts/attempts_<label>_<timestamp>.json`.
 kryptos tuning-crib-weight-sweep --weights 0.25,0.5,1.0,1.5 --cribs BERLIN,CLOCK --samples data/holdout_samples.txt --json
 ```
 
-Outputs per-weight delta rows (baseline vs with-crib scoring). Omit `--json` for human-readable
-lines.
+Outputs per-weight delta rows (baseline vs with-crib scoring). Omit `--json` for human-readable lines.
 
 ### Pick Best Weight
 
@@ -214,8 +194,8 @@ write_condensed_report, write_top_candidates_markdown`
 
 ### Generating Condensed & Top Candidate Reports
 
-After running a tuning sweep (e.g. `tuning-crib-weight-sweep` followed by `tuning-pick-best` /
-`tuning-summarize-run`) you can produce normalized summary artifacts:
+After running a tuning sweep (e.g. `tuning-crib-weight-sweep` followed by `tuning-pick-best` / `tuning-summarize-run`)
+you can produce normalized summary artifacts:
 
 ```python
 from pathlib import Path
@@ -232,11 +212,11 @@ md_path = write_top_candidates_markdown(run_dir, limit=7)
 print("Top candidates markdown:", md_path)
 ```
 
-Optional enrichment: if a learned SPY phrases file exists (e.g. `agents/LEARNED.md`) matching
-phrases will be annotated inline in the markdown output.
+Optional enrichment: if a learned SPY phrases file exists (e.g. `agents/LEARNED.md`) matching phrases will be annotated
+inline in the markdown output.
 
-CLI integration candidate (future): a `tuning-report` subcommand could wrap both calls. For now
-prefer the direct Python API for batching inside notebooks or scripts.
+CLI integration candidate (future): a `tuning-report` subcommand could wrap both calls. For now prefer the direct Python
+API for batching inside notebooks or scripts.
 
 Example weight sweep:
 
@@ -249,21 +229,19 @@ for r in rows:
     print(r.weight, r.score_delta)
 ```
 
-Legacy wrapper scripts have been removed; all functionality now lives in the CLI subcommands and
-direct APIs under `kryptos.k4.tuning.*` and `kryptos.spy` (extraction & phrase aggregation).
+Legacy wrapper scripts have been removed; all functionality now lives in the CLI subcommands and direct APIs under
+`kryptos.k4.tuning.*` and `kryptos.spy` (extraction & phrase aggregation).
 
 ### Positional Letter Deviation Metric
 
 Added in October 2025 to improve ranking stability.
 
-Rationale: Plain English tends not to cluster common letters in fixed periodic positions. After
-certain transposition or masking operations, artificial patterns emerge (e.g., vowels
-disproportionately in one column modulo period). The positional metric partitions text into `period`
-buckets by index modulo period (default 5) and computes a chi-square divergence per bucket against
-English letter frequencies. Each bucket contributes `1/(1+chi)`; the final score is the mean across
-non-empty buckets, yielding a value in [0,1]. A higher score indicates more even positional
-distribution. The extended combined score applies a modest weight so n-gram statistics remain
-primary.
+Rationale: Plain English tends not to cluster common letters in fixed periodic positions. After certain transposition or
+masking operations, artificial patterns emerge (e.g., vowels disproportionately in one column modulo period). The
+positional metric partitions text into `period` buckets by index modulo period (default 5) and computes a chi-square
+divergence per bucket against English letter frequencies. Each bucket contributes `1/(1+chi)`; the final score is the
+mean across non-empty buckets, yielding a value in [0,1]. A higher score indicates more even positional distribution.
+The extended combined score applies a modest weight so n-gram statistics remain primary.
 
 Usage:
 
