@@ -22,7 +22,8 @@ jobs:
           pip install pytest
           # install the package in editable mode so package imports resolve
           pip install -e .
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$PWD/src:$PYTHONPATH" >> $GITHUB_ENV
+      - name: Verify package installation
+        run: |
+          python -c "from kryptos.agents import OpsAgent, QAgent, SpyAgent; print('✓ Agents imported successfully')"
       - name: Run tests
         run: pytest -q
