@@ -8,6 +8,7 @@ tests/__pycache__/
 # Ignore distribution/build artifacts
 build/
 dist/
+dist_test/
 *.egg-info/
 # Virtual environments
 .venv/
@@ -38,4 +39,4 @@ MANIFEST
 /data/*.generated
 reports/
 artifacts/
-agents/
+/agents/

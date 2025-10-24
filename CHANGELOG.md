@@ -7,13 +7,18 @@
 * Composite pipeline stage timing (`stage_durations_ms`) instrumentation.
 * Provenance hash propagation (`provenance_hash`) into run profile and `DecryptResult.metadata`.
 * Rarity-weighted crib bonus (`scoring.rarity_weighted_crib_bonus`) and baseline stats integration.
-* Calibration harness (`kryptos.k4.calibration` + `scripts/tuning/run_rarity_calibration.py`).
+* Consolidated tuning CLI (`scripts/tuning.py`) - single tool replacing 5 separate scripts.
+* Consolidated markdown linting (`scripts/lint/mdlint.py`) - check + reflow in one tool.
+* Agent triumvirate fully implemented: SPY (pattern recognition), OPS (parallel orchestration), Q (statistical
+validation).
 
 ### Changed
 
 * Migrated legacy `src/k4/` package into unified `kryptos/k4/` namespace; updated imports, tests,
 docs.
 * Normalized artifact metadata structure (timings + provenance).
+* Consolidated configuration: flake8 rules moved to `pyproject.toml` (single source of truth).
+* Updated pre-commit hooks to use consolidated linting tools.
 
 ### Removed / Deprecated
 
@@ -22,6 +27,8 @@ docs.
 `clean_and_summarize_matches.py`, `summarize_crib_hits.py`, `run_pipeline_sample.py` (functionality migrated to package
 APIs & CLI subcommands).
 * Removed legacy executor (`PipelineExecutor`) and migrated tests to `Pipeline` & composite helpers.
+* Consolidated scripts: 5 tuning scripts → `tuning.py`, 5 lint scripts → `mdlint.py`, `.flake8` → `pyproject.toml`.
+* Massive documentation cleanup: 20→6 core docs (70% reduction), archive cleanup (11→2 files).
 
 ### Pending
 

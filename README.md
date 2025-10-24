@@ -79,14 +79,14 @@ be treated as structural artifacts when analyzing pattern continuity or construc
 - **K3 Double Rotational Transposition** implementation ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher))
 - **Config-driven** (`config/config.json`) for ciphertexts, keys, and parameters ([learn more](https://en.wikipedia.org/wiki/Configuration_file))
 - **Test Suite** validating K1–K3 solutions ([learn more](https://en.wikipedia.org/wiki/Unit_testing))
-- **Frequency, n-gram, and crib-based scoring utilities** ([learn more](https://en.wikipedia.org/wiki/Frequency_analysis), [n-grams](https://en.wikipedia.org/wiki/N-gram), [cribs](https://en.wikipedia.org/wiki/Crib_(cryptanalysis)))
+- **Frequency, n-gram, and crib-based scoring utilities** ([learn more](https://en.wikipedia.org/wiki/Frequency_analysis) | [n-grams](https://en.wikipedia.org/wiki/N-gram) | [cribs](https://en.wikipedia.org/wiki/Crib_(cryptanalysis)))
 - **Hill cipher (2x2 & 3x3)** encryption/decryption + key solving from crib segments ([learn more](https://en.wikipedia.org/wiki/Hill_cipher))
 - **3x3 Hill assembly variants & pruning** (row/col/diagonal constructions + partial score pruning) ([learn more](https://en.wikipedia.org/wiki/Hill_cipher))
 - **Constrained Hill key derivation** from `BERLIN` / `CLOCK` cribs (single & pairwise) with caching ([learn more](https://en.wikipedia.org/wiki/Crib_(cryptanalysis)))
 - **Modular pipeline architecture** (stage factories for all hypothesis families) ([learn more](https://en.wikipedia.org/wiki/Pipeline_(computing)))
 - **Columnar transposition** search (partial-score pruning) and crib-constrained inversion utilities ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher#Columnar_transposition))
 - **Multi-crib positional transposition stage** (anchors multiple cribs simultaneously) ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher))
-- **Adaptive transposition search** (`make_transposition_adaptive_stage`) with sampling + prefix caching heuristics ([learn more](https://en.wikipedia.org/wiki/Heuristic))
+- **Adaptive transposition search** (`make_transposition_adaptive_stage`) with sampling prefix caching heuristics ([learn more](https://en.wikipedia.org/wiki/Heuristic))
 - **Masking/null-removal stage** exploring structural padding elimination variants ([learn more](https://en.wikipedia.org/wiki/Null_cipher))
 - **Berlin Clock shift hypothesis** (full lamp state enumeration + dual-direction application) ([learn more](https://en.wikipedia.org/wiki/Mengenlehreuhr))
 - **Weighted multi-stage fusion utilities** (`normalize_scores`, `fuse_scores_weighted`) for score aggregation ([learn more](https://en.wikipedia.org/wiki/Ensemble_learning))
@@ -97,8 +97,8 @@ be treated as structural artifacts when analyzing pattern continuity or construc
 - **Transformation trace & lineage** (each candidate records stage + transformation chain) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
 - **Attempt logging & persistence** (Hill, Clock, Transposition permutations → timestamped JSON) ([learn more](https://en.wikipedia.org/wiki/Logging))
 - **Candidate reporting artifacts** (JSON + optional CSV summaries) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
-- **Adaptive fusion weighting** (optional `adaptive=True` in composite run) leveraging wordlist hit
-rate & trigram entropy heuristics.
+- **Adaptive fusion weighting** (optional `adaptive=True` in composite run) leveraging wordlist hit rate & trigram
+entropy heuristics
 
 ## K4 Analysis Toolkit (New / Updated Modules)
 
@@ -112,9 +112,7 @@ Details and module-level examples for K4 have been moved to `docs/K4_STRATEGY.md
 See `docs/TECHDEBT.md` for current prioritized work (sections unified, K4 composite decrypt, CLI & logging helpers
 upcoming) and `docs/K4_STRATEGY.md` for solver-specific exploration notes.
 
-## Recent changes
-
-## CLI Usage Examples (New)
+## CLI Usage Examples
 
 The `kryptos` CLI aggregates decryption, tuning, and SPY analysis workflows. Use `kryptos --help` to view all
 subcommands. Below are common end‑to‑end examples.
@@ -230,10 +228,14 @@ kryptos spy-extract --runs artifacts/tuning_runs --min-conf 0.25 > spy_tokens.js
 You now have: decrypt.json, sweep.json, holdout.json, spy_eval.json, spy_tokens.json summarizing the pipeline, tuning,
 and extraction outputs.
 
-- 2025-10-22: Added offline autopilot flow (Q/OPS/SPY), conservative SPY extractor with evaluation
-harness, demo smoke CI and packaging improvements. See `docs/AUTOPILOT.md` for details.
+## Recent Changes
 
-Autopilot (Q / OPS / SPY) summary
+- **2025-10-24**: Fixed CI failures by correcting `.gitignore` pattern - added agents source code (SPY, OPS, Q agents)
+that was previously blocked
+- **2025-10-22**: Added offline autopilot flow (Q/OPS/SPY), conservative SPY extractor with evaluation harness, demo
+smoke CI and packaging improvements. See `docs/AUTOPILOT.md` for details
+
+## Autopilot (Q / OPS / SPY) Summary
 
 The repository includes an offline autopilot flow (Q / OPS / SPY) to recommend and execute safe tuning and extraction
 steps. `ask_triumverate.py` implements a lightweight driver that can run a deterministic OPS tuning sweep and then
@@ -262,6 +264,8 @@ See `LICENSE`.
 
 - `docs/README_CORE.md` — project reference and examples
 - `docs/K4_STRATEGY.md` — K4-specific strategy and notes
+
+## Code Examples
 
 If you prefer to run an example pipeline, use the example script:
 
@@ -321,7 +325,7 @@ python scripts/dev/migrate_run_artifacts.py --dry-run
 python scripts/dev/migrate_run_artifacts.py
 ```
 
-If no legacy directories are present the script reports that there is nothing to move.
+If no legacy directories are present, the script reports that there is nothing to move.
 
 ## References & Research
 
