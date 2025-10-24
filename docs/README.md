@@ -1,114 +1,108 @@
 # Kryptos K4 Documentation
 
-**Quick Navigation for the Kryptos K4 Cryptanalysis Project**
+**Systematic cryptanalysis framework for solving Kryptos K4**
 
 ---
 
-## 📍 Start Here
+## 🎯 Quick Start
 
-### Core Documents
+**New to this project?** Read [K4_MASTER_PLAN.md](K4_MASTER_PLAN.md) for the complete strategy.
 
-- **[K4_MASTER_PLAN.md](K4_MASTER_PLAN.md)** ⭐
-  - Complete strategy, roadmap, and expansion plan
-  - Consolidated view of all hypotheses and priorities
-  - Read this first for big picture
+**Want to run a hypothesis?**
 
-- **[K4_PROGRESS_TRACKER.md](K4_PROGRESS_TRACKER.md)**
-  - Current status of all tested hypotheses
-  - Weak signals and eliminations
-  - Latest results and next actions
+```bash
+python scripts/run_hypothesis.py --list
+python scripts/run_hypothesis.py berlin_clock
+```
 
-- **[AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)**
-  - SPY/OPS/Q agent design
-  - LLM/NLP integration roadmap
-  - Technical architecture for autonomous search
-
-### Development
-
-- **[API_REFERENCE.md](API_REFERENCE.md)**
-  - Code documentation
-  - Module structure
-  - Function signatures
-
-- **[CHANGELOG.md](CHANGELOG.md)**
-  - Version history
-  - Recent changes
-  - Feature additions
-
-- **[TECHDEBT.md](TECHDEBT.md)**
-  - Known issues
-  - TODOs
-  - Improvement opportunities
-
-### Configuration & Operations
-
-- **[AUTOPILOT.md](AUTOPILOT.md)**
-  - Autonomous operation mode
-  - Agent coordination
-  - Execution strategies
-
-- **[MASTER_AGENT_PROMPT.md](MASTER_AGENT_PROMPT.md)**
-  - Agent instructions
-  - Decision criteria
-  - Response patterns
+**Check progress?** See test results in `artifacts/` or [CHANGELOG.md](CHANGELOG.md) for recent additions.
 
 ---
 
-## 📂 Additional Resources
+## 📚 Core Documentation (6 Files)
 
-### Specialized Docs
-
-- **[CONSOLIDATION_PLAN.md](CONSOLIDATION_PLAN.md)** - How we reduced code/doc bloat
-- **[EXPANSION_PLAN.md](EXPANSION_PLAN.md)** - Detailed 20-initiative roadmap
-- **[EXPERIMENTAL_TOOLING.md](EXPERIMENTAL_TOOLING.md)** - Experimental features
-- **[LOGGING.md](LOGGING.md)** - Logging configuration
-- **[PERF.md](PERF.md)** - Performance optimization notes
-- **[DEPRECATIONS.md](DEPRECATIONS.md)** - Deprecated features
-
-### Reference
-
-- **[10KFT.md](10KFT.md)** - High-level overview
-- **[INDEX.md](INDEX.md)** - Full file listing
-- **[ARCHIVED_SCRIPTS.md](ARCHIVED_SCRIPTS.md)** - Archived script documentation
-
-### Historical
-
-- **[archive/](archive/)** - Archived/superseded documents (reference only)
+1. **[README.md](README.md)** (this file) - Project overview and navigation 2.
+**[K4_MASTER_PLAN.md](K4_MASTER_PLAN.md)** - Complete strategy, roadmap, hypothesis testing plan 3.
+**[AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)** - SPY/OPS/Q agent design and implementation status 4.
+**[API_REFERENCE.md](API_REFERENCE.md)** - Python API documentation and CLI reference 5.
+**[CHANGELOG.md](CHANGELOG.md)** - Version history and recent changes 6. **[TECHDEBT.md](TECHDEBT.md)** - Known issues,
+cleanup status, improvement roadmap
 
 ---
 
-## 🎯 Quick Links by Task
+## 🏗️ Project Architecture (10,000ft View)
+
+### Directory Structure
+
+```text
+kryptos/
+├── src/kryptos/          # Core Python package
+│   ├── agents/           # SPY (implemented), OPS/Q (planned)
+│   ├── k4/               # K4-specific pipeline and scoring
+│   ├── examples/         # Demo scripts (moved from scripts/demo/)
+│   └── ...
+├── scripts/              # Consolidated utilities
+│   ├── run_hypothesis.py     # Unified hypothesis runner ✅
+│   ├── run_random_baseline.py
+│   ├── dev/              # Development tools (3 files)
+│   ├── tuning/           # Tuning harnesses
+│   └── lint/             # Code quality tools
+├── tests/                # Test suite (249 passing)
+├── artifacts/            # Generated outputs (searches, runs, reports)
+└── docs/                 # Documentation (cleaned: 20→6 files)
+```
+
+### Core Modules
+
+- `kryptos.k4.hypotheses` - Pluggable cipher testing framework
+- `kryptos.k4.scoring` - Statistical plaintext quality metrics
+- `kryptos.k4.pipeline` - Multi-stage decryption pipeline
+- `kryptos.agents.spy` - Pattern recognition agent (✅ implemented)
+- `kryptos.agents.ops` - Parallel execution orchestrator (⏳ planned)
+- `kryptos.agents.q` - Quality validation module (⏳ planned)
+
+### Key Scripts
+
+- `scripts/run_hypothesis.py` - Run any hypothesis by name (unified interface)
+- `scripts/tuning/crib_weight_sweep.py` - Optimize scoring weights
+- `scripts/dev/orchestrator.py` - Agent coordination harness
+
+---
+
+## 🔬 Current Status
+
+**Infrastructure:** ✅ Operational (249 tests passing) **Hypotheses Tested:** 9 (Hill 2x2, Vigenère, Playfair,
+Transposition, Substitution, Autokey, Four-square, Bifid, Berlin Clock)
+**Agents:** SPY ✅ | OPS ⏳ | Q ⏳
+**Lines of Code:** ~15,000 (down from ~20,000 after cleanup)
+
+**Recent Cleanup (Oct 2024):**
+
+- ✅ Deleted `scripts/experimental/` (100% bloat)
+- ✅ Cleaned `scripts/dev/` (8→3 files)
+- ✅ Moved `scripts/demo/` → `src/kryptos/examples/`
+- ✅ Docs consolidation (20→6 files, 70% reduction)
+
+---
+
+## 🎯 Task Reference
 
 **I want to...**
 
-- **Understand the project** → Start with [K4_MASTER_PLAN.md](K4_MASTER_PLAN.md)
-- **See current progress** → Check [K4_PROGRESS_TRACKER.md](K4_PROGRESS_TRACKER.md)
-- **Run a hypothesis test** → See `../scripts/run_hypothesis.py --help`
-- **Add a new hypothesis** → See [API_REFERENCE.md](API_REFERENCE.md) for Hypothesis protocol
-- **Understand agents** → Read [AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)
-- **Fix technical debt** → Review [TECHDEBT.md](TECHDEBT.md)
-- **Check recent changes** → See [CHANGELOG.md](CHANGELOG.md)
+- **Understand the strategy** → [K4_MASTER_PLAN.md](K4_MASTER_PLAN.md)
+- **Run a hypothesis test** → `python scripts/run_hypothesis.py --list`
+- **Add a new hypothesis** → See Hypothesis protocol in [API_REFERENCE.md](API_REFERENCE.md)
+- **Check agent status** → [AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)
+- **Review technical debt** → [TECHDEBT.md](TECHDEBT.md)
+- **See recent changes** → [CHANGELOG.md](CHANGELOG.md)
+- **Use the API** → [API_REFERENCE.md](API_REFERENCE.md)
 
 ---
 
-## 📊 Document Status
+## 📊 Historical Archive
 
-**Core (Always Current):**
-- K4_MASTER_PLAN.md - Updated with each sprint
-- K4_PROGRESS_TRACKER.md - Updated after each hypothesis test
-- AGENTS_ARCHITECTURE.md - Updated as agents evolve
-
-**Reference (Stable):**
-- API_REFERENCE.md - Updated with code changes
-- CHANGELOG.md - Updated with releases
-- TECHDEBT.md - Updated as issues identified
-
-**Operational (As Needed):**
-- AUTOPILOT.md - Updated as autopilot evolves
-- MASTER_AGENT_PROMPT.md - Updated as agent behavior changes
-
-**Archived (Historical):**
-- archive/ - No longer actively maintained, kept for reference
+**archive/** folder contains superseded plans, dated milestones, and historical decision logs. These are kept for
+provenance but not actively maintained.
 
 ---
 

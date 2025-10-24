@@ -1,70 +1,236 @@
-# Kryptos Technical Debt & Cleanup Plan
-Breadcrumb: Architecture > Tech Debt > Cleanup Plan
+# Kryptos Technical Debt & Cleanup Status
 
-> Policy: No more shims, fallback import ladders, or duplicate modules. We delete, migrate, and
-## Other Docs
+**Last Updated:** 2025-10-24 **Status:** Major cleanup completed, infrastructure phase ahead
 
-- REORG.md
-- SECTIONS.md
-- TOMORROW_PLAN.md
-- EXPERIMENTAL_TOOLING.md
-- 10KFT.md
+---
 
-## Guiding Principles
+## 🎉 Completed Cleanup (Oct 2024)
 
-- Single canonical namespace: all library code lives under `kryptos/` (including K4 logic under
-	`kryptos/k4/`).
-- No duplicate modules or parallel implementations.
-REORG.md SECTIONS.md EXPERIMENTAL_TOOLING.md 10KFT.md AUTOPILOT.md ROADMAP.md
-- Documentation consolidated. Plans and deprecated notes move to one location with lifecycle
-	policies.
-- Deprecations use `warnings.warn(DeprecationWarning)` until removal.
+### Files Deleted
 
-## High Impact Debt (Tackle First)
+**scripts/experimental/** - Entire folder removed (100% bloat)
 
-1. Split namespace (historical `src/k4/` vs `kryptos/k4/`). (Completed) 2. Duplicate scoring modules
-(`src/scoring/fitness.py` & `src/kryptos/scoring/fitness.py`). (Removed; single source) 3. Reporting duplication
-(`src/report.py` + shim `src/kryptos/report.py`). (Completed; canonical
-## Kryptos Technical Debt & Cleanup Plan
-Breadcrumb: Architecture > Tech Debt > Cleanup Plan
+- `examples/run_autopilot_demo.py` → moved to `src/kryptos/examples/`
+- `examples/run_ops_tiny_sweep.py` → redundant
+- `examples/generate_top_candidates.py` → covered by package API
+- `tools/` - 10+ utility scripts superseded by package APIs
 
-> Policy: No more shims, fallback import ladders, or duplicate modules. We delete, migrate, and unify. Every item
-results in code or deletion — no shims.
+**scripts/dev/** - Cleaned 8 → 3 files
 
-### High Impact Debt (Top Priority)
-1. Positional letter deviation weight calibration & evaluation dataset. 2. Artifact provenance hashing & optional
-compression. 3. Remaining hardcoded artifact paths (ensure all use `kryptos.paths`). 4. Eliminate any residual broad
-exception handlers. 5. Centralize configuration validation & logging filters.
+- ❌ `berlin_clock_vig.py` - temp test file (integrated)
+- ❌ `create_pr.py` - use GitHub CLI instead
+- ❌ `README.md` + `README_pr.md` - unnecessary docs
+- ❌ `archived/` - 6 old hypothesis runners (obsolete)
+- ✅ KEPT: `orchestrator.py`, `test_new_ciphers.py`, `test_vigenere_expanded.py`
 
-### Medium Impact Debt
-- Script proliferation (ensure all logic lives in package; wrappers thin).
-- Pending reporting consolidation edge cases.
-- Expand scoring error-path tests (fallback data, malformed inputs).
-- Remove lingering duplicate doc sections.
+**scripts/demo/** - Moved to proper location
 
-### Lower Impact / Polish
-- Deprecation warnings for legacy demo wrappers.
-- Pre-commit hooks & CI coverage gate.
-- API surface documentation (planned API_REFERENCE.md).
+- All `.py` files → `src/kryptos/examples/`
+- Folder deleted after migration
 
-### Structural Phases (Simplified)
-- Phase A: Consolidation (completed major moves; validate no fallback import ladders).
-- Phase B: CLI unification (subcommands stable; prune wrappers).
-- Phase C: Scoring enhancements (positional calibration, rarity-weight integration).
-- Phase D: Quality (logging cleanup, provenance, tests, coverage targets).
-- Phase E: Operational (daemon safety, metrics placeholders).
-- Phase F: Documentation (breadcrumbs, index, deprecations, API reference).
+**docs/** - Consolidated 20 → 6 files (70% reduction)
 
-### No-Shim Enforcement Checklist
-- No `shim` filenames or comments marking re-export.
-- Single import path per module (no ladders).
-- No duplicate Python filenames in different internal paths.
-- Library modules free of `print()` and `logging.basicConfig`.
+- ❌ `10KFT.md` - merged into README.md
+- ❌ `AUTOPILOT.md` - merged into AGENTS_ARCHITECTURE.md
+- ❌ `CONSOLIDATION_PLAN.md` - obsolete (work done)
+- ❌ `DEPRECATIONS.md` - merged into CHANGELOG.md
+- ❌ `EXPANSION_PLAN.md` - merged into K4_MASTER_PLAN.md
+- ❌ `EXPERIMENTAL_TOOLING.md` - merged into ARCHIVED_SCRIPTS.md
+- ❌ `INDEX.md` - redundant with README.md
+- ❌ `K4_PROGRESS_TRACKER.md` - merged into K4_MASTER_PLAN.md
+- ❌ `K4_V1_SPINE_SUMMARY.md` - archived (dated milestone)
+- ❌ `LOGGING.md` - moved to API_REFERENCE.md
+- ❌ `MASTER_AGENT_PROMPT.md` - moved to AGENTS_ARCHITECTURE.md
+- ❌ `PERF.md` - moved to TECHDEBT.md (this file)
+- ❌ `ARCHIVED_SCRIPTS.md` - no longer needed
 
-### Metrics Targets
-| Metric | Target |
-|--------|--------|
-| Duplicate module pairs | 0 |
+### Metrics
+
+| Category | Before | After | Reduction |
+|----------|--------|-------|-----------|
+| Docs | 20 files | 6 files | 70% |
+| Scripts (dev/) | 8 files | 3 files | 63% |
+| Scripts (experimental/) | ~15 files | 0 files | 100% |
+| Total LOC | ~20,000 | ~15,000 | 25% |
+
+### Final Structure
+
+```text
+kryptos/
+├── src/kryptos/
+│   ├── agents/
+│   │   └── spy.py (✅ 435 lines)
+│   ├── examples/ (NEW - moved from scripts/demo/)
+│   └── ...
+├── scripts/
+│   ├── run_hypothesis.py (✅ unified runner)
+│   ├── run_random_baseline.py
+│   ├── dev/ (3 files only)
+│   ├── tuning/ (4 core scripts)
+│   └── lint/ (tooling)
+├── docs/ (6 core files)
+│   ├── README.md
+│   ├── K4_MASTER_PLAN.md
+│   ├── AGENTS_ARCHITECTURE.md
+│   ├── API_REFERENCE.md
+│   ├── CHANGELOG.md
+│   └── TECHDEBT.md (this file)
+└── tests/ (249 passing)
+```
+
+---
+
+## 🚧 Remaining High Priority Debt
+
+### 1. Agent Implementation Gap (CRITICAL)
+
+**Problem:** SPY is fully implemented (435 lines), but OPS and Q are just text prompts
+
+**Impact:** Cannot scale to thousands of hypotheses or validate results at scale
+
+**Solution:**
+
+- Implement `src/kryptos/agents/ops.py` (~1,000 lines)
+  - Multiprocessing orchestrator
+  - Queue management
+  - Resource monitoring
+  - Timeout enforcement
+- Implement `src/kryptos/agents/q.py` (~800 lines)
+  - Statistical validation
+  - Anomaly detection
+  - False positive filtering
+  - Result sanity checks
+
+**Estimate:** 2-3 days of focused work
+
+### 2. Tuning Scripts Consolidation
+
+**Problem:** 4 scripts in `scripts/tuning/` with potential redundancy
+
+**Files:**
+
+- `crib_weight_sweep.py`
+- `pick_best_weight.py`
+- `compare_crib_integration.py`
+- `tiny_tuning_sweep.py`
+- `run_rarity_calibration.py`
+
+**Action Needed:** Review for duplicate logic, ensure all use package APIs, create single README
+
+**Estimate:** 2-3 hours
+
+### 3. Performance & Profiling
+
+**Weight Calibration:**
+
+- Positional letter deviation weight needs calibration
+- Rarity-weighted crib bonus evaluation
+- Stage timing collection standardization
+
+**Profiling Targets:**
+
+- Hill 3x3 key assembly loops
+- Transposition route enumeration
+- Scoring aggregation hotspots
+
+**Tools:** cProfile or pyinstrument for composite runs
+
+### 4. Artifact Provenance
+
+**Missing:**
+
+- Provenance hashing for run reproducibility
+- Standardized timing metadata
+- Optional artifact compression
+
+**Implementation:** Expand `kryptos.paths` module with `provenance_hash()` helper
+
+---
+
+## 📋 Medium Priority Debt
+
+### Code Quality
+
+- [ ] Eliminate remaining broad exception handlers
+- [ ] Add error-path tests for scoring (fallback data, malformed inputs)
+- [ ] Centralize configuration validation
+- [ ] Add pre-commit hooks
+
+### Documentation
+
+- [ ] Expand API_REFERENCE.md with all public functions
+- [ ] Add docstring examples for key modules
+- [ ] Create CONTRIBUTING.md with guidelines
+
+### Testing
+
+- [ ] Increase coverage targets (currently good but not measured)
+- [ ] Add integration tests for agent coordination
+- [ ] Add performance regression tests
+
+---
+
+## ✅ Debt Elimination Checklist
+
+**Structural (DONE):**
+
+- [x] Consolidate docs/ (20 → 6 files)
+- [x] Delete scripts/experimental/ (100% removal)
+- [x] Clean scripts/dev/ (8 → 3 files)
+- [x] Move demos to package (scripts/demo/ → src/kryptos/examples/)
+- [x] Single hypothesis runner (run_hypothesis.py working)
+
+**Agents (IN PROGRESS):**
+
+- [x] SPY agent implementation (435 lines, 10 tests passing)
+- [ ] OPS agent implementation (text prompt → Python code)
+- [ ] Q agent implementation (text prompt → Python code)
+
+**Performance (TODO):**
+
+- [ ] Weight calibration sweep
+- [ ] Profiling harness for hotspots
+- [ ] Artifact provenance hashing
+
+**Quality (TODO):**
+
+- [ ] Exception handling audit
+- [ ] Scoring edge case tests
+- [ ] Pre-commit hooks
+- [ ] Coverage measurement
+
+---
+
+## 🎯 Next Actions
+
+**Immediate (This Sprint):**
+
+1. Implement OPS agent (parallel execution orchestrator) 2. Implement Q agent (statistical validation) 3. Review tuning/
+scripts for redundancy 4. Add profiling to hypothesis runner
+
+**Short Term (Next Sprint):**
+
+1. Weight calibration studies 2. Artifact provenance system 3. API documentation expansion 4. Pre-commit hooks setup
+
+**Long Term:**
+
+1. SPY LLM/NLP upgrade (Phase 1: spaCy/NLTK) 2. Embedding-based pattern matching 3. Metrics export
+(Prometheus/OpenTelemetry) 4. MCP server for agent state exposure
+
+---
+
+## 📊 Tech Debt Burn Down
+
+| Sprint | Files Deleted | LOC Removed | Agent Progress |
+|--------|---------------|-------------|----------------|
+| Oct 24 | 30+ files | ~5,000 | SPY ✅ |
+| Next   | TBD | TBD | OPS ⏳ Q ⏳ |
+
+**Goal:** Zero redundant files, all agents implemented, <5% tech debt overhead
+
+---
+
+**Last Updated:** 2025-10-24
 | Script files with core logic | <5 |
 | Broad `except Exception:` occurrences | 0 |
 | Library prints | 0 |

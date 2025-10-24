@@ -25,6 +25,7 @@ intervention.
 **Status:** ✅ Implemented (`src/kryptos/agents/spy.py`, 10 tests passing)
 
 **Capabilities:**
+
 - Repeating substring detection (may indicate period)
 - Palindrome finding (symmetric patterns)
 - Crib matching (BERLIN, CLOCK, KRYPTOS)
@@ -37,6 +38,7 @@ intervention.
 - Pattern quality scoring
 
 **Example Usage:**
+
 ```python
 from kryptos.agents.spy import SpyAgent, spy_report
 
@@ -53,6 +55,7 @@ print(spy_report(plaintext))  # Human-readable report
 **Goal:** Transform SPY from regex-based to AI-powered pattern recognition
 
 **Phase 1: Classic NLP (No LLM API required)**
+
 - **spaCy** for proper tokenization, POS tagging, dependency parsing
   - Detect real word boundaries (not just substring matches)
   - Identify grammatical structures (noun phrases, verb phrases)
@@ -69,6 +72,7 @@ print(spy_report(plaintext))  # Human-readable report
   - Match stress patterns
 
 **Phase 2: Transformer Embeddings (Local, no API)**
+
 - **sentence-transformers** (`all-MiniLM-L6-v2` or similar)
   - Compute embeddings for candidate plaintexts
   - Cluster similar candidates (may indicate partial decryption families)
@@ -80,6 +84,7 @@ print(spy_report(plaintext))  # Human-readable report
   - May reveal composite cipher structures
 
 **Phase 3: LLM Integration (Optional, API-based)**
+
 - **OpenAI GPT-4 / Anthropic Claude API** for high-confidence candidates
   - Prompt: "Analyze this potential decryption: {plaintext}. Does it look like English? What patterns do you see? Rate
     confidence 0-100."
@@ -92,7 +97,8 @@ print(spy_report(plaintext))  # Human-readable report
   - Estimate: ~$0.01-0.10 per full hypothesis batch
 
 - **Prompt Engineering**
-  ```
+
+  ```text
   You are an expert cryptanalyst analyzing a potential plaintext decryption
   of the Kryptos K4 sculpture cipher. Known clues: BERLIN, CLOCK.
 
@@ -163,6 +169,7 @@ class SpyAgentNLP(SpyAgent):
 ```
 
 **Dependencies to add:**
+
 ```toml
 # pyproject.toml
 [tool.poetry.dependencies]
@@ -184,6 +191,7 @@ llm = ["openai", "anthropic"]  # Install with: poetry install -E llm
 **Status:** 📋 Planned (not yet implemented)
 
 **Responsibilities:**
+
 - Hypothesis queue management (priority-based)
 - Parallel execution (multiprocessing)
 - Resource monitoring (CPU, memory, disk)
@@ -260,6 +268,7 @@ class OpsAgent:
 ```
 
 **Integration with existing scripts:**
+
 ```python
 # scripts/run_all_hypotheses.py
 
@@ -290,6 +299,7 @@ print(f"Best score: {max(r.best_score for r in results)}")
 **Status:** 📋 Planned (not yet implemented)
 
 **Responsibilities:**
+
 - Sanity test validation (positive controls)
 - Statistical significance testing (t-test, chi-square, KS test)
 - Artifact detection (scoring biases, edge cases)
@@ -427,17 +437,20 @@ generate_master_report(validated_results)
 ## 📊 Metrics & Monitoring
 
 **OPS tracks:**
+
 - Hypotheses per hour
 - CPU/memory utilization
 - Success/failure rates
 - Average execution time
 
 **Q tracks:**
+
 - Validation pass rate
 - Anomaly detection rate
 - False positive filtering
 
 **SPY tracks:**
+
 - Patterns detected per candidate
 - Crib match rate
 - High-confidence insight frequency
@@ -456,21 +469,25 @@ generate_master_report(validated_results)
 ## 💡 Why This Architecture?
 
 **Separation of concerns:**
+
 - SPY = Domain expertise (linguistics, patterns)
 - OPS = Infrastructure (execution, resources)
 - Q = Rigor (validation, statistics)
 
 **Modularity:**
+
 - Each agent works standalone
 - Optional LLM integration (not required)
 - Gradual enhancement path
 
 **Testability:**
+
 - 249 tests and growing
 - Each agent independently validated
 - Integration tests for full workflow
 
 **Less is More:**
+
 - No bloated monolithic framework
 - Simple Python classes with clear APIs
 - Easy to understand and extend
