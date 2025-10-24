@@ -206,22 +206,31 @@ class SimpleSubstitutionHypothesis:
 class VigenereHypothesis:
     """Vigenère cipher hypothesis with frequency analysis key recovery.
 
-    Tests periodic substitution with key lengths 1-20.
+    Tests periodic substitution with configurable key lengths.
     For each length, uses frequency analysis to find likely keys.
+    Also tests explicit keyword candidates (BERLIN, CLOCK, KRYPTOS).
     Classical cipher era-appropriate for Sanborn's 1990 sculpture.
     """
 
-    def __init__(self, min_key_length: int = 1, max_key_length: int = 20, keys_per_length: int = 10):
+    def __init__(
+        self,
+        min_key_length: int = 1,
+        max_key_length: int = 20,
+        keys_per_length: int = 10,
+        explicit_keywords: list[str] | None = None,
+    ):
         """Initialize Vigenère hypothesis.
 
         Args:
             min_key_length: Minimum key length to test (default: 1)
             max_key_length: Maximum key length to test (default: 20)
             keys_per_length: Number of best keys to test per length (default: 10)
+            explicit_keywords: Specific keywords to test (e.g., BERLIN, CLOCK)
         """
         self.min_key_length = min_key_length
         self.max_key_length = max_key_length
         self.keys_per_length = keys_per_length
+        self.explicit_keywords = explicit_keywords or []
 
     def _vigenere_decrypt(self, ciphertext: str, key: str) -> str:
         """Decrypt text with Vigenère cipher."""
@@ -327,11 +336,32 @@ class VigenereHypothesis:
         return keys[: self.keys_per_length]
 
     def generate_candidates(self, ciphertext: str, limit: int = 10) -> list[Candidate]:
-        """Generate candidates by Vigenère frequency analysis."""
+        """Generate candidates by Vigenère frequency analysis and explicit keywords."""
         from .scoring import combined_plaintext_score
 
         candidates_list = []
 
+        # Test explicit keywords first
+        for keyword in self.explicit_keywords:
+            keyword_upper = keyword.upper()
+            plaintext = self._vigenere_decrypt(ciphertext, keyword_upper)
+            score = combined_plaintext_score(plaintext)
+
+            candidates_list.append(
+                Candidate(
+                    id=f"vigenere_keyword_{keyword_upper}",
+                    plaintext=plaintext,
+                    key_info={
+                        'type': 'vigenere',
+                        'key': keyword_upper,
+                        'key_length': len(keyword_upper),
+                        'explicit': True,
+                    },
+                    score=score,
+                ),
+            )
+
+        # Frequency analysis for each key length
         for key_length in range(self.min_key_length, self.max_key_length + 1):
             # Find best keys for this length
             keys = self._find_best_keys_for_length(ciphertext, key_length)
@@ -345,7 +375,7 @@ class VigenereHypothesis:
                     Candidate(
                         id=f"vigenere_len{key_length}_{key}",
                         plaintext=plaintext,
-                        key_info={'type': 'vigenere', 'key': key, 'key_length': key_length},
+                        key_info={'type': 'vigenere', 'key': key, 'key_length': key_length, 'explicit': False},
                         score=score,
                     ),
                 )

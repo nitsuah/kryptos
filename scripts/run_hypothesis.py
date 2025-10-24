@@ -29,8 +29,13 @@ HYPOTHESES = {
     },
     'vigenere': {
         'class': VigenereHypothesis,
-        'params': {'min_key_length': 1, 'max_key_length': 20, 'keys_per_length': 10},
-        'description': 'Vigenère cipher with frequency analysis',
+        'params': {
+            'min_key_length': 1,
+            'max_key_length': 30,
+            'keys_per_length': 50,
+            'explicit_keywords': ['BERLIN', 'CLOCK', 'KRYPTOS', 'ABSCISSA', 'PALIMPSEST'],
+        },
+        'description': 'Vigenère cipher with frequency analysis + explicit keywords',
     },
     'playfair': {
         'class': PlayfairHypothesis,
