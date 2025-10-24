@@ -45,7 +45,8 @@ limit. Focus on:
 ## Next Steps
 
 1. Implement timing wrapper utility. 2. Add provenance hash computation helper
-(`kryptos.paths.provenance_hash`). 3. Run initial positional weight sweep and record results. 4. Add
-CLI flag `--profile` to emit profiling stats JSON.
+(`kryptos.paths.provenance_hash`). 3. Run initial positional weight sweep and record results
+(`scripts/tuning/run_rarity_calibration.py`). 4. Add CLI flag `--profile` to emit profiling stats
+JSON.
 
 Updated: 2025-10-23T23:59Z

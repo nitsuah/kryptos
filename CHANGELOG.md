@@ -7,6 +7,7 @@
 * Composite pipeline stage timing (`stage_durations_ms`) instrumentation.
 * Provenance hash propagation (`provenance_hash`) into run profile and `DecryptResult.metadata`.
 * Rarity-weighted crib bonus (`scoring.rarity_weighted_crib_bonus`) and baseline stats integration.
+* Calibration harness (`kryptos.k4.calibration` + `scripts/tuning/run_rarity_calibration.py`).
 
 ### Changed
 

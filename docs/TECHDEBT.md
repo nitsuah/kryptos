@@ -33,24 +33,26 @@ hashing & compression option (new) — ensure reproducibility & storage efficien
 root/artifact paths sprinkled in scripts. (Pending; standardize via helper) 8. Build artifacts
 (`kryptos.egg-info/`) residing under `src/`. (Pending) 9. Cryptographic stub / legacy helpers
 without roadmap (evaluate `transposition_decrypt`). (Pending decision)
+
 ## Medium Impact Debt
 
 - Script proliferation (daemon variants, tuning scripts with near-identical logic).
 - Spy extractor logic living only in script form. (Resolved: migrated to `kryptos.spy.*`)
 - Multiple pipeline sample / demo wrappers.
-- Unimplemented scoring TODOs (positional crib weighting, partial matches, external ngram + crib
-	supply).
+- Unimplemented scoring TODOs (positional crib weighting, partial matches, external ngram +
+cribsupply).
 - Print statements in package code (e.g. tuning evaluation output).
 - Central logging helper absent (plan: introduce `kryptos.logging.setup()` and replace prints).
 (New)
 - Removed legacy duplicate dirs (previous `src/k4/`, `src/scoring/`, `src/stages/`, stray
 `kryptos/stages/`).
+
 ## Lower Impact / Polish
 
 - Deprecated inline comments vs formal deprecation warnings.
-	`holdout_score.py`, `k3_double_rotation.py`). Post-processing scripts (`summarize_crib_hits.py`,
-	`clean_and_summarize_matches.py`) migrated into `kryptos.k4.tuning.artifacts` (schedule removal of
-	legacy wrappers after deprecation window).
+- `holdout_score.py`, `k3_double_rotation.py`). Post-processing scripts (`summarize_crib_hits.py`
+- `clean_and_summarize_matches.py`) migrated into `kryptos.k4.tuning.artifacts` (schedule removal of
+legacy wrappers after deprecation window).
 - Missing centralized logging setup helper.
 - Demo runner legacy path (`scripts/demo/run_k4_demo.py`) pending migration to examples + CLI doc.
 (New)
