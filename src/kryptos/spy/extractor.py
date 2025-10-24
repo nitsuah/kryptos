@@ -69,7 +69,7 @@ def scan_run(run_dir: Path, cribs: set[str]) -> list[SpyMatch]:
                 sample = row.get('sample', '')
                 try:
                     delta = float(row.get('delta', '0'))
-                except Exception:
+                except (TypeError, ValueError):
                     delta = 0.0
                 if delta <= 0:
                     continue

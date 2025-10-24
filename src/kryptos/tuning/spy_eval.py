@@ -25,18 +25,19 @@ def load_labels(path: Path) -> dict[str, set[str]]:
 
 
 def select_best_threshold(labels_p: Path, runs_root_p: Path, thresholds: list[float] | None = None) -> float:
-    res = evaluate(labels_p, runs_root_p, thresholds=thresholds)
-    if not res:
+    eval_map = evaluate(labels_p, runs_root_p, thresholds=thresholds)
+    if not eval_map:
         return 0.0
-    best_th = 0.0
-    best_prec = -1.0
-    best_f1 = -1.0
-    for t_h, (prec_v, _rec_v, f1_v) in res.items():
-        if prec_v > best_prec or (prec_v == best_prec and f1_v > best_f1):
-            best_prec = prec_v
-            best_f1 = f1_v
-            best_th = t_h
-    return float(best_th)
+    chosen_th = 0.0
+    best_precision = -1.0
+    best_f1_local = -1.0
+    for th_val, triple in eval_map.items():
+        precision_val, _rec_val, f1_val = triple
+        if precision_val > best_precision or (precision_val == best_precision and f1_val > best_f1_local):
+            best_precision = precision_val
+            best_f1_local = f1_val
+            chosen_th = th_val
+    return float(chosen_th)
 
 
 def run_extractor_on_run(run_dir: Path, min_conf: float = 0.0) -> set[str]:
@@ -79,15 +80,17 @@ def evaluate(
             tp += len(preds & true)
             fp += len(preds - true)
             fn += len(true - preds)
-        prec_v = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-        rec_v = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1_v = (2 * prec_v * rec_v / (prec_v + rec_v)) if (prec_v + rec_v) > 0 else 0.0
-        out[threshold] = (prec_v, rec_v, f1_v)
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1_score = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
+        out[threshold] = (precision, recall, f1_score)
     return out
 
 
 if __name__ == '__main__':
     import argparse
+
+    from kryptos.logging import setup_logging
 
     p = argparse.ArgumentParser(description='Evaluate SPY extractor across thresholds')
     p.add_argument('--labels', type=str, default='data/spy_eval_labels.csv', help='CSV of run_dir,token')
@@ -96,5 +99,6 @@ if __name__ == '__main__':
     labels_path = Path(args.labels)
     runs_root = Path(args.runs)
     eval_res = evaluate(labels_path, runs_root)
+    logger = setup_logging(logger_name="kryptos.spy")
     for th, (prec_v, rec_v, f1_v) in eval_res.items():
-        print(f'th={th:.2f} prec={prec_v:.3f} rec={rec_v:.3f} f1={f1_v:.3f}')
+        logger.info("th=%.2f prec=%.3f rec=%.3f f1=%.3f", th, prec_v, rec_v, f1_v)

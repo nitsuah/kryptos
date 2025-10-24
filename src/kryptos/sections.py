@@ -17,7 +17,7 @@ from . import k1, k2, k3
 
 try:  # optional import (heavy)
     from .k4 import decrypt_best  # type: ignore
-except Exception:  # pragma: no cover - fallback if heavy pipeline missing
+except ImportError:  # pragma: no cover - fallback if heavy pipeline missing
     decrypt_best = None  # type: ignore
 
 

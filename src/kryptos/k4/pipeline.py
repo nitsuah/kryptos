@@ -4,7 +4,7 @@ Defines modular transformation stages and execution framework.
 """
 
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -285,7 +285,7 @@ def make_masking_stage(name: str = 'masking', null_chars=None, limit: int = 25) 
 
 def make_transposition_multi_crib_stage(
     name: str = 'transposition-pos-crib',
-    positional_cribs: dict[str, Sequence[int]] | None = None,
+    positional_cribs: Mapping[str, Sequence[int]] | None = None,
     min_cols: int = 5,
     max_cols: int = 8,
     window: int = 5,
@@ -313,7 +313,7 @@ def make_transposition_multi_crib_stage(
         for n_cols in range(min_cols, max_cols + 1):
             cands = search_with_multiple_cribs_positions(
                 ct,
-                positional_cribs=positional_cribs,
+                positional_cribs=dict(positional_cribs),  # ensure concrete dict for API
                 n_cols=n_cols,
                 window=window,
                 max_perms=max_perms,
