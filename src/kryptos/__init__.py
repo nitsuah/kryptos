@@ -16,15 +16,15 @@ from .ciphers import (
     double_rotational_transposition,
     vigenere_decrypt,
 )
-from .ciphers import (
-    k3_decrypt as k3_classical_decrypt,
-)
+from .ciphers import k3_decrypt as k3_classical_decrypt
+from .ciphers import k3_decrypt as k3_decrypt  # public alias expected by tests
 
 __all__: list[str] = [
     "__version__",
     # Classical / sections primitives
     "vigenere_decrypt",
     "k3_classical_decrypt",
+    "k3_decrypt",
     "double_rotational_transposition",
     "frequency_analysis",
     "check_cribs",

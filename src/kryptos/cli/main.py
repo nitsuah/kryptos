@@ -22,14 +22,20 @@ from kryptos.spy import extract as spy_module_extract
 from kryptos.tuning import spy_eval
 
 
-def _print_sections(logger: logging.Logger) -> None:
+def _print_sections(logger: logging.Logger, emit_log: bool = True, emit_print: bool = True) -> None:
     for name in SECTIONS:
-        logger.info('%s', name)
+        if emit_log:
+            logger.info('%s', name)
+        if emit_print:
+            print(name)
 
 
-def cmd_sections(_args: argparse.Namespace) -> int:
-    logger = setup_logging(logger_name='kryptos.cli')
-    _print_sections(logger)
+def cmd_sections(args: argparse.Namespace) -> int:
+    logger = logging.getLogger('kryptos.cli')
+    if not any(getattr(h, '_kryptos_handler', False) for h in logger.handlers):
+        logger = setup_logging(logger_name='kryptos.cli')
+    quiet = getattr(args, 'quiet', False)
+    _print_sections(logger, emit_log=not quiet, emit_print=not quiet)
     return 0
 
 
