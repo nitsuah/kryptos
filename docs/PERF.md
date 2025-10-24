@@ -1,4 +1,5 @@
 # Performance & Profiling Plan
+Breadcrumb: Performance > Profiling > Plan
 
 This document tracks performance enhancement tasks and profiling methodology.
 

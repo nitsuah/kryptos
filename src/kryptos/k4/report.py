@@ -26,6 +26,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from kryptos.paths import get_repo_root  # use helper instead of manual parents ascent
+
 
 @dataclass
 class CondensedRow:
@@ -130,7 +132,7 @@ def write_top_candidates_markdown(run_dir: Path, out_dir: Path | None = None, to
             rows.append(CondensedRow(weight=w, top_delta=delta, sample_snippet=snippet))
     rows.sort(key=lambda r: r.top_delta, reverse=True)
     top = rows[:top_n]
-    repo_root = run_dir.parents[2] if len(run_dir.parents) >= 3 else Path('.')
+    repo_root = get_repo_root()
     learned_lines = _load_learned_lines(repo_root)
     # map file names to learned lines
     file_to_learned: dict[str, list[str]] = {}

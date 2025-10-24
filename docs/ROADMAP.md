@@ -1,4 +1,5 @@
 # K4 Roadmap
+Breadcrumb: Overview > Roadmap > Roadmap
 
 Detailed plan for advancing Kryptos K4 analysis.
 
@@ -152,4 +153,4 @@ Next Iteration Targets:
 - Berlin Clock deep pattern alignment scoring (lamp temporal sequencing bonuses beyond ordering
 stub).
 
-Last updated: 2025-10-23 (spy namespace + positional deviation metric + artifact path consolidation)
+Last updated: 2025-10-24 (added breadcrumbs index, tiny weight sweep example migration)

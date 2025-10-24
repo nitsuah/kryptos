@@ -15,7 +15,10 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]  # src/kryptos/spy -> kryptos -> src -> repo root
+from kryptos.paths import get_repo_root
+
+# Centralized repo root via paths helper (removes fragile parents[3] ascent)
+REPO = get_repo_root()
 AGENTS_DIR = REPO / 'agents'
 LEARNED = AGENTS_DIR / 'LEARNED.md'
 CRIBS_DEFAULT = REPO / 'docs' / 'sources' / 'sanborn_crib_candidates.txt'

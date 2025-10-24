@@ -1,5 +1,7 @@
 # KRYPTOS — Core Documentation
 
+Breadcrumb: Overview > Core > Detailed Reference
+
 This file contains the detailed project overview, features, modules, and quick-start examples for
 the KRYPTOS project. The top-level `README.md` is intentionally concise — use this document for in-
 depth reference.

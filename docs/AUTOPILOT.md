@@ -1,4 +1,5 @@
 # Autopilot, SPY Tuning, and OPS Overview
+Breadcrumb: Strategy > Autopilot > Overview
 
 This document summarizes the offline autopilot flow (Q / OPS / SPY), the conservative SPY extractor,
 the SPY evaluation harness, and CI demo wiring added to the project.

@@ -1,4 +1,5 @@
 # K4 Strategy & Technical Notes
+Breadcrumb: Strategy > K4 > Technical Notes
 
 This document collects K4-specific strategy, modules, and operational notes used by the analysis
 pipeline. It's intentionally focused on the unsolved K4 piece and the specialized tooling in

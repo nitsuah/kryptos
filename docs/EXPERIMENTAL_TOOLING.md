@@ -6,7 +6,7 @@ Overview of scripts under `scripts/experimental/` with purpose and disposition.
 |------|---------|-------------|--------|--------|---------------|
 | examples/run_autopilot_demo.py | Demo autopilot (Q/OPS/SPY) chain | Keep (convert to package example) | Promote to examples module | Nov 2025 | CLI stable + doc snippet added |
 | (removed) examples/run_full_smoke.py | Chained smoke run (demo→OPS→SPY→report) | Removed (CLI chain examples to replace) | N/A | 2025-10-23 | README examples pending add |
-| examples/run_ops_tiny_sweep.py | Tiny crib weight sweep helper | Migrate (replace via CLI) | Remove after CLI tests | Nov 2025 | CLI tuning subcommand tests |
+| (removed) examples/run_ops_tiny_sweep.py | Tiny crib weight sweep helper | Removed (Migrated) | Use examples.tiny_weight_sweep | 2025-10-24 | CLI sweep stable |
 | (removed) examples/condensed_tuning_report.py | Summarize sweep CSV | Removed (to migrate into report API) | Implement report module | 2025-10-23 | `kryptos.k4.report` pending |
 | (removed) examples/generate_top_candidates.py | Generate markdown candidate report | Removed (Replaced) | Consolidated into kryptos.k4.report | 2025-10-23 | write_top_candidates_markdown available |
 | (removed) tools/run_hill_search.py | Random hill key diagnostic | Removed (package hill utilities) | N/A | 2025-10-23 | hill_search API present |
@@ -26,7 +26,7 @@ Promotion / Migration Notes:
 
 - Reporting-focused tools (`condensed_tuning_report.py`, `generate_top_candidates.py`) consolidated
 into `kryptos.k4.report` (see `write_condensed_report`, `write_top_candidates_markdown`).
-- `run_ops_tiny_sweep.py` → superseded by tuning-crib-weight-sweep (remove after CLI tests).
+- `run_ops_tiny_sweep.py` → removed; replaced by examples.tiny_weight_sweep + CLI sweep.
 - `run_full_smoke.py` → deprecate; replace with docs snippet chaining CLI + tuning API.
 - `run_hill_search.py` → remove (diagnostic logic should live in a dedicated test or debug module if
 still needed).
@@ -67,11 +67,11 @@ compare_crib_integration decision, ops tiny sweep)
 Backlog (ordered, refreshed):
 
 1. Finalize demo migration: convert `run_k4_demo.py` into documented CLI example and remove legacy
-script. 2. Evaluate need for `examples/run_ops_tiny_sweep.py`; remove after CLI tiny sweep tests
-stabilized. 3. Decide fate of `compare_crib_integration.py`: merge into summarize-run or delete. 4.
-Audit `tools/extract_spy_cribs.py` (security/determinism); write focused tests; decide promote vs
-remove. 5. Audit `scripts/dev/create_pr.py` for secret leakage; relocate or remove. 6. Add CLI
-`tuning-report` subcommand wrapping report module utilities (write_condensed_report,
+script. 2. Validate `examples.tiny_weight_sweep` example outputs; ensure tests/CI use new path. 3.
+Decide fate of `compare_crib_integration.py`: merge into summarize-run or delete. 4. Audit
+`tools/extract_spy_cribs.py` (security/determinism); write focused tests; decide promote vs remove.
+5. Audit `scripts/dev/create_pr.py` for secret leakage; relocate or remove. 6. Add CLI `tuning-
+report` subcommand wrapping report module utilities (write_condensed_report,
 write_top_candidates_markdown). 7. Performance profiling: positional letter deviation weight
 calibration; add doc note & potential CLI flag.
 
@@ -82,4 +82,4 @@ calibration; add doc note & potential CLI flag.
 optional).
 - Plan spy namespace extraction (design sketch, then tests).
 
-Updated: 2025-10-23T23:47Z (spy namespace complete; artifact path consolidated; backlog refreshed)
+Updated: 2025-10-24T00:56Z (tiny weight sweep example added; legacy tiny sweep removed)

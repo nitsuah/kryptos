@@ -1,5 +1,7 @@
 # Logging Guidelines
 
+Breadcrumb: Architecture > Logging > Guidelines
+
 This document describes the Kryptos logging conventions, setup helper, and migration policy.
 
 ## Goals
@@ -22,6 +24,7 @@ log.info("demo started")
 ```
 
 Parameters:
+
 - level: int|str (default "INFO"). Accepts standard names (DEBUG, INFO, WARNING, ERROR).
 - logger_name: namespaced logger (e.g. `kryptos.tuning`, `kryptos.autopilot`).
 - fmt: override format string (`%(asctime)s %(levelname)s %(name)s: %(message)s`).
@@ -52,6 +55,7 @@ releases (spy_eval, deprecated daemons).
 ## Quiet Mode & Levels
 
 CLI global options:
+
 - `--log-level LEVEL` sets root Kryptos logger (default INFO).
 - `--quiet` suppresses non-error log lines; errors still emitted.
 
@@ -71,6 +75,7 @@ Library modules MUST NOT use `print()`. If user-facing structured output is requ
 artifact summary) return data or raise a well-defined exception; the CLI layer prints or serializes.
 
 Allowed print exceptions:
+
 - PowerShell or bash helper scripts under `scripts/lint/` (explicit tooling output).
 - Transitional scripts marked DEPRECATED (will be removed).
 - Test fixtures intentionally emitting sample content (document with `# intentional print`).
@@ -78,6 +83,7 @@ Allowed print exceptions:
 ## Testing
 
 Add tests to verify:
+
 - Calling `setup_logging()` twice does not duplicate handlers.
 - `--quiet` suppresses INFO/DEBUG while preserving ERROR.
 - Daemon or tuning script logs contain an identifying prefix (logger name).
