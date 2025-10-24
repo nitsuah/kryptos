@@ -1,4 +1,4 @@
-"""K4 hypothesis protocol and initial stubs.
+"""K4 hypothesis protocol and implementations.
 
 A hypothesis generates candidate plaintext/key pairs for evaluation.
 Each hypothesis encapsulates a specific cryptanalytic approach (Hill cipher,
@@ -9,6 +9,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Protocol
+
+from .hill_cipher import invertible_2x2_keys
+from .hill_search import score_decryptions
 
 
 @dataclass(slots=True)
@@ -34,26 +37,35 @@ class Hypothesis(Protocol):
         Returns:
             List of Candidate objects, ranked by score (highest first).
         """
+        ...
 
 
-class HillCipherHypothesisStub:
-    """Minimal Hill cipher hypothesis stub for initial testing.
+class HillCipher2x2Hypothesis:
+    """Exhaustive 2x2 Hill cipher hypothesis.
 
-    Returns a single deterministic candidate using a simple 2x2 key.
-    Real implementation would explore key space systematically.
+    Enumerates all ~158,000 invertible 2x2 matrices mod 26,
+    decrypts K4 with each key, scores results, and returns top candidates.
     """
 
-    def generate_candidates(self, ciphertext: str, limit: int = 10) -> list[Candidate]:  # noqa: ARG002
-        """Generate stub candidate(s)."""
-        # Deterministic stub: return one placeholder candidate
-        # Real implementation would call hill_search or hill_constraints
-        stub_plaintext = "STUBPLAINTEXTFORHILL"
-        stub_key = {"matrix": [[5, 12], [7, 8]], "size": 2}
-        return [
-            Candidate(
-                id="hill_2x2_stub_5_12_7_8",
-                plaintext=stub_plaintext,
-                key_info=stub_key,
-                score=100.0,
-            ),
-        ]
+    def generate_candidates(self, ciphertext: str, limit: int = 10) -> list[Candidate]:
+        """Generate candidates by exhaustive 2x2 Hill cipher search."""
+        # Generate all invertible keys
+        keys = invertible_2x2_keys()
+
+        # Score all decryptions (this will test all ~158k keys)
+        results = score_decryptions(ciphertext, keys, limit=len(keys))
+
+        # Convert to Candidate objects
+        candidates = []
+        for i, result in enumerate(results[:limit]):
+            key_matrix = result['key']
+            candidates.append(
+                Candidate(
+                    id=f"hill_2x2_{i}_{key_matrix[0][0]}_{key_matrix[0][1]}_{key_matrix[1][0]}_{key_matrix[1][1]}",
+                    plaintext=result['text'],
+                    key_info={'matrix': key_matrix, 'size': 2},
+                    score=result['score'],
+                ),
+            )
+
+        return candidates

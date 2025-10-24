@@ -24,7 +24,7 @@ class TestCribAwareScoring(unittest.TestCase):
         # Clear scoring cache
         import kryptos.k4.scoring as scoring
 
-        scoring._promoted_cribs_cache = None
+        scoring._promoted_cribs_cache.clear()
 
     def tearDown(self):
         """Restore original paths."""
@@ -33,7 +33,7 @@ class TestCribAwareScoring(unittest.TestCase):
 
         cs.OBSERVATIONS_PATH = self._orig_obs
         cs.PROMOTED_CRIBS_PATH = self._orig_promoted
-        scoring._promoted_cribs_cache = None
+        scoring._promoted_cribs_cache.clear()
         # Clean up
         if self.obs_path.exists():
             self.obs_path.unlink()
@@ -55,7 +55,7 @@ class TestCribAwareScoring(unittest.TestCase):
         # Clear cache so scoring picks up the new promoted crib
         import kryptos.k4.scoring as scoring
 
-        scoring._promoted_cribs_cache = None
+        scoring._promoted_cribs_cache.clear()
         # Text with promoted crib
         text_with = "THEQUICKBROWNFOXJUMPS"
         score_with = crib_bonus(text_with)
@@ -76,7 +76,7 @@ class TestCribAwareScoring(unittest.TestCase):
         promote_cribs(obs)
         import kryptos.k4.scoring as scoring
 
-        scoring._promoted_cribs_cache = None
+        scoring._promoted_cribs_cache.clear()
         # Candidate with promoted crib
         candidate_a = "THEQUANTUMFIELDTHEORY"
         # Candidate without
