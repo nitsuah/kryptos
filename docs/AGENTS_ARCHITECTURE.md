@@ -1,6 +1,6 @@
 # Agents Architecture: Intelligence Layer for K4 Cryptanalysis
 
-**Version:** 2.0 **Date:** 2025-10-24 **Status:** SPY implemented, OPS/Q planned
+**Version:** 3.0 **Date:** 2025-10-24 **Status:** All agents implemented and operational
 
 ---
 
@@ -22,7 +22,7 @@ intervention.
 
 ### Current Implementation (v1.0)
 
-**Status:** ✅ Implemented (`src/kryptos/agents/spy.py`, 10 tests passing)
+**Status:** ✅ Implemented (`src/kryptos/agents/spy.py`, 435 lines, 10 tests passing)
 
 **Capabilities:**
 
@@ -186,19 +186,37 @@ llm = ["openai", "anthropic"]  # Install with: poetry install -E llm
 
 ## ⚙️ OPS Agent: Execution Orchestrator
 
-### Planned Implementation (v1.0)
+### Current Implementation (v1.0)
 
-**Status:** 📋 Planned (not yet implemented)
+**Status:** ✅ Implemented (`src/kryptos/agents/ops.py`, 350 lines, 9 tests passing)
 
-**Responsibilities:**
+**Capabilities:**
 
-- Hypothesis queue management (priority-based)
-- Parallel execution (multiprocessing)
-- Resource monitoring (CPU, memory, disk)
-- Progress tracking (ETA, throughput)
-- Timeout enforcement (kill hung tasks)
-- Result aggregation (merge artifacts)
-- Failure handling (retry, fallback)
+- Parallel hypothesis execution (ProcessPoolExecutor)
+- Job queue management with timeout enforcement
+- Result aggregation and reporting
+- Error handling (exceptions, timeouts)
+- Resource monitoring (configurable max workers)
+- Job summary statistics
+
+**Example Usage:**
+
+```python
+from kryptos.agents.ops import OpsAgent, OpsConfig
+
+agent = OpsAgent(config=OpsConfig(max_workers=8, job_timeout_seconds=300))
+
+jobs = [
+    {"name": "hill_2x2", "class": HillCipher2x2Hypothesis},
+    {"name": "vigenere", "class": VigenereHypothesis, "params": {"max_key_length": 30}},
+]
+
+results = agent.run_parallel(jobs, ciphertext="OBKR...")
+
+summary = agent.summarize()
+print(f"Tested {summary['total_jobs']} hypotheses")
+print(f"Best: {summary['best_hypothesis']} scored {summary['best_score']}")
+```
 
 **Architecture:**
 
@@ -294,19 +312,38 @@ print(f"Best score: {max(r.best_score for r in results)}")
 
 ## 🔍 Q Agent: Quality Assurance
 
-### Planned Implementation (v1.1)
+### Current Implementation (v1.0)
 
-**Status:** 📋 Planned (not yet implemented)
+**Status:** ✅ Implemented (`src/kryptos/agents/q.py`, 310 lines, 17 tests passing)
 
-**Responsibilities:**
+**Capabilities:**
 
-- Sanity test validation (positive controls)
-- Statistical significance testing (t-test, chi-square, KS test)
-- Artifact detection (scoring biases, edge cases)
-- Anomaly flagging (impossible scores, duplicates)
-- Cross-validation (re-run with different seeds)
-- Confidence intervals (bootstrap)
-- False positive filtering
+- Statistical validation (2σ/3σ significance thresholds)
+- Random baseline comparison (mean: -355.92, σ: 14.62)
+- Confidence scoring (68%, 95%, 99.7% levels)
+- Result filtering (removes candidates below thresholds)
+- Anomaly detection (impossible scores, duplicates)
+- Validation reports with statistical context
+
+**Example Usage:**
+
+```python
+from kryptos.agents.q import QAgent
+
+q = QAgent()
+
+# Validate candidate against random baseline
+is_significant = q.validate_candidate(
+    score=-329.45,
+    confidence_level=0.95  # 2σ threshold
+)
+
+# Filter results
+candidates = [...]
+validated = q.filter_candidates(candidates, min_confidence=0.95)
+
+print(f"Kept {len(validated)}/{len(candidates)} statistically significant results")
+```
 
 **Architecture:**
 

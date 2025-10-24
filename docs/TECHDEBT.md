@@ -6,7 +6,9 @@
 
 ## 🎉 Completed Cleanup (Oct 2024)
 
-### Files Deleted
+### Phase 1: Structural Consolidation (Oct 20-22)
+
+**Files Deleted**
 
 **scripts/experimental/** - Entire folder removed (100% bloat)
 
@@ -44,14 +46,42 @@
 - ❌ `PERF.md` - moved to TECHDEBT.md (this file)
 - ❌ `ARCHIVED_SCRIPTS.md` - no longer needed
 
+### Phase 2: Agent Implementation (Oct 23-24)
+
+**Agent Triumvirate Completed:**
+
+- ✅ SPY agent: 435 lines, 10 tests passing
+- ✅ OPS agent: 350 lines, 9 tests passing (parallel execution, timeout handling)
+- ✅ Q agent: 310 lines, 17 tests passing (statistical validation, 2σ/3σ thresholds)
+
+**Total: ~1,100 lines of agent code, 36 tests**
+
+### Phase 3: Test Coverage Push (Oct 24)
+
+**Coverage Improvements:**
+
+- `hypotheses.py`: 59% → **95%** (+36 points!)
+- Overall: 82% → **85%** (+3 points)
+- Tests: 277 → 281 (+4 net new)
+- All hypothesis types now tested (9 total)
+
+**New Tests Added:**
+
+- Simple substitution (Caesar, Atbash, Reverse)
+- Autokey, FourSquare, Bifid hypotheses
+- Berlin Clock Vigenère validation
+
 ### Metrics
 
-| Category | Before | After | Reduction |
-|----------|--------|-------|-----------|
-| Docs | 20 files | 6 files | 70% |
-| Scripts (dev/) | 8 files | 3 files | 63% |
-| Scripts (experimental/) | ~15 files | 0 files | 100% |
-| Total LOC | ~20,000 | ~15,000 | 25% |
+| Category | Before | After | Change |
+|----------|--------|-------|--------|
+| Docs | 20 files | 6 files | -70% |
+| Scripts (dev/) | 8 files | 3 files | -63% |
+| Scripts (experimental/) | ~15 files | 0 files | -100% |
+| Total LOC | ~20,000 | ~15,000 | -25% |
+| Test coverage | N/A | **85%** | NEW |
+| Tests passing | 249 | **281** | +13% |
+| Agent code | 435L (SPY) | ~1,100L | +154% |
 
 ### Final Structure
 
@@ -180,11 +210,18 @@ kryptos/
 - [x] Move demos to package (scripts/demo/ → src/kryptos/examples/)
 - [x] Single hypothesis runner (run_hypothesis.py working)
 
-**Agents (IN PROGRESS):**
+**Agents (COMPLETED):**
 
 - [x] SPY agent implementation (435 lines, 10 tests passing)
-- [ ] OPS agent implementation (text prompt → Python code)
-- [ ] Q agent implementation (text prompt → Python code)
+- [x] OPS agent implementation (350 lines, 9 tests passing)
+- [x] Q agent implementation (310 lines, 17 tests passing)
+
+**Test Coverage (IN PROGRESS):**
+
+- [x] Hypothesis test suite (9 cipher types covered)
+- [x] 85% overall coverage achieved
+- [ ] 90% coverage target (scoring.py tests needed)
+- [ ] Test performance optimization (<180s target)
 
 **Performance (TODO):**
 

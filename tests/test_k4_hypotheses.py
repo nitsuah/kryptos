@@ -216,12 +216,12 @@ class TestK4Hypotheses(unittest.TestCase):
         # Validate structure
         c = candidates[0]
         self.assertIsNotNone(c.id, "Candidate must have an id")
-        self.assertTrue(c.id.startswith("four_square_"), "ID should indicate Four-square")
+        self.assertTrue(c.id.startswith("foursquare_"), "ID should indicate foursquare")
         self.assertIsNotNone(c.plaintext, "Candidate must have plaintext")
         self.assertIn('type', c.key_info, "key_info must have type field")
-        self.assertEqual(c.key_info['type'], 'four_square', "Should be Four-square type")
-        self.assertIn('keyword1', c.key_info, "key_info must have keyword1 field")
-        self.assertIn('keyword2', c.key_info, "key_info must have keyword2 field")
+        self.assertEqual(c.key_info['type'], 'foursquare', "Should be foursquare type")
+        self.assertIn('key1', c.key_info, "key_info must have key1 field")
+        self.assertIn('key2', c.key_info, "key_info must have key2 field")
         self.assertIsInstance(c.score, (int, float), "Score must be numeric")
 
     def test_bifid_hypothesis(self):

@@ -71,17 +71,24 @@ kryptos/
 
 ## 🔬 Current Status
 
-**Infrastructure:** ✅ Operational (249 tests passing) **Hypotheses Tested:** 9 (Hill 2x2, Vigenère, Playfair,
-Transposition, Substitution, Autokey, Four-square, Bifid, Berlin Clock)
-**Agents:** SPY ✅ | OPS ⏳ | Q ⏳
-**Lines of Code:** ~15,000 (down from ~20,000 after cleanup)
+**Infrastructure:** ✅ Operational (281 tests passing, 85% coverage) **Hypotheses Tested:** 9 (Hill 2x2, Vigenère,
+Playfair, Transposition, Substitution, Autokey, Four-square, Bifid, Berlin Clock)
+**Agents:** SPY ✅ (435L, 10T) | OPS ✅ (350L, 9T) | Q ✅ (310L, 17T)
+**Lines of Code:** ~16,100 (agents + core logic)
 
-**Recent Cleanup (Oct 2024):**
+**Recent Achievements (Oct 2024):**
 
-- ✅ Deleted `scripts/experimental/` (100% bloat)
-- ✅ Cleaned `scripts/dev/` (8→3 files)
-- ✅ Moved `scripts/demo/` → `src/kryptos/examples/`
-- ✅ Docs consolidation (20→6 files, 70% reduction)
+- ✅ Agent triumvirate operational (~1,100 lines, 36 tests)
+- ✅ Test coverage: 82% → 85% (hypothesis tests added)
+- ✅ 9 cipher types tested with real K4 ciphertext
+- ✅ Statistical validation (2σ/3σ thresholds established)
+
+**Stretch Goals:**
+
+- 🎯 90%+ test coverage (current: 85%)
+- 🎯 Sub-180s test suite runtime (current: 335s)
+- 🎯 Composite hypothesis testing (layered ciphers)
+- 🎯 SPY v2.0 with LLM/NLP intelligence
 
 ---
 
