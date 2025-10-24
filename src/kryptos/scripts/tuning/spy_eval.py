@@ -1,27 +1,6 @@
-"""Shim to expose repository script `scripts/tuning/spy_eval.py` as a package module.
+"""DEPRECATED shim: use `kryptos.tuning.spy_eval`.
 
-This avoids importing from the filesystem path directly in tests and makes the
-script available as `kryptos.scripts.tuning.spy_eval`.
+Left as explicit failing stub so accidental imports surface immediately.
 """
 
-from importlib import import_module
-
-# Prefer the package-level implementation if present; fall back to the script path for
-# backward compatibility.
-try:
-    _mod = import_module('kryptos.tuning.spy_eval')
-except ImportError:
-    _mod = import_module('scripts.tuning.spy_eval')
-
-# Re-export functions used by tests
-load_labels = _mod.load_labels
-select_best_threshold = _mod.select_best_threshold
-run_extractor_on_run = _mod.run_extractor_on_run
-evaluate = _mod.evaluate
-
-__all__ = [
-    'load_labels',
-    'select_best_threshold',
-    'run_extractor_on_run',
-    'evaluate',
-]
+raise ImportError("Deprecated shim. Import 'kryptos.tuning.spy_eval' instead of 'kryptos.scripts.tuning.spy_eval'.")

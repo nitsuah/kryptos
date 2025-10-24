@@ -21,7 +21,8 @@ def test_spy_eval_smoke(tmp_path):
     # import harness from package and run evaluate
     import importlib
 
-    mod = importlib.import_module('kryptos.scripts.tuning.spy_eval')
+    # Import canonical spy_eval implementation directly; shim removed.
+    mod = importlib.import_module('kryptos.tuning.spy_eval')
 
     res = mod.evaluate(labels, runs_root, thresholds=[0.0, 0.5])
     assert 0.0 in res and 0.5 in res

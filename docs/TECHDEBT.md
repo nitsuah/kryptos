@@ -229,7 +229,10 @@ introduce `kryptos/paths.py` + `kryptos/logging.py`, then delete stale reference
 
 Verification note: Physical duplicate directories under `src/` removed; legacy duplicate modules
 purged; reporting consolidated; spy extractor migrated; positional letter deviation metric
-integrated; artifact path standardized under `artifacts/k4_runs/`.
+integrated; artifact path standardized under `artifacts/k4_runs/`. Spy eval shims physically deleted
+(former `scripts/tuning/spy_eval.py` and `src/kryptos/scripts/tuning/spy_eval.py`); canonical
+harness lives only at `src/kryptos/tuning/spy_eval.py`. Any future reintroduction of script-level
+spy eval must be a thin CLI wrapper calling the canonical module.
 
 --- Last updated: 2025-10-23T23:57Z (spy namespace, artifact path consolidation, positional
 deviation metric, new calibration & provenance tasks) --- Last updated: 2025-10-23T24:30Z (CLI

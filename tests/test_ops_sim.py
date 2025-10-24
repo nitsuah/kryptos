@@ -12,7 +12,7 @@ def load_module(path: Path, name: str):
     raise RuntimeError(f'failed to load {path}')
 
 
-def test_pick_best_on_synthetic_run(tmp_path):
+def test_pick_best_on_synthetic_run():
     repo = Path(__file__).resolve().parents[1]
     runs_root = repo / 'artifacts' / 'tuning_runs'
     run_dir = runs_root / 'run_test_ops'
@@ -34,11 +34,12 @@ def test_pick_best_on_synthetic_run(tmp_path):
 
     # load analyzer and run pick_best
     pick_mod = load_module(repo / 'scripts' / 'tuning' / 'pick_best_weight.py', 'pick_best')
-    best, stats = pick_mod.pick_best(run_dir)
+    best, _stats = pick_mod.pick_best(run_dir)
     assert float(best) == 0.5
 
-    # exercise spy_eval selection path (likely returns 0.0 because extractor not importable)
-    spy_mod = load_module(repo / 'scripts' / 'tuning' / 'spy_eval.py', 'spy_eval')
+    # exercise spy_eval selection path using canonical package module
+    from kryptos.tuning import spy_eval as spy_mod
+
     labels_path = repo / 'data' / 'spy_eval_labels.csv'
     # create a minimal labels file mapping our run to a token
     labels_path.parent.mkdir(parents=True, exist_ok=True)
