@@ -4,17 +4,22 @@ import unittest
 
 from kryptos.k4.hypotheses import (
     AutokeyHypothesis,
+    AutokeyThenTranspositionHypothesis,
     BerlinClockTranspositionHypothesis,
     BerlinClockVigenereHypothesis,
     BifidHypothesis,
     CompositeHypothesis,
+    DoubleTranspositionHypothesis,
     FourSquareHypothesis,
     HillCipher2x2Hypothesis,
+    HillThenTranspositionHypothesis,
     PlayfairHypothesis,
+    PlayfairThenTranspositionHypothesis,
     SimpleSubstitutionHypothesis,
     SubstitutionThenTranspositionHypothesis,
     TranspositionThenHillHypothesis,
     VigenereHypothesis,
+    VigenereThenHillHypothesis,
     VigenereThenTranspositionHypothesis,
 )
 
@@ -441,6 +446,101 @@ class TestCompositeHypotheses(unittest.TestCase):
         # Both should respect the final limit
         self.assertLessEqual(len(candidates_small), 50)
         self.assertLessEqual(len(candidates_large), 50)
+
+    def test_hill_then_transposition_basic(self):
+        """Test HillThenTranspositionHypothesis (reverse order)."""
+        hyp = HillThenTranspositionHypothesis(
+            hill_candidates=2,
+            transposition_limit=10,
+            transposition_widths=[5, 6],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("hill", c.id.lower(), "ID should mention hill")
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+        self.assertIn('stage1', c.key_info, "Composite must have stage1")
+        self.assertIn('stage2', c.key_info, "Composite must have stage2")
+
+    def test_autokey_then_transposition_basic(self):
+        """Test AutokeyThenTranspositionHypothesis."""
+        hyp = AutokeyThenTranspositionHypothesis(
+            autokey_candidates=3,
+            transposition_limit=10,
+            transposition_widths=[5, 6],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("autokey", c.id.lower(), "ID should mention autokey")
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+
+    def test_playfair_then_transposition_basic(self):
+        """Test PlayfairThenTranspositionHypothesis."""
+        hyp = PlayfairThenTranspositionHypothesis(
+            playfair_candidates=3,
+            transposition_limit=10,
+            transposition_widths=[5, 6],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("playfair", c.id.lower(), "ID should mention playfair")
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+
+    def test_double_transposition_basic(self):
+        """Test DoubleTranspositionHypothesis."""
+        hyp = DoubleTranspositionHypothesis(
+            stage1_candidates=3,
+            stage2_limit=10,
+            stage1_widths=[5, 6],
+            stage2_widths=[7, 8],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+        # Should have two transposition stages
+        self.assertIn('stage1', c.key_info, "Composite must have stage1")
+        self.assertIn('stage2', c.key_info, "Composite must have stage2")
+
+    def test_vigenere_then_hill_basic(self):
+        """Test VigenereThenHillHypothesis."""
+        hyp = VigenereThenHillHypothesis(
+            vigenere_candidates=3,
+            hill_limit=10,
+            vigenere_max_key_length=5,
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("vigenere", c.id.lower(), "ID should mention vigenere")
+        self.assertIn("hill", c.id.lower(), "ID should mention hill")
 
 
 if __name__ == '__main__':
