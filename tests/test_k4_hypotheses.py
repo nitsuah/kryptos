@@ -340,15 +340,16 @@ class TestCompositeHypotheses(unittest.TestCase):
 
     def test_transposition_then_hill_basic(self):
         """Test TranspositionThenHillHypothesis generates candidates."""
-        # Use reduced parameters for fast test
+        # Minimal smoke test: 1 transposition × 5 Hill matrices = 5 operations (~3-5s)
+        # Full exploration tested in scripts/test_composite_hypotheses.py
         hyp = TranspositionThenHillHypothesis(
-            transposition_candidates=3,
-            hill_limit=50,
-            transposition_widths=[5, 7],
+            transposition_candidates=1,
+            hill_limit=5,
+            transposition_widths=[5],
         )
 
         ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
-        candidates = hyp.generate_candidates(ciphertext, limit=5)
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
 
         # Should return candidates
         self.assertGreater(len(candidates), 0, "Should return at least one candidate")
