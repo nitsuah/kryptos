@@ -57,7 +57,7 @@ def run_extractor_on_run(run_dir: Path, min_conf: float = 0.0) -> set[str]:
         return set()
     try:
         matches = spy_extract(min_conf=min_conf, run_dir=run_dir)
-    except Exception:
+    except (RuntimeError, OSError, ValueError):  # narrow expected failure types
         return set()
     tokens: set[str] = set()
     for m in matches:
@@ -72,6 +72,12 @@ def evaluate(
     thresholds: list[float] | None = None,
     extractor: Callable[[Path, float], set[str]] | None = None,
 ) -> dict[float, tuple[float, float, float]]:
+    def safe_div(n: float, d: float, default: float = 0.0) -> float:
+        if d == 0:
+            return default
+        # No broad try/except: allow unforeseen errors to surface during tests
+        return n / d
+
     labels = load_labels(labels_p)
     if thresholds is None:
         thresholds = [0.0, 0.25, 0.5, 0.75]
@@ -88,9 +94,9 @@ def evaluate(
             tp += len(preds & true)
             fp += len(preds - true)
             fn += len(true - preds)
-        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1_score = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
+        precision = safe_div(tp, (tp + fp))
+        recall = safe_div(tp, (tp + fn))
+        f1_score = safe_div(2 * precision * recall, (precision + recall))
         out[threshold] = (precision, recall, f1_score)
     return out
 

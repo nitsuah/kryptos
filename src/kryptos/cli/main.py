@@ -6,6 +6,12 @@ import logging
 from pathlib import Path
 
 from kryptos import autopilot as autopilot_mod
+from kryptos.examples import (
+    purge_demo_artifacts,
+    run_composite_demo,
+    run_sections_demo,
+    run_tiny_weight_sweep,
+)
 from kryptos.k4 import decrypt_best
 from kryptos.k4 import scoring as k4_scoring
 from kryptos.k4.attempt_logging import persist_attempt_logs
@@ -163,6 +169,19 @@ def build_parser() -> argparse.ArgumentParser:
     sp_autopilot.add_argument('--interval', type=int, default=300, help='Seconds between loop iterations')
     sp_autopilot.add_argument('--force', action='store_true', help='Override dry-run inside loop')
     sp_autopilot.set_defaults(func=cmd_autopilot)
+    # Examples smoke: fast health-check across example entrypoints
+    sp_examples_smoke = sub.add_parser(
+        'examples-smoke',
+        help='Run fast example demos (sections, tiny sweep, composite) for CI smoke validation',
+    )
+    sp_examples_smoke.add_argument('--limit', type=int, default=5, help='Composite demo candidate limit')
+    sp_examples_smoke.add_argument(
+        '--keep',
+        type=int,
+        default=4,
+        help='Max number of recent demo dirs to keep after run (purge older)',
+    )
+    sp_examples_smoke.set_defaults(func=cmd_examples_smoke)
     return p
 
 
@@ -334,14 +353,43 @@ def cmd_autopilot(args: argparse.Namespace) -> int:
             iterations=args.iterations,
             interval=args.interval,
             plan=args.plan,
-            dry_run=args.dry_run,
-            force=args.force,
         )
         print(json.dumps({'mode': 'loop', 'exit_code': code}))
         return code
     # single exchange
-    path = autopilot_mod.run_exchange(plan_text=args.plan, autopilot=True, dry_run=args.dry_run)
+    path = autopilot_mod.run_exchange(plan_text=args.plan, autopilot=True)
     print(json.dumps({'mode': 'single', 'log_path': str(path)}))
+    return 0
+
+
+def cmd_examples_smoke(args: argparse.Namespace) -> int:
+    """Run a minimal cross-section of example demos quickly.
+
+    Steps:
+      1. sections listing (without K4 heavy import)
+      2. tiny weight sweep (default weights)
+      3. composite demo (small limit)
+      4. purge old demo artifacts retaining newest N
+    Prints JSON summary; non-zero exit on any internal error.
+    """
+    setup_logging(logger_name='kryptos.cli')
+    try:
+        sections = run_sections_demo()
+        sweep_dir = run_tiny_weight_sweep()
+        composite_dir = run_composite_demo(limit=args.limit)
+        purge_res = purge_demo_artifacts(max_keep=args.keep)
+    except Exception as exc:  # pragma: no cover - defensive
+        print(json.dumps({'status': 'error', 'error': repr(exc)}))
+        return 2
+    out = {
+        'status': 'ok',
+        'sections': [s['name'] for s in sections],
+        'tiny_weight_sweep_dir': str(sweep_dir),
+        'composite_dir': composite_dir,
+        'purged': [p.name for p in purge_res.removed],
+        'kept': [p.name for p in purge_res.kept],
+    }
+    print(json.dumps(out, indent=2))
     return 0
 
 
