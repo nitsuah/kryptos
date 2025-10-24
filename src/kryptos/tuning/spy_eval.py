@@ -7,6 +7,7 @@ imports are robust when the project is installed or run inside venvs.
 from __future__ import annotations
 
 import csv
+from collections.abc import Callable
 from pathlib import Path
 
 
@@ -24,8 +25,13 @@ def load_labels(path: Path) -> dict[str, set[str]]:
     return out
 
 
-def select_best_threshold(labels_p: Path, runs_root_p: Path, thresholds: list[float] | None = None) -> float:
-    eval_map = evaluate(labels_p, runs_root_p, thresholds=thresholds)
+def select_best_threshold(
+    labels_p: Path,
+    runs_root_p: Path,
+    thresholds: list[float] | None = None,
+    extractor: Callable[[Path, float], set[str]] | None = None,
+) -> float:
+    eval_map = evaluate(labels_p, runs_root_p, thresholds=thresholds, extractor=extractor)
     if not eval_map:
         return 0.0
     chosen_th = 0.0
@@ -41,20 +47,22 @@ def select_best_threshold(labels_p: Path, runs_root_p: Path, thresholds: list[fl
 
 
 def run_extractor_on_run(run_dir: Path, min_conf: float = 0.0) -> set[str]:
+    """Default extraction using package spy extract API.
+
+    Returns uppercase tokens with confidence >= min_conf. Empty set on failure.
+    """
     try:
-        from kryptos.scripts.dev import spy_extractor as spy_mod
+        from kryptos.spy import extract as spy_extract
     except ImportError:
         return set()
-
-    cribs = spy_mod.load_cribs(spy_mod.CRIBS)
-    scan_res = spy_mod.scan_run(run_dir, cribs)
-    max_delta = max((d for _, _, d in scan_res), default=0.0)
-    tokens = set()
-    for _, matches, delta in scan_res:
-        conf = 0.0 if max_delta <= 0 else float(delta) / float(max_delta)
-        if conf >= min_conf:
-            for t in matches.split(','):
-                tokens.add(t)
+    try:
+        matches = spy_extract(min_conf=min_conf, run_dir=run_dir)
+    except Exception:
+        return set()
+    tokens: set[str] = set()
+    for m in matches:
+        for t in m.tokens:
+            tokens.add(t.upper())
     return tokens
 
 
@@ -62,21 +70,21 @@ def evaluate(
     labels_p: Path,
     runs_root_p: Path,
     thresholds: list[float] | None = None,
+    extractor: Callable[[Path, float], set[str]] | None = None,
 ) -> dict[float, tuple[float, float, float]]:
     labels = load_labels(labels_p)
     if thresholds is None:
         thresholds = [0.0, 0.25, 0.5, 0.75]
+    use_extractor = extractor or run_extractor_on_run
     out: dict[float, tuple[float, float, float]] = {}
     for threshold in thresholds:
-        tp = 0
-        fp = 0
-        fn = 0
+        tp = fp = fn = 0
         for run_dir in runs_root_p.iterdir():
             if not run_dir.is_dir() or not run_dir.name.startswith('run_'):
                 continue
             run_name = run_dir.name
             true = labels.get(run_name, set())
-            preds = run_extractor_on_run(run_dir, min_conf=threshold)
+            preds = use_extractor(run_dir, threshold)
             tp += len(preds & true)
             fp += len(preds - true)
             fn += len(true - preds)

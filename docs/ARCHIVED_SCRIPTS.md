@@ -73,16 +73,16 @@ decision)
 
 | File | Decision | Notes |
 |------|----------|-------|
-| ask_triumverate.py | KEEP | Autopilot core. |
-| ask_best_next.py | KEEP | Autopilot helper. |
-| autopilot_daemon.py | KEEP | Long-running orchestrator. |
-| cracker_daemon.py | KEEP | Worker daemon. |
-| manager_daemon.py | KEEP | Supervisor logic. |
+| ask_triumverate.py | REMOVED | Consolidated into `kryptos.autopilot` + CLI `autopilot`. |
+| ask_best_next.py | REMOVE | Redundant helper; superseded by unified autopilot API. |
+| autopilot_daemon.py | REMOVED | Loop logic now in `autopilot.run_autopilot_loop`. |
+| cracker_daemon.py | REMOVED | Candidate acceptance & decision writing merged into autopilot module. |
+| manager_daemon.py | REMOVED | Parameter sweep shim deprecated; tuning handled via existing modules/CLI. |
 | (removed) spy_extractor.py | Removed (Replaced) | Logic lives in `kryptos.spy.extractor.extract`. |
 | run_plan.py | KEEP | Plan execution harness. |
 | create_pr.py | AUDIT | Check for secret leakage; potential automation move. |
-| migrate_run_artifacts.py | KEEP | Temporary migration aid. |
-| migrate_misplaced_reports.py | KEEP | Temporary migration aid. |
+| migrate_run_artifacts.py | REMOVED | Obsolete; no legacy run_* dirs outside k4_runs. |
+| migrate_misplaced_reports.py | REMOVED | Obsolete; no misplaced src/artifacts/reports tree present. |
 | orchestrator.py | KEEP | Multi-stage coordination; candidate for packaging. |
 | README.md / README_pr.md | KEEP | Docs; keep updated. |
 

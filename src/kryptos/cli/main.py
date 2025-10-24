@@ -5,6 +5,7 @@ import json
 import logging
 from pathlib import Path
 
+from kryptos import autopilot as autopilot_mod
 from kryptos.k4 import decrypt_best
 from kryptos.k4 import scoring as k4_scoring
 from kryptos.k4.attempt_logging import persist_attempt_logs
@@ -152,6 +153,16 @@ def build_parser() -> argparse.ArgumentParser:
     sp_tuning_report.add_argument('--top-n', dest='top_n', type=int, default=10, help='Top candidates markdown limit')
     sp_tuning_report.add_argument('--no-markdown', action='store_true', help='Skip markdown generation')
     sp_tuning_report.set_defaults(func=cmd_tuning_report)
+
+    # Autopilot (unified daemon replacement)
+    sp_autopilot = sub.add_parser('autopilot', help='Run a single exchange or loop until safe decision')
+    sp_autopilot.add_argument('--plan', type=str, default=None, help='Optional plan text appended to Q prompt')
+    sp_autopilot.add_argument('--dry-run', action='store_true', help='Dry-run (no destructive actions)')
+    sp_autopilot.add_argument('--loop', action='store_true', help='Loop until safe decision or iterations cap')
+    sp_autopilot.add_argument('--iterations', type=int, default=0, help='Loop iteration cap (0=infinite)')
+    sp_autopilot.add_argument('--interval', type=int, default=300, help='Seconds between loop iterations')
+    sp_autopilot.add_argument('--force', action='store_true', help='Override dry-run inside loop')
+    sp_autopilot.set_defaults(func=cmd_autopilot)
     return p
 
 
@@ -313,6 +324,24 @@ def cmd_tuning_report(args: argparse.Namespace) -> int:
         md_path = write_top_candidates_markdown(args.run_dir, top_n=args.top_n)
     out = {'condensed_csv': str(condensed_path), 'markdown': str(md_path) if md_path else None}
     print(json.dumps(out, indent=2))
+    return 0
+
+
+def cmd_autopilot(args: argparse.Namespace) -> int:
+    setup_logging(logger_name='kryptos.cli')
+    if args.loop:
+        code = autopilot_mod.run_autopilot_loop(
+            iterations=args.iterations,
+            interval=args.interval,
+            plan=args.plan,
+            dry_run=args.dry_run,
+            force=args.force,
+        )
+        print(json.dumps({'mode': 'loop', 'exit_code': code}))
+        return code
+    # single exchange
+    path = autopilot_mod.run_exchange(plan_text=args.plan, autopilot=True, dry_run=args.dry_run)
+    print(json.dumps({'mode': 'single', 'log_path': str(path)}))
     return 0
 
 

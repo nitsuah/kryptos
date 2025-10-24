@@ -72,15 +72,32 @@ per-weight detail CSVs.
 CLI).
 - Decision artifacts: `artifacts/decisions/decision_<timestamp>.json`.
 
-## Autonomous daemons
+## Unified Autopilot (CLI)
 
-- `scripts/dev/autopilot_daemon.py` — periodically invokes the triumverate
-(`ask_triumverate.run_plan_check`) and exits when a safe decision artifact is created. Useful for
-background tuning and sweep automation.
-- `scripts/dev/cracker_daemon.py` — runs the K4 pipeline repeatedly against ciphertext(s) and writes
-a decision artifact when a candidate passes a plausibility threshold.
+Legacy daemon scripts (`ask_triumverate.py`, `autopilot_daemon.py`, `cracker_daemon.py`,
+`manager_daemon.py`) have been removed. Use the CLI instead:
 
-All decisions are written to:
+Single exchange (dry-run recommendation + persona summaries):
+
+```powershell
+kryptos autopilot --dry-run --plan "review current artifacts"
+```
+
+Loop until a safe decision (precision / holdout gates) or iteration cap:
+
+```powershell
+kryptos autopilot --loop --interval 300 --iterations 10 --dry-run
+```
+
+Optional flags:
+
+- `--plan <text>`: inject plan text into Q/OPS persona prompts.
+- `--dry-run`: conservative mode (default for safety; `--force` overrides inside loop).
+- `--force`: allow non-dry actions when loop is enabled (future expansion).
+- `--interval <seconds>`: sleep between loop iterations.
+- `--iterations <n>`: iteration cap (0 = infinite).
+
+Decision artifacts (when produced by downstream tooling) are written to:
 
 ```powershell
 artifacts/decisions/decision_<timestamp>.json
@@ -119,10 +136,10 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-1. Run the autopilot in dry-run:
+1. Run the autopilot (single exchange dry-run):
 
 ```powershell
-python scripts/dev/ask_triumverate.py --dry-run  # (CLI subcommand forthcoming: kryptos autopilot)
+kryptos autopilot --dry-run
 ```
 
 1. Run a short K4 demo:

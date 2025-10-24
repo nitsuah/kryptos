@@ -88,9 +88,9 @@ Add tests to verify:
 |-------------------------|-------------------|------------------------|
 | `ask_best_next.py`      | Remove            | v0.X+2                 |
 | `run_plan.py`           | Remove            | v0.X+2                 |
-| `autopilot_daemon.py`   | Merge into CLI    | v0.X+1                 |
-| `manager_daemon.py`     | Remove            | v0.X+1                 |
-| `cracker_daemon.py`     | Refactor/remove   | v0.X+1                 |
+| `autopilot_daemon.py`   | REMOVED (CLI: autopilot) | v0.X+1 |
+| `manager_daemon.py`     | REMOVED (functionality folded) | v0.X+1 |
+| `cracker_daemon.py`     | REMOVED (decision logic merged) | v0.X+1 |
 | `spy_eval` shim         | Remove            | v0.X+2                 |
 
 ## Future Enhancements
