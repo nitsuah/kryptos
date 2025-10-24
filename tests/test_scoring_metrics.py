@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.scoring import (
+from kryptos.k4.scoring import (
     baseline_stats,
     combined_plaintext_score_with_positions,
     letter_entropy,

@@ -1,7 +1,7 @@
 # Project index (10k ft view)
 
-This file gives a very short, high-level overview of the repository by top-level directories and the
-core Python scripts you will likely use. Each entry has an ELI5 sentence describing what it does.
+This file gives a very short, high-level overview of the repository by top-level directories and the core Python scripts
+you will likely use. Each entry has an ELI5 sentence describing what it does.
 
 ## Top-level directories
 
@@ -20,33 +20,52 @@ experiment traces and reproducible results.
 
 - `examples/` — Small example programs that show how to wire the package for quick experiments.
 
-## Core python scripts (ELI5)
+## Package layout details (sections & utilities)
 
-- `kryptos/src/k4/executor.py` — Runs job variants in parallel and collects results. ELI5: "It tries
-different ways to run a job at once and picks the outputs when they finish."
+- `kryptos/k1/`, `kryptos/k2/`, `kryptos/k3/` — Uniform wrappers exposing `decrypt(ciphertext: str,
+**opts)` for solved sections (Vigenère for K1/K2, double rotational transposition for K3). (Implemented)
+- `kryptos/k4/` — Canonical K4 pipeline (executor, scoring, hill/crib logic, transposition, masking,
+clock enumeration). Change runtime behavior or add solver variants here.
+- `kryptos/ciphers.py` — Shared primitive cipher functions (Vigenère, rotational transposition,
+Polybius). Will remain as primitives after section wrappers exist.
+- `kryptos/analysis.py` — Generic frequency and crib checking utilities used by examples and
+reporting.
+- `kryptos/reporting.py` — Canonical reporting (frequency chart + crib summary) replacing legacy
+`report.py`.
+- `kryptos/k4/scoring.py` — Extended scoring metrics (ngrams, positional cribs, linguistic
+features).
+
+### SPY & Tuning Consolidation
+
+SPY extraction and aggregation now live under the `kryptos.spy` namespace (e.g. `kryptos.spy.extractor.extract`,
+`kryptos.spy.aggregate_phrases`). Legacy script wrappers are deprecated and slated for removal after a short grace
+period. Tuning harnesses are consolidated under `kryptos.k4.tuning.*` (weight sweeps, tiny deterministic sweeps,
+artifact summarization). Use package APIs or CLI subcommands instead of calling scripts directly.
+
+## Core python modules & scripts (ELI5)
+
+- `kryptos/k4/executor.py` — Runs K4 pipeline variants in parallel and collects results. ELI5: "It
+tries different ways at once and gathers the outputs."
 
 - `kryptos/scripts/dev/orchestrator.py` — Orchestrates OPS (tuning) runs and stores run metadata.
 ELI5: "It runs tuning experiments and remembers what happened so we can learn from it."
 
-- `scripts/dev/ask_triumverate.py` — High-level autopilot driver that runs OPS then SPY extraction.
-ELI5: "A small orchestrator that asks the 3 helpers (Q/OPS/SPY) to make recommendations and
-optionally write learned hints."
+- `scripts/dev/ask_triumverate.py` — Autopilot driver (OPS + SPY). ELI5: "Asks the three helpers to
+make recommendations and logs useful hints."
 
-- `scripts/dev/spy_extractor.py` — Conservative extractor that scans run artifacts for crib-like
-tokens and writes `agents/LEARNED.md`. ELI5: "It looks for useful little hints in a run and notes
-them down if they look confident."
+- `kryptos/spy/extractor.py` — Conservative SPY extractor scanning run artifacts for crib-like
+tokens and writing learned hints. ELI5: "It finds small quoted bits that look like real words and keeps only the
+trustworthy ones."
 
-- `kryptos/scripts/tuning/spy_eval.py` — Evaluates different SPY thresholds using labeled runs and
-chooses a conservative threshold (precision-first). ELI5: "It tests how picky the extractor should
-be so we trust what it finds."
+- `kryptos/k4/tuning/spy_eval.py` — Evaluates SPY thresholds against labeled runs and selects a
+precision-first threshold. ELI5: "It decides how strict the extractor should be so we only keep good hints."
 
-- `scripts/tuning/crib_weight_sweep.py` — OPS tuning harness that sweeps crib weight parameters and
-logs results. ELI5: "It tries different weights for crib signals to see which makes the system
-perform better."
+- `kryptos.k4.tuning.run_crib_weight_sweep` — Programmatic OPS tuning harness that sweeps crib
+weight parameters and returns structured rows (wrapper script still exists). ELI5: "It tries different weights for crib
+signals to see which makes the system perform better."
 
-- `scripts/demo/run_k4_demo.py` — A small demo runner that executes the k4 pipeline and saves
-artifacts for review. ELI5: "Runs a demo job and stores its outputs so you can inspect how the
-system behaved."
+- (Demo) `scripts/demo/run_k4_demo.py` — Small demo runner executing the K4 pipeline and saving
+artifacts (migrating to a CLI example). ELI5: "Runs a short pipeline trial and saves what happened."
 
 - `scripts/lint/run_lint.ps1` — Repo lint runner that invokes ruff/flake8/pylint and simple markdown
 checks. ELI5: "One script to check the code and docs for style and common problems."
@@ -57,10 +76,10 @@ reflow utility. ELI5: "Helps keep documentation lines tidy and flags basic markd
 ## Where to start (practical tips)
 
 - To run tests: run the project's test command (pytest) from the repo root.
-- To run the autopilot demo: run `scripts/dev/ask_triumverate.py` (it will call OPS and optionally
-SPY extractor).
-- To tune SPY thresholds: use `kryptos/scripts/tuning/spy_eval.py` against labeled runs in
-`artifacts/`.
+- To run the autopilot demo: run `scripts/dev/ask_triumverate.py` (OPS + SPY), or forthcoming CLI
+`kryptos autopilot`.
+- To tune SPY thresholds: use `kryptos/k4/tuning/spy_eval.py` programmatically or CLI `kryptos spy-
+eval`.
 - For quick code/style checks: run `./scripts/lint/run_lint.ps1` from the repo root (PowerShell).
 
 ## Notes
@@ -72,45 +91,55 @@ find related scripts.
 
 ## Flow and design (high level)
 
-This section briefly explains how the main pieces coordinate during a typical autopilot/tuning run.
-It's intentionally compact — think sequence steps rather than full design docs.
+This section briefly explains how the main pieces coordinate during a typical autopilot/tuning run. It's intentionally
+compact — think sequence steps rather than full design docs.
 
 1. Orchestrator kicks off an OPS tuning run
 
 - `kryptos/scripts/dev/orchestrator.py` prepares a run, records metadata (e.g., `max_delta`) and
 calls OPS tuning routines.
-- OPS tuning scripts (e.g., `scripts/tuning/crib_weight_sweep.py`) sweep parameters and write
-artifacts under `artifacts/`.
+- OPS tuning now uses package APIs (e.g., `kryptos.k4.tuning.run_crib_weight_sweep`) to sweep
+parameters and then persists artifacts under `artifacts/` (script wrappers will migrate to CLI subcommands).
 
 1. Executor runs job variants
 
-- `kryptos/src/k4/executor.py` executes multiple job variants in parallel and collects results;
+- `kryptos/k4/executor.py` executes multiple job variants in parallel and collects results;
 tuning uses these results to score parameter combinations.
 
 1. SPY extraction and evaluation
 
-- `scripts/dev/spy_extractor.py` scans run artifacts for crib-like tokens and appends confident
-findings to `agents/LEARNED.md`.
-- `kryptos/scripts/tuning/spy_eval.py` evaluates extractor thresholds against labeled runs and
-recommends a conservative `min_conf` (precision-first).
+- `kryptos/spy/extractor.py` scans run artifacts (CSV attempts) for crib-like tokens and appends
+confident findings to learned hints.
+- `kryptos/k4/tuning/spy_eval.py` evaluates thresholds against labeled runs and recommends a
+precision-first `min_conf`.
 
 1. Autopilot driver ties them together
 
 - `scripts/dev/ask_triumverate.py` is the high-level driver: it runs OPS tuning, obtains
-`max_delta`/run metadata, computes or asks the SPY evaluator for a `min_conf`, then runs the SPY
-extractor to record learned hints.
+`max_delta`/run metadata, computes or asks the SPY evaluator for a `min_conf`, then runs the SPY extractor to record
+learned hints.
 
 1. Demos and experiments
 
-- `scripts/demo/run_k4_demo.py` or examples under `examples/` run the pipeline end-to-end to produce
-reproducible `artifacts/` for inspection and evaluation.
+- Demo examples under `scripts/demo/` or `examples/` run the pipeline end-to-end producing
+reproducible artifacts under `artifacts/k4_runs/`.
 
 Design notes (TL;DR)
 
-- Separation of concerns: `src/` contains the runtime logic (executor, core algorithms),
-`kryptos/scripts/` contains evaluation/tuning helpers, and `scripts/` contains repo-level tooling
-(lint, demos, extractors).
-- Conservative defaults: SPY extraction favors precision over recall; the eval harness picks
-thresholds to avoid noisy learned hints.
-- Reproducibility: tuning scripts write structured artifacts so the evaluator and extractor operate
-on recorded runs.
+- Separation of concerns: `kryptos/` holds all reusable logic; `scripts/` are wrappers / tooling;
+`examples/` show minimal usage.
+- Conservative defaults: SPY extraction favors precision over recall; evaluation picks thresholds to
+avoid noisy hints.
+- Reproducibility: structured artifacts (CSV/JSON) record configuration & scores for post-run
+analysis.
+
+### Sections & Docs Status
+
+- Section packages (`kryptos/k1`, `kryptos/k2`, `kryptos/k3`) implemented; `kryptos/sections.py`
+mapping available (K4 included via `decrypt_best`).
+- Example orchestration now via the CLI (`kryptos sections`, `kryptos k4-decrypt ...`); several
+obsolete demo scripts have been removed or migrated.
+- `docs/SECTIONS.md` documents the unified API surface.
+- Legacy `src/__init__.py` shim removed; explicit imports only.
+
+--- Last updated: 2025-10-23T23:40Z (spy namespace + artifact path consolidation + tuning docs refresh)

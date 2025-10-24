@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.ciphers import polybius_decrypt
+from kryptos.ciphers import polybius_decrypt
 
 
 class TestPolybiusABC(unittest.TestCase):

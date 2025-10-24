@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from src.k4.reporting import generate_candidate_artifacts, write_candidates_csv, write_candidates_json
+from kryptos.k4.reporting import generate_candidate_artifacts, write_candidates_csv, write_candidates_json
 
 
 class TestReportingArtifacts(unittest.TestCase):

@@ -2,9 +2,9 @@
 
 import unittest
 
-from src.ciphers import (
+from kryptos.ciphers import (
     double_rotational_transposition,
-    kryptos_k3_decrypt,
+    k3_decrypt,
     polybius_decrypt,
     rotate_matrix_right_90,
     transposition_decrypt,
@@ -32,9 +32,9 @@ class TestCiphersFull(unittest.TestCase):
         out = double_rotational_transposition(text)
         self.assertEqual(len(out), 336)
 
-    def test_kryptos_k3_decrypt_leading_q(self):
+    def test_k3_decrypt_leading_q(self):
         text = "?" + ("A" * 336)
-        out = kryptos_k3_decrypt(text)
+        out = k3_decrypt(text)
         self.assertEqual(len(out), 336)
 
     def test_transposition_decrypt_invalid_length(self):

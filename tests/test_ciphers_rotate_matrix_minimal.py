@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.ciphers import rotate_matrix_right_90
+from kryptos.ciphers import rotate_matrix_right_90
 
 
 class TestCiphersRotateMatrixMinimal(unittest.TestCase):

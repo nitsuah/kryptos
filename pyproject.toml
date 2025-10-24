@@ -28,6 +28,9 @@ classifiers = [
 	"Operating System :: OS Independent",
 ]
 
+[project.scripts]
+kryptos = "kryptos.cli:main"
+
 # license expression removed; using PEP-621 license table above
 
 [tool.setuptools.packages.find]

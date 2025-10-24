@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.pipeline import Pipeline, make_route_transposition_stage
+from kryptos.k4.pipeline import Pipeline, make_route_transposition_stage
 
 
 class TestPipelineRouteStage(unittest.TestCase):

@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.transposition_constraints import search_with_multiple_cribs_positions
+from kryptos.k4.transposition_constraints import search_with_multiple_cribs_positions
 
 
 class TestTranspositionConstraintsEmpty(unittest.TestCase):

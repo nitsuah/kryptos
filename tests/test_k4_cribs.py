@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4 import annotate_cribs, normalize_cipher
+from kryptos.k4 import annotate_cribs, normalize_cipher
 
 K4_CIPHER = normalize_cipher(
     "OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT " "MZFPKWGDKZXTJCDIGKUHUAUEKCAR",

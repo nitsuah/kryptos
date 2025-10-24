@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.scoring import combined_plaintext_score, combined_plaintext_score_with_positions, positional_crib_bonus
+from kryptos.k4.scoring import combined_plaintext_score, combined_plaintext_score_with_positions, positional_crib_bonus
 
 
 class TestScoringPositionalEmpty(unittest.TestCase):

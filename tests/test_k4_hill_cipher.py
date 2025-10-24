@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4 import hill_decrypt, hill_encrypt, matrix_inv_mod
+from kryptos.k4 import hill_decrypt, hill_encrypt, matrix_inv_mod
 
 
 class TestHillCipher(unittest.TestCase):

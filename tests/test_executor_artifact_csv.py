@@ -12,8 +12,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from src.k4.executor import PipelineConfig, PipelineExecutor  # noqa: E402
-from src.k4.pipeline import Stage, StageResult  # noqa: E402
+from kryptos.k4.executor import PipelineConfig, PipelineExecutor  # noqa: E402
+from kryptos.k4.pipeline import Stage, StageResult  # noqa: E402
 
 
 def _make_stage(name: str, scores: list[float]) -> Stage:
@@ -44,12 +44,14 @@ class TestExecutorArtifactCSV(unittest.TestCase):
         )
         ex = PipelineExecutor(cfg)
         summary = ex.run("DUMMY")
-        csv_name = summary.get("artifact_csv")
-        self.assertIsInstance(csv_name, str)
+        csv_name_obj = summary.get("artifact_csv")
+        self.assertIsInstance(csv_name_obj, str)
+        csv_name: str = csv_name_obj  # type: ignore[assignment]
         # Find single run_* directory under artifact root
         run_dirs = [d for d in os.listdir(artifact_root) if d.startswith("run_")]
         self.assertTrue(run_dirs, "No run_* artifact directory created")
-        full_csv_path = os.path.join(artifact_root, run_dirs[0], csv_name)
+        run_dir0 = str(run_dirs[0])
+        full_csv_path = os.path.join(artifact_root, run_dir0, csv_name)
         self.assertTrue(os.path.exists(full_csv_path), f"CSV artifact missing at {full_csv_path}")
         with open(full_csv_path, newline="", encoding="utf-8") as fh:
             reader = csv.reader(fh)

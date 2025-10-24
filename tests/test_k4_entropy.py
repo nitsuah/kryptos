@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4 import letter_entropy, repeating_bigram_fraction
+from kryptos.k4 import letter_entropy, repeating_bigram_fraction
 
 
 class TestK4Entropy(unittest.TestCase):

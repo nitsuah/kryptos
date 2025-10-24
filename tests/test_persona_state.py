@@ -17,9 +17,10 @@ def test_state_load_save_and_append(tmp_path: Path):
     old_learned = orch.LEARNED_MD
 
     try:
-        orch.AGENTS_DIR = str(agents_dir)
-        orch.STATE_PATH = str(artifacts_dir / "state.json")
-        orch.LEARNED_MD = str(agents_dir / "LEARNED.md")
+        # Assign Path objects (orchestrator now expects Path-like attributes)
+        orch.AGENTS_DIR = agents_dir
+        orch.STATE_PATH = artifacts_dir / "state.json"
+        orch.LEARNED_MD = agents_dir / "LEARNED.md"
 
         # Initial state should be empty
         s = orch._load_state()

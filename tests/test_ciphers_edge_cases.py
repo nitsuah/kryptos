@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.ciphers import double_rotational_transposition, polybius_decrypt, vigenere_decrypt
+from kryptos.ciphers import double_rotational_transposition, polybius_decrypt, vigenere_decrypt
 
 
 class TestCiphersEdgeCases(unittest.TestCase):

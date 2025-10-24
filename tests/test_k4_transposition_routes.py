@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4 import generate_route_variants
+from kryptos.k4.transposition_routes import generate_route_variants
 
 CIPHER_SAMPLE = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
 

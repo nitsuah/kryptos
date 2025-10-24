@@ -2,15 +2,18 @@
 
 Produces a small artifacts directory `artifacts/tuning_runs/<timestamp>/` with
 `summary.csv` and per-run `<runid>_top.csv` files. Uses the scoring API in
-`src/k4/scoring.py` to score sample plaintexts under a small parameter grid.
+`kryptos.k4.scoring` to score sample plaintexts under a small parameter grid.
 
 Safe, fast, for local experimentation.
 """
 
 import csv
+import logging
 import sys
 import time
 from pathlib import Path
+
+from kryptos.logging import setup_logging
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src"
@@ -34,13 +37,15 @@ PARAM_GRID = [
 
 
 def run():
-    # Prefer package import; fall back to adding src/ to sys.path for standalone runs
+    setup_logging(level=logging.INFO, logger_name="kryptos.tuning")
+    log = logging.getLogger("kryptos.tuning")
+    # Prefer installed / editable package import; fall back to adding repo src/ to sys.path
     try:
-        from src.k4 import scoring
-    except Exception:
+        from kryptos.k4 import scoring  # type: ignore
+    except ImportError:
         if str(SRC) not in sys.path:
             sys.path.insert(0, str(SRC))
-        from k4 import scoring
+        from kryptos.k4 import scoring  # type: ignore
 
     ts = time.strftime("%Y%m%dT%H%M%S")
     run_dir = ARTIFACTS / f"run_{ts}"
@@ -85,7 +90,7 @@ def run():
                 for r, (samp, sc) in enumerate(scores, start=1):
                     pw.writerow([r, samp, f"{sc:.6f}"])
 
-    print(f"Wrote tuning artifacts to: {run_dir}")
+    log.info("Wrote tuning artifacts to: %s", run_dir)
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.pipeline import Pipeline, Stage, make_hill_constraint_stage
+from kryptos.k4.pipeline import Pipeline, Stage, make_hill_constraint_stage
 
 
 class TestPipelineEdgeCases(unittest.TestCase):

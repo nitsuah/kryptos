@@ -9,8 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from src.k4.executor import PipelineConfig, PipelineExecutor  # noqa: E402
-from src.k4.pipeline import make_hill_constraint_stage  # noqa: E402
+from kryptos.k4.executor import PipelineConfig, PipelineExecutor  # noqa: E402
+from kryptos.k4.pipeline import make_hill_constraint_stage  # noqa: E402
 
 
 class TestParallelHillVariants(unittest.TestCase):

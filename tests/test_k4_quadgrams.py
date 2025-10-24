@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4 import combined_plaintext_score, quadgram_score
+from kryptos.k4.scoring import combined_plaintext_score, quadgram_score
 
 
 class TestQuadgramScoring(unittest.TestCase):

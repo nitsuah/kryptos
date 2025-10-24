@@ -1,6 +1,6 @@
 import pytest
 
-import ciphers
+from kryptos import ciphers
 
 
 def test_rotate_matrix_right_90_square():

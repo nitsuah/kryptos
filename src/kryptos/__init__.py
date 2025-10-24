@@ -1,42 +1,49 @@
-"""Thin re-export shim for the canonical top-level modules.
+"""Public Kryptos API surface.
 
-The repository historically imported modules from the top-level `src/` layout
-(for example: `import ciphers` or `from k4 import scoring`). To support
-editable installs and avoid duplicate implementation code we keep the
-canonical implementation under `src/` and expose stable package paths via
-lightweight shims here.
-
-This file intentionally performs simple imports from the top-level modules
-and re-exports a small, well-defined public API.
+Stable, versioned exports only. Prefer section modules (`kryptos.k1`, `kryptos.k2`,
+`kryptos.k3`, `kryptos.k4`) for new code. The direct classical helpers below remain
+for compatibility but may be deprecated in a future minor release.
 """
 
-try:
-    # Prefer the canonical top-level modules (src/ciphers.py, src/analysis.py)
-    from analysis import check_cribs, frequency_analysis
-    from ciphers import (
-        double_rotational_transposition,
-        kryptos_k3_decrypt,
-        polybius_decrypt,
-        transposition_decrypt,
-        vigenere_decrypt,
-    )
-except ImportError:
-    # Fall back to package-local copies if the environment imports differently.
-    from .analysis import check_cribs, frequency_analysis
-    from .ciphers import (
-        double_rotational_transposition,
-        kryptos_k3_decrypt,
-        polybius_decrypt,
-        transposition_decrypt,
-        vigenere_decrypt,
-    )
+from __future__ import annotations
 
-__all__ = [
-    'vigenere_decrypt',
-    'kryptos_k3_decrypt',
-    'double_rotational_transposition',
-    'transposition_decrypt',
-    'polybius_decrypt',
-    'frequency_analysis',
-    'check_cribs',
+from collections.abc import Iterable
+
+__version__ = "0.0.1"
+
+from .analysis import check_cribs, frequency_analysis
+from .ciphers import (
+    double_rotational_transposition,
+    vigenere_decrypt,
+)
+from .ciphers import k3_decrypt as k3_classical_decrypt
+from .ciphers import k3_decrypt as k3_decrypt  # public alias expected by tests
+
+__all__: list[str] = [
+    "__version__",
+    # Classical / sections primitives
+    "vigenere_decrypt",
+    "k3_classical_decrypt",
+    "k3_decrypt",
+    "double_rotational_transposition",
+    "frequency_analysis",
+    "check_cribs",
 ]
+
+
+def _export(iterable: Iterable[str]) -> None:
+    for name in iterable:
+        if name not in __all__:
+            __all__.append(name)
+
+
+# Optional convenience: expose section decrypt wrappers in root namespace (lightweight).
+try:  # pragma: no cover
+    from .k1 import decrypt as k1_decrypt  # noqa: F401
+    from .k2 import decrypt as k2_decrypt  # noqa: F401
+    from .k3 import decrypt as k3_section_decrypt  # noqa: F401
+    from .k4 import decrypt_best as k4_decrypt_best  # noqa: F401
+
+    _export(["k1_decrypt", "k2_decrypt", "k3_section_decrypt", "k4_decrypt_best"])
+except ImportError:  # pragma: no cover - keep import failures non-fatal
+    pass

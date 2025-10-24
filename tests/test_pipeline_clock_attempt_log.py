@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.pipeline import Pipeline, get_clock_attempt_log, make_berlin_clock_stage
+from kryptos.k4.pipeline import Pipeline, get_clock_attempt_log, make_berlin_clock_stage
 
 
 class TestPipelineClockAttemptLog(unittest.TestCase):

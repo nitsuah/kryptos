@@ -17,14 +17,23 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 class TestK4Scaffold(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # import here after sys.path adjusted above
-        import importlib
+        # Use canonical kryptos namespace directly
+        from kryptos.k4 import (
+            combined_plaintext_score,
+            partitions_for_k4,
+            slice_by_partition,
+        )
+        from kryptos.k4.substitution_solver import solve_substitution
 
-        cls.src = importlib.import_module('src')
+        # Wrap as staticmethods so they don't receive 'self'
+        cls.partitions_for_k4 = staticmethod(partitions_for_k4)  # type: ignore[arg-type]
+        cls.slice_by_partition = staticmethod(slice_by_partition)  # type: ignore[arg-type]
+        cls.combined_plaintext_score = staticmethod(combined_plaintext_score)  # type: ignore[arg-type]
+        cls.solve_substitution = staticmethod(solve_substitution)  # type: ignore[arg-type]
 
     def test_partitions_generation(self):
         """Test generation of partitions for K4 segmentation."""
-        parts = self.src.partitions_for_k4()
+        parts = self.partitions_for_k4()
         self.assertTrue(len(parts) > 0)
         # Check all sum to presumed length 97
         for p in parts[:50]:
@@ -34,7 +43,7 @@ class TestK4Scaffold(unittest.TestCase):
         """Test slicing text by a given partition."""
         text = 'A' * 97
         part = (12, 12, 12, 12, 12, 12, 12, 13)  # sums to 97
-        segs = self.src.slice_by_partition(text, part)
+        segs = self.slice_by_partition(text, part)
         self.assertEqual(len(segs), len(part))
         # ensure each segment length matches the partition sizes
         for s, expected in zip(segs, part, strict=True):
@@ -42,11 +51,11 @@ class TestK4Scaffold(unittest.TestCase):
 
     def test_scoring_basic(self):
         """Test basic plaintext scoring functionality."""
-        score = self.src.combined_plaintext_score('THEAND')
+        score = self.combined_plaintext_score('THEAND')
         self.assertIsInstance(score, float)
 
     def test_substitution_solver_runs(self):
-        plain, score, mapping = self.src.solve_substitution('ABCXYZ')
+        plain, score, mapping = self.solve_substitution('ABCXYZ')
         self.assertIsInstance(plain, str)
         self.assertIsInstance(score, float)
         self.assertIsInstance(mapping, dict)

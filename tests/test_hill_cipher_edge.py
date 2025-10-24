@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.hill_cipher import brute_force_crib, matrix_inv_mod
+from kryptos.k4.hill_cipher import brute_force_crib, matrix_inv_mod
 
 
 class TestHillCipherEdge(unittest.TestCase):

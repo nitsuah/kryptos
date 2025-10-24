@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.pipeline import Pipeline, make_masking_stage
+from kryptos.k4.pipeline import Pipeline, make_masking_stage
 
 
 class TestPipelineMaskingNullChars(unittest.TestCase):

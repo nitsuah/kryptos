@@ -1,4 +1,4 @@
-"""Unit tests for src/scoring/fitness.py functions."""
+"""Unit tests for kryptos.scoring.fitness functions."""
 
 from __future__ import annotations
 
@@ -19,7 +19,10 @@ class TestFitnessModule(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # import dynamically after possible sys.path modification above
-        cls.fitness_mod = importlib.import_module("src.scoring.fitness")
+        try:
+            cls.fitness_mod = importlib.import_module("kryptos.scoring.fitness")
+        except ModuleNotFoundError as e:  # fallback: fail fast with clearer msg
+            raise RuntimeError("Canonical scoring module not found: kryptos.scoring.fitness") from e
 
     def test_load_ngram_data_missing(self):
         # missing path -> empty dict

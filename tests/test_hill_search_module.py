@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.hill_search import score_decryptions
+from kryptos.k4.hill_search import score_decryptions
 
 
 class TestHillSearchModule(unittest.TestCase):

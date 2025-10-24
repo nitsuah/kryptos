@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4 import Pipeline, StageResult, make_hill_constraint_stage
+from kryptos.k4.pipeline import Pipeline, StageResult, make_hill_constraint_stage
 
 
 class TestPipelineHillStage(unittest.TestCase):

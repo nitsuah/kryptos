@@ -5,7 +5,7 @@ Unit tests for K4 scoring functions.
 import random
 import unittest
 
-from src.k4 import combined_plaintext_score
+from kryptos.k4.scoring import combined_plaintext_score
 
 
 class TestK4Scoring(unittest.TestCase):

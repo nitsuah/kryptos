@@ -2,7 +2,8 @@
 
 import unittest
 
-from src.k4 import make_hill_constraint_stage, make_masking_stage, run_composite_pipeline
+from kryptos.k4 import run_composite_pipeline
+from kryptos.k4.pipeline import make_hill_constraint_stage, make_masking_stage
 
 
 class TestCompositeReportNoWeights(unittest.TestCase):

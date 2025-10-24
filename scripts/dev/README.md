@@ -18,8 +18,7 @@ recommended threshold from labeled tuning runs.
 - The evaluation harness lives at `kryptos/scripts/tuning/spy_eval.py` and evaluates
 precision/recall/F1 across thresholds.
 - By default the harness now prefers a threshold that maximizes precision (conservative extraction).
-If multiple thresholds have identical precision, it picks the one with the higher F1 score as a tie-
-breaker.
+If multiple thresholds have identical precision, it picks the one with the higher F1 score as a tie- breaker.
 
 ## Running locally
 
@@ -39,8 +38,8 @@ python scripts/dev/ask_triumverate.py
 ## Daemons (autonomous runs)
 
 - `scripts/dev/autopilot_daemon.py` — periodically invokes the triumverate
-(`ask_triumverate.run_plan_check`) and stops when a safe decision is produced. Useful for continuous
-background tuning when you want the system to run unattended.
+(`ask_triumverate.run_plan_check`) and stops when a safe decision is produced. Useful for continuous background tuning
+when you want the system to run unattended.
 - `scripts/dev/cracker_daemon.py` — repeatedly runs the K4 pipeline against ciphertext(s) and writes
 a decision artifact when a candidate exceeds a plausibility score threshold.
 
@@ -73,8 +72,7 @@ python scripts/dev/ask_triumverate.py
 
 ## Local editable install (recommended for development)
 
-Install the project in editable mode so imports like `kryptos.scripts.tuning.spy_eval` resolve
-consistently:
+Install the project in editable mode so imports like `kryptos.scripts.tuning.spy_eval` resolve consistently:
 
 ```powershell
 Set-Location 'C:\Users\<you>\code\kryptos'

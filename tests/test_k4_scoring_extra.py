@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from k4 import scoring
+from kryptos.k4 import scoring
 
 
 def test_berlin_clock_validator_variants():
@@ -44,8 +44,10 @@ def test_combined_extended_includes_pattern_bonus():
     text = 'SOMETHINGBERLINANDCLOCKHERE'
     base = scoring.combined_plaintext_score(text)
     ext = scoring.combined_plaintext_score_extended(text)
-    # pattern present and in order => bonus of exactly 25.0
-    assert math.isclose(ext, base + 25.0, rel_tol=1e-9, abs_tol=1e-12)
+    # extended score includes pattern bonus (25.0) PLUS positional letter deviation component (30 * pos_score)
+    pos_score = scoring.positional_letter_deviation_score(text)
+    expected = base + 25.0 + 30.0 * pos_score
+    assert math.isclose(ext, expected, rel_tol=1e-9, abs_tol=1e-12)
 
 
 def test_positional_crib_bonus_and_combined():
@@ -120,7 +122,15 @@ def test_baseline_stats_and_letter_metrics():
     txt = 'THE QUICK BROWN FOX'
     stats = scoring.baseline_stats(txt)
     # basic expected keys
-    expected_keys = {'chi_square', 'bigram_score', 'trigram_score', 'quadgram_score', 'crib_bonus', 'combined_score'}
+    expected_keys = {
+        'chi_square',
+        'bigram_score',
+        'trigram_score',
+        'quadgram_score',
+        'crib_bonus',
+        'rarity_weighted_crib_bonus',
+        'combined_score',
+    }
     assert expected_keys.issubset(set(stats.keys()))
     # numeric values
     for k in expected_keys:

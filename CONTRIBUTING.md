@@ -81,12 +81,11 @@ print("Attempt log written:", path)
 
 ## Workflow
 
-1. Fork and branch from `main`. 2. Implement a focused enhancement (small, testable functions). 3.
-Add or update tests under `tests/` (avoid large exhaustive brute-force loops; cap iterations). 4.
-Update exports in `src/k4/__init__.py` if you introduce new public symbols. 5. Update `roadmap.md`
-only if you add or refine planned analytical directions. 6. Run `python -m unittest discover -s
-tests` and ensure all tests pass. 7. Submit a PR with a concise description of rationale and
-methodology.
+1. Fork and branch from `main`. 2. Implement a focused enhancement (small, testable functions). 3. Add or update tests
+under `tests/` (avoid large exhaustive brute-force loops; cap iterations). 4. Update exports in `src/k4/__init__.py` if
+you introduce new public symbols. 5. Update `roadmap.md` only if you add or refine planned analytical directions. 6. Run
+`python -m unittest discover -s tests` and ensure all tests pass. 7. Submit a PR with a concise description of rationale
+and methodology.
 
 ## Code Guidelines
 

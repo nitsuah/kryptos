@@ -2,7 +2,7 @@
 
 import unittest
 
-from src.k4.scoring import bigram_gap_variance, wordlist_hit_rate
+from kryptos.k4.scoring import bigram_gap_variance, wordlist_hit_rate
 
 
 class TestScoringAdditionalBranches(unittest.TestCase):
