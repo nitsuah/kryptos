@@ -115,10 +115,10 @@ replaced by `kryptos.spy.aggregate_phrases`.
 package path. 6. Add `tuning-report` CLI subcommand wrapping report utilities. 7. Profile positional
 letter deviation weight and document calibration results.
 
-Updated: 2025-10-24T00:25Z
+Updated: 2025-10-24T00:45Z (migrated run_k4_demo.py & run_autopilot_demo.py to kryptos.examples.*)
 
 Change Log Addendum:
 
-* Implemented rarity-weighted crib bonus in `kryptos.k4.scoring.rarity_weighted_crib_bonus`.
-* Fully removed deprecated `spy_eval.py` legacy script.
-* Removed legacy `PipelineExecutor`; tests migrated to pipeline/composite utilities.
+- Implemented rarity-weighted crib bonus in `kryptos.k4.scoring.rarity_weighted_crib_bonus`.
+- Fully removed deprecated `spy_eval.py` legacy script.
+- Removed legacy `PipelineExecutor`; tests migrated to pipeline/composite utilities.
