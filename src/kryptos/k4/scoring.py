@@ -99,6 +99,9 @@ else:
 CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
 WORDLIST: set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
 
+# Cache for promoted cribs with mtime tracking
+_promoted_cribs_cache: tuple[float, set[str]] | None = None
+
 # Berlin Clock pattern reference words (stub for pattern validator)
 BERLIN_CLOCK_TERMS = {'BERLIN', 'CLOCK'}
 
@@ -203,18 +206,38 @@ def quadgram_score(text: str) -> float:
     return _score_ngrams(text, QUADGRAMS, 4, _UNKNOWN_QUADGRAM)
 
 
+def _get_all_cribs() -> list[str]:
+    """Get combined list of config cribs + promoted cribs (with mtime cache)."""
+    global _promoted_cribs_cache
+    from kryptos.spy.crib_store import PROMOTED_CRIBS_PATH, load_promoted_cribs
+
+    all_cribs = list(CRIBS)  # Start with config cribs
+    # Check if promoted cribs file exists and load with caching
+    if PROMOTED_CRIBS_PATH.exists():
+        mtime = PROMOTED_CRIBS_PATH.stat().st_mtime
+        if _promoted_cribs_cache is None or _promoted_cribs_cache[0] != mtime:
+            promoted = load_promoted_cribs()
+            _promoted_cribs_cache = (mtime, promoted)
+        else:
+            promoted = _promoted_cribs_cache[1]
+        # Add promoted cribs that aren't already in config
+        config_set = set(CRIBS)
+        all_cribs.extend([c for c in promoted if c not in config_set])
+    return all_cribs
+
+
 def crib_bonus(text: str) -> float:
-    """Bonus score for presence of known cribs."""
+    """Bonus score for presence of known cribs (config + promoted)."""
     upper = ''.join(c for c in text.upper() if c.isalpha())
     bonus = 0.0
-    for crib in CRIBS:
+    for crib in _get_all_cribs():
         if crib and crib in upper:
             bonus += 5.0 * len(crib)
     return bonus
 
 
 def rarity_weighted_crib_bonus(text: str) -> float:
-    """Rarity-weighted crib bonus.
+    """Rarity-weighted crib bonus (config + promoted).
 
     Assign higher bonus to cribs composed of rarer letters (per LETTER_FREQ) so that
     infrequent-letter cribs (e.g., containing J/Q/Z/X) contribute proportionally more
@@ -232,7 +255,8 @@ def rarity_weighted_crib_bonus(text: str) -> float:
     Multiple occurrences of same crib each count; overlapping permitted. If CRIBS empty returns 0.
     Missing frequency entries fall back to a neutral 1.0 factor.
     """
-    if not CRIBS:
+    all_cribs = _get_all_cribs()
+    if not all_cribs:
         return 0.0
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if not seq:
@@ -257,7 +281,7 @@ def rarity_weighted_crib_bonus(text: str) -> float:
         return starts
 
     total = 0.0
-    for crib in CRIBS:
+    for crib in all_cribs:
         c = crib.upper()
         if not c or c not in seq:
             continue
