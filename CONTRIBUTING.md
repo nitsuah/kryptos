@@ -12,10 +12,16 @@ cd kryptos
 pip install -r requirements.txt
 ```
 
-1. Run tests:
+2. Run tests:
 
 ```bash
-python -m unittest discover -s tests
+pytest tests/ -v
+```
+
+3. Run linting:
+
+```bash
+pre-commit run --all-files
 ```
 
 ## Quick Start: Hill Constraint Stage
@@ -123,8 +129,8 @@ functions.
 
 - [ ] Feature isolated and cohesive
 - [ ] Tests added / updated
-- [ ] All tests pass locally
+- [ ] All tests pass locally (`pytest tests/`)
+- [ ] Linting passes (`pre-commit run --all-files`)
 - [ ] README / ROADMAP.md updated if relevant
-- [ ] No linter / syntax errors
 
 Welcome aboard!

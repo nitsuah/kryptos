@@ -75,7 +75,7 @@ def _persona_prompts() -> dict[str, str]:
             if fname.startswith("q") and state.get("learned"):
                 notes = " ".join(f"{n['persona']}:{n['note']}" for n in state.get("learned", []))
                 txt += f"\n\n# LEARNED_SUMMARY: {notes}\n"
-            mapping[fname.split(".")[0].upper()] = txt
+            mapping[fname.split(".", maxsplit=1)[0].upper()] = txt
     # Conservative fallbacks for CI/tests
     mapping.setdefault("Q", "Q_PLACEHOLDER: Provide short recommendation or review.")
     mapping.setdefault("OPS", "OPS_PLACEHOLDER: Manage tuning runs; idle.")
@@ -98,8 +98,8 @@ def recommend_next_action() -> tuple[str, str, dict]:
         has_spy = True
     except (ImportError, ModuleNotFoundError):
         has_spy = False
-    # ops availability heuristic: presence of sweep script
-    has_ops = (REPO_ROOT / "scripts" / "tuning" / "crib_weight_sweep.py").exists()
+    # ops availability heuristic: presence of consolidated tuning script
+    has_ops = (REPO_ROOT / "scripts" / "tuning.py").exists()
     metadata = {
         "has_artifacts": bool(has_artifacts),
         "has_spy": bool(has_spy),
@@ -145,6 +145,28 @@ def _simulate_action(name: str, prompt: str) -> str:
     return "UNKNOWN_PERSONA"
 
 
+def _update_cribs_from_spy(run_id: str) -> dict[str, int]:
+    """Extract SPY observations and promote cribs.
+
+    Args:
+        run_id: Identifier for this run (e.g., timestamp).
+
+    Returns:
+        Dictionary mapping promoted token -> count of distinct runs.
+    """
+    from kryptos.spy.crib_store import load_promoted_cribs, promote_cribs
+
+    # Mock/stub: in real implementation, would scan tuning run artifacts
+    # For now, return empty observations to establish the hook
+    observations = []
+    # Future: scan latest tuning run for high-confidence tokens
+    # observations = extract_from_tuning_run(get_tuning_runs_root() / run_id)
+    promoted_before = load_promoted_cribs()
+    promoted_after = promote_cribs(observations)
+    new_count = len(promoted_after) - len(promoted_before)
+    return {"cribs_total": len(promoted_after), "new": max(0, new_count)}
+
+
 def run_exchange(plan_text: str | None = None, autopilot: bool = True) -> Path:
     """Run a single multi-persona exchange.
 
@@ -180,6 +202,16 @@ def run_exchange(plan_text: str | None = None, autopilot: bool = True) -> Path:
                     state.setdefault("learned", []).append(
                         {"persona": name, "note": learn_text, "time": datetime.utcnow().isoformat()},
                     )
+    # Update cribs from SPY extractions
+    try:
+        crib_update = _update_cribs_from_spy(run_id=ts)
+        crib_log = json.dumps({"event": "cribs_updated", **crib_update, "timestamp": ts})
+        print(crib_log)
+        with out_path.open("a", encoding="utf-8") as fh:
+            fh.write(crib_log + "\n")
+    except (OSError, ValueError) as exc:
+        # Log but don't fail exchange if crib update fails
+        print(f"Warning: crib update failed: {exc}")
     _save_state(state)
     return out_path
 

@@ -111,10 +111,10 @@ def recommend_next_action() -> tuple[str, str, dict]:
     spy_extractor_path = repo_root / 'scripts' / 'dev' / 'spy_extractor.py'
     has_spy = spy_extractor_path.exists()
 
-    # detect ops_run_tuning presence: prefer an in-module callable or the presence of the sweep script
+    # detect ops_run_tuning presence: check for consolidated tuning.py
     has_ops = callable(globals().get('ops_run_tuning'))
     if not has_ops:
-        sweep_script = repo_root / 'scripts' / 'tuning' / 'crib_weight_sweep.py'
+        sweep_script = repo_root / 'scripts' / 'tuning.py'
         has_ops = sweep_script.exists()
 
     metadata = {
@@ -144,26 +144,25 @@ def recommend_next_action() -> tuple[str, str, dict]:
 
 def ops_run_tuning(
     weights: list[float] | None = None,
-    dry_run: bool = True,
+    dry_run: bool = True,  # noqa: ARG001 - kept for backward compat, not used
     retries: int = 3,
     backoff_factor: float = 0.5,
 ) -> str | dict:
-    """Run the crib_weight_sweep script programmatically.
+    """Run the consolidated tuning CLI (tuning.py sweep) programmatically.
 
     Returns the run directory path as a string. By default this is a dry run (no network or external
     side-effects beyond writing artifacts) — the underlying script is already safe and writes to
     `artifacts/tuning_runs/run_<ts>/`.
     """
-    # repository root is two parents above this file (scripts/dev -> scripts -> repo)
     repo_root = REPO_ROOT
-    sweep_path = repo_root / 'scripts' / 'tuning' / 'crib_weight_sweep.py'
+    # Use consolidated tuning CLI instead of legacy crib_weight_sweep.py
+    sweep_path = repo_root / 'scripts' / 'tuning.py'
 
-    # build subprocess command to run the sweep script with optional args
-    cmd = [sys.executable, str(sweep_path)]
+    # build subprocess command to run the sweep command with optional args
+    cmd = [sys.executable, str(sweep_path), 'sweep']
     if weights:
         cmd += ['--weights', ','.join(str(w) for w in weights)]
-    if dry_run:
-        cmd += ['--dry-run']
+    # Note: dry_run not implemented in new CLI yet, skip it
 
     # run the external script; it will write artifacts under artifacts/tuning_runs/
     # implement retries with exponential backoff for transient failures

@@ -11,6 +11,11 @@ quote-style = "preserve"
 indent-style = "space"
 line-ending = "auto"
 
+[tool.flake8]
+max-line-length = 120
+extend-ignore = ["E402", "E203"]
+exclude = ["__pycache__", ".git"]
+
 [build-system]
 requires = ["setuptools>=61.0","wheel"]
 build-backend = "setuptools.build_meta"
@@ -31,7 +36,11 @@ classifiers = [
 [project.scripts]
 kryptos = "kryptos.cli:main"
 
-# license expression removed; using PEP-621 license table above
+[tool.setuptools]
+package-dir = {"" = "src"}
+zip-safe = false
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["kryptos*"]
+namespaces = false
