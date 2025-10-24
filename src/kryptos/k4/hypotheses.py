@@ -135,3 +135,69 @@ class BerlinClockTranspositionHypothesis:
             )
 
         return candidates
+
+
+class SimpleSubstitutionHypothesis:
+    """Simple substitution ciphers: Caesar/ROT-N, Atbash, Reverse.
+
+    These are trivial classical ciphers unlikely to be K4's method,
+    but worth testing for completeness to definitively rule out.
+    """
+
+    def generate_candidates(self, ciphertext: str, limit: int = 10) -> list[Candidate]:
+        """Generate candidates by testing all simple substitutions."""
+        ct_clean = ''.join(c for c in ciphertext.upper() if c.isalpha())
+        alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        candidates_list = []
+
+        from .scoring import combined_plaintext_score
+
+        # Caesar/ROT-N (26 rotations)
+        for shift in range(26):
+            plaintext = ''
+            for c in ct_clean:
+                idx = alphabet.index(c)
+                plaintext += alphabet[(idx - shift) % 26]
+
+            score = combined_plaintext_score(plaintext)
+
+            candidates_list.append(
+                Candidate(
+                    id=f"caesar_rot{shift}",
+                    plaintext=plaintext,
+                    key_info={'type': 'caesar', 'shift': shift},
+                    score=score,
+                ),
+            )
+
+        # Atbash (A↔Z, B↔Y, etc.)
+        plaintext_atbash = ''
+        for c in ct_clean:
+            idx = alphabet.index(c)
+            plaintext_atbash += alphabet[25 - idx]
+
+        score_atbash = combined_plaintext_score(plaintext_atbash)
+        candidates_list.append(
+            Candidate(
+                id="atbash",
+                plaintext=plaintext_atbash,
+                key_info={'type': 'atbash'},
+                score=score_atbash,
+            ),
+        )
+
+        # Reverse
+        plaintext_reverse = ct_clean[::-1]
+        score_reverse = combined_plaintext_score(plaintext_reverse)
+        candidates_list.append(
+            Candidate(
+                id="reverse",
+                plaintext=plaintext_reverse,
+                key_info={'type': 'reverse'},
+                score=score_reverse,
+            ),
+        )
+
+        # Sort by score and return top candidates
+        candidates_list.sort(key=lambda c: c.score, reverse=True)
+        return candidates_list[:limit]
