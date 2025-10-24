@@ -1,9 +1,8 @@
 # Kryptos Sections API
 
-This document defines the unified public interface for working with the four sections of Kryptos
-(K1–K4). The goal is a predictable, minimal surface that lets higher‑level tooling (CLI, pipelines,
-notebooks) enumerate sections and invoke appropriate decrypt or solve routines without bespoke
-imports.
+This document defines the unified public interface for working with the four sections of Kryptos (K1–K4). The goal is a
+predictable, minimal surface that lets higher‑level tooling (CLI, pipelines, notebooks) enumerate sections and invoke
+appropriate decrypt or solve routines without bespoke imports.
 
 ## Design Principles
 
@@ -14,8 +13,8 @@ so orchestration code can iterate deterministically.
 * Thin Wrappers: K1/K2 Vigenère wrappers delegate to the canonical keyed
 implementation; K3 delegates to the published double rotational transposition.
 * Progressive Exposure: K4 currently exposes rich solver components under
-`kryptos.k4.*` but is intentionally not bound into the simple `SECTIONS` mapping for bulk iteration
-until the public search interface stabilizes.
+`kryptos.k4.*` but is intentionally not bound into the simple `SECTIONS` mapping for bulk iteration until the public
+search interface stabilizes.
 
 ## Current Status
 
@@ -105,21 +104,21 @@ for cand in result.candidates[:5]:
   print(cand.get('score'), cand.get('text')[:60])
 ```
 
-`decrypt_best` returns a `DecryptResult` dataclass with: `plaintext`, `score`, `candidates`,
-`profile`, optional `artifacts`, `attempt_log`, and `lineage`.
+`decrypt_best` returns a `DecryptResult` dataclass with: `plaintext`, `score`, `candidates`, `profile`, optional
+`artifacts`, `attempt_log`, and `lineage`.
 
 ## Roadmap
 
-1. Add uniform exception types (`KryptosDecryptError`). 2. Stricter Protocol & typing for
-heterogeneous section callables. 3. Deterministic test vectors for each section documented here.
+1. Add uniform exception types (`KryptosDecryptError`). 2. Stricter Protocol & typing for heterogeneous section
+callables. 3. Deterministic test vectors for each section documented here.
 4. Expand CLI: introduce unified `kryptos decrypt k1|k2|k3|k4` and tuning subcommands (in progress).
 5. Persist standardized artifact bundle schema & version in `DecryptResult.metadata`.
 
 ## Deprecations
 
-Legacy direct imports (e.g. `from kryptos.ciphers import vigenere_decrypt`) are still supported but
-will be discouraged in favor of the uniform section modules for high-level usage. Low-level research
-/ experimentation can continue to use the primitives module.
+Legacy direct imports (e.g. `from kryptos.ciphers import vigenere_decrypt`) are still supported but will be discouraged
+in favor of the uniform section modules for high-level usage. Low-level research / experimentation can continue to use
+the primitives module.
 
 ---
 

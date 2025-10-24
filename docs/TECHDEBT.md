@@ -23,19 +23,18 @@ REORG.md SECTIONS.md EXPERIMENTAL_TOOLING.md 10KFT.md AUTOPILOT.md ROADMAP.md
 ## High Impact Debt (Tackle First)
 
 1. Split namespace (historical `src/k4/` vs `kryptos/k4/`). (Completed) 2. Duplicate scoring modules
-(`src/scoring/fitness.py` & `src/kryptos/scoring/fitness.py`). (Removed; single source) 3. Reporting
-duplication (`src/report.py` + shim `src/kryptos/report.py`). (Completed; canonical
+(`src/scoring/fitness.py` & `src/kryptos/scoring/fitness.py`). (Removed; single source) 3. Reporting duplication
+(`src/report.py` + shim `src/kryptos/report.py`). (Completed; canonical
 ## Kryptos Technical Debt & Cleanup Plan
 Breadcrumb: Architecture > Tech Debt > Cleanup Plan
 
-> Policy: No more shims, fallback import ladders, or duplicate modules. We delete, migrate, and
-unify. Every item results in code or deletion — no shims.
+> Policy: No more shims, fallback import ladders, or duplicate modules. We delete, migrate, and unify. Every item
+results in code or deletion — no shims.
 
 ### High Impact Debt (Top Priority)
-1. Positional letter deviation weight calibration & evaluation dataset. 2. Artifact provenance
-hashing & optional compression. 3. Remaining hardcoded artifact paths (ensure all use
-`kryptos.paths`). 4. Eliminate any residual broad exception handlers. 5. Centralize configuration
-validation & logging filters.
+1. Positional letter deviation weight calibration & evaluation dataset. 2. Artifact provenance hashing & optional
+compression. 3. Remaining hardcoded artifact paths (ensure all use `kryptos.paths`). 4. Eliminate any residual broad
+exception handlers. 5. Centralize configuration validation & logging filters.
 
 ### Medium Impact Debt
 - Script proliferation (ensure all logic lives in package; wrappers thin).
@@ -73,9 +72,9 @@ validation & logging filters.
 | Unimplemented scoring TODOs | 0 |
 
 ### Next Immediate Steps
-1. Calibrate positional deviation weight. 2. Add provenance hash to attempt/decision metadata. 3.
-Remove deprecated demo wrappers post CI module usage. 4. Introduce `DEPRECATIONS.md` (added) and
-implement warning emission. 5. Draft `API_REFERENCE.md`.
+1. Calibrate positional deviation weight. 2. Add provenance hash to attempt/decision metadata. 3. Remove deprecated demo
+wrappers post CI module usage. 4. Introduce `DEPRECATIONS.md` (added) and implement warning emission. 5. Draft
+`API_REFERENCE.md`.
 
 Last updated: 2025-10-24T01:03Z
 ## Test & Verification Additions
@@ -106,12 +105,11 @@ Completed:
 
 Outstanding script migrations (prints remain; convert to logging in phased order):
 
-1. Dev operational scripts (`scripts/dev/*`): retry loops, daemon orchestration, plan execution. 2.
-Tuning scripts (`scripts/tuning/*`): artifact path/status lines; change prints to logger.info and
-add `--json`/`--quiet` parity. 3. Experimental examples/tools: educational output acceptable;
-introduce optional `--log-level` to silence in automated runs. 4. Demo scripts: convert status
-messages to `kryptos.demo` logger for consistency. 5. Lint/check tooling: keep direct prints (they
-are user-facing diagnostics) but annotate as intentional.
+1. Dev operational scripts (`scripts/dev/*`): retry loops, daemon orchestration, plan execution. 2. Tuning scripts
+(`scripts/tuning/*`): artifact path/status lines; change prints to logger.info and add `--json`/`--quiet` parity. 3.
+Experimental examples/tools: educational output acceptable; introduce optional `--log-level` to silence in automated
+runs. 4. Demo scripts: convert status messages to `kryptos.demo` logger for consistency. 5. Lint/check tooling: keep
+direct prints (they are user-facing diagnostics) but annotate as intentional.
 
 Target migration sequence:
 
@@ -121,8 +119,8 @@ run_rarity_calibration.
 - Phase 3 (Demos/Examples): run_k4_demo, sample_composite_demo, sections_demo.
 - Phase 4 (Experimental tools optional): aggregate_spy_phrases, generate_top_candidates.
 
-Policy: After Phase 2 completion, metric "Library prints" must be 0 (only scripts allowed). After
-Phase 3, all remaining prints are either test fixtures or interactive tools.
+Policy: After Phase 2 completion, metric "Library prints" must be 0 (only scripts allowed). After Phase 3, all remaining
+prints are either test fixtures or interactive tools.
 
 Follow-up Tasks:
 
@@ -151,30 +149,28 @@ Success Criteria:
 
 ## Immediate Next Step
 
-Reporting & paths consolidation: migrate any remaining reporting shim to `kryptos/reporting.py`,
-introduce `kryptos/paths.py` + `kryptos/logging.py`, then delete stale references.
+Reporting & paths consolidation: migrate any remaining reporting shim to `kryptos/reporting.py`, introduce
+`kryptos/paths.py` + `kryptos/logging.py`, then delete stale references.
 
-Verification note: Physical duplicate directories under `src/` removed; legacy duplicate modules
-purged; reporting consolidated; spy extractor migrated; positional letter deviation metric
-integrated; artifact path standardized under `artifacts/k4_runs/`. Spy eval shims physically deleted
-(former `scripts/tuning/spy_eval.py` and `src/kryptos/scripts/tuning/spy_eval.py`); canonical
-harness lives only at `src/kryptos/tuning/spy_eval.py`. Any future reintroduction of script-level
-spy eval must be a thin CLI wrapper calling the canonical module.
+Verification note: Physical duplicate directories under `src/` removed; legacy duplicate modules purged; reporting
+consolidated; spy extractor migrated; positional letter deviation metric integrated; artifact path standardized under
+`artifacts/k4_runs/`. Spy eval shims physically deleted (former `scripts/tuning/spy_eval.py` and
+`src/kryptos/scripts/tuning/spy_eval.py`); canonical harness lives only at `src/kryptos/tuning/spy_eval.py`. Any future
+reintroduction of script-level spy eval must be a thin CLI wrapper calling the canonical module.
 
---- Last updated: 2025-10-23T23:57Z (spy namespace, artifact path consolidation, positional
-deviation metric, new calibration & provenance tasks) --- Last updated: 2025-10-23T24:30Z (CLI
-logging rollout; compatibility shims; logging migration plan added)
+--- Last updated: 2025-10-23T23:57Z (spy namespace, artifact path consolidation, positional deviation metric, new
+calibration & provenance tasks) --- Last updated: 2025-10-23T24:30Z (CLI logging rollout; compatibility shims; logging
+migration plan added)
 
 ## Organizational Refactor Plan (Proposed)
 
-Goal: Reduce root-level module clutter and clarify separation between infrastructure (core), domain
-logic (sections, scoring), and public API exports.
+Goal: Reduce root-level module clutter and clarify separation between infrastructure (core), domain logic (sections,
+scoring), and public API exports.
 
-Target structure: 1. `kryptos/core/` — move `logging.py`, `paths.py`, `deprecation.py`. 2.
-`kryptos/sections/` — retain existing `k1/`, `k2/`, `k3/`, `k4/` plus a lightweight `sections.py`
-mapping. 3. Optional `kryptos/analysis/` — migrate heavier analytical helpers from `analysis.py` if
-expansion continues. 4. Keep `reporting.py` root-level (user-facing). 5. Evaluate `ciphers.py`
-constants; if minimal keep, otherwise relocate into `core/constants.py`.
+Target structure: 1. `kryptos/core/` — move `logging.py`, `paths.py`, `deprecation.py`. 2. `kryptos/sections/` — retain
+existing `k1/`, `k2/`, `k3/`, `k4/` plus a lightweight `sections.py` mapping. 3. Optional `kryptos/analysis/` — migrate
+heavier analytical helpers from `analysis.py` if expansion continues. 4. Keep `reporting.py` root-level (user-facing).
+5. Evaluate `ciphers.py` constants; if minimal keep, otherwise relocate into `core/constants.py`.
 
 Phased tasks:
 - Phase 1: Introduce `core/` package with copies of modules; add deprecation warnings in old

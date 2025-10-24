@@ -8,5 +8,4 @@ Refer to:
 
 Historical copy: `docs/archive/PLAN_2025-10-22.md` or git history.
 
-Rationale: Reduce duplicate planning surfaces; maintain one live roadmap + strategy + tech debt
-tracker.
+Rationale: Reduce duplicate planning surfaces; maintain one live roadmap + strategy + tech debt tracker.

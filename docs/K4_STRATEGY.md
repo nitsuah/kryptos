@@ -1,9 +1,8 @@
 # K4 Strategy & Technical Notes
 Breadcrumb: Strategy > K4 > Technical Notes
 
-This document collects K4-specific strategy, modules, and operational notes used by the analysis
-pipeline. It's intentionally focused on the unsolved K4 piece and the specialized tooling in
-`kryptos/k4/` (previously `src/k4/`).
+This document collects K4-specific strategy, modules, and operational notes used by the analysis pipeline. It's
+intentionally focused on the unsolved K4 piece and the specialized tooling in `kryptos/k4/` (previously `src/k4/`).
 
 Related documents / breadcrumbs:
 
@@ -39,14 +38,14 @@ plaintexts.
 
 Prefer direct package APIs over legacy scripts:
 
-*Status:* Implemented (`rarity_weighted_crib_bonus` in `kryptos.k4.scoring`); calibration & fusion
-weight tuning pending.
+*Status:* Implemented (`rarity_weighted_crib_bonus` in `kryptos.k4.scoring`); calibration & fusion weight tuning
+pending.
 
 - `kryptos.k4.tuning.tiny_param_sweep`  deterministic micro-grid for smoke validation.
 - `kryptos.k4.tuning.artifacts`  cleaning & summarization (`end_to_end_process`).
 
-Legacy scripts (`scripts/tuning/`, certain experimental examples) will be replaced by forthcoming
-CLI subcommands (`kryptos tuning ...`).
+Legacy scripts (`scripts/tuning/`, certain experimental examples) will be replaced by forthcoming CLI subcommands
+(`kryptos tuning ...`).
 
 ## Artifacts and format
 
@@ -58,12 +57,11 @@ penalize structured transposition artifacts.
 
 ## Next K4 priorities (short)
 
-1. Close remaining scoring coverage gaps and add transposition edge-case tests. 2. Implement
-deterministic small sweeps and iterate weighting heuristics. 3. Deploy the daemon runner and collect
-longer campaigns for candidate analysis.
+1. Close remaining scoring coverage gaps and add transposition edge-case tests. 2. Implement deterministic small sweeps
+and iterate weighting heuristics. 3. Deploy the daemon runner and collect longer campaigns for candidate analysis.
 
-For operational details and code-level examples, refer to the module docstrings in `kryptos/k4/` and
-the quick examples in `docs/README_CORE.md`.
+For operational details and code-level examples, refer to the module docstrings in `kryptos/k4/` and the quick examples
+in `docs/README_CORE.md`.
 
 ## Kryptos K4 Research & Strategy
 
@@ -86,8 +84,7 @@ Ciphertext (per sculpture transcription; spaces inserted for readability):
 OBKR UOXOGHULBSOLIFBBWFLRVQQPRNGKSSO TWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTT MZFPKWGDKZXTJCDIGKUHUAUEKCAR
 ```
 
-Known plaintext cribs (confirmed by Sanborn) with expected start indices (0-based for analysis
-convenience):
+Known plaintext cribs (confirmed by Sanborn) with expected start indices (0-based for analysis convenience):
 
 | Plain | Expected Index | Cipher Segment |
 |-------|----------------|----------------|
@@ -98,9 +95,9 @@ convenience):
 
 #### Index Corrections
 
-Indices have been validated; the table above shows the corrected values (NORTHEAST=25, CLOCK=69).
-Prior values (NORTHEAST=26 and CLOCK=70) were off-by-one errors. These have been harmonized for
-positional scoring. See validation in [`tests/test_k4_cribs.py`](../tests/test_k4_cribs.py).
+Indices have been validated; the table above shows the corrected values (NORTHEAST=25, CLOCK=69). Prior values
+(NORTHEAST=26 and CLOCK=70) were off-by-one errors. These have been harmonized for positional scoring. See validation in
+[`tests/test_k4_cribs.py`](../tests/test_k4_cribs.py).
 
 ### 3. Constraints & Observations
 
@@ -113,9 +110,9 @@ hypothesis (Berlin Clock encoding route).
 
 ### 4. Candidate Cipher Families (Tracked)
 
-1. Polyalphabetic / key-stream (Berlin Clock derived shifts). [IN PROGRESS] 2. Columnar / double
-transposition with anchored cribs. [IN PROGRESS] 3. Hill cipher (2x2, 3x3 constrained by cribs). [IN
-PROGRESS] 4. Masking / null removal to expose latent structure. [COMPLETED (stage)] 5. Hybrid matrix
+1. Polyalphabetic / key-stream (Berlin Clock derived shifts). [IN PROGRESS] 2. Columnar / double transposition with
+anchored cribs. [IN PROGRESS] 3. Hill cipher (2x2, 3x3 constrained by cribs). [IN PROGRESS] 4. Masking / null removal to
+expose latent structure. [COMPLETED (stage)] 5. Hybrid matrix
 + transposition chain. [PLANNED] 6. Progressive key (autokey/Berlin-lamp injection). [PLANNED]
 
 
@@ -132,8 +129,8 @@ PROGRESS] 4. Masking / null removal to expose latent structure. [COMPLETED (stag
 
 ### 6. Data Normalization Tasks
 
-DONE: normalization utilities; still ensure consistent indexing for positional scoring (verify
-EAST/NORTHEAST alignment). Pending: automatic index validation test.
+DONE: normalization utilities; still ensure consistent indexing for positional scoring (verify EAST/NORTHEAST
+alignment). Pending: automatic index validation test.
 
 ### 7. Scoring Components (Implemented)
 
@@ -146,8 +143,7 @@ EAST/NORTHEAST alignment). Pending: automatic index validation test.
 - Weighted fusion (stage-normalized min-max).
 - Memoized combined score (LRU cache).
 - Positional letter deviation metric integrated into extended composite score.
-Planned enhancement: rarity-weighted crib scoring augments positional crib bonus with a frequency-
-based multiplier.
+Planned enhancement: rarity-weighted crib scoring augments positional crib bonus with a frequency- based multiplier.
 
 Algorithm sketch:
 
@@ -169,8 +165,8 @@ confidence candidates.
 - Partial score pruning for 3x3 candidates (reduce evaluation expense).
 - Attempt logging for each key attempt (pruned & successful) → persisted via composite run.
 
-Next: Evaluate additional assembly heuristics (spiral, snake) and consider plaintext/cipher swapped
-orientation tests (P = K*C vs C = K*P) with small sample.
+Next: Evaluate additional assembly heuristics (spiral, snake) and consider plaintext/cipher swapped orientation tests (P
+= K*C vs C = K*P) with small sample.
 
 ### 9. Transposition Constraint Solver (Current State)
 
@@ -178,8 +174,8 @@ orientation tests (P = K*C vs C = K*P) with small sample.
 - Multi-crib positional stage enumerating permutations satisfying window constraints.
 - Attempt logging at permutation level (search & adaptive).
 
-Next: Integrate simultaneous alignment scoring (weighted by rarity of alignment probability) and add
-route-transposition patterns.
+Next: Integrate simultaneous alignment scoring (weighted by rarity of alignment probability) and add route-transposition
+patterns.
 
 #### Adaptive Sampling (Planned Detail)
 
@@ -206,8 +202,8 @@ Edge cases:
 - Uniform low scores → immediate cutoff to conserve runtime.
 - Degenerate grids (non-divisible shapes) → skip expansion logic safely.
 
-Success criteria: ≥30% reduction in low-quality permutations versus baseline exhaustive search while
-preserving top-10 candidate set (no loss of previous top scores in validation diffs).
+Success criteria: ≥30% reduction in low-quality permutations versus baseline exhaustive search while preserving top-10
+candidate set (no loss of previous top scores in validation diffs).
 
 ### 10. Berlin Clock Key Stream (Current State)
 
@@ -215,14 +211,14 @@ preserving top-10 candidate set (no loss of previous top scores in validation di
 - Dual-direction shift application (forward/backward) enumerated across time range.
 - Attempt logging per time-mode combination.
 
-Next: Derive candidate reference times (historical events) and cluster high scoring intervals;
-refine by dynamic step reduction near promising hours.
+Next: Derive candidate reference times (historical events) and cluster high scoring intervals; refine by dynamic step
+reduction near promising hours.
 
 ### 11. Testing Infrastructure
 
-Completed: Unit tests for scoring, Hill, transposition, Berlin Clock, masking, fusion, entropy
-metrics, positional constraints. Pending: Tests for attempt log persistence artifact and multi-crib
-stage correctness (positions captured). Add failure mode tests (pruned keys/perms recorded).
+Completed: Unit tests for scoring, Hill, transposition, Berlin Clock, masking, fusion, entropy metrics, positional
+constraints. Pending: Tests for attempt log persistence artifact and multi-crib stage correctness (positions captured).
+Add failure mode tests (pruned keys/perms recorded).
 
 ### 12. Workflow Log (Recent Updates)
 
@@ -239,31 +235,28 @@ stage correctness (positions captured). Add failure mode tests (pruned keys/perm
 
 ### 13. Performance & Optimization
 
-Implemented: LRU caching, partial score pruning, prefix caching. Next: Profile hotspots for 3x3 key
-generation & multi-crib permutation enumeration; implement parallelization option (multiprocessing)
-for heavy search stages.
+Implemented: LRU caching, partial score pruning, prefix caching. Next: Profile hotspots for 3x3 key generation & multi-
+crib permutation enumeration; implement parallelization option (multiprocessing) for heavy search stages.
 
 ### 14. Artifact & Reproducibility
 
-Implemented: Candidate JSON/CSV with metrics + transformation trace + lineage; attempt logs
-persisted in timestamped JSON. Next: Add compression option & integrate provenance hash of
-ciphertext + parameters.
+Implemented: Candidate JSON/CSV with metrics + transformation trace + lineage; attempt logs persisted in timestamped
+JSON. Next: Add compression option & integrate provenance hash of ciphertext + parameters.
 
 ### 15. Updated Next Actions
 
-1. Calibrate positional letter deviation weight (evaluate impact across historical candidate sets).
-2. Refine route transposition scoring (add positional crib bonus integration). 3. Expand 3x3 Hill
-assemblies (spiral, column zigzag) + orientation flip tests. 4. Probability-weighted multi-crib
-scoring (rarity weighting vs simple bonus). 5. Multiprocessing / parallel stage execution
-benchmarking. 6. Failure mode tests for pruning (assert pruned recorded correctly). 7. Refine
-adaptive fusion weighting thresholds (entropy band & bonuses). 8. Add diagonal-start variants (anti-
-diagonal snake) & perimeter-in/out variants. 9. Implement adaptive transposition sampling loop with
-per-width metrics & validation benchmarks. 10. Integrate rarity-weighted crib scoring and complete
-calibration sweep (k parameter selection).
+1. Calibrate positional letter deviation weight (evaluate impact across historical candidate sets). 2. Refine route
+transposition scoring (add positional crib bonus integration). 3. Expand 3x3 Hill assemblies (spiral, column zigzag) +
+orientation flip tests. 4. Probability-weighted multi-crib scoring (rarity weighting vs simple bonus). 5.
+Multiprocessing / parallel stage execution benchmarking. 6. Failure mode tests for pruning (assert pruned recorded
+correctly). 7. Refine adaptive fusion weighting thresholds (entropy band & bonuses). 8. Add diagonal-start variants
+(anti- diagonal snake) & perimeter-in/out variants. 9. Implement adaptive transposition sampling loop with per-width
+metrics & validation benchmarks. 10. Integrate rarity-weighted crib scoring and complete calibration sweep (k parameter
+selection).
 
 ### 16. References
 
 (See README for links; add matrix conjecture, entropy references.)
 
---- Updated: 2025-10-23T23:50Z (positional deviation metric + next actions weight calibration +
-adaptive sampling & rarity-weighted crib scoring plan)
+--- Updated: 2025-10-23T23:50Z (positional deviation metric + next actions weight calibration + adaptive sampling &
+rarity-weighted crib scoring plan)

@@ -14,4 +14,29 @@ from .autopilot_demo import run_autopilot_demo  # type: ignore  # re-export
 from .k4_demo import run_demo  # type: ignore  # re-export
 from .tiny_weight_sweep import run_tiny_weight_sweep  # type: ignore  # re-export
 
-__all__ = ["run_demo", "run_autopilot_demo", "run_tiny_weight_sweep"]
+
+def run_composite_demo():  # pragma: no cover
+    """Placeholder composite demo; implement real example if needed.
+
+    Currently delegates to `run_demo` for K4 pipeline showcase.
+    """
+    return run_demo(limit=15)
+
+
+def run_sections_demo():  # pragma: no cover
+    """Placeholder sections demo; list sections mapping.
+
+    Extend with richer per-section logic if required.
+    """
+    from kryptos.sections import SECTIONS
+
+    return list(SECTIONS.keys())
+
+
+__all__ = [
+    "run_demo",
+    "run_autopilot_demo",
+    "run_tiny_weight_sweep",
+    "run_composite_demo",
+    "run_sections_demo",
+]

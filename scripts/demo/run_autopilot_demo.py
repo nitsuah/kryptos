@@ -9,10 +9,16 @@ import warnings
 
 from kryptos.examples import run_autopilot_demo as _run
 
+warnings.warn(
+    ("Importing scripts.demo.run_autopilot_demo is deprecated; use " "python -m kryptos.examples.autopilot_demo"),
+    DeprecationWarning,
+    stacklevel=1,
+)
+
 
 def main():  # pragma: no cover
     warnings.warn(
-        "scripts/demo/run_autopilot_demo.py deprecated; use kryptos.examples.autopilot_demo",
+        ("scripts/demo/run_autopilot_demo.py deprecated; use " "python -m kryptos.examples.autopilot_demo"),
         DeprecationWarning,
         stacklevel=2,
     )

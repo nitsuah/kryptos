@@ -23,11 +23,10 @@ This document tracks performance enhancement tasks and profiling methodology.
 
 ## Weight Calibration Procedure
 
-1. Collect baseline scoring outputs for a fixed candidate set (N=500) with positional weight W0. 2.
-Sweep candidate weights (e.g., 10, 20, 30, 40) and record Spearman rank correlation vs baseline
-n-gram only score. 3. Choose smallest weight maintaining correlation >= 0.85 while improving false-
-positive filtering (measured by manual artifact review or crib alignment precision). 4. Document
-chosen weight and justification here and in CHANGELOG.
+1. Collect baseline scoring outputs for a fixed candidate set (N=500) with positional weight W0. 2. Sweep candidate
+weights (e.g., 10, 20, 30, 40) and record Spearman rank correlation vs baseline n-gram only score. 3. Choose smallest
+weight maintaining correlation >= 0.85 while improving false- positive filtering (measured by manual artifact review or
+crib alignment precision). 4. Document chosen weight and justification here and in CHANGELOG.
 
 ## Artifact Provenance
 
@@ -36,8 +35,7 @@ Add fields to run metadata JSON:
 
 ## Hotspot Profiling
 
-Use Python `cProfile` or `pyinstrument` (optional dev dependency) on composite runs with small
-limit. Focus on:
+Use Python `cProfile` or `pyinstrument` (optional dev dependency) on composite runs with small limit. Focus on:
 
 - transposition route enumeration
 - hill key assembly loops
@@ -45,9 +43,8 @@ limit. Focus on:
 
 ## Next Steps
 
-1. Implement timing wrapper utility. 2. Add provenance hash computation helper
-(`kryptos.paths.provenance_hash`). 3. Run initial positional weight sweep and record results
-(`scripts/tuning/run_rarity_calibration.py`). 4. Add CLI flag `--profile` to emit profiling stats
-JSON.
+1. Implement timing wrapper utility. 2. Add provenance hash computation helper (`kryptos.paths.provenance_hash`). 3. Run
+initial positional weight sweep and record results (`scripts/tuning/run_rarity_calibration.py`). 4. Add CLI flag
+`--profile` to emit profiling stats JSON.
 
 Updated: 2025-10-23T23:59Z

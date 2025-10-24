@@ -9,10 +9,16 @@ import warnings
 
 from kryptos.examples import run_demo as _run_demo
 
+warnings.warn(
+    ("Importing scripts.demo.run_k4_demo is deprecated; use " "python -m kryptos.examples.k4_demo"),
+    DeprecationWarning,
+    stacklevel=1,
+)
+
 
 def run_demo(limit: int = 10):  # pragma: no cover
     warnings.warn(
-        "scripts/demo/run_k4_demo.py is deprecated; use kryptos.examples.k4_demo",
+        ("scripts/demo/run_k4_demo.py is deprecated; use " "python -m kryptos.examples.k4_demo"),
         DeprecationWarning,
         stacklevel=2,
     )

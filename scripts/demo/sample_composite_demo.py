@@ -1,67 +1,34 @@
-"""Sample composite pipeline run producing artifacts & attempt logs.
-Run after installing the package (pip install -e .).
-Uses unified `kryptos.k4` namespace (legacy `src.k4` removed).
+"""Deprecated wrapper: use `python -m kryptos.examples.composite_demo`.
+
+Kept temporarily for backward compatibility; will be removed per timeline in DEPRECATIONS.md.
 """
 
-from collections.abc import Sequence
+from __future__ import annotations
 
-from kryptos.k4 import (
-    make_berlin_clock_stage,
-    make_hill_constraint_stage,
-    make_masking_stage,
-    make_transposition_adaptive_stage,
-    make_transposition_multi_crib_stage,
-    persist_attempt_logs,
-    run_composite_pipeline,
+import warnings
+
+warnings.warn(
+    "Importing scripts.demo.sample_composite_demo is deprecated; use python -m kryptos.examples.composite_demo",
+    DeprecationWarning,
+    stacklevel=1,
 )
 
-CIPHER_K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
+try:
+    from kryptos.examples import run_composite_demo as _run
+except ImportError:  # pragma: no cover
+    _run = None
 
-_RAW_POSITIONAL: dict[str, list[int]] = {
-    'EAST': [22],  # provisional; under investigation per strategy doc
-    'NORTHEAST': [25],
-    'BERLIN': [64],
-    'CLOCK': [69],
-}
-# Treat as Dict[str, Sequence[int]] for stage factory
-POSITIONAL_CRIBS: dict[str, Sequence[int]] = {k: tuple(v) for k, v in _RAW_POSITIONAL.items()}
 
-stages = [
-    make_hill_constraint_stage(partial_len=60, partial_min=-800.0),
-    make_transposition_adaptive_stage(min_cols=5, max_cols=6, sample_perms=250, partial_length=50),
-    make_transposition_multi_crib_stage(
-        positional_cribs=POSITIONAL_CRIBS,
-        min_cols=5,
-        max_cols=6,
-        window=5,
-    ),
-    make_masking_stage(limit=10),
-    make_berlin_clock_stage(step_seconds=10800, limit=15),
-]
-
-WEIGHTS = {
-    'hill-constraint': 2.0,
-    'transposition-adaptive': 1.2,
-    'transposition-pos-crib': 1.5,
-    'masking': 1.0,
-    'berlin-clock': 0.8,
-}
-
-if __name__ == "__main__":
-    result = run_composite_pipeline(
-        CIPHER_K4,
-        stages,
-        report=True,
-        weights=None,  # disables manual weighting; enables adaptive weighting
-        normalize=True,
-        adaptive=True,  # enable adaptive weighting
-        limit=40,
+def main():  # pragma: no cover
+    warnings.warn(
+        "scripts/demo/sample_composite_demo.py deprecated; use kryptos.examples.composite_demo",
+        DeprecationWarning,
+        stacklevel=2,
     )
-    attempt_path = persist_attempt_logs(out_dir='reports', label='K4', clear=True)
-    print("Artifacts written. Attempt log:", attempt_path)
-    fused = result.get('fused', [])
-    print("Adaptive weights diagnostics:")
-    print(result.get('profile', {}).get('adaptive_diagnostics'))
-    print("Top fused candidates:")
-    for cand in fused[:5]:
-        print(cand['stage'], round(cand['fused_score'], 2), cand['text'][:60])
+    if _run is None:
+        raise SystemExit("examples.composite_demo missing; update package")
+    _run()
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()

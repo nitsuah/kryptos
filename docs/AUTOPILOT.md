@@ -1,8 +1,8 @@
 # Autopilot, SPY Tuning, and OPS Overview
 Breadcrumb: Strategy > Autopilot > Overview
 
-This document summarizes the offline autopilot flow (Q / OPS / SPY), the conservative SPY extractor,
-the SPY evaluation harness, and CI demo wiring added to the project.
+This document summarizes the offline autopilot flow (Q / OPS / SPY), the conservative SPY extractor, the SPY evaluation
+harness, and CI demo wiring added to the project.
 
 Related documents / breadcrumbs:
 
@@ -16,28 +16,25 @@ Related documents / breadcrumbs:
 - Q (Planner): produces a short plan or single-line recommended next action. Implemented in
 `scripts/dev/ask_triumverate.py` and helpers.
 - OPS (Operational Tuner): runs tuning sweeps to measure sensitivity to crib weights and other
-parameters. Canonical APIs: `kryptos.k4.tuning.run_crib_weight_sweep`,
-`kryptos.k4.tuning.tiny_param_sweep`, and artifact helpers in `kryptos.k4.tuning.artifacts` (legacy
-script wrappers pending CLI promotion).
+parameters. Canonical APIs: `kryptos.k4.tuning.run_crib_weight_sweep`, `kryptos.k4.tuning.tiny_param_sweep`, and
+artifact helpers in `kryptos.k4.tuning.artifacts` (legacy script wrappers pending CLI promotion).
 - SPY (Conservative Extractor): scans tuning run attempt CSV artifacts and extracts high-confidence
-quoted tokens present in `docs/sources/sanborn_crib_candidates.txt`. Implemented via
-`kryptos.spy.extractor` (legacy `scripts/dev/spy_extractor.py` deprecated; use package API or CLI
-subcommand `kryptos spy extract`).
+quoted tokens present in `docs/sources/sanborn_crib_candidates.txt`. Implemented via `kryptos.spy.extractor` (legacy
+`scripts/dev/spy_extractor.py` deprecated; use package API or CLI subcommand `kryptos spy extract`).
 
 ## SPY threshold selection
 
 - The SPY extractor accepts a minimum confidence via `SPY_MIN_CONF` env var or `--min-conf` CLI.
--- If unset, the autopilot will call `kryptos.k4.tuning.spy_eval.select_best_threshold` which
-evaluates precision/recall/F1 across thresholds and now *prefers precision* (conservative
-extraction). Tie-breaker is F1.
+-- If unset, the autopilot will call `kryptos.k4.tuning.spy_eval.select_best_threshold` which evaluates
+precision/recall/F1 across thresholds and now *prefers precision* (conservative extraction). Tie-breaker is F1.
 
 Notes and defaults:
 
 - If `SPY_MIN_CONF` is not set and `select_best_threshold` cannot determine a threshold (no labels
 or runs available), the autopilot will fall back to a conservative default of `0.25`.
 - The SPY extractor computes a per-token confidence as `delta / max_delta` where `delta` is the run-
-specific match delta and `max_delta` is the maximum delta observed in that run's scan. The `--min-
-conf` threshold is applied to that normalized confidence to decide which tokens to emit.
+specific match delta and `max_delta` is the maximum delta observed in that run's scan. The `--min- conf` threshold is
+applied to that normalized confidence to decide which tokens to emit.
 
 Example: evaluating thresholds (package API):
 
@@ -75,8 +72,8 @@ CLI).
 
 ## Unified Autopilot (CLI)
 
-Legacy daemon scripts (`ask_triumverate.py`, `autopilot_daemon.py`, `cracker_daemon.py`,
-`manager_daemon.py`) have been removed. Use the CLI instead:
+Legacy daemon scripts (`ask_triumverate.py`, `autopilot_daemon.py`, `cracker_daemon.py`, `manager_daemon.py`) have been
+removed. Use the CLI instead:
 
 Single exchange (dry-run recommendation + persona summaries):
 
@@ -104,8 +101,8 @@ Decision artifacts (when produced by downstream tooling) are written to:
 artifacts/decisions/decision_<timestamp>.json
 ```
 
-Each decision JSON includes: time, run_dir, best_weight, spy_min_conf, spy_precision, holdout
-results and `holdout_pass`.
+Each decision JSON includes: time, run_dir, best_weight, spy_min_conf, spy_precision, holdout results and
+`holdout_pass`.
 
 ## Safety: no user decisions required
 

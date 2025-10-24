@@ -19,8 +19,8 @@ docs.
 
 * Fully removed deprecated `scripts/tuning/spy_eval.py` (replaced by package API + CLI subcommand).
 * Removed deprecated experimental scripts: `run_full_smoke.py`, `run_hill_search.py`,
-`clean_and_summarize_matches.py`, `summarize_crib_hits.py`, `run_pipeline_sample.py` (functionality
-migrated to package APIs & CLI subcommands).
+`clean_and_summarize_matches.py`, `summarize_crib_hits.py`, `run_pipeline_sample.py` (functionality migrated to package
+APIs & CLI subcommands).
 * Removed legacy executor (`PipelineExecutor`) and migrated tests to `Pipeline` & composite helpers.
 
 ### Pending

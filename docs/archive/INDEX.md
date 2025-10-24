@@ -1,7 +1,7 @@
 # Archived Documents Index
 
-This index lists archived (historical) documentation files retained for traceability. Active docs
-live one level up in `docs/`.
+This index lists archived (historical) documentation files retained for traceability. Active docs live one level up in
+`docs/`.
 
 | File | Date | Reason | Superseded By |
 |------|------|--------|---------------|

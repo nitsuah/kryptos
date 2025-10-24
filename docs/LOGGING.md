@@ -31,8 +31,7 @@ Parameters:
 - propagate: False by default to avoid duplicate upstream handlers.
 - force: True to rebuild the Kryptos handler (rare; used in tests).
 
-Idempotence marker: handlers created by setup_logging are tagged with `_kryptos_handler` to detect
-duplicates.
+Idempotence marker: handlers created by setup_logging are tagged with `_kryptos_handler` to detect duplicates.
 
 ## Logger Naming
 
@@ -46,11 +45,10 @@ duplicates.
 
 ## Script Migration Policy
 
-Phases: 1. Dev scripts (completed): added deprecation headers + logging warnings. 2. Tuning scripts
-(completed subset): replaced prints with logging in four core scripts. 3. Demo & examples: convert
-prints (run_k4_demo done; others pending). 4. Experimental tools: optional conversion; prints
-acceptable for educational output but prefer logging for CI. 5. Legacy shims removal after two minor
-releases (spy_eval, deprecated daemons).
+Phases: 1. Dev scripts (completed): added deprecation headers + logging warnings. 2. Tuning scripts (completed subset):
+replaced prints with logging in four core scripts. 3. Demo & examples: convert prints (run_k4_demo done; others
+pending). 4. Experimental tools: optional conversion; prints acceptable for educational output but prefer logging for
+CI. 5. Legacy shims removal after two minor releases (spy_eval, deprecated daemons).
 
 ## Quiet Mode & Levels
 
@@ -71,8 +69,8 @@ log.error("operation failed: %s", exc)
 
 ## No Prints Rule (Library)
 
-Library modules MUST NOT use `print()`. If user-facing structured output is required (e.g. JSON
-artifact summary) return data or raise a well-defined exception; the CLI layer prints or serializes.
+Library modules MUST NOT use `print()`. If user-facing structured output is required (e.g. JSON artifact summary) return
+data or raise a well-defined exception; the CLI layer prints or serializes.
 
 Allowed print exceptions:
 
@@ -118,14 +116,13 @@ Add tests to verify:
 
 ## FAQ
 
-Q: Why not configure root logging once at import? A: Side-effect configuration on import makes
-integration brittle and causes duplicate handlers in embedding environments. Explicit setup is
-safer.
+Q: Why not configure root logging once at import? A: Side-effect configuration on import makes integration brittle and
+causes duplicate handlers in embedding environments. Explicit setup is safer.
 
-Q: Why restrict prints? A: Prints bypass log levels and structured emission; they complicate testing
-and CI. Logging is filterable and consistent.
+Q: Why restrict prints? A: Prints bypass log levels and structured emission; they complicate testing and CI. Logging is
+filterable and consistent.
 
-Q: How to add contextual metadata (e.g. run id)? A: Implement a `logging.Filter` subclass and attach
-it to the Kryptos handler in a future enhancement.
+Q: How to add contextual metadata (e.g. run id)? A: Implement a `logging.Filter` subclass and attach it to the Kryptos
+handler in a future enhancement.
 
 --- Last updated: 2025-10-23

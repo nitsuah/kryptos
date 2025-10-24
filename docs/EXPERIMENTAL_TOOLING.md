@@ -32,8 +32,8 @@ into `kryptos.k4.report` (see `write_condensed_report`, `write_top_candidates_ma
 still needed).
 - `holdout_score.py` → evaluate for promotion if integrated into test/CI flows.
 - SPY related tools now partially consolidated: `aggregate_spy_phrases.py` replaced by
-`kryptos.spy.aggregate_phrases`; extractor logic migrated to `kryptos.spy.extract` (future removal
-of `scripts/dev/spy_extractor.py`). `extract_spy_cribs.py` remains under audit before promotion.
+`kryptos.spy.aggregate_phrases`; extractor logic migrated to `kryptos.spy.extract` (future removal of
+`scripts/dev/spy_extractor.py`). `extract_spy_cribs.py` remains under audit before promotion.
 
 Deprecation Path Legend:
 
@@ -43,16 +43,15 @@ Deprecation Path Legend:
 
 ## Cleanup Plan
 
-Goal: Eliminate deprecated scripts after equivalent package APIs and CLI examples exist, promote
-reusable logic, and ensure all migrations are test-covered.
+Goal: Eliminate deprecated scripts after equivalent package APIs and CLI examples exist, promote reusable logic, and
+ensure all migrations are test-covered.
 
-Removal Criteria: 1. Equivalent function(s) in package namespace (`kryptos.*`). 2. CLI subcommand or
-documented usage snippet replaces invocation pattern. 3. Tests cover former script behavior (happy
-path + at least one edge case). 4. No active references in docs or other scripts (`grep` clean).
+Removal Criteria: 1. Equivalent function(s) in package namespace (`kryptos.*`). 2. CLI subcommand or documented usage
+snippet replaces invocation pattern. 3. Tests cover former script behavior (happy path + at least one edge case). 4. No
+active references in docs or other scripts (`grep` clean).
 
-Promotion Criteria: 1. Script encapsulates reusable logic beneficial to users. 2. Can be expressed
-as a pure function/module without side-effecting global paths. 3. Minimal test harness added
-(pytest) with deterministic behavior.
+Promotion Criteria: 1. Script encapsulates reusable logic beneficial to users. 2. Can be expressed as a pure
+function/module without side-effecting global paths. 3. Minimal test harness added (pytest) with deterministic behavior.
 
 Metrics Snapshot (post spy namespace + artifact path consolidation 2025-10-23):
 
@@ -66,13 +65,12 @@ compare_crib_integration decision, ops tiny sweep)
 
 Backlog (ordered, refreshed):
 
-1. Finalize demo migration: convert `run_k4_demo.py` into documented CLI example and remove legacy
-script. 2. Validate `examples.tiny_weight_sweep` example outputs; ensure tests/CI use new path. 3.
-Decide fate of `compare_crib_integration.py`: merge into summarize-run or delete. 4. Audit
-`tools/extract_spy_cribs.py` (security/determinism); write focused tests; decide promote vs remove.
-5. Audit `scripts/dev/create_pr.py` for secret leakage; relocate or remove. 6. Add CLI `tuning-
-report` subcommand wrapping report module utilities (write_condensed_report,
-write_top_candidates_markdown). 7. Performance profiling: positional letter deviation weight
+1. Finalize demo migration: convert `run_k4_demo.py` into documented CLI example and remove legacy script. 2. Validate
+`examples.tiny_weight_sweep` example outputs; ensure tests/CI use new path. 3. Decide fate of
+`compare_crib_integration.py`: merge into summarize-run or delete. 4. Audit `tools/extract_spy_cribs.py`
+(security/determinism); write focused tests; decide promote vs remove. 5. Audit `scripts/dev/create_pr.py` for secret
+leakage; relocate or remove. 6. Add CLI `tuning- report` subcommand wrapping report module utilities
+(write_condensed_report, write_top_candidates_markdown). 7. Performance profiling: positional letter deviation weight
 calibration; add doc note & potential CLI flag.
 
 ## Next Immediate Actions

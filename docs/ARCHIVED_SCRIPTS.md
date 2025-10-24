@@ -1,7 +1,6 @@
 # Archived & Classified Scripts
 
-Exhaustive disposition for every file under `scripts/` (including experimental subdirs) as of
-2025-10-23.
+Exhaustive disposition for every file under `scripts/` (including experimental subdirs) as of 2025-10-23.
 
 Status Legend:
 
@@ -101,19 +100,18 @@ decision)
 
 ## Duplicate / Redundant Files
 
-spy_eval.py removed; package implementation + CLI subcommand in place. generate_top_candidates.py
-removed; replaced by `kryptos.k4.report.write_top_candidates_markdown`. condensed_tuning_report.py
-removed; replaced by `kryptos.k4.report.write_condensed_report`. aggregate_spy_phrases.py removed;
-replaced by `kryptos.spy.aggregate_phrases`.
+spy_eval.py removed; package implementation + CLI subcommand in place. generate_top_candidates.py removed; replaced by
+`kryptos.k4.report.write_top_candidates_markdown`. condensed_tuning_report.py removed; replaced by
+`kryptos.k4.report.write_condensed_report`. aggregate_spy_phrases.py removed; replaced by
+`kryptos.spy.aggregate_phrases`.
 
 ## Immediate Execution Plan (Refreshed)
 
-1. Finalize removal of legacy demo runner after CLI example addition. 2. Validate
-`examples.tiny_weight_sweep` outputs (legacy tiny sweep removed). 3. Audit `extract_spy_cribs.py`
-(security/determinism) and decide promote vs remove. 4. Fold or delete `compare_crib_integration.py`
-(merge into summarize-run/report). 5. Migrate autopilot & demo examples into `examples/` canonical
-package path. 6. Add `tuning-report` CLI subcommand wrapping report utilities. 7. Profile positional
-letter deviation weight and document calibration results.
+1. Finalize removal of legacy demo runner after CLI example addition. 2. Validate `examples.tiny_weight_sweep` outputs
+(legacy tiny sweep removed). 3. Audit `extract_spy_cribs.py` (security/determinism) and decide promote vs remove. 4.
+Fold or delete `compare_crib_integration.py` (merge into summarize-run/report). 5. Migrate autopilot & demo examples
+into `examples/` canonical package path. 6. Add `tuning-report` CLI subcommand wrapping report utilities. 7. Profile
+positional letter deviation weight and document calibration results.
 
 Updated: 2025-10-24T00:45Z (migrated run_k4_demo.py & run_autopilot_demo.py to kryptos.examples.*)
 

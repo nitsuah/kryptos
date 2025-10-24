@@ -2,8 +2,8 @@
 
 Breadcrumb: Operations > Hygiene > Write Scan
 
-Purpose: enumerate any remaining direct filesystem ascents or absolute path usages that may bypass
-centralized helpers in `kryptos.paths`.
+Purpose: enumerate any remaining direct filesystem ascents or absolute path usages that may bypass centralized helpers
+in `kryptos.paths`.
 
 ## Scan Summary
 
@@ -23,11 +23,11 @@ if pyproject missing rather than silently guessing.
 
 ## Recommended Follow-ups
 
-1. Add test `test_no_manual_parents_ascent` scanning for `parents[` excluding `paths.py`. 2. Replace
-fallback in `get_repo_root()` with explicit error if pyproject not found (opt-in stricter mode). 3.
-Introduce a helper `get_reports_root()` mirroring `ensure_reports_dir()` for consistency.
+1. Add test `test_no_manual_parents_ascent` scanning for `parents[` excluding `paths.py`. 2. Replace fallback in
+`get_repo_root()` with explicit error if pyproject not found (opt-in stricter mode). 3. Introduce a helper
+`get_reports_root()` mirroring `ensure_reports_dir()` for consistency.
 
 ## Conclusion
 
-All previously identified manual ascents now use path helpers. No out-of-repo write vectors detected
-in current scan scope.
+All previously identified manual ascents now use path helpers. No out-of-repo write vectors detected in current scan
+scope.

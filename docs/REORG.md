@@ -1,8 +1,8 @@
-Repository Reorganization & Wrapper Policy =========================================== Breadcrumb:
-Architecture > Reorg > Wrapper Policy
+Repository Reorganization & Wrapper Policy =========================================== Breadcrumb: Architecture > Reorg
+> Wrapper Policy
 
-Purpose: document decisions for separating reusable package logic from ad-hoc / wrapper scripts and
-define a clear deprecation & promotion lifecycle.
+Purpose: document decisions for separating reusable package logic from ad-hoc / wrapper scripts and define a clear
+deprecation & promotion lifecycle.
 
 ## Policy
 
@@ -50,14 +50,13 @@ Delete a deprecated script once:
 
 ## Next Cleanup Steps
 
-1. Remove legacy demo runner (`run_k4_demo.py`) after CLI example snippet published. 2. Decide fate
-of `compare_crib_integration.py` (merge or delete) and update docs. 3. Validate
-`examples.tiny_weight_sweep` + CLI sweep outputs (legacy tiny sweep script removed). 4. Add `tuning-
-report` CLI subcommand wrapping report utilities. 5. Calibrate positional letter deviation weight
-(document evaluation results). 6. Centralize logging setup (`kryptos.logging` helper) and remove
-stray print statements. 7. Add artifact provenance hash & compression option.
+1. Remove legacy demo runner (`run_k4_demo.py`) after CLI example snippet published. 2. Decide fate of
+`compare_crib_integration.py` (merge or delete) and update docs. 3. Validate `examples.tiny_weight_sweep` + CLI sweep
+outputs (legacy tiny sweep script removed). 4. Add `tuning- report` CLI subcommand wrapping report utilities. 5.
+Calibrate positional letter deviation weight (document evaluation results). 6. Centralize logging setup
+(`kryptos.logging` helper) and remove stray print statements. 7. Add artifact provenance hash & compression option.
 
-Status Snapshot (2025-10-23T23:52Z): Spy & tuning namespaces consolidated, report module integrated,
-artifact paths standardized, CLI subcommands live for core tuning & spy operations.
+Status Snapshot (2025-10-23T23:52Z): Spy & tuning namespaces consolidated, report module integrated, artifact paths
+standardized, CLI subcommands live for core tuning & spy operations.
 
 Updated: 2025-10-24T00:55Z (tiny weight sweep example added; legacy tiny sweep script removed)

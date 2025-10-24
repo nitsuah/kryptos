@@ -1,7 +1,7 @@
 # K4 Demo
 
-This folder contains a tiny demo runner that exercises a short K4 composite pipeline and writes
-artifacts under `artifacts/demo/run_<ts>/`.
+This folder contains a tiny demo runner that exercises a short K4 composite pipeline and writes artifacts under
+`artifacts/demo/run_<ts>/`.
 
 Usage (local):
 

@@ -1,10 +1,9 @@
---- title: Deprecations & Removal Timeline version: 2025-10-24 Breadcrumb: Architecture >
-Deprecations > Timeline ---
+--- title: Deprecations & Removal Timeline version: 2025-10-24 Breadcrumb: Architecture > Deprecations > Timeline ---
 
 # Deprecations & Removal Timeline
 
-This document records pending removals (scripts, wrappers, legacy APIs) with their replacement,
-status, and target version/date. Items move to ARCHIVED_SCRIPTS.md after physical deletion.
+This document records pending removals (scripts, wrappers, legacy APIs) with their replacement, status, and target
+version/date. Items move to ARCHIVED_SCRIPTS.md after physical deletion.
 
 ## Policy
 

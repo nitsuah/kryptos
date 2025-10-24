@@ -12,8 +12,8 @@
 
 # Kryptos Documentation Index
 
-This index consolidates markdown files under `docs/` into thematic categories and defines a
-breadcrumb convention for navigation. Each active doc should begin with a compact breadcrumb line:
+This index consolidates markdown files under `docs/` into thematic categories and defines a breadcrumb convention for
+navigation. Each active doc should begin with a compact breadcrumb line:
 
 `Breadcrumb: Overview > Roadmap > (this page)`
 
@@ -53,15 +53,14 @@ Add at top of each active (non-archived) doc beneath any front-matter:
 
 `Breadcrumb: <Category> > <Subcategory/Doc Family> > <Document Title>`
 
-Examples: `Breadcrumb: Overview > Roadmap > Roadmap` `Breadcrumb: Strategy > K4 > K4 Strategy`
-`Breadcrumb: Architecture > Reorg > Wrapper Policy`
+Examples: `Breadcrumb: Overview > Roadmap > Roadmap` `Breadcrumb: Strategy > K4 > K4 Strategy` `Breadcrumb: Architecture
+> Reorg > Wrapper Policy`
 
 ## Lifecycle & Duplication Policy
 
-1. A single canonical doc per subject (e.g., roadmap, strategy, tech debt). Older versions move to
-`archive/`. 2. Planning docs more than 7 days old archived (`archive/YYYY-MM-DD.md`) with index
-update. 3. Add `Last updated:` timestamp at end of each active doc. 4. Use `INDEX.md` to surface new
-docs; update categories when adding or removing.
+1. A single canonical doc per subject (e.g., roadmap, strategy, tech debt). Older versions move to `archive/`. 2.
+Planning docs more than 7 days old archived (`archive/YYYY-MM-DD.md`) with index update. 3. Add `Last updated:`
+timestamp at end of each active doc. 4. Use `INDEX.md` to surface new docs; update categories when adding or removing.
 
 ## Pending Improvements
 

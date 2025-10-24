@@ -55,8 +55,7 @@ calibration.
 - Layered / composite transposition + substitution search pruning. (IN PROGRESS: basic columnar
 partial-score pruning added)
 - Expanded Berlin Clock enumeration (full lamp state/time modeling, parity & quarter markers).
-(PARTIALLY IMPLEMENTED: full lamp state & enumeration utilities; pipeline stage added
-`make_berlin_clock_stage`)
+(PARTIALLY IMPLEMENTED: full lamp state & enumeration utilities; pipeline stage added `make_berlin_clock_stage`)
 - Recursive masking / null removal heuristics. (PENDING)
 - Probable word placement scoring (additional cribs beyond BERLIN/CLOCK/EASTNORTHEAST). (PENDING)
 - Composite reporting (persist top-N candidate plaintexts & metrics to JSON/CSV). (IMPLEMENTED:
@@ -67,8 +66,8 @@ reporting.py JSON/CSV artifacts)
 
 ## Candidate Reporting (Status: IMPLEMENTED)
 
-A forthcoming pipeline reporting stage will persist ranked candidates (key/source metadata +
-metrics). JSON schema example:
+A forthcoming pipeline reporting stage will persist ranked candidates (key/source metadata + metrics). JSON schema
+example:
 
 ```json
 {
@@ -98,28 +97,27 @@ metrics). JSON schema example:
 
 ## Berlin Clock Enumeration (Status: PARTIAL)
 
-Current simplified shift vector expanded with full lamp modeling & enumeration functions
-(`full_clock_state`, `full_berlin_clock_shifts`, `enumerate_clock_shift_sequences`). Next: integrate
-as pipeline stage with scoring comparison.
+Current simplified shift vector expanded with full lamp modeling & enumeration functions (`full_clock_state`,
+`full_berlin_clock_shifts`, `enumerate_clock_shift_sequences`). Next: integrate as pipeline stage with scoring
+comparison.
 
 ## Transposition Pruning Heuristics (Status: INITIAL)
 
-Added optional partial segment scoring (parameters: prune, partial_length, partial_min_score) to
-skip low-quality permutations early. Future: adaptive sampling & prefix caching.
+Added optional partial segment scoring (parameters: prune, partial_length, partial_min_score) to skip low-quality
+permutations early. Future: adaptive sampling & prefix caching.
 
 ## Search Strategy Evolution
 
-1. Establish baseline brute-force (done). 2. Introduce heuristic pruning. 3. Add multi-stage
-composite pipeline (transposition → substitution → shift overlay → scoring). 4. Integrate Berlin
-Clock enumeration as an optional stage. 5. Add persistence/reporting and comparative metrics
-tracking.
+1. Establish baseline brute-force (done). 2. Introduce heuristic pruning. 3. Add multi-stage composite pipeline
+(transposition → substitution → shift overlay → scoring). 4. Integrate Berlin Clock enumeration as an optional stage. 5.
+Add persistence/reporting and comparative metrics tracking.
 
 ## Metrics Expansion (Status: PARTIAL)
 
-Positional crib weighting implemented (`positional_crib_bonus`,
-`combined_plaintext_score_with_positions`). Quadgram support added (`quadgram_score`). Positional
-letter deviation metric added (distribution balance). Future metrics: spacing analysis, entropy
-refinement, positional deviation weight calibration study, rarity-weighted crib bonus multiplier.
+Positional crib weighting implemented (`positional_crib_bonus`, `combined_plaintext_score_with_positions`). Quadgram
+support added (`quadgram_score`). Positional letter deviation metric added (distribution balance). Future metrics:
+spacing analysis, entropy refinement, positional deviation weight calibration study, rarity-weighted crib bonus
+multiplier.
 
 ## Status Tracking
 

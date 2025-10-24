@@ -43,8 +43,8 @@ Rules:
 
 Autopilot (`src/kryptos/autopilot.py`): exchange loop + persona recommendation. Spy Extraction
 (`kryptos/spy/extractor.py`): `SpyMatch`, `load_cribs`, `scan_run`, `extract`. Orchestrator (legacy
-`scripts/dev/orchestrator.py` pending migration) handles tuning runs. K4 Reporting: artifacts &
-provenance via `ensure_reports_dir()` and `provenance_hash()`.
+`scripts/dev/orchestrator.py` pending migration) handles tuning runs. K4 Reporting: artifacts & provenance via
+`ensure_reports_dir()` and `provenance_hash()`.
 
 ## 5. Test Integrity
 
@@ -84,8 +84,8 @@ provenance via `ensure_reports_dir()` and `provenance_hash()`.
 
 ## 9. Change Workflow
 
-1. Gather context (search/read). 2. Minimal diff application. 3. Run targeted tests. 4. Run full
-test suite. 5. Update docs if public behavior changes. 6. Log improvement suggestion if discovered.
+1. Gather context (search/read). 2. Minimal diff application. 3. Run targeted tests. 4. Run full test suite. 5. Update
+docs if public behavior changes. 6. Log improvement suggestion if discovered.
 
 ## 10. Human Dialog Request Template
 
