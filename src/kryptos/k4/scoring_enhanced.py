@@ -7,6 +7,10 @@ real English text from high-scoring gibberish.
 
 from __future__ import annotations
 
+# Minimum text length for reliable syllable pattern analysis
+# Shorter texts lack sufficient context for meaningful syllable structure assessment
+MIN_TEXT_LENGTH_FOR_SYLLABLE_ANALYSIS = 3
+
 # Common English 2-3 letter words
 COMMON_WORDS = {
     # 2-letter
@@ -214,7 +218,7 @@ def syllable_structure_score(text: str) -> float:
         Higher score means more English-like syllable structure.
     """
     seq = ''.join(c for c in text.upper() if c.isalpha())
-    if len(seq) < 3:
+    if len(seq) < MIN_TEXT_LENGTH_FOR_SYLLABLE_ANALYSIS:
         return 0.0
 
     # Pattern matching for syllable structures

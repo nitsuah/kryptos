@@ -22,5 +22,7 @@ jobs:
           pip install pytest
           # install the package in editable mode so package imports resolve
           pip install -e .
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PWD/src:$PYTHONPATH" >> $GITHUB_ENV
       - name: Run tests
         run: pytest -q
