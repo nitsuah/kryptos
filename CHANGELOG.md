@@ -15,6 +15,14 @@ autonomous_coordinator.py)
 
 ### Added
 
+* **Phase 5.2: OPS Attack Generation Integration** - Connected AttackGenerator to OPS Director orchestration:
+  - Extended `OpsConfig` with `enable_attack_generation` and `attack_log_dir` configuration
+  - OPS methods: `generate_attack_queue_from_q_hints()`, `generate_attack_queue_comprehensive()`,
+    `execute_attack_queue()`
+  - Full workflow: Q-Research hints → AttackGenerator → AttackLogger → Execution with provenance tracking
+  - Placeholder execution (`_execute_single_attack()`) allows testing workflow without full cipher implementations
+  - Deduplication working across both AttackGenerator (in-batch) and AttackLogger (cross-execution)
+  - 16 integration tests: configuration, generation, execution, workflows, statistics tracking
 * **Phase 5.1: Attack Generation Engine** - Systematic attack parameter generation from research insights:
   - `AttackGenerator` class (667 lines) converts Q-Research hints, coverage gaps, and literature analysis into
     executable `AttackParameters` for OPS Director orchestration
