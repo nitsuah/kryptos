@@ -23,7 +23,7 @@ from kryptos.k4.tuning import (
 )
 from kryptos.k4.tuning.artifacts import end_to_end_process
 from kryptos.k4.tuning.crib_sweep import WeightSweepRow
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 from kryptos.sections import SECTIONS
 from kryptos.spy import extract as spy_module_extract
 from kryptos.tuning import spy_eval
@@ -169,6 +169,36 @@ def build_parser() -> argparse.ArgumentParser:
     sp_autopilot.add_argument('--interval', type=int, default=300, help='Seconds between loop iterations')
     sp_autopilot.add_argument('--force', action='store_true', help='Override dry-run inside loop')
     sp_autopilot.set_defaults(func=cmd_autopilot)
+
+    # Autonomous coordination: unified agent orchestration
+    sp_autonomous = sub.add_parser('autonomous', help='Run autonomous coordination loop (24/7 cryptanalysis)')
+    sp_autonomous.add_argument('--max-hours', type=float, default=None, help='Maximum runtime in hours (None=infinite)')
+    sp_autonomous.add_argument(
+        '--max-cycles',
+        type=int,
+        default=None,
+        help='Maximum coordination cycles (None=infinite)',
+    )
+    sp_autonomous.add_argument(
+        '--cycle-interval',
+        type=float,
+        default=0.25,
+        help='Minutes between cycles (default: 15 sec)',
+    )
+    sp_autonomous.add_argument(
+        '--ops-cycle',
+        type=float,
+        default=0.5,
+        help='Minutes between OPS strategic analyses (default: 30 sec)',
+    )
+    sp_autonomous.add_argument(
+        '--web-intel-hours',
+        type=float,
+        default=0.5,
+        help='Hours between web intelligence checks (default: 30 min)',
+    )
+    sp_autonomous.set_defaults(func=cmd_autonomous)
+
     # Examples smoke: fast health-check across example entrypoints
     sp_examples_smoke = sub.add_parser(
         'examples-smoke',
@@ -360,6 +390,38 @@ def cmd_autopilot(args: argparse.Namespace) -> int:
     path = autopilot_mod.run_exchange(plan_text=args.plan, autopilot=True)
     print(json.dumps({'mode': 'single', 'log_path': str(path)}))
     return 0
+
+
+def cmd_autonomous(args: argparse.Namespace) -> int:
+    """Run autonomous coordination loop with SPY v2, OPS, K123 patterns, web intel.
+
+    This is the 24/7 self-sustaining cryptanalysis system that runs with minimal
+    human intervention. It coordinates all agents, makes strategic decisions,
+    and continuously works toward solving K4.
+    """
+    from kryptos.autonomous_coordinator import AutonomousCoordinator
+
+    logger = setup_logging(logger_name='kryptos.cli')
+    logger.info('🚀 Starting autonomous coordination system')
+
+    coordinator = AutonomousCoordinator(
+        ops_cycle_minutes=args.ops_cycle,
+        web_intel_check_hours=args.web_intel_hours,
+    )
+
+    try:
+        coordinator.run_autonomous_loop(
+            max_hours=args.max_hours,
+            max_cycles=args.max_cycles,
+            cycle_interval_minutes=args.cycle_interval,
+        )
+        return 0
+    except KeyboardInterrupt:
+        logger.info('⚠️  Interrupted by user')
+        return 130
+    except Exception as exc:
+        logger.exception('❌ Autonomous coordination failed: %s', exc)
+        return 1
 
 
 def cmd_examples_smoke(args: argparse.Namespace) -> int:

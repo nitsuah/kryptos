@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+### Fixed
+
+* **CRITICAL:** Renamed `src/kryptos/logging.py` to `log_setup.py` to avoid shadowing Python's standard library
+`logging` module. This was causing `AttributeError: module 'logging' has no attribute 'getLogger'` in CI builds. All
+imports updated from `from kryptos.logging import setup_logging` to `from kryptos.log_setup import setup_logging`.
+* **CI Dependencies:** Fixed CI build failures:
+  - Added `beautifulsoup4` to requirements.txt (required for web intelligence)
+  - Added spaCy model download step to all CI workflows (`python -m spacy download en_core_web_sm`)
+* **Removed obsolete tests:** Deleted 5 test files referencing archived orchestrator (superseded by
+autonomous_coordinator.py)
+
 ### Added
 
 * Composite pipeline stage timing (`stage_durations_ms`) instrumentation.
@@ -14,6 +25,13 @@ validation).
 
 ### Changed
 
+* **Documentation Reorganization:** Restructured docs/ for better clarity (12 → 3 core files):
+  - **Core** (docs/): README.md, PHASE_5_BRIEFING.md, CHANGELOG.md
+  - **Reference** (docs/reference/): AUTONOMOUS_SYSTEM.md, AGENTS_ARCHITECTURE.md, API_REFERENCE.md
+  - **Analysis** (docs/analysis/): 30_YEAR_GAP_COVERAGE.md, K123_PATTERN_ANALYSIS.md
+  - **Archive**: Moved PERFORMANCE_OPTIMIZATION.md, SCORING_CALIBRATION.md, INDEX.md to archive/
+  - Updated README.md with new navigation structure
+  - Removed redundant INDEX.md (navigation now in README)
 * Migrated legacy `src/k4/` package into unified `kryptos/k4/` namespace; updated imports, tests,
 docs.
 * Normalized artifact metadata structure (timings + provenance).

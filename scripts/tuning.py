@@ -22,7 +22,7 @@ from statistics import mean
 
 from kryptos.k4.scoring import baseline_stats
 from kryptos.k4.tuning import run_crib_weight_sweep
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 
 ROOT = Path(__file__).resolve().parents[1]
 

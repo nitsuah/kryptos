@@ -4,6 +4,10 @@ The SPY agent analyzes candidate plaintexts for hidden patterns, linguistic
 anomalies, and structural features that may indicate correct decryption.
 Acts as an expert pattern recognizer to surface insights that automated
 scoring might miss.
+
+Version 2.0: Enhanced with NLP capabilities (NER, POS tagging, dependency
+parsing, semantic analysis) to identify linguistic structures beyond pattern
+matching.
 """
 
 from __future__ import annotations
@@ -11,6 +15,14 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 from typing import Any
+
+try:
+    from .spy_nlp import SPACY_AVAILABLE, WORDNET_AVAILABLE, NLPInsight, SpyNLP
+except ImportError:
+    SPACY_AVAILABLE = False
+    WORDNET_AVAILABLE = False
+    SpyNLP = None
+    NLPInsight = None
 
 
 @dataclass
@@ -40,6 +52,17 @@ class SpyAgent:
         """
         self.cribs = cribs or ['BERLIN', 'CLOCK', 'KRYPTOS', 'EAST', 'NORTH', 'PALIMPSEST']
 
+        # Initialize NLP capabilities (SPY v2.0)
+        self.nlp = None
+        self.nlp_available = False
+        if SPACY_AVAILABLE and SpyNLP:
+            try:
+                self.nlp = SpyNLP()
+                self.nlp_available = True
+            except Exception:
+                # Gracefully fallback if model not available
+                pass
+
     def analyze_candidate(self, plaintext: str, candidate_id: str = '') -> dict[str, Any]:
         """Perform comprehensive pattern analysis on a candidate plaintext.
 
@@ -54,6 +77,7 @@ class SpyAgent:
 
         insights = []
 
+        # === Classic Pattern Detection (SPY v1.0) ===
         # Find repeating substrings (may indicate period)
         insights.extend(self._find_repeats(seq))
 
@@ -78,6 +102,34 @@ class SpyAgent:
         # Detect regular spacing patterns
         insights.extend(self._spacing_patterns(seq))
 
+        # === NLP Analysis (SPY v2.0) ===
+        if self.nlp_available:
+            # Restore spacing for NLP analysis
+            plaintext_readable = plaintext.lower().strip()
+            nlp_insights = self.nlp.analyze(plaintext_readable)
+
+            # Convert NLP insights to PatternInsight format
+            for nlp_insight in nlp_insights:
+                # Boost confidence for NLP-validated patterns
+                confidence_boost = {
+                    'entity': 0.3,  # NER entities are strong signals
+                    'dependency': 0.2,  # Syntactic structure indicates language
+                    'pos': 0.15,  # Grammatical patterns are meaningful
+                    'semantic': 0.15,  # Semantic relationships suggest coherence
+                }.get(nlp_insight.category, 0.1)
+
+                adjusted_confidence = min(1.0, nlp_insight.confidence + confidence_boost)
+
+                insights.append(
+                    PatternInsight(
+                        category=f'nlp_{nlp_insight.category}',
+                        description=f"[NLP] {nlp_insight.description}",
+                        evidence=nlp_insight.evidence,
+                        confidence=adjusted_confidence,
+                        position=nlp_insight.position,
+                    ),
+                )
+
         return {
             'candidate_id': candidate_id,
             'plaintext': plaintext,
@@ -85,7 +137,9 @@ class SpyAgent:
             'insight_count': len(insights),
             'high_confidence_insights': [i for i in insights if i.confidence >= 0.7],
             'crib_matches': [i for i in insights if i.category == 'crib'],
+            'nlp_insights': [i for i in insights if i.category.startswith('nlp_')],
             'pattern_score': self._compute_pattern_score(insights),
+            'nlp_enabled': self.nlp_available,
         }
 
     def _find_repeats(self, text: str, min_length: int = 3, min_count: int = 2) -> list[PatternInsight]:

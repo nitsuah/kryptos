@@ -1,6 +1,6 @@
 """Tests for logging setup idempotence."""
 
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 
 
 def test_setup_logging_idempotent():

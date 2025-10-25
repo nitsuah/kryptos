@@ -1,115 +1,508 @@
-# Kryptos K4 Documentation
+# Kryptos K4 Documentation# Kryptos K4 Documentation# Kryptos K4 Documentation
 
-**Systematic cryptanalysis framework for solving Kryptos K4**
+
+
+**Systematic cryptanalysis framework for solving Kryptos K4****Systematic cryptanalysis framework for solving Kryptos
+K4****Systematic cryptanalysis framework for solving Kryptos
+
+K4**
 
 ---
+
+------
 
 ## 🎯 Quick Start
 
-**New to this project?** Read [K4_MASTER_PLAN.md](K4_MASTER_PLAN.md) for the complete strategy.
+## 🎯 Quick Start## 🎯 Quick Start
 
-**Want to run a hypothesis?**
+**New to this project?** Start here:
 
-```bash
-python scripts/run_hypothesis.py --list
-python scripts/run_hypothesis.py berlin_clock
+**New to this project?****New to this project?** Read [AUTONOMOUS_SYSTEM.md](AUTONOMOUS_SYSTEM.md) for the 24/7
+
+1. **[PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md)** - Current roadmap, K4 odds (60-70%), Sanborn clues, attack
+prioritiesautonomous cryptanalysis system.
+
+2. **[analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md)** - Coverage assessment (95% of pre-1990
+cryptography)
+
+3. **[reference/AUTONOMOUS_SYSTEM.md](reference/AUTONOMOUS_SYSTEM.md)** - 24/7 autonomous system usage1. Read
+**[PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md)** - Complete Phase 5 roadmap with Sanborn clues analysis
+
+
+
+**Want to run attacks?**2. Check **[30_YEAR_GAP_COVERAGE.md](30_YEAR_GAP_COVERAGE.md)** - Coverage assessment of
+pre-1990 cryptography**Want to
+
+```bashrun attacks?**
+
+# Run autonomous coordination (coming in Phase 5.3)
+
+python -m kryptos.cli.main autonomous --max-cycles 100**Want to run attacks?**```bash
+
+
+
+# Run specific hypothesis (current)## Run autonomous coordination (recommended)
+
+python -m kryptos.cli.main k4-decrypt --hypothesis vigenere_northeast
+
+```bashpython -m kryptos.cli.main autonomous --max-cycles 100
+
+# List all available attacks
+
+python -m kryptos.cli.main k4-decrypt --list# Run autonomous coordination (coming in Phase 5.3)
+
 ```
 
-**Check progress?** See test results in `artifacts/` or [CHANGELOG.md](CHANGELOG.md) for recent additions.
+python -m kryptos.cli.main autonomous --max-cycles 100# Run single attack
+
+**Check progress?** See [CHANGELOG.md](CHANGELOG.md) for recent additions.
+
+python -m kryptos.cli.main k4-decrypt --hypothesis vigenere_northeast
 
 ---
 
-## 📚 Core Documentation (6 Files)
+# Run specific hypothesis (current)
 
-1. **[README.md](README.md)** (this file) - Project overview and navigation 2.
-**[K4_MASTER_PLAN.md](K4_MASTER_PLAN.md)** - Complete strategy, roadmap, hypothesis testing plan 3.
-**[AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)** - SPY/OPS/Q agent design and implementation status 4.
-**[API_REFERENCE.md](API_REFERENCE.md)** - Python API documentation and CLI reference 5.
-**[CHANGELOG.md](CHANGELOG.md)** - Version history and recent changes 6. **[TECHDEBT.md](TECHDEBT.md)** - Known issues,
-cleanup status, improvement roadmap
+## 📚 Documentation Structure
+
+python -m kryptos.cli.main k4-decrypt --hypothesis vigenere_northeast# List all available attacks
+
+### Core (docs/) - 3 Essential Files
+
+- **[README.md](README.md)** (this file) - Navigation and overviewpython -m kryptos.cli.main k4-decrypt --list
+
+- **[PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md)** - Current phase roadmap
+
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history# List all available attacks```
+
+
+
+### Reference (docs/reference/) - Technical Documentationpython -m kryptos.cli.main k4-decrypt --list
+
+- **[AUTONOMOUS_SYSTEM.md](reference/AUTONOMOUS_SYSTEM.md)** - 24/7 system architecture and usage
+
+- **[AGENTS_ARCHITECTURE.md](reference/AGENTS_ARCHITECTURE.md)** - SPY/OPS/Q agent design```**Check progress?** See test results in `artifacts/` or [CHANGELOG.md](CHANGELOG.md) for recent additions.
+
+- **[API_REFERENCE.md](reference/API_REFERENCE.md)** - Python API documentation
+
+
+
+### Analysis (docs/analysis/) - Research & Findings
+
+- **[30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md)** - Pre-1990 cryptography coverage (95%)------
+
+- **[K123_PATTERN_ANALYSIS.md](analysis/K123_PATTERN_ANALYSIS.md)** - Sanborn patterns from K1-K3
+
+
+
+### Sources (docs/sources/) - Sanborn Intelligence
+
+- **SANBORN.md** - Artist clues and research## 📚 Core Documentation## 📚 Core Documentation (6 Files)
+
+- **sanborn_timeline.md** - Public statements chronology
+
+- **sanborn_crib_candidates.txt** - Confirmed cribs
+
+- **ajax.pdf** - Reference materials
+
+### Phase 5: Pipeline Integration (Current Focus)
+
+### Archive (docs/archive/) - Historical
+
+- **sessions/** - Session progress reports (date-stamped)1. **[README.md](README.md)** (this file) - Project overview and navigation
+
+- **PERFORMANCE_OPTIMIZATION.md** - Old profiling data
+
+- **SCORING_CALIBRATION.md** - Historical calibration1. **[K4_MASTER_PLAN.md](K4_MASTER_PLAN.md)** - Complete strategy, roadmap, hypothesis testing plan
+
+- **legacy_orchestrator.py** - Archived code
+
+- **CRITICAL_FIX_LOGGING_2025-10-25.md** - Critical fix report1. **[PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md)** - Complete Phase 5
+
+roadmap**[AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)** - SPY/OPS/Q agent design and implementation status 4.
 
 ---
 
-## 🏗️ Project Architecture (10,000ft View)
+   - Executive summary: Intelligence layer complete, K4 odds 60-70%**[API_REFERENCE.md](API_REFERENCE.md)** - Python API
 
-### Directory Structure
+## 🎯 Finding Information     documentation and CLI reference 5.
 
-```text
-kryptos/
-├── src/kryptos/          # Core Python package
-│   ├── agents/           # SPY (implemented), OPS/Q (planned)
-│   ├── k4/               # K4-specific pipeline and scoring
-│   ├── examples/         # Demo scripts (moved from scripts/demo/)
-│   └── ...
-├── scripts/              # Consolidated utilities
-│   ├── run_hypothesis.py     # Unified hypothesis runner ✅
-│   ├── run_random_baseline.py
-│   ├── dev/              # Development tools (3 files)
-│   ├── tuning/           # Tuning harnesses
-│   └── lint/             # Code quality tools
-├── tests/                # Test suite (249 passing)
-├── artifacts/            # Generated outputs (searches, runs, reports)
+
+
+**"How do I...?"**   - 30-year gap analysis: What Sanborn knew in 1990**[CHANGELOG.md](CHANGELOG.md)** - Version history and recent
+
+- Run attacks? → Quick Start section above     changes 6. **[TECHDEBT.md](TECHDEBT.md)** - Known issues,
+
+- Understand Phase 5? → [PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md)
+
+- Check coverage gaps? → [analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md)   - Confirmed clues: BERLIN, CLOCK, NORTHEAST, EASTcleanup status, improvement roadmap
+
+- See K123 patterns? → [analysis/K123_PATTERN_ANALYSIS.md](analysis/K123_PATTERN_ANALYSIS.md)
+
+- Learn about agents? → [reference/AGENTS_ARCHITECTURE.md](reference/AGENTS_ARCHITECTURE.md)   - Strategic direction: Attack priorities based on Sanborn intelligence
+
+- Use the API? → [reference/API_REFERENCE.md](reference/API_REFERENCE.md)
+
+   - Sprint 5.1: Attack Generation Engine---
+
+**"What are the...?"**
+
+- Confirmed clues? → [PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md) (BERLIN, CLOCK, NORTHEAST)   - Sprint 5.2: Validation Pipeline (SPY → LINGUIST → Q-Research)
+
+- Attack priorities? → [PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md) (Berlin Clock + Hill first)
+
+- Coverage gaps? → [analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md) (Beaufort, ADFGVX, etc.)   - Sprint 5.3: End-to-End K4 CLI## 🏗️ Project Architecture (10,000ft View)
+
+- K4 odds? → [PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md) (60-70% for classical)
+
+
+
+**"Where is...?"**
+
+- Sanborn intelligence? → [sources/](sources/) directory2. **[30_YEAR_GAP_COVERAGE.md](30_YEAR_GAP_COVERAGE.md)** - Technical coverage assessment### Directory Structure
+
+- Old session notes? → [archive/sessions/](archive/sessions/)
+
+- Historical code? → [archive/](archive/)   - Overall: ~95% of pre-1990 classical cryptography
+
+
+
+---   - Strong coverage: Vigenère, Hill, transposition, composites```text
+
+
+
+## 🔬 Current Status   - Moderate gaps: Beaufort, Porta, Gronsfeld, ADFGVX, Nihilistkryptos/
+
+
+
+**Phase:** 4 Complete → 5 Starting     - Strategic recommendations: Berlin Clock + Hill 2x2/3x3 priority├── src/kryptos/          # Core Python package
+
+**Tests:** 539/539 passing in 4:48
+
+**Next:** Attack Generation Engine (Phase 5.1)│   ├── agents/           # SPY v2.0, OPS Director, K123 Analyzer, Web Intel
+
+
+
+**K4 Cracking Odds:**3. **[K123_PATTERN_ANALYSIS.md](K123_PATTERN_ANALYSIS.md)** - Sanborn's fingerprint│   ├── k4/               #
+
+- Classical cipher: **60-70%** ✅K4-specific pipeline and scoring
+
+- Novel cryptanalysis needed: 20-30%
+
+- Unknown cipher type: 5-10%   - 13 patterns extracted from K1-K3 (confidence 0.75-1.00)│   ├── autonomous_coordinator.py  # 24/7 autonomous
+
+     orchestration
+
+---
+
+   - Cipher progression: K1 (Vigenère) → K2 (Vigenère + coords) → K3 (double transposition)│   ├── cli/              #
+
+**Last Updated:** October 25, 2025       CLI interface
+
+**Status:** Phase 4 Complete, Phase 5 Ready to Execute
+
+   - Themes: Location, archaeology, secrecy, communication│   └── examples/         # Demo scripts
+
+   - Intentional misspellings: IQLUSION, UNDERGRUUND, DESPARATLY├── scripts/              # Performance & tuning
+     utilities (4 active)
+
+   - Strategic recommendations for K4 attacks│   ├── benchmark_scoring.py
+
+│   ├── profile_scoring.py
+
+### Reference Documentation│   ├── calibrate_scoring_weights.py
+
+│   └── tuning.py
+
+4. **[AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)** - Multi-agent system design├── tests/                # Test
+suite (30+ autonomous tests)
+
+   - SPY, LINGUIST, K123 Analyzer, OPS Director, Q-Research architecture├── artifacts/            # Generated outputs
+     (searches, runs, reports)
+
+   - Communication patterns and coordination├── docs/                 # Documentation (11 active files)
+
+   - Current status and capabilities```
+
 └── docs/                 # Documentation (cleaned: 20→6 files)
-```
 
-### Core Modules
+5. **[AUTONOMOUS_SYSTEM.md](AUTONOMOUS_SYSTEM.md)** - 24/7 autonomous system```
+
+   - Architecture, components, usage, monitoring
+
+   - Checkpointing and incremental learning### Core Modules
+
+   - How to run self-sustaining cryptanalysis
+
+- `kryptos.autonomous_coordinator` - 24/7 autonomous orchestration with checkpointing
+
+6. **[API_REFERENCE.md](API_REFERENCE.md)** - Python API documentation- `kryptos.agents.spy_nlp` - Advanced NLP with
+poetry/semantic analysis (SPY v2.0)
+
+   - Public interfaces and examples- `kryptos.agents.spy_web_intel` - Continuous web intelligence gathering
+
+   - Module structure and usage- `kryptos.agents.k123_analyzer` - Sanborn pattern extraction from K1-K3
+
+   - CLI reference- `kryptos.agents.ops_director` - Strategic attack decision-making
 
 - `kryptos.k4.hypotheses` - Pluggable cipher testing framework
+
+7. **[PERFORMANCE_OPTIMIZATION.md](PERFORMANCE_OPTIMIZATION.md)** - Performance tuning- `kryptos.k4.scoring` -
+Statistical plaintext quality metrics
+
+   - Test suite optimization (127x speedup achieved)- `kryptos.k4.pipeline` - Multi-stage decryption pipeline
+
+   - Benchmarking and profiling guides
+
+   - Future: pytest-xdist for 4:48 → 2:30 tests### Key Commands
+
+
+
+8. **[SCORING_CALIBRATION.md](SCORING_CALIBRATION.md)** - Scoring system design- `kryptos autonomous` - Run 24/7
+autonomous coordination loop
+
+   - Random baseline establishment- `kryptos k4-decrypt` - Run specific attack hypothesis
+
+   - Statistical thresholds (2σ, 3σ)- CLI reference: See [API_REFERENCE.md](API_REFERENCE.md)
+
+   - Calibration methodology
+
+---
+
+9. **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
+
+## 🔬 Current Status
+
+### Supporting Resources
+
+**Infrastructure:** ✅ Fully Autonomous (30+ tests passing, continuous learning)
+
+**[sources/](sources/)** - Sanborn intelligence
+
+**Autonomous System:** SPY v2.0 + K123 Analyzer + Web Intel + OPS
+
+Director + Checkpointing
+
+    - `SANBORN.md` - Artist clues and research pointers**Agents:**
+
+    - 4 operational agents with 120x faster iteration (15s cycles)
+
+    - `sanborn_timeline.md` - Public statements chronology
+
+    - **Lines of Code:** ~20,000+ (autonomous system + agents + core logic)
+
+    - `sanborn_crib_candidates.txt` - Confirmed crib list
+
+    - `ajax.pdf` - Reference materials**Recent Achievements (Oct 2025):**
+
+
+
+---- ✅ 24/7 autonomous coordination system operational
+
+- ✅ Incremental learning (never reprocess content)
+
+## 🏗️ Project Architecture- ✅ Checkpoint system (never lose progress)
+
+- ✅ 120x faster cycles (15s coordination, 30s OPS, 30min web intel)
+
+### Directory Structure- ✅ 13 Sanborn patterns extracted from K1-K3
+
+- ✅ Advanced NLP with poetry detection, semantic analysis
+
+```- ✅ Continuous web intelligence gathering
+
+kryptos/
+
+├── src/kryptos/          # Core Python package## 🎯 Task Reference
+
+│   ├── agents/           # SPY, LINGUIST, K123 Analyzer, OPS Director, Q-Research
+
+│   ├── k4/               # K4 attack hypotheses and scoring**I want to...**
+
+│   ├── provenance/       # Attack logging and search space tracking
+
+│   ├── research/         # Academic paper integration (Phase 4.2)- **Run the autonomous system** → `python -m
+kryptos.cli.main autonomous`
+
+│   ├── analysis/         # Strategic coverage analysis (Phase 4.3)- **Run a specific attack** → `python -m
+kryptos.cli.main k4-decrypt --hypothesis vigenere_northeast`
+
+│   ├── pipeline/         # Attack generation (Phase 5.1 - coming)- **Understand the system** →
+[AUTONOMOUS_SYSTEM.md](AUTONOMOUS_SYSTEM.md)
+
+│   ├── cli/              # CLI interface- **Check agent architecture** →
+[AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)
+
+│   └── ciphers.py        # Core cipher implementations- **Add a new hypothesis** → See Hypothesis protocol in
+[API_REFERENCE.md](API_REFERENCE.md)
+
+├── scripts/              # Performance & tuning utilities- **Review K123 patterns** →
+[K123_PATTERN_ANALYSIS.md](K123_PATTERN_ANALYSIS.md)
+
+│   ├── benchmark_scoring.py       # Quick benchmarks- **See recent changes** → [CHANGELOG.md](CHANGELOG.md)
+
+│   ├── profile_scoring.py         # cProfile analysis- **Use the API** → [API_REFERENCE.md](API_REFERENCE.md)
+
+│   ├── calibrate_scoring_weights.py  # Weight optimization
+
+│   ├── tuning.py                  # Main tuning orchestrator---
+
+│   └── demo_provenance.py         # Demo attack provenance system
+
+├── tests/                # Test suite (539 tests passing in 4:48)## 📊 Historical Archive
+
+├── artifacts/            # Generated outputs (logs, checkpoints, reports)
+
+├── docs/                 # Documentation (you are here)**docs/archive/** contains `k3_double_rotation.py` (historical
+K3 exploration script) preserved for reference.
+
+│   ├── PHASE_5_BRIEFING.md        # Current roadmap
+
+│   ├── 30_YEAR_GAP_COVERAGE.md    # Coverage assessment---
+
+│   ├── K123_PATTERN_ANALYSIS.md   # Sanborn patterns
+
+│   ├── sources/                   # Sanborn intelligence## 🤝 Contributing
+
+│   └── archive/                   # Historical documents
+
+└── config/               # Configuration filesWhen adding documentation:
+
+```
+
+1. **Update existing docs first** - Prefer editing over creating new files
+
+1. **Check MASTER_PLAN** - Most strategic information belongs there
+
+1. **Use archive/** - Move superseded docs to archive/old_*/
+
+1. **Keep it lean** - Less is more,
+
+single source of truth 5. **Update this README** - Add new docs to appropriate section
+
+**Intelligence Layer (Phase 4 - Complete):**
+
+- `kryptos.provenance.attack_log` - AttackLogger with deduplication---
+
+- `kryptos.provenance.search_space` - SearchSpaceTracker with coverage metrics
+
+- `kryptos.research.paper_search` - PaperSearch (arXiv/IACR)**Last Updated:** 2025-10-24
+
+- `kryptos.research.attack_extractor` - Extract attack parameters from papers
+- `kryptos.research.literature_gap` - LiteratureGapAnalyzer (cross-reference)
+- `kryptos.analysis.strategic_coverage` - StrategicCoverageAnalyzer (saturation, heatmaps)
+
+**Agent System:**
+
+- `kryptos.agents.spy` - SPY pattern detection (NLP, cribs, anomalies)
+- `kryptos.agents.linguist` - LINGUIST English validation
+- `kryptos.agents.k123_analyzer` - K123 Analyzer (Sanborn patterns)
+- `kryptos.agents.ops_director` - OPS Director (strategic decisions)
+- `kryptos.agents.q_research` - Q-Research (cryptanalysis theory)
+
+**Attack System:**
+- `kryptos.k4.hypotheses` - 20 attack hypotheses (Vigenère, Hill, transposition, composites)
 - `kryptos.k4.scoring` - Statistical plaintext quality metrics
 - `kryptos.k4.pipeline` - Multi-stage decryption pipeline
-- `kryptos.agents.spy` - Pattern recognition agent (✅ implemented)
-- `kryptos.agents.ops` - Parallel execution orchestrator (⏳ planned)
-- `kryptos.agents.q` - Quality validation module (⏳ planned)
-
-### Key Scripts
-
-- `scripts/run_hypothesis.py` - Run any hypothesis by name (unified interface)
-- `scripts/tuning/crib_weight_sweep.py` - Optimize scoring weights
-- `scripts/dev/orchestrator.py` - Agent coordination harness
 
 ---
 
 ## 🔬 Current Status
 
-**Infrastructure:** ✅ Operational (281 tests passing, 85% coverage) **Hypotheses Tested:** 9 (Hill 2x2, Vigenère,
-Playfair, Transposition, Substitution, Autokey, Four-square, Bifid, Berlin Clock)
-**Agents:** SPY ✅ (435L, 10T) | OPS ✅ (350L, 9T) | Q ✅ (310L, 17T)
-**Lines of Code:** ~16,100 (agents + core logic)
+**Phase:** 4 Complete → 5 Starting **Tests:** 539/539 passing in 4:48 **Infrastructure:** Intelligence layer operational
+(provenance + literature + coverage) **Next:** Attack Generation Engine (Phase 5.1)
 
-**Recent Achievements (Oct 2024):**
+**Recent Achievements (October 2025):**
 
-- ✅ Agent triumvirate operational (~1,100 lines, 36 tests)
-- ✅ Test coverage: 82% → 85% (hypothesis tests added)
-- ✅ 9 cipher types tested with real K4 ciphertext
-- ✅ Statistical validation (2σ/3σ thresholds established)
+✅ **Phase 4.1: Attack Provenance** (45 tests)
+- AttackLogger: 100% deduplication, fingerprint-based
+- SearchSpaceTracker: Coverage metrics, region registration
+- Answer: "Have we tried this attack?"
 
-**Stretch Goals:**
+✅ **Phase 4.2: Academic Paper Integration** (32 tests)
+- PaperSearch: arXiv/IACR queries
+- AttackExtractor: Extract cipher types, attack methods, parameters
+- LiteratureGapAnalyzer: Cross-reference our attacks vs literature
+- Answer: "What has academia tried that we haven't?"
 
-- 🎯 90%+ test coverage (current: 85%)
-- 🎯 Sub-180s test suite runtime (current: 335s)
-- 🎯 Composite hypothesis testing (layered ciphers)
-- 🎯 SPY v2.0 with LLM/NLP intelligence
+✅ **Phase 4.3: Strategic Coverage Analysis** (14 tests)
+- StrategicCoverageAnalyzer: Saturation detection, time-series tracking
+- Coverage heatmaps: JSON + HTML visualization
+- OPS recommendations: PIVOT/INTENSIFY/EXPLORE actions
+- Answer: "Is this region saturated? Where should we pivot?"
 
----
+✅ **Phase 5 Planning: Comprehensive Briefing**
+- PHASE_5_BRIEFING.md: Complete roadmap with Sanborn clues
+- 30_YEAR_GAP_COVERAGE.md: 95% coverage of pre-1990 cryptography
+- Strategic direction: BERLIN + CLOCK + NORTHEAST anchors
 
-## 🎯 Task Reference
+**K4 Cracking Odds:**
+- Classical cipher variant: **60-70%** (our strength)
+- Novel cryptanalysis needed: 20-30%
+- Unknown cipher type: 5-10%
 
-**I want to...**
+## 🎯 Phase 5 Roadmap
 
-- **Understand the strategy** → [K4_MASTER_PLAN.md](K4_MASTER_PLAN.md)
-- **Run a hypothesis test** → `python scripts/run_hypothesis.py --list`
-- **Add a new hypothesis** → See Hypothesis protocol in [API_REFERENCE.md](API_REFERENCE.md)
-- **Check agent status** → [AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)
-- **Review technical debt** → [TECHDEBT.md](TECHDEBT.md)
-- **See recent changes** → [CHANGELOG.md](CHANGELOG.md)
-- **Use the API** → [API_REFERENCE.md](API_REFERENCE.md)
+### Sprint 5.1: Attack Generation Engine (Next - 6-8 hours)
+
+**Goal:** Q-Research hints → executable attack parameters
+
+**Deliverables:** 1. `AttackGenerator` class: Convert Q-Research hints to AttackParameters 2. Coverage-gap targeting:
+Generate attacks for unexplored key space 3. Literature-informed generation: Suggest new techniques from papers 4. 100%
+deduplication: Check AttackLogger before generating
+
+**Success Criteria:**
+- Q hints auto-convert to runnable attacks
+- Attack queue prioritized by coverage gap + Q confidence
+- 15-20 tests passing
+
+### Sprint 5.2: Validation Pipeline (1-2 weeks)
+**Goal:** Multi-stage filtering: SPY → LINGUIST → Q-Research → Human
+
+**Architecture:**
+```
+Raw Output (100K candidates) → SPY Pre-Filter (90% rejected - crib check) → LINGUIST Scoring (90% rejected - English
+metrics) → Q-Research Deep Validation (90% rejected - cryptanalytic soundness) → Human Review Queue (10-100 final
+candidates)
+```
+
+**Success Criteria:**
+- <1% false positive rate at human review
+- Real solution survives all filters
+- 25-30 tests passing
+
+### Sprint 5.3: End-to-End K4 Pipeline (2-3 weeks)
+**Goal:** Single-command orchestration
+
+**CLI:**
+```bash
+kryptos k4 --attack-budget 10000 --max-runtime 24h
+```
+
+**Flow:** 1. OPS Director → Strategy planning (PIVOT/INTENSIFY/EXPLORE) 2. Q-Research → Cryptanalysis hints (Vigenère
+metrics, transposition periods) 3. AttackGenerator → Parameter generation + deduplication 4. Execution → Hypothesis
+runner (parallel workers) 5. Validation → SPY → LINGUIST → Q-Research → Human 6. Reporting → Progress bars, heatmaps,
+top candidates
+
+**Success Criteria:**
+- Single command solves K4 (if classical cipher)
+- Checkpoint/resume works
+- 10-15 integration tests passing
 
 ---
 
 ## 📊 Historical Archive
 
-**archive/** folder contains superseded plans, dated milestones, and historical decision logs. These are kept for
-provenance but not actively maintained.
+**docs/archive/** contains superseded documents:
+
+- **sessions/** - Session progress reports (SESSION_PROGRESS_2025-10-25.md, etc.)
+- **AGENT_EVOLUTION_ROADMAP_OLD.md** - Superseded by PHASE_5_BRIEFING.md
+- **OPS_LLM_INTEGRATION_OLD.md** - Historical OPS design
+- **OPS_V2_STRATEGIC_DIRECTOR_OLD.md** - Historical OPS v2 design
+- **META_COORDINATOR_OLD.md** - Historical coordinator design
+- **k3_double_rotation.py** - Historical K3 exploration script
+
+Archive preserved for historical context, not actively maintained.
 
 ---
 
@@ -117,10 +510,33 @@ provenance but not actively maintained.
 
 When adding documentation:
 
-1. **Update existing docs first** - Prefer editing over creating new files 2. **Check MASTER_PLAN** - Most strategic
-content belongs there 3. **Use archive/** - Move superseded docs to archive/old_*/ 4. **Keep it lean** - Less is more,
-single source of truth 5. **Update this README** - Add new docs to appropriate section
+1. **Update existing docs first** - Prefer editing PHASE_5_BRIEFING.md over creating new files 2. **Archive superseded
+content** - Move old docs to archive/ with datestamp 3. **Keep it lean** - Single source of truth, less is more 4.
+**Update this README** - Add new docs to appropriate section 5. **Update INDEX.md** - Maintain navigation index
 
 ---
 
-**Last Updated:** 2025-10-24
+## 📖 Finding Information
+
+**"How do I...?"**
+- Run attacks? → This README (Quick Start section)
+- Understand Phase 5? → PHASE_5_BRIEFING.md
+- Check coverage gaps? → 30_YEAR_GAP_COVERAGE.md
+- See K123 patterns? → K123_PATTERN_ANALYSIS.md
+- Learn about agents? → AGENTS_ARCHITECTURE.md
+- Use the API? → API_REFERENCE.md
+
+**"What are the...?"**
+- Confirmed clues? → PHASE_5_BRIEFING.md (BERLIN, CLOCK, NORTHEAST)
+- Attack priorities? → PHASE_5_BRIEFING.md (Berlin Clock + Hill first)
+- Coverage gaps? → 30_YEAR_GAP_COVERAGE.md (Beaufort, ADFGVX, etc.)
+- K4 odds? → PHASE_5_BRIEFING.md (60-70% for classical)
+
+**"Where is...?"**
+- Sanborn intelligence? → sources/ directory
+- Old session notes? → archive/sessions/
+- Historical code? → archive/
+
+---
+
+**Last Updated:** October 25, 2025 **Status:** Phase 4 Complete, Phase 5 Ready to Execute

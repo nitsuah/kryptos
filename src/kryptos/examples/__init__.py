@@ -40,7 +40,7 @@ def run_composite_demo(limit: int = 12):  # pragma: no cover
     from kryptos.k4.attempt_logging import persist_attempt_logs
     from kryptos.k4.composite import run_composite_pipeline
     from kryptos.k4.pipeline import make_hill_constraint_stage, make_masking_stage
-    from kryptos.logging import setup_logging
+    from kryptos.log_setup import setup_logging
     from kryptos.paths import get_artifacts_root
 
     setup_logging(level=logging.INFO, logger_name="kryptos.demo.composite")

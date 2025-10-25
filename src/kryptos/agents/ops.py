@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 
 
 @dataclass
