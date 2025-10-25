@@ -309,21 +309,24 @@ def _complete_partial_key(ciphertext: str, partial_key: list[str], unfilled_posi
 def _brute_force_complete(ciphertext: str, partial_key: list[str], unfilled_positions: list[int]) -> list[str]:
     """Try all possible completions for a small number of unfilled positions.
 
-    Uses full decryption + English scoring to rank candidates.
+    Two-stage approach:
+    1. Fast frequency pre-filter (adaptive size based on text length)
+    2. SPY scoring on top candidates for accurate ranking
     """
+    from kryptos.agents.spy import SpyAgent
     from kryptos.ciphers import vigenere_decrypt
 
-    # Generate all combinations
-    candidates = []
+    # Stage 1: Fast frequency-based pre-filter
+    freq_candidates = []
 
     def generate_combinations(pos_idx: int, current_key: list[str]) -> None:
         if pos_idx >= len(unfilled_positions):
-            # Complete key - test it
             key_str = ''.join(current_key)
             try:
                 plaintext = vigenere_decrypt(ciphertext, key_str)
+                # Quick frequency score
                 score = _score_english_frequency(plaintext)
-                candidates.append((score, key_str))
+                freq_candidates.append((score, key_str, plaintext))
             except (ValueError, KeyError):
                 pass
             return
@@ -335,9 +338,28 @@ def _brute_force_complete(ciphertext: str, partial_key: list[str], unfilled_posi
 
     generate_combinations(0, partial_key[:])
 
-    # Sort by score and return top candidates
-    candidates.sort(reverse=True)
-    return [key for _, key in candidates[:20]]  # Top 20
+    # Adaptive filter size: shorter texts need larger candidate pools
+    # (frequency scoring less reliable on short texts)
+    if len(ciphertext) < 100:
+        top_n = min(500, len(freq_candidates))  # Short text: check top 500
+    else:
+        top_n = min(100, len(freq_candidates))  # Long text: top 100 sufficient
+
+    freq_candidates.sort(reverse=True)
+    top_freq = freq_candidates[:top_n]
+
+    # Stage 2: SPY scoring on top frequency candidates
+    spy = SpyAgent()
+    spy_candidates = []
+
+    for _, key_str, plaintext in top_freq:
+        analysis = spy.analyze_candidate(plaintext)
+        spy_score = analysis['pattern_score']
+        spy_candidates.append((spy_score, key_str))
+
+    # Sort by SPY score and return top 20
+    spy_candidates.sort(reverse=True)
+    return [key for _, key in spy_candidates[:20]]
 
 
 def test_key_recovery():
