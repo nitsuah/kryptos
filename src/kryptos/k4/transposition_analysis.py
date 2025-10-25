@@ -253,6 +253,103 @@ COMMON_TRIGRAMS = {
     'THE': 1.81,
     'AND': 0.73,
     'ING': 0.72,
+    'HER': 0.36,
+    'HAT': 0.36,
+    'HIS': 0.35,
+    'THA': 0.33,
+    'ERE': 0.31,
+    'FOR': 0.30,
+    'ENT': 0.28,
+    'ION': 0.27,
+    'TER': 0.27,
+    'WAS': 0.26,
+    'YOU': 0.24,
+    'ITH': 0.24,
+    'VER': 0.24,
+    'ALL': 0.22,
+    'WIT': 0.22,
+    'THI': 0.21,
+    'TIO': 0.21,
+}
+
+
+def score_words(text: str) -> float:
+    """Score text based on English word detection.
+
+    Splits text into potential words and checks against dictionary.
+    More reliable than n-grams for validating plaintext candidates.
+
+    Args:
+        text: Text to score
+
+    Returns:
+        Score based on valid word ratio (0.0-1.0)
+    """
+    # Import wordlist from scoring module
+    from kryptos.k4.scoring import WORDLIST
+
+    text = ''.join(c for c in text.upper() if c.isalpha())
+    if not text:
+        return 0.0
+
+    # Try different word boundary strategies
+    scores = []
+
+    # Strategy 1: Look for known words at any position (non-overlapping)
+    matched = [False] * len(text)
+    for word_len in range(7, 2, -1):  # Check 7-3 letter words (longest first)
+        for i in range(len(text) - word_len + 1):
+            candidate = text[i : i + word_len]
+            # Only match if none of these positions are already matched
+            if candidate in WORDLIST and not any(matched[i : i + word_len]):
+                for j in range(i, i + word_len):
+                    matched[j] = True
+
+    window_score = sum(matched) / len(text) if text else 0.0
+    scores.append(window_score)
+
+    # Strategy 2: Greedy word extraction (longest match first)
+    remaining = text
+    matched_chars = 0
+    while remaining:
+        found = False
+        # Try longest words first
+        for word_len in range(min(10, len(remaining)), 2, -1):
+            if remaining[:word_len] in WORDLIST:
+                matched_chars += word_len
+                remaining = remaining[word_len:]
+                found = True
+                break
+        if not found:
+            remaining = remaining[1:]  # Skip character
+
+    greedy_score = matched_chars / len(text)
+    scores.append(greedy_score)
+
+    # Return best strategy
+    return max(scores)
+
+
+def score_combined_with_words(text: str) -> float:
+    """Combined scoring: n-grams + word detection.
+
+    Args:
+        text: Text to score
+
+    Returns:
+        Weighted combination of scores
+    """
+    ngram_score = score_combined(text)  # 60% bigrams + 40% trigrams
+    word_score = score_words(text)
+
+    # Weight: 70% n-grams (fast, reliable) + 30% words (discriminating)
+    return 0.7 * ngram_score + 0.3 * word_score
+
+
+COMMON_TRIGRAMS = {
+    'THE': 1.81,
+    'AND': 0.73,
+    'ING': 0.72,
     'ENT': 0.42,
     'ION': 0.42,
     'HER': 0.36,
@@ -559,6 +656,125 @@ def detect_period_by_brute_force(
     # Sort by score
     results.sort(key=lambda x: x[1], reverse=True)
     return results[:top_n]
+
+
+def solve_columnar_permutation_simulated_annealing(
+    ciphertext: str,
+    period: int,
+    max_iterations: int = 10000,
+    initial_temp: float = 10.0,
+    cooling_rate: float = 0.995,
+) -> tuple[list[int], float]:
+    """Solve columnar transposition using simulated annealing.
+
+    Simulated annealing accepts worse solutions with decreasing probability,
+    helping escape local optima better than hill-climbing.
+
+    Args:
+        ciphertext: Ciphertext to analyze
+        period: Known or suspected period
+        max_iterations: Maximum iterations
+        initial_temp: Starting temperature (higher = more exploration)
+        cooling_rate: Temperature decay factor per iteration (0.99-0.999)
+
+    Returns:
+        (best_permutation, best_score) tuple
+    """
+    import math
+
+    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+
+    # Start with random permutation
+    current_perm = list(range(period))
+    random.shuffle(current_perm)
+
+    # Score initial permutation
+    current_text = apply_columnar_permutation_reverse(text, period, current_perm)
+    current_score = score_combined(current_text)
+
+    best_perm = current_perm[:]
+    best_score = current_score
+
+    temperature = initial_temp
+
+    for _ in range(max_iterations):
+        # Generate neighbor by swapping two random positions
+        neighbor_perm = current_perm[:]
+        i, j = random.sample(range(period), 2)
+        neighbor_perm[i], neighbor_perm[j] = neighbor_perm[j], neighbor_perm[i]
+
+        # Score neighbor
+        neighbor_text = apply_columnar_permutation_reverse(text, period, neighbor_perm)
+        neighbor_score = score_combined(neighbor_text)
+
+        # Calculate acceptance probability
+        delta = neighbor_score - current_score
+
+        if delta > 0:
+            # Better solution - always accept
+            current_perm = neighbor_perm
+            current_score = neighbor_score
+
+            # Update best if improved
+            if current_score > best_score:
+                best_perm = current_perm[:]
+                best_score = current_score
+        else:
+            # Worse solution - accept with probability based on temperature
+            acceptance_prob = math.exp(delta / temperature) if temperature > 0 else 0
+
+            if random.random() < acceptance_prob:
+                current_perm = neighbor_perm
+                current_score = neighbor_score
+
+        # Cool down temperature
+        temperature *= cooling_rate
+
+        # Early termination if temperature too low
+        if temperature < 0.01:
+            break
+
+    return best_perm, best_score
+
+
+def solve_columnar_permutation_simulated_annealing_multi_start(
+    ciphertext: str,
+    period: int,
+    num_restarts: int = 5,
+    max_iterations: int = 10000,
+    initial_temp: float = 10.0,
+    cooling_rate: float = 0.995,
+) -> tuple[list[int], float]:
+    """Solve columnar transposition with multiple simulated annealing runs.
+
+    Args:
+        ciphertext: Ciphertext to analyze
+        period: Known or suspected period
+        num_restarts: Number of independent SA runs
+        max_iterations: Iterations per run
+        initial_temp: Starting temperature
+        cooling_rate: Temperature decay factor
+
+    Returns:
+        (best_permutation, best_score) tuple across all runs
+    """
+    best_perm: list[int] = list(range(period))
+    best_score = float('-inf')
+
+    for _ in range(num_restarts):
+        perm, score = solve_columnar_permutation_simulated_annealing(
+            ciphertext,
+            period,
+            max_iterations,
+            initial_temp,
+            cooling_rate,
+        )
+
+        if score > best_score:
+            best_score = score
+            best_perm = perm
+
+    return best_perm, best_score
 
 
 def solve_columnar_permutation(ciphertext: str, period: int, max_iterations: int = 10000) -> tuple[list[int], float]:
