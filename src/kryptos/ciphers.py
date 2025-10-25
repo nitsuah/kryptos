@@ -160,6 +160,42 @@ def polybius_decrypt(ciphertext: str, key_square: Sequence[Sequence[str]]) -> st
     return ''.join(out)
 
 
+def beaufort_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False) -> str:
+    """Decrypt Beaufort cipher using Kryptos keyed alphabet.
+
+    Beaufort is a reciprocal Vigenère variant where P = (K - C) mod 26.
+
+    Args:
+        ciphertext: Encrypted text
+        key: Decryption key
+        preserve_non_alpha: If True, keep non-alphabetic characters
+
+    Returns:
+        Decrypted plaintext
+    """
+    from kryptos.k4.beaufort import beaufort_decrypt as _beaufort_decrypt
+
+    return _beaufort_decrypt(ciphertext, key, preserve_non_alpha)
+
+
+def beaufort_encrypt(plaintext: str, key: str, preserve_non_alpha: bool = False) -> str:
+    """Encrypt with Beaufort cipher using Kryptos keyed alphabet.
+
+    Beaufort is reciprocal: C = (K - P) mod 26, so encryption = decryption.
+
+    Args:
+        plaintext: Text to encrypt
+        key: Encryption key
+        preserve_non_alpha: If True, keep non-alphabetic characters
+
+    Returns:
+        Encrypted ciphertext
+    """
+    from kryptos.k4.beaufort import beaufort_encrypt as _beaufort_encrypt
+
+    return _beaufort_encrypt(plaintext, key, preserve_non_alpha)
+
+
 __all__ = [
     "vigenere_decrypt",
     "k3_decrypt",
@@ -167,4 +203,6 @@ __all__ = [
     "rotate_matrix_right_90",
     "transposition_decrypt",
     "polybius_decrypt",
+    "beaufort_decrypt",
+    "beaufort_encrypt",
 ]

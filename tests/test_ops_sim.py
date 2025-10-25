@@ -2,7 +2,10 @@ import csv
 import importlib.util
 from pathlib import Path
 
+import pytest
 
+
+@pytest.mark.skip(reason="scripts/tuning.py removed during Phase 6 cleanup - functionality moved to CLI")
 def test_pick_best_on_synthetic_run():
     """Test weight analysis using consolidated tuning CLI logic."""
     repo = Path(__file__).resolve().parents[1]

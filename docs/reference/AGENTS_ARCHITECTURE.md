@@ -24,7 +24,7 @@ intervention.
 
 **Status:** ✅ Implemented (`src/kryptos/agents/spy.py`, 435 lines, 10 tests passing)
 
-**Capabilities:**
+### Capabilities:
 
 - Repeating substring detection (may indicate period)
 - Palindrome finding (symmetric patterns)
@@ -37,7 +37,7 @@ intervention.
 - Confidence-scored insights
 - Pattern quality scoring
 
-**Example Usage:**
+### Example Usage:
 
 ```python
 from kryptos.agents.spy import SpyAgent, spy_report
@@ -54,7 +54,7 @@ print(spy_report(plaintext))  # Human-readable report
 
 **Goal:** Transform SPY from regex-based to AI-powered pattern recognition
 
-**Phase 1: Classic NLP (No LLM API required)**
+### Phase 1: Classic NLP (No LLM API required)
 
 - **spaCy** for proper tokenization, POS tagging, dependency parsing
   - Detect real word boundaries (not just substring matches)
@@ -71,7 +71,7 @@ print(spy_report(plaintext))  # Human-readable report
   - Detect alliteration, rhyme schemes
   - Match stress patterns
 
-**Phase 2: Transformer Embeddings (Local, no API)**
+### Phase 2: Transformer Embeddings (Local, no API)
 
 - **sentence-transformers** (`all-MiniLM-L6-v2` or similar)
   - Compute embeddings for candidate plaintexts
@@ -83,11 +83,13 @@ print(spy_report(plaintext))  # Human-readable report
   - Find candidates that are semantically "close" despite different text
   - May reveal composite cipher structures
 
-**Phase 3: LLM Integration (Optional, API-based)**
+### Phase 3: LLM Integration (Optional, API-based)
 
 - **OpenAI GPT-4 / Anthropic Claude API** for high-confidence candidates
   - Prompt: "Analyze this potential decryption: {plaintext}. Does it look like English? What patterns do you see? Rate
+
     confidence 0-100."
+
   - Use for candidates scoring >2σ threshold
   - LLM can detect subtle linguistic features humans notice but scoring misses
 
@@ -114,7 +116,7 @@ print(spy_report(plaintext))  # Human-readable report
   Respond in JSON format.
   ```
 
-**Implementation Plan:**
+### Implementation Plan:
 
 ```python
 # src/kryptos/agents/spy_nlp.py
@@ -168,7 +170,7 @@ class SpyAgentNLP(SpyAgent):
         pass
 ```
 
-**Dependencies to add:**
+### Dependencies to add:
 
 ```toml
 # pyproject.toml
@@ -190,7 +192,7 @@ llm = ["openai", "anthropic"]  # Install with: poetry install -E llm
 
 **Status:** ✅ Implemented (`src/kryptos/agents/ops.py`, 350 lines, 9 tests passing)
 
-**Capabilities:**
+### Capabilities:
 
 - Parallel hypothesis execution (ProcessPoolExecutor)
 - Job queue management with timeout enforcement
@@ -199,7 +201,7 @@ llm = ["openai", "anthropic"]  # Install with: poetry install -E llm
 - Resource monitoring (configurable max workers)
 - Job summary statistics
 
-**Example Usage:**
+### Example Usage:
 
 ```python
 from kryptos.agents.ops import OpsAgent, OpsConfig
@@ -218,7 +220,7 @@ print(f"Tested {summary['total_jobs']} hypotheses")
 print(f"Best: {summary['best_hypothesis']} scored {summary['best_score']}")
 ```
 
-**Architecture:**
+### Architecture:
 
 ```python
 # src/kryptos/agents/ops.py
@@ -285,7 +287,7 @@ class OpsAgent:
         pass
 ```
 
-**Integration with existing scripts:**
+### Integration with existing scripts:
 
 ```python
 # scripts/run_all_hypotheses.py
@@ -316,7 +318,7 @@ print(f"Best score: {max(r.best_score for r in results)}")
 
 **Status:** ✅ Implemented (`src/kryptos/agents/q.py`, 310 lines, 17 tests passing)
 
-**Capabilities:**
+### Capabilities:
 
 - Statistical validation (2σ/3σ significance thresholds)
 - Random baseline comparison (mean: -355.92, σ: 14.62)
@@ -325,7 +327,7 @@ print(f"Best score: {max(r.best_score for r in results)}")
 - Anomaly detection (impossible scores, duplicates)
 - Validation reports with statistical context
 
-**Example Usage:**
+### Example Usage:
 
 ```python
 from kryptos.agents.q import QAgent
@@ -345,7 +347,7 @@ validated = q.filter_candidates(candidates, min_confidence=0.95)
 print(f"Kept {len(validated)}/{len(candidates)} statistically significant results")
 ```
 
-**Architecture:**
+### Architecture:
 
 ```python
 # src/kryptos/agents/q.py
@@ -434,7 +436,7 @@ class QAgent:
 
 ## 🔄 Workflow Integration
 
-**Full autonomous cycle:**
+### Full autonomous cycle:
 
 ```python
 # scripts/autonomous_search.py
@@ -473,20 +475,20 @@ generate_master_report(validated_results)
 
 ## 📊 Metrics & Monitoring
 
-**OPS tracks:**
+### OPS tracks:
 
 - Hypotheses per hour
 - CPU/memory utilization
 - Success/failure rates
 - Average execution time
 
-**Q tracks:**
+### Q tracks:
 
 - Validation pass rate
 - Anomaly detection rate
 - False positive filtering
 
-**SPY tracks:**
+### SPY tracks:
 
 - Patterns detected per candidate
 - Crib match rate
@@ -505,25 +507,25 @@ generate_master_report(validated_results)
 
 ## 💡 Why This Architecture?
 
-**Separation of concerns:**
+### Separation of concerns:
 
 - SPY = Domain expertise (linguistics, patterns)
 - OPS = Infrastructure (execution, resources)
 - Q = Rigor (validation, statistics)
 
-**Modularity:**
+### Modularity:
 
 - Each agent works standalone
 - Optional LLM integration (not required)
 - Gradual enhancement path
 
-**Testability:**
+### Testability:
 
 - 249 tests and growing
 - Each agent independently validated
 - Integration tests for full workflow
 
-**Less is More:**
+### Less is More:
 
 - No bloated monolithic framework
 - Simple Python classes with clear APIs

@@ -1,4 +1,5 @@
 # 30-YEAR GAP COVERAGE ANALYSIS
+
 **Assessment Date:** October 25, 2025 **Scope:** Pre-1990 Classical Cryptography (Kryptos Era)
 
 ---
@@ -28,6 +29,7 @@ is obscure WWI/WWII ciphers (ADFGVX, Nihilist, etc.) which are less likely given
 ### ✅ COMPLETE COVERAGE (100%)
 
 #### Substitution Ciphers
+
 | Cipher | Implementation | Search Space | Known Uses |
 |--------|---------------|--------------|------------|
 | **Caesar** | ✅ All 26 shifts | 26 keys | Ancient Rome, training cipher |
@@ -39,6 +41,7 @@ is obscure WWI/WWII ciphers (ADFGVX, Nihilist, etc.) which are less likely given
 **Why Complete:** Substitution is the oldest cipher family (500 BCE+). We have exhaustive + heuristic coverage.
 
 #### Matrix Ciphers (Hill)
+
 | Variant | Implementation | Key Space | Constraints |
 |---------|---------------|-----------|-------------|
 | **Hill 2x2** | ✅ Genetic algorithm + constraint solver | ~300K with BERLIN crib | Invertible matrices mod 26 |
@@ -55,6 +58,7 @@ intelligent search methods.
 ### ✅ STRONG COVERAGE (90-95%)
 
 #### Polyalphabetic Ciphers
+
 | Cipher | Status | Key Space | Notes |
 |--------|--------|-----------|-------|
 | **Vigenère** | ✅ Complete | Key lengths 1-20, Kasiski analysis | Used in K1, K2 |
@@ -71,6 +75,7 @@ Beaufort/Porta are textbook but rarely used in practice.
 them, we'd need 1-2 days to implement.
 
 #### Transposition Ciphers
+
 | Method | Status | Variants | Notes |
 |--------|--------|----------|-------|
 | **Columnar** | ✅ Complete | 5-15 columns, all permutations (pruned) | Used in K3 |
@@ -86,6 +91,7 @@ pattern).
 **Gap Impact:** VERY LOW - Myszkowski is columnar variant. Disrupted transposition auto-handled by our solver.
 
 #### Polygraphic Ciphers (Digraph/Trigraph)
+
 | Cipher | Status | Key Space | Notes |
 |--------|--------|-----------|-------|
 | **Playfair** | ✅ Complete | Keywords: KRYPTOS, BERLIN, CLOCK, etc. | 5×5 grid, I/J merged |
@@ -105,6 +111,7 @@ it as special case).
 ### ⚠️ MODERATE COVERAGE (60-85%)
 
 #### Composite Ciphers (2-Layer)
+
 | Combination | Status | Test Coverage | Rationale |
 |-------------|--------|---------------|-----------|
 | **Vigenère → Transposition** | ✅ | 5K combos (50 keys × 100 transpositions) | K2 pattern + K3 pattern |
@@ -129,6 +136,7 @@ strategic sampling.
 ### ❌ MAJOR GAPS (0-30% Coverage)
 
 #### Fractionating Ciphers (WWI/WWII Era)
+
 | Cipher | Status | Era | Complexity | Likelihood for K4 |
 |--------|--------|-----|------------|-------------------|
 | **ADFGVX** | ❌ Missing | WWI (1918) | High (Polybius + columnar) | MEDIUM - German military, documented |
@@ -142,6 +150,7 @@ part of K1-K3 progression.
 
 **Gap Impact:** MEDIUM-HIGH - If Sanborn researched WWI/WWII cryptography (plausible - Cold War theme), these could
 appear. BUT:
+
 - Not used in K1-K3 (no pattern precedent)
 - Complex for 97-character message (overkill)
 - Would require multi-week manual implementation
@@ -151,6 +160,7 @@ appear. BUT:
 Loading) enables rapid plugin development
 
 #### Composite Ciphers (3+ Layers)
+
 | Example | Status | Complexity | Why Not Tested |
 |---------|--------|------------|----------------|
 | **Vigenère → Transposition → Hill** | ❌ | 50 × 100 × 2000 = 10M combinations | Exponential explosion |
@@ -160,6 +170,7 @@ Loading) enables rapid plugin development
 **Why Gap Exists:** Combinatorial explosion. Testing 10M+ combinations requires weeks of compute time.
 
 **Gap Impact:** MEDIUM - Sanborn said "five or six techniques," but that may include:
+
 - Keyed alphabet (1 technique)
 - Vigenère (2)
 - Transposition (3)
@@ -169,7 +180,8 @@ Loading) enables rapid plugin development
 
 So "techniques" may not all be cipher layers. Could be encoding methods, key derivation, etc.
 
-**Strategic Approach:**
+### Strategic Approach
+
 - Test 2-layer composites exhaustively (current plan)
 - If saturated with no solution → sample 3-layer intelligently (top 100 of each layer)
 - Use Q-Research to detect "this looks like partial decryption" → add third layer
@@ -181,6 +193,7 @@ So "techniques" may not all be cipher layers. Could be encoding methods, key der
 ### ✅ Confirmed in Code
 
 #### Berlin Clock (Mengenlehreuhr)
+
 - **Status:** ✅ Complete (`berlin_clock.py`, 2 hypothesis variants)
 - **Implementation:**
   - 24 hour states (00:00 - 23:00)
@@ -190,11 +203,13 @@ So "techniques" may not all be cipher layers. Could be encoding methods, key der
 - **K4 Relevance:** Sanborn's 2014 CLOCK clue → direct hint
 
 #### Keyed Alphabets
+
 - **Status:** ✅ Complete (`KRYPTOSABCDEFGHIJLMNQUVWXZ`)
 - **Usage:** K1, K2 Vigenère decryption
 - **K4 Application:** All Vigenère/Playfair hypotheses use keyed alphabet by default
 
 #### Intentional Misspellings
+
 - **Status:** ⚠️ Partial (detected but not systematically exploited)
 - **Pattern:** IQLUSION (I→Q), UNDERGRUUND (O→U), DESPARATLY (E missing)
 - **Gap:** Not using misspelling patterns to:
@@ -205,6 +220,7 @@ So "techniques" may not all be cipher layers. Could be encoding methods, key der
 ### ⚠️ Partially Covered
 
 #### Coordinate Encoding
+
 - **Status:** ⚠️ Thematic only (not key-generation)
 - **K2 Example:** "THIRTYEIGHTDEGREESFIFTYSEVENMINUTES..." (38°57'6.5"N)
 - **K4 Hypothesis:** May contain second coordinate (Berlin? Moscow? Los Alamos?)
@@ -214,6 +230,7 @@ So "techniques" may not all be cipher layers. Could be encoding methods, key der
 - **Fix:** Phase 5.1 - Add coordinate-derived key generation to AttackGenerator
 
 #### Narrative Themes (Archaeology, Espionage)
+
 - **Status:** ✅ Thematic cribs loaded (CHAMBER, DEBRIS, MAGNETIC, BERLIN)
 - **Usage:** LINGUIST scores higher for thematic words
 - **K4 Application:** Already integrated in scoring pipeline
@@ -228,19 +245,24 @@ So "techniques" may not all be cipher layers. Could be encoding methods, key der
 fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Polygraphic:** Playfair (1854), Four-Square
 (1920s) 5. **Combinations:** 2-layer composites
 
-**Coverage Assessment:**
+### Coverage Assessment
+
 - ✅ **Techniques Sanborn likely knew:** 95%+ (textbook ciphers, NSA training material)
 - ⚠️ **Obscure historical ciphers:** 50% (WWI/WWII military - ADFGVX, Nihilist)
 - ❌ **Novel inventions:** 0% (if Sanborn created unique cipher, we can't predict)
 
-**The 30-Year Gap (1990-2020):**
+### The 30-Year Gap (1990-2020)
+
 - Modern cryptography (AES, RSA, elliptic curves) NOT relevant (Kryptos is classical)
 - Community research (2000-2020): Hill cipher focus, Berlin Clock hypothesis, transposition combinations
 - **Our Advantage:** We implement ALL community hypotheses + academic techniques not widely tested
 
 ### "Unknown Territory"
 
-**What Could Surprise Us:** 1. **Sanborn Invention:** Custom cipher not documented anywhere
+**What Could Surprise Us:**
+
+1. **Sanborn Invention:** Custom cipher not documented anywhere
+
    - Example: "Sculptural cipher" where physical Kryptos layout is key
    - Mitigation: Q-Research can't help. Would need Sanborn interview hints.
 
@@ -259,7 +281,8 @@ fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Pol
    - Example: SHA-1 hash of "KRYPTOS" (anachronistic but possible)
    - Mitigation: Test numeric sequences in Vigenère/Gronsfeld variants
 
-**Probability Estimate:**
+### Probability Estimate
+
 - Classical cipher (our coverage): **60-70%**
 - Classical + Sanborn twist (e.g., keyed Hill): **20-25%**
 - Truly novel/unknown: **5-10%**
@@ -270,7 +293,10 @@ fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Pol
 
 ### Phase 5 Priority Order (Based on Coverage + Sanborn Clues)
 
-**TIER 1: High Confidence, Strong Coverage (Attack First)** 1. **Berlin Clock + Hill 2x2/3x3**
+### TIER 1: High Confidence, Strong Coverage (Attack First)**
+
+1. **Berlin Clock + Hill 2x2/3x3
+
    - BERLIN crib (confirmed) + CLOCK theme
    - Coverage: 100% of Hill space with crib constraint
    - Budget: 50K attacks
@@ -285,7 +311,10 @@ fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Pol
    - Locks 9 characters → dramatically reduces key space
    - Budget: 10K attacks (works with any cipher)
 
-**TIER 2: Medium Confidence, Good Coverage (If Tier 1 Saturates)** 4. **Double Transposition (K3 Pattern Repeat)**
+### TIER 2: Medium Confidence, Good Coverage (If Tier 1 Saturates)**
+
+4. **Double Transposition (K3 Pattern Repeat)
+
    - K3 used double rotation → K4 may use double columnar
    - Coverage: 90% of reasonable column-width pairs
    - Budget: 10K attacks
@@ -295,7 +324,10 @@ fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Pol
    - Coverage: 85% (some keyword combos untested)
    - Budget: 5K attacks each
 
-**TIER 3: Low Confidence, Gap Coverage (Last Resort)** 6. **Fractionating Ciphers (ADFGVX, Nihilist)**
+### TIER 3: Low Confidence, Gap Coverage (Last Resort)**
+
+6. **Fractionating Ciphers (ADFGVX, Nihilist)
+
    - NOT IMPLEMENTED YET
    - Requires Phase 6.2 (Dynamic Cipher Loading)
    - If LiteratureGapAnalyzer finds 5+ papers mentioning these for K4 → implement
@@ -309,7 +341,10 @@ fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Pol
 
 **Current State:** 95% coverage of pre-1990 techniques, 85% of 2-layer composites
 
-**To Reach 99% Coverage:** 1. **Add Beaufort, Porta, Gronsfeld variants** (1 day implementation)
+**To Reach 99% Coverage:**
+
+1. **Add Beaufort, Porta, Gronsfeld variants** (1 day implementation)
+
    - Low likelihood but fills polyalphabetic gap
    - Minimal risk (similar to Vigenère)
 
@@ -321,7 +356,8 @@ fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Pol
    - High complexity (fractionating + transposition)
    - Medium likelihood (WWI/WWII theme aligns with Cold War)
 
-**Trade-off Decision:**
+### Trade-off Decision
+
 - **Option A (Conservative):** Saturate existing 95% coverage FIRST → then implement gaps if no solution
   - Pro: Faster to operational pipeline (Phase 5)
   - Con: If K4 uses gap technique, weeks delay
@@ -330,7 +366,8 @@ fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Pol
   - Pro: 99% coverage guarantee
   - Con: 1-week delay, possibly wasted effort if K4 is classical
 
-**RECOMMENDATION: Option A (Conservative)**
+### RECOMMENDATION: Option A (Conservative)
+
 - Rationale: K1-K3 progression suggests Sanborn used textbook techniques + clever combinations
 - If Phase 5 runs saturate with no solution → LiteratureGapAnalyzer will detect missing techniques → implement then
 - Time-to-first-attack is more valuable than hypothetical completeness
@@ -340,27 +377,33 @@ fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Pol
 ## CONCLUSION
 
 ### Coverage Summary
-**We are 95% confident we can crack K4 if it uses documented pre-1990 cryptography.**
 
-**Strong Coverage (90-100%):**
+### We are 95% confident we can crack K4 if it uses documented pre-1990 cryptography.
+
+### Strong Coverage (90-100%)
+
 - All cipher families used in K1-K3 ✅
 - All composite combinations of those families ✅
 - All Sanborn-specific techniques (Berlin Clock, keyed alphabets, cribs) ✅
 
-**Moderate Coverage (60-90%):**
+### Moderate Coverage (60-90%)
+
 - Obscure polyalphabetic variants (Beaufort, Porta) ⚠️
 - Fractionating ciphers (ADFGVX, Nihilist) ⚠️
 - 3+ layer composites (sampling only) ⚠️
 
-**Major Gaps (<30%):**
+### Major Gaps (<30%)
+
 - Novel/invented ciphers (unpredictable) ❌
 - Visual/sculptural encoding (out of scope) ❌
 - Pre-classical techniques (ancient methods) ❌
 
 ### The 30-Year Question
-**Q: Did the crypto community miss something obvious in 30 years?**
+
+### Q: Did the crypto community miss something obvious in 30 years?
 
 **A: Unlikely for classical ciphers.** The community has extensively tested:
+
 - Vigenère (all lengths)
 - Hill 2x2/3x3 (with BERLIN crib)
 - Transposition (columnar, rail, route)
@@ -378,9 +421,14 @@ Sanborn added unique constraint (e.g., Berlin Clock hour derived from sculpture 
 **Visual-only solution:** Plaintext is instructions to interpret sculpture physically
 
 ### Next Steps
-1. ✅ **Document coverage** (this file) 2. 🚀 **Proceed with Phase 5** (Attack Generation Engine, Validation Pipeline, E2E
-Pipeline) 3. ⏳ **Monitor for gaps** (LiteratureGapAnalyzer during Phase 5 runs) 4. 🔧 **Implement missing techniques**
-(Phase 6.2 if gaps detected)
+
+1. ✅ **Document coverage** (this file)
+
+2. 🚀 **Proceed with Phase 5** (Attack Generation Engine, Validation Pipeline, E2E Pipeline)
+
+2. ⏳ **Monitor for gaps** (LiteratureGapAnalyzer during Phase 5 runs)
+
+3. 🔧 **Implement missing techniques** (Phase 6.2 if gaps detected)
 
 **We're not flapping in the wind. We have strong directional guidance from Sanborn clues + comprehensive coverage of his
 era's cryptography.**

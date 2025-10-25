@@ -1,120 +1,111 @@
 # Scripts Directory
 
-This directory contains utility scripts for development, testing, and analysis.
+Organized scripts for Kryptos cryptanalysis system.
 
-## 🎯 Active Scripts
+---
 
-### Performance & Optimization
+## Directory Structure
 
-- **benchmark_scoring.py** - Quick scoring benchmarks with readable output
-  ```bash
-  python scripts/benchmark_scoring.py
-  ```
+### `validation/` - K1-K3 Validation Scripts
 
-- **profile_scoring.py** - cProfile analysis for scoring hotspots
-  ```bash
-  python scripts/profile_scoring.py
-  ```
+**Purpose:** Verify our system can crack known Kryptos sections
 
-### Tuning & Calibration
+- **`validate_known_kryptos.py`** - Comprehensive K1-K3 validation suite
+- **`test_k123_unified_pipeline.py`** - Unified paradigm validation (shows current success rates)
+- **`test_k3_transposition.py`** - Specific K3 transposition solver testing
+- **`test_k4_execution.py`** - OPS agent attack execution testing
 
-- **tuning.py** - Main tuning orchestration script
-  ```bash
-  python scripts/tuning.py --help
-  ```
+**Usage:**
 
-- **calibrate_scoring_weights.py** - Grid search for optimal scoring weights
-  ```bash
-  python scripts/calibrate_scoring_weights.py
-  ```
+```bash
+# Run full K1-K3 validation
+python scripts/validation/validate_known_kryptos.py
 
-### Demos & Examples
+# Test unified pipeline (shows K1: 100%, K2: 3.8%, K3: 27.5%)
+python scripts/validation/test_k123_unified_pipeline.py
+```
 
-- **demo_provenance.py** - Demonstrate attack provenance system (Sprint 4.1)
-  ```bash
-  python scripts/demo_provenance.py
-  ```
+**Current Status:**
 
-### Development Utilities
+- K1: ✅ 100% reliable
+- K2: ⚠️ 3.8% (needs alphabet variant integration)
+- K3: ⚠️ 27.5% (needs SA tuning)
 
-- **lint/** - Linting utilities
-  - `mdlint.py` - Markdown documentation linting
-  - `README.md` - Linting documentation
+---
 
-## 🔄 Migration to CLI
+### `lint/` - Code Quality
 
-Many script functionalities have been migrated to the main CLI (`kryptos` command):
+**Purpose:** Linting and formatting scripts
 
-| Script Function | CLI Command | Status |
-|----------------|-------------|--------|
-| run_hypothesis | `kryptos k4-decrypt` | ✅ Migrated |
-| run_random_baseline | `kryptos k4-decrypt --random-baseline` | ✅ Migrated |
-| tuning operations | `kryptos tuning-*` | ✅ Migrated |
-| autonomous system | `kryptos autonomous` | ✅ Migrated |
+---
 
-## 📦 Archived Scripts
+## Quick Start
 
-**Archived scripts have been moved to `docs/archive/`** - they were fully replaced by:
-- CLI commands (`kryptos k4-decrypt`, `kryptos autonomous`)
-- Proper pytest tests in `tests/` directory
-- Module functionality in `src/kryptos/`
+### Validate System Works
 
-**Recently Archived (October 2025):**
-- `dev/orchestrator.py` → `docs/archive/legacy_orchestrator.py`
-  - Superseded by `src/kryptos/autonomous_coordinator.py`
-  - Historical context preserved
+```bash
+# Full K1-K3 validation (recommended first step)
+python scripts/validation/validate_known_kryptos.py
 
-**Previously Archived:**
-- `test_*.py` scripts → Migrated to proper pytest tests in `tests/`
-- `run_hypothesis.py` → Replaced by `kryptos k4-decrypt` CLI command
-- `run_random_baseline.py` → Replaced by `kryptos k4-decrypt --random-baseline`
+# See detailed success rates with explanations
+python scripts/validation/test_k123_unified_pipeline.py
+```
 
-## 🎯 Script Guidelines
+### Run Performance Benchmarks
 
-### When to Use Scripts
+```bash
+python scripts/benchmarks/benchmark_scoring.py
+```
 
-- **Performance analysis** (benchmark, profile)
-- **One-time calibration** (weight optimization)
-- **Development testing** (manual hypothesis testing)
-- **Quick experiments** (not worth CLI integration)
+### Test New Features
 
-### When to Use CLI
+---
 
-- **Production operations** (k4-decrypt, tuning, autonomous)
-- **Repeated workflows** (daily operations)
-- **User-facing features** (public API)
-- **Cross-platform compatibility** (Windows/Linux/Mac)
+## Phase 6 Priority Scripts
 
-## 🔧 Development
+### Sprint 6.1: K2/K3 Fixes
 
-### Adding New Scripts
+Focus on these validation scripts:
 
-1. Create script with clear docstring 2. Add `if __name__ == "__main__": main()` pattern 3. Update this README 4.
-Consider CLI migration for repeated use
+- `validation/test_k123_unified_pipeline.py` - Track improvement
+- `validation/test_k3_transposition.py` - Iterate on SA tuning
+- `validation/validate_known_kryptos.py` - End-to-end validation
 
-### Archiving Scripts
+**Goal:** K2 to 100%, K3 to >95%
 
-When a script becomes obsolete:
+---
 
-1. Move to `archive/` subdirectory 2. Update this README 3. Document reason for archival 4. Keep for historical
-reference
+## Key Metrics to Track
 
-### Script to CLI Migration
+### Validation Success Rates
 
-Checklist:
+- **K1 Vigenère:** Currently 100% ✅
+- **K2 Vigenère:** Currently 3.8% (Target: 100%)
+- **K3 Transposition:** Currently 27.5% (Target: >95%)
+- **Composite V→T:** Currently 6.2% (Target: 100%)
 
-1. Add CLI subcommand in `src/kryptos/cli/main.py` 2. Move core logic to appropriate module in `src/` 3. Add tests for
-CLI command 4. Update documentation 5. Archive original script with migration note
+### Performance Benchmarks
 
-## 📚 Related Documentation
+- **Attack throughput:** Currently 2.5/sec (Target: 10+/sec)
+- **Dictionary scoring:** ~0.1ms per candidate
+- **SA iterations:** 50k (Target: 100k-200k for K3)
 
-- **CLI Reference:** Run `python -m kryptos.cli.main --help`
-- **API Documentation:** `docs/API_REFERENCE.md`
-- **Performance:** `docs/PERFORMANCE_OPTIMIZATION.md`
+---
 
-## 🚨 Important Notes
+## CLI Integration
 
-- Scripts are **development tools**, not production code
-- Most scripts expect to run from project root
-- Check script docstrings for dependencies
-- Use `python scripts/script_name.py` (not direct execution)
+Many functionalities are available via CLI:
+
+- `kryptos k4-decrypt` - Run K4 attacks
+- `kryptos autonomous` - Autonomous system
+- `kryptos tuning-*` - Tuning operations
+
+---
+
+## References
+
+- **Main docs:** `docs/PHASE_6_ROADMAP.md`
+
+---
+
+**Last Updated:** October 25, 2025 **Phase:** 6.1 (K2/K3 Fixes) **Status:** Organized and ready for Sprint 6.1

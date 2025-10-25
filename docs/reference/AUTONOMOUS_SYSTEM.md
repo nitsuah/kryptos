@@ -44,6 +44,7 @@ agents to continuously work toward solving K4 with minimal human intervention.
 **Location:** `src/kryptos/agents/spy_nlp.py`, `src/kryptos/agents/spy_web_intel.py`
 
 ### 2. OPS Strategic Director - Decision Making
+
 - **Progress Monitoring:** Tracks attack attempts, scores, improvement rates
 - **Agent Insight Synthesis:** Combines discoveries from all agents
 - **Strategic Decisions:** CONTINUE, PIVOT, BOOST, REDUCE, STOP, START_NEW
@@ -65,6 +66,7 @@ agents to continuously work toward solving K4 with minimal human intervention.
 **Location:** `src/kryptos/agents/k123_analyzer.py`
 
 ### 4. Autonomous Coordinator - Orchestration
+
 - **Coordination Loop:** Runs every N minutes
 - **Agent Messaging:** Inter-agent communication protocol
 - **State Persistence:** Never loses progress across sessions
@@ -95,7 +97,7 @@ python -m kryptos.cli.main autonomous \
   --web-intel-hours 6
 ```
 
-**Parameters:**
+### Parameters:
 
 - `--max-hours 48`: Run for 48 hours (weekend)
 - `--cycle-interval 5`: Coordination cycle every 5 minutes
@@ -157,7 +159,8 @@ State is automatically saved after every cycle to:
 artifacts/autonomous_state.json
 ```
 
-**Saved Information:**
+### Saved Information:
+
 - Session start time and total runtime
 - Coordination cycle count
 - Active attacks with progress metrics
@@ -176,6 +179,7 @@ python -m kryptos.cli.main autonomous
 ```
 
 It will automatically:
+
 - Load previous state
 - Continue from last checkpoint
 - Preserve all progress and insights
@@ -192,6 +196,7 @@ tail -f artifacts/logs/kryptos_*.log
 ```
 
 Look for:
+
 - `🚀 Starting autonomous coordination loop`
 - `✅ Continuing current approach`
 - `🔄 Pivoting to new approach`
@@ -210,7 +215,8 @@ ls -lt artifacts/logs/progress_*.md | head -1
 cat artifacts/logs/progress_20251025_013045.md
 ```
 
-**Report Contents:**
+### Report Contents:
+
 - Executive summary (attempts, best score, active attacks)
 - Attack details (type, progress, improvement rate)
 - Agent insights (discoveries from SPY, Q, web intel)
@@ -225,7 +231,7 @@ Check current state:
 cat artifacts/autonomous_state.json | jq .
 ```
 
-**Key Metrics:**
+### Key Metrics:
 ```json
 {
   "total_runtime_hours": 47.3,
@@ -247,11 +253,13 @@ cat artifacts/autonomous_state.json | jq .
 The system uses 13 patterns from K1-K3 to guide K4 attacks:
 
 1. **NORTHEAST anchor** (confidence 1.00) - chars 26-34 known plaintext 2. **Spelling quirks** (0.95) - Q↔I, U↔O
+
 substitutions expected 3. **Location theme** (0.95) - north, west, degrees, coordinates 4. **Discovery theme** (0.95) -
 slowly, emerged, breach, peered 5. **Archaeology theme** (0.95) - debris, chamber, remains 6. **Cipher progression**
 (0.90) - K4 likely supercipher 7. **X delimiters** (0.90) - structural markers 8. **Communication theme** (0.90) -
 message, transmitted 9. **Secrecy theme** (0.85) - invisible, buried, unknown 10. **Poetic language** (0.85) - artistic,
 metaphorical 11. **Coordinates** (0.85) - numeric encodings 12. **Historical quotes** (0.80) - King Tut reference in K3
+
 13. **Word lengths** (0.75) - prefers 3-4 letter words
 
 See `docs/K123_PATTERN_ANALYSIS.md` for full details.
@@ -259,11 +267,13 @@ See `docs/K123_PATTERN_ANALYSIS.md` for full details.
 ### Web Intelligence
 
 Monitors these sources every 6 hours (configurable):
+
 - **elonka.com** - Kryptos researcher with extensive documentation
 - **CIA Kryptos page** - Official source, updates rare but critical
 - **Reddit r/codes** - Community discoveries and theories
 
 Extracts:
+
 - Quoted text (potential cribs)
 - Proper nouns (NORTHEAST, BERLIN, CLOCK)
 - Coordinates and dates
@@ -272,12 +282,14 @@ Extracts:
 ### OPS Strategic Decisions
 
 Every hour (configurable), OPS analyzes:
+
 - Attack improvement rates
 - Time since last progress
 - Agent insights (linguistic, mathematical, external)
 - Resource allocation efficiency
 
 Makes decisions:
+
 - **CONTINUE:** Current approach working, keep going
 - **PIVOT:** Stuck, try different cipher technique
 - **BOOST:** Promising, increase CPU/resources
@@ -308,7 +320,8 @@ message = CoordinationMessage(
 )
 ```
 
-**Message Types:**
+### Message Types:
+
 - **INSIGHT:** Agent discovered something interesting
 - **ALERT:** Urgent finding (priority 9-10)
 - **STATUS:** Routine update
@@ -379,14 +392,16 @@ def _coordination_cycle(self):
 
 ### Human-in-Loop vs Autonomous
 
-**Human Expertise (One-Time):**
+### Human Expertise (One-Time):
+
 - Design agent architecture
 - Implement NLP algorithms
 - Define strategic decision framework
 - Configure K123 pattern extraction
 - Set termination conditions
 
-**Machine Endurance (24/7):**
+### Machine Endurance (24/7):
+
 - Run coordination loops continuously
 - Execute cryptanalysis attempts
 - Validate candidates linguistically
@@ -395,7 +410,8 @@ def _coordination_cycle(self):
 - Track progress meticulously
 - Never get tired or bored
 
-**Human Intervention (As Needed):**
+### Human Intervention (As Needed):
+
 - Review weekly progress reports
 - Adjust strategy based on meta-analysis
 - Respond to EMERGENCY_STOP alerts
@@ -489,6 +505,7 @@ $ python -m kryptos.cli.main autonomous --max-hours 24 --cycle-interval 5
 To extend the autonomous system:
 
 1. **New Agent:** Implement in `src/kryptos/agents/` 2. **Register with Coordinator:** Add to
+
 `autonomous_coordinator.py` 3. **Message Protocol:** Use `CoordinationMessage` for communication 4. **State Tracking:**
 Update `AutonomousState` dataclass 5. **CLI Integration:** Add subcommand if needed
 
