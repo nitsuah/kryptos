@@ -28,8 +28,16 @@ autonomous_coordinator.py)
     - `recover_key_by_frequency()` uses chi-squared analysis against English letter frequencies
     - Automatically attempts key recovery when OPS executes Vigenère attacks without explicit keys
     - **VALIDATED:** Successfully recovered K2 key "ABSCISSA" as top candidate from ciphertext alone
-    - Alternative crib-based recovery available via `recover_key_with_crib()`
-  - **Validation script:** `scripts/validate_known_kryptos.py` tests against K1/K2/K3 known plaintexts
+    - **Crib-based recovery:** `recover_key_with_crib()` extracts partial keys from known words (BERLIN, CLOCK)
+      - Successfully extracts 7/10 key positions from K1 using crib "BETWEEN"
+      - Two-stage completion: frequency pre-filter → SPY scoring (adaptive for short texts)
+      - Returns top-50 candidates for human review on short texts
+  - **Validation scripts:**
+    - `scripts/validate_known_kryptos.py` - K1/K2/K3 tests against known plaintexts
+    - `scripts/test_autonomous_crack.py` - Full autonomous capability assessment
+    - `scripts/test_crib_recovery.py` - Crib-based key recovery validation
+  - **Attack coverage documentation:** `ATTACK_COVERAGE_REPORT.md` - Comprehensive analysis of crack capability
+    vs 30 years of K4 efforts
   - System now capable of end-to-end autonomous cryptanalysis (research → generation → execution → scoring)
 * **Phase 5.2: OPS Attack Generation Integration** - Connected AttackGenerator to OPS Director orchestration:
   - Extended `OpsConfig` with `enable_attack_generation` and `attack_log_dir` configuration

@@ -3,12 +3,15 @@
 Usage:
     python scripts/lint/mdlint.py check [files...]  # Check style (used by pre-commit)
     python scripts/lint/mdlint.py reflow [files...] # Reflow paragraphs to 120 chars
+    python scripts/lint/mdlint.py fix [files...]    # Auto-fix MD032, MD036, etc.
 
 Rules:
 - No trailing whitespace
 - Max line length 120 chars (outside code/tables/URLs)
 - No leading-space list markers (" - ")
 - Reflow paragraphs to 120 chars while preserving code/tables/headers
+- MD032: Lists should be surrounded by blank lines
+- MD036: Emphasis used instead of a heading (bold text on its own line)
 """
 
 from __future__ import annotations
@@ -204,13 +207,121 @@ def cmd_reflow(argv: list[str]) -> int:
 
 
 # ============================================================================
+# FIX: Auto-fix common issues (MD032, MD036)
+# ============================================================================
+
+
+def is_list_line(line: str) -> bool:
+    """Check if line is a list item."""
+    s = line.lstrip()
+    return s.startswith(('- ', '* ', '+ ')) or (s and s[0].isdigit() and '. ' in s[:4])
+
+
+def is_emphasis_heading(line: str) -> bool:
+    """Check if line is bold/italic text that should be a heading (MD036)."""
+    s = line.strip()
+    # Check for **text** or __text__ on its own line
+    if (s.startswith('**') and s.endswith('**') and len(s) > 4) or (
+        s.startswith('__') and s.endswith('__') and len(s) > 4
+    ):
+        # Not if it's in a list or after a colon
+        return True
+    return False
+
+
+def fix_file(path: Path) -> int:
+    """Auto-fix MD032 (blanks around lists) and MD036 (emphasis headings)."""
+    txt = path.read_text(encoding='utf-8')
+    lines = txt.splitlines()
+    out_lines: list[str] = []
+    in_code = False
+    fixes = 0
+
+    for i, line in enumerate(lines):
+        stripped = line.lstrip()
+
+        # Toggle code fence
+        if stripped.startswith('```'):
+            in_code = not in_code
+            out_lines.append(line)
+            continue
+
+        if in_code:
+            out_lines.append(line)
+            continue
+
+        # Fix MD036: Convert **Heading** to ### Heading
+        if is_emphasis_heading(line):
+            inner = line.strip()[2:-2].strip()
+            # Use ### for emphasis headings (h3)
+            out_lines.append(f"### {inner}")
+            fixes += 1
+            continue
+
+        # Fix MD032: Ensure blank line before list
+        if is_list_line(line):
+            prev_idx = len(out_lines) - 1
+            # Check if previous line is not blank and not a list item
+            if prev_idx >= 0:
+                prev = out_lines[prev_idx]
+                if prev.strip() != '' and not is_list_line(prev):
+                    out_lines.append('')  # Add blank line before list
+                    fixes += 1
+
+        out_lines.append(line)
+
+        # Fix MD032: Ensure blank line after list
+        if is_list_line(line) and i + 1 < len(lines):
+            next_line = lines[i + 1]
+            next_stripped = next_line.lstrip()
+            # If next line is not blank, not a list, and not a code fence
+            if (
+                next_stripped != ''
+                and not is_list_line(next_line)
+                and not next_stripped.startswith('```')
+                and not next_stripped.startswith('#')
+            ):
+                # Look ahead to see if we're at end of list
+                if i + 1 < len(lines):
+                    out_lines.append('')  # Add blank line after list item
+                    fixes += 1
+
+    new_txt = '\n'.join(out_lines) + '\n'
+    if fixes > 0:
+        path.write_text(new_txt, encoding='utf-8')
+        print(f"Fixed {fixes} issues in {path}")
+    return fixes
+
+
+def cmd_fix(argv: list[str]) -> int:
+    """Auto-fix common markdown issues."""
+    if len(argv) < 3:
+        # Fix all files
+        files = list(iter_md_files())
+    else:
+        # Fix specific files
+        files = [Path(p) for p in argv[2:]]
+
+    total_fixes = 0
+    for f in files:
+        if f.exists():
+            total_fixes += fix_file(f)
+
+    if total_fixes:
+        print(f"Fixed {total_fixes} total issues")
+    else:
+        print("No issues to fix")
+    return 0
+
+
+# ============================================================================
 # CLI
 # ============================================================================
 
 
 def main(argv: list[str]) -> int:
     """Main entry point."""
-    if len(argv) < 2 or argv[1] not in ('check', 'reflow'):
+    if len(argv) < 2 or argv[1] not in ('check', 'reflow', 'fix'):
         print(__doc__)
         return 2
     cmd = argv[1]
@@ -218,6 +329,8 @@ def main(argv: list[str]) -> int:
         return cmd_check(argv)
     if cmd == 'reflow':
         return cmd_reflow(argv)
+    if cmd == 'fix':
+        return cmd_fix(argv)
     return 2
 
 
