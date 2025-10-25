@@ -26,8 +26,11 @@ THRESHOLD_2SIGMA = -326.68  # 95% confidence
 THRESHOLD_3SIGMA = -312.06  # 99.7% confidence
 
 
-def test_hypothesis(name: str, hypothesis, limit: int = 10) -> dict:
-    """Test a hypothesis and return results."""
+def run_hypothesis_test(name: str, hypothesis, limit: int = 10) -> dict:
+    """Test a hypothesis and return results.
+
+    Note: Renamed from test_hypothesis to avoid pytest collection.
+    """
     print(f"\n{'='*80}")
     print(f"Testing: {name} (FULL SCALE)")
     print(f"{'='*80}")
@@ -112,7 +115,7 @@ def main():
         transposition_candidates=20,
         hill_limit=1000,
     )
-    result1 = test_hypothesis("Transposition → Hill 2x2", hyp1, limit=10)
+    result1 = run_hypothesis_test("Transposition → Hill 2x2", hyp1, limit=10)
     results.append(result1)
 
     # Test 2: Vigenère → Transposition (FULL PARAMETERS)
@@ -126,7 +129,7 @@ def main():
         transposition_limit=100,
         vigenere_max_key_length=12,
     )
-    result2 = test_hypothesis("Vigenère → Transposition", hyp2, limit=10)
+    result2 = run_hypothesis_test("Vigenère → Transposition", hyp2, limit=10)
     results.append(result2)
 
     # Test 3: Simple Substitution → Transposition (FULL PARAMETERS)
@@ -138,7 +141,7 @@ def main():
     hyp3 = SubstitutionThenTranspositionHypothesis(
         transposition_limit=100,
     )
-    result3 = test_hypothesis("Substitution → Transposition", hyp3, limit=10)
+    result3 = run_hypothesis_test("Substitution → Transposition", hyp3, limit=10)
     results.append(result3)
 
     # Summary

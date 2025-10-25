@@ -634,6 +634,103 @@ def combined_plaintext_score_with_external_cribs(
     return base + bonus
 
 
+def composite_score_with_stage_analysis(
+    stage1_plaintext: str,
+    stage2_plaintext: str,
+    stage1_score: float,
+    stage2_score: float,
+    stage1_weight: float = 0.3,
+    stage2_weight: float = 0.7,
+) -> dict:
+    """Analyze composite hypothesis results with stage-aware bonuses.
+
+    Awards bonuses for signs of partial decryption progress in intermediate
+    results (stage1). This helps identify promising composite cipher approaches
+    even when neither stage alone produces readable text.
+
+    Args:
+        stage1_plaintext: Intermediate plaintext after first decryption stage
+        stage2_plaintext: Final plaintext after second decryption stage
+        stage1_score: Score of stage1 plaintext
+        stage2_score: Score of stage2 plaintext
+        stage1_weight: Weight for stage1 in final score (default: 0.3)
+        stage2_weight: Weight for stage2 in final score (default: 0.7)
+
+    Returns:
+        Dictionary with:
+            - final_score: Weighted combination of stage scores + bonuses
+            - stage1_ioc: Index of coincidence for stage1
+            - stage2_ioc: Index of coincidence for stage2
+            - ioc_improvement: Change in IOC from stage1 to stage2
+            - stage1_partial_words: Count of 3+ letter word fragments in stage1
+            - stage2_partial_words: Count of 3+ letter word fragments in stage2
+            - english_freq_convergence: How much closer stage2 is to English
+            - total_bonus: Sum of all bonuses applied
+    """
+    import re
+
+    # Calculate IOC for both stages
+    stage1_ioc = index_of_coincidence(stage1_plaintext)
+    stage2_ioc = index_of_coincidence(stage2_plaintext)
+
+    # IOC improvement bonus (positive = moving toward English IOC ~0.067)
+    english_ioc = 0.067
+    stage1_ioc_distance = abs(stage1_ioc - english_ioc)
+    stage2_ioc_distance = abs(stage2_ioc - english_ioc)
+    ioc_improvement = stage1_ioc_distance - stage2_ioc_distance
+
+    # Bonus for IOC improvement (up to +10 points)
+    ioc_bonus = min(10.0, max(0.0, ioc_improvement * 150))
+
+    # Count partial word matches (3+ consecutive letters that form words)
+    def count_partial_words(text: str, min_length: int = 3) -> int:
+        """Count potential word fragments (3+ alpha chars)."""
+        words = re.findall(r'[A-Z]{' + str(min_length) + r',}', text.upper())
+        return len(words)
+
+    stage1_words = count_partial_words(stage1_plaintext)
+    stage2_words = count_partial_words(stage2_plaintext)
+
+    # Bonus for increasing word-like patterns (up to +5 points)
+    word_improvement = stage2_words - stage1_words
+    word_bonus = min(5.0, max(0.0, word_improvement * 0.5))
+
+    # Letter frequency convergence toward English
+    stage1_freq_dist = chi_square_stat(stage1_plaintext)
+    stage2_freq_dist = chi_square_stat(stage2_plaintext)
+    freq_convergence = stage1_freq_dist - stage2_freq_dist
+
+    # Bonus for frequency convergence (up to +8 points)
+    freq_bonus = min(8.0, max(0.0, freq_convergence * 0.01))
+
+    # Calculate total bonus
+    total_bonus = ioc_bonus + word_bonus + freq_bonus
+
+    # Weighted final score
+    base_score = (stage1_weight * stage1_score) + (stage2_weight * stage2_score)
+    final_score = base_score + total_bonus
+
+    return {
+        'final_score': final_score,
+        'base_score': base_score,
+        'stage1_score': stage1_score,
+        'stage2_score': stage2_score,
+        'stage1_ioc': stage1_ioc,
+        'stage2_ioc': stage2_ioc,
+        'ioc_improvement': ioc_improvement,
+        'ioc_bonus': ioc_bonus,
+        'stage1_partial_words': stage1_words,
+        'stage2_partial_words': stage2_words,
+        'word_improvement': word_improvement,
+        'word_bonus': word_bonus,
+        'english_freq_convergence': freq_convergence,
+        'freq_bonus': freq_bonus,
+        'total_bonus': total_bonus,
+        'stage1_weight': stage1_weight,
+        'stage2_weight': stage2_weight,
+    }
+
+
 __all__ = [
     'LETTER_FREQ',
     'BIGRAMS',
@@ -666,4 +763,5 @@ __all__ = [
     'positional_letter_deviation_score',
     'load_cribs_from_file',
     'combined_plaintext_score_with_external_cribs',
+    'composite_score_with_stage_analysis',
 ]

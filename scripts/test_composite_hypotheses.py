@@ -23,8 +23,11 @@ THRESHOLD_2SIGMA = -326.68  # 95% confidence
 THRESHOLD_3SIGMA = -312.06  # 99.7% confidence
 
 
-def test_hypothesis(name: str, hypothesis, limit: int = 10) -> dict:
-    """Test a hypothesis and return results."""
+def run_hypothesis_test(name: str, hypothesis, limit: int = 10) -> dict:
+    """Test a hypothesis and return results.
+
+    Note: Renamed from test_hypothesis to avoid pytest collection.
+    """
     print(f"\n{'='*80}")
     print(f"Testing: {name}")
     print(f"{'='*80}")
@@ -95,7 +98,7 @@ def main():
     # Test 1: Transposition → Hill 2x2 (most promising)
     # Reduced parameters for quick test
     results.append(
-        test_hypothesis(
+        run_hypothesis_test(
             "Transposition → Hill 2x2 (Quick Test)",
             TranspositionThenHillHypothesis(
                 transposition_candidates=10,  # Reduced from 20
@@ -108,7 +111,7 @@ def main():
 
     # Test 2: Vigenère → Transposition
     results.append(
-        test_hypothesis(
+        run_hypothesis_test(
             "Vigenère → Transposition (Quick Test)",
             VigenereThenTranspositionHypothesis(
                 vigenere_candidates=20,  # Reduced from 50
@@ -122,7 +125,7 @@ def main():
 
     # Test 3: Substitution → Transposition (fastest)
     results.append(
-        test_hypothesis(
+        run_hypothesis_test(
             "Simple Substitution → Transposition",
             SubstitutionThenTranspositionHypothesis(
                 transposition_limit=50,  # Reduced from 100
