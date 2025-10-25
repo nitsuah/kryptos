@@ -127,7 +127,7 @@ def run_profiling():
     print("PROFILING COMPLETE")
     print("=" * 80)
     print("\nKey insights:")
-    print("- Look for functions with high 'cumtime' (cumulative time)")
+    print("- Look for functions with high 'runtime' (cumulative time)")
     print("- High 'ncalls' with moderate time = good optimization target")
     print("- Consider caching, vectorization, or algorithm improvements")
 
