@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from .hill_cipher import invertible_2x2_keys
+from .hill_genetic import genetic_algorithm_hill3x3
 from .hill_search import score_decryptions
 from .transposition import search_columnar
 
@@ -41,6 +42,91 @@ class Hypothesis(Protocol):
         ...
 
 
+class CompositeHypothesis:
+    """Base class for layered/composite cipher hypotheses.
+
+    Tests multi-stage decryption: applies first cipher method, then applies
+    second method to the intermediate results. Tracks full transformation
+    chain for provenance.
+
+    Example: Transposition → Hill 2x2 (decrypt transposition first, then Hill)
+    """
+
+    def __init__(self, stage1: Hypothesis, stage2: Hypothesis, stage1_candidates: int = 20):
+        """Initialize composite hypothesis.
+
+        Args:
+            stage1: First hypothesis to apply (outer layer)
+            stage2: Second hypothesis to apply (inner layer)
+            stage1_candidates: Number of stage1 results to test with stage2
+        """
+        self.stage1 = stage1
+        self.stage2 = stage2
+        self.stage1_candidates = stage1_candidates
+
+    def generate_candidates(self, ciphertext: str, limit: int = 10) -> list[Candidate]:
+        """Generate candidates by chaining two cipher methods.
+
+        Process:
+        1. Generate top N candidates from stage1
+        2. For each stage1 result, use as input to stage2
+        3. Combine results, track full transformation chain
+        4. Return top candidates by score
+
+        Args:
+            ciphertext: Original ciphertext
+            limit: Maximum number of final candidates to return
+
+        Returns:
+            List of Candidate objects with composite metadata
+        """
+
+        # Stage 1: Get intermediate decryptions
+        stage1_results = self.stage1.generate_candidates(ciphertext, limit=self.stage1_candidates)
+
+        # Stage 2: Apply second method to each stage1 result
+        all_candidates = []
+        for s1_candidate in stage1_results:
+            # Use stage1 plaintext as input to stage2
+            stage2_results = self.stage2.generate_candidates(s1_candidate.plaintext, limit=10)
+
+            # Create composite candidates with full provenance
+            for s2_candidate in stage2_results:
+                composite_id = f"composite_{s1_candidate.id}__then__{s2_candidate.id}"
+
+                # Metadata includes both stages
+                composite_key_info = {
+                    'stage1': {
+                        'id': s1_candidate.id,
+                        'key': s1_candidate.key_info,
+                        'score': s1_candidate.score,
+                    },
+                    'stage2': {
+                        'id': s2_candidate.id,
+                        'key': s2_candidate.key_info,
+                        'score': s2_candidate.score,
+                    },
+                    'transformation_chain': [s1_candidate.id, s2_candidate.id],
+                }
+
+                # Final score (can be weighted differently later)
+                # For now, use stage2's score since it's the final plaintext
+                final_score = s2_candidate.score
+
+                all_candidates.append(
+                    Candidate(
+                        id=composite_id,
+                        plaintext=s2_candidate.plaintext,
+                        key_info=composite_key_info,
+                        score=final_score,
+                    ),
+                )
+
+        # Sort by final score and return top candidates
+        all_candidates.sort(key=lambda c: c.score, reverse=True)
+        return all_candidates[:limit]
+
+
 class HillCipher2x2Hypothesis:
     """Exhaustive 2x2 Hill cipher hypothesis.
 
@@ -66,6 +152,70 @@ class HillCipher2x2Hypothesis:
                     plaintext=result['text'],
                     key_info={'matrix': key_matrix, 'size': 2},
                     score=result['score'],
+                ),
+            )
+
+        return candidates
+
+
+class HillCipher3x3GeneticHypothesis:
+    """Hill 3x3 cipher with genetic algorithm key search.
+
+    Hill 3x3 has 26^9 ≈ 5.4 trillion possible keys. Instead of exhaustive search,
+    this uses a genetic algorithm to intelligently explore the keyspace.
+
+    Args:
+        population_size: Number of keys per generation (default: 1000)
+        generations: Number of GA iterations (default: 100)
+        mutation_rate: Probability of mutating each matrix element (default: 0.1)
+        elite_fraction: Fraction of top performers to preserve (default: 0.2)
+    """
+
+    def __init__(
+        self,
+        population_size: int = 1000,
+        generations: int = 100,
+        mutation_rate: float = 0.1,
+        elite_fraction: float = 0.2,
+    ):
+        """Initialize the Hill 3x3 genetic algorithm hypothesis."""
+        self.population_size = population_size
+        self.generations = generations
+        self.mutation_rate = mutation_rate
+        self.elite_fraction = elite_fraction
+
+    def generate_candidates(self, ciphertext: str, limit: int = 10) -> list[Candidate]:
+        """Generate candidates using genetic algorithm for 3x3 Hill cipher search.
+
+        Args:
+            ciphertext: The ciphertext to decrypt
+            limit: Maximum number of candidates to return
+
+        Returns:
+            List of Candidate objects, sorted by score descending
+        """
+        # Run genetic algorithm
+        results = genetic_algorithm_hill3x3(
+            ciphertext,
+            population_size=self.population_size,
+            generations=self.generations,
+            mutation_rate=self.mutation_rate,
+            elite_fraction=self.elite_fraction,
+        )
+
+        # Convert to Candidate objects
+        candidates = []
+        for i, (key_matrix, score, plaintext) in enumerate(results[:limit]):
+            # Create a unique ID from matrix elements
+            flat_key = [key_matrix[i][j] for i in range(3) for j in range(3)]
+            key_str = "_".join(str(x) for x in flat_key)
+
+            candidates.append(
+                Candidate(
+                    id=f"hill_3x3_genetic_{i}_{key_str[:20]}",  # Truncate for readability
+                    plaintext=plaintext,
+                    key_info={'matrix': key_matrix, 'size': 3, 'method': 'genetic_algorithm'},
+                    score=score,
                 ),
             )
 
@@ -773,3 +923,285 @@ class BerlinClockVigenereHypothesis:
         # Sort by score and return top candidates
         candidates_list.sort(key=lambda c: c.score, reverse=True)
         return candidates_list[:limit]
+
+
+# ============================================================================
+# Composite Hypotheses: Layered Cipher Testing
+# ============================================================================
+
+
+class TranspositionThenHillHypothesis(CompositeHypothesis):
+    """Transposition → Hill 2x2 composite cipher.
+
+    Tests if K4 uses columnar transposition as outer layer, then Hill 2x2
+    as inner encryption. This was a common classical approach to layer
+    substitution and transposition for increased security.
+
+    Default: Test top 20 transposition candidates × 1,000 Hill keys each
+    """
+
+    def __init__(
+        self,
+        transposition_candidates: int = 20,
+        hill_limit: int = 1000,
+        transposition_widths: list[int] | None = None,
+    ):
+        """Initialize Transposition→Hill composite.
+
+        Args:
+            transposition_candidates: Number of transposition results to test (default: 20)
+            hill_limit: Number of Hill candidates per transposition (default: 1000)
+            transposition_widths: Column widths to test (default: Berlin Clock periods)
+        """
+        stage1 = BerlinClockTranspositionHypothesis(widths=transposition_widths)
+        stage2 = HillCipher2x2Hypothesis()
+
+        # Override stage2's generate_candidates to limit keys tested
+        original_generate = stage2.generate_candidates
+
+        def limited_generate(ciphertext: str, limit: int = 10) -> list[Candidate]:
+            # Only test subset of Hill keys for performance
+            # This is a simplification - in production might want smarter sampling
+            return original_generate(ciphertext, limit=hill_limit)
+
+        stage2.generate_candidates = limited_generate
+
+        super().__init__(stage1, stage2, stage1_candidates=transposition_candidates)
+
+
+class VigenereThenTranspositionHypothesis(CompositeHypothesis):
+    """Vigenère → Transposition composite cipher.
+
+    Tests if K4 uses Vigenère as outer layer (partial substitution), then
+    transposition to rearrange the partially-decrypted text.
+
+    Default: Test top 50 Vigenère keys × 100 transposition permutations
+    """
+
+    def __init__(
+        self,
+        vigenere_candidates: int = 50,
+        transposition_limit: int = 100,
+        vigenere_max_key_length: int = 12,
+        transposition_widths: list[int] | None = None,
+    ):
+        """Initialize Vigenère→Transposition composite.
+
+        Args:
+            vigenere_candidates: Number of Vigenère results to test (default: 50)
+            transposition_limit: Transposition permutations per Vigenère (default: 100)
+            vigenere_max_key_length: Max Vigenère key length to test (default: 12)
+            transposition_widths: Column widths to test (default: Berlin Clock periods)
+        """
+        stage1 = VigenereHypothesis(
+            min_key_length=1,
+            max_key_length=vigenere_max_key_length,
+            keys_per_length=5,
+            explicit_keywords=['BERLIN', 'CLOCK', 'KRYPTOS'],
+        )
+        stage2 = BerlinClockTranspositionHypothesis(
+            widths=transposition_widths,
+            max_perms=transposition_limit,
+        )
+
+        super().__init__(stage1, stage2, stage1_candidates=vigenere_candidates)
+
+
+class SubstitutionThenTranspositionHypothesis(CompositeHypothesis):
+    """Simple Substitution → Transposition composite cipher.
+
+    Tests classic two-layer approach: simple substitution (Caesar, Atbash, Reverse)
+    followed by columnar transposition.
+
+    Default: All simple substitutions (~28 variants) × top 100 transpositions
+    """
+
+    def __init__(
+        self,
+        transposition_limit: int = 100,
+        transposition_widths: list[int] | None = None,
+    ):
+        """Initialize Substitution→Transposition composite.
+
+        Args:
+            transposition_limit: Transposition permutations to test (default: 100)
+            transposition_widths: Column widths to test (default: Berlin Clock periods)
+        """
+        stage1 = SimpleSubstitutionHypothesis()
+        stage2 = BerlinClockTranspositionHypothesis(
+            widths=transposition_widths,
+            max_perms=transposition_limit,
+        )
+
+        # All simple substitution variants (~28 total)
+        super().__init__(stage1, stage2, stage1_candidates=28)
+
+
+class HillThenTranspositionHypothesis(CompositeHypothesis):
+    """Hill 2x2 → Transposition composite cipher (reverse order).
+
+    Tests if K4 uses Hill 2x2 as inner encryption, then columnar transposition
+    as outer layer. This is the reverse order of TranspositionThenHill.
+
+    Default: Test top 20 Hill candidates × 100 transposition permutations
+    """
+
+    def __init__(
+        self,
+        hill_candidates: int = 20,
+        transposition_limit: int = 100,
+        transposition_widths: list[int] | None = None,
+    ):
+        """Initialize Hill→Transposition composite.
+
+        Args:
+            hill_candidates: Number of Hill results to test (default: 20)
+            transposition_limit: Transposition permutations per Hill (default: 100)
+            transposition_widths: Column widths to test (default: Berlin Clock periods)
+        """
+        stage1 = HillCipher2x2Hypothesis()
+        stage2 = BerlinClockTranspositionHypothesis(
+            widths=transposition_widths,
+            max_perms=transposition_limit,
+        )
+
+        super().__init__(stage1, stage2, stage1_candidates=hill_candidates)
+
+
+class AutokeyThenTranspositionHypothesis(CompositeHypothesis):
+    """Autokey → Transposition composite cipher.
+
+    Tests Autokey cipher (Vigenère variant with plaintext feedback) followed
+    by columnar transposition. Autokey is more secure than standard Vigenère
+    due to non-repeating key.
+
+    Default: Test top 30 Autokey candidates × 100 transposition permutations
+    """
+
+    def __init__(
+        self,
+        autokey_candidates: int = 30,
+        transposition_limit: int = 100,
+        transposition_widths: list[int] | None = None,
+    ):
+        """Initialize Autokey→Transposition composite.
+
+        Args:
+            autokey_candidates: Number of Autokey results to test (default: 30)
+            transposition_limit: Transposition permutations per Autokey (default: 100)
+            transposition_widths: Column widths to test (default: Berlin Clock periods)
+        """
+        stage1 = AutokeyHypothesis()
+        stage2 = BerlinClockTranspositionHypothesis(
+            widths=transposition_widths,
+            max_perms=transposition_limit,
+        )
+
+        super().__init__(stage1, stage2, stage1_candidates=autokey_candidates)
+
+
+class PlayfairThenTranspositionHypothesis(CompositeHypothesis):
+    """Playfair → Transposition composite cipher.
+
+    Tests Playfair digraph cipher (5×5 grid) followed by columnar transposition.
+    Playfair was widely used and provides good confusion. Combining with
+    transposition adds diffusion.
+
+    Default: Test top 25 Playfair candidates × 100 transposition permutations
+    """
+
+    def __init__(
+        self,
+        playfair_candidates: int = 25,
+        transposition_limit: int = 100,
+        transposition_widths: list[int] | None = None,
+    ):
+        """Initialize Playfair→Transposition composite.
+
+        Args:
+            playfair_candidates: Number of Playfair results to test (default: 25)
+            transposition_limit: Transposition permutations per Playfair (default: 100)
+            transposition_widths: Column widths to test (default: Berlin Clock periods)
+        """
+        stage1 = PlayfairHypothesis()
+        stage2 = BerlinClockTranspositionHypothesis(
+            widths=transposition_widths,
+            max_perms=transposition_limit,
+        )
+
+        super().__init__(stage1, stage2, stage1_candidates=playfair_candidates)
+
+
+class DoubleTranspositionHypothesis(CompositeHypothesis):
+    """Double Transposition composite cipher.
+
+    Tests two stages of columnar transposition with different widths.
+    This was a common military cipher method providing strong diffusion
+    without requiring complex key management.
+
+    Default: Test top 20 first-stage transpositions × 100 second-stage transpositions
+    """
+
+    def __init__(
+        self,
+        stage1_candidates: int = 20,
+        stage2_limit: int = 100,
+        stage1_widths: list[int] | None = None,
+        stage2_widths: list[int] | None = None,
+    ):
+        """Initialize Double Transposition composite.
+
+        Args:
+            stage1_candidates: Number of first transposition results (default: 20)
+            stage2_limit: Second transposition permutations per first (default: 100)
+            stage1_widths: Column widths for first stage (default: Berlin Clock periods)
+            stage2_widths: Column widths for second stage (default: Berlin Clock periods)
+        """
+        stage1 = BerlinClockTranspositionHypothesis(widths=stage1_widths)
+        stage2 = BerlinClockTranspositionHypothesis(
+            widths=stage2_widths,
+            max_perms=stage2_limit,
+        )
+
+        super().__init__(stage1, stage2, stage1_candidates=stage1_candidates)
+
+
+class VigenereThenHillHypothesis(CompositeHypothesis):
+    """Vigenère → Hill 2x2 composite cipher.
+
+    Tests polyalphabetic substitution (Vigenère) followed by matrix cipher (Hill 2x2).
+    Combines confusion from Vigenère with additional substitution from Hill.
+
+    Default: Test top 30 Vigenère candidates × 500 Hill keys
+    """
+
+    def __init__(
+        self,
+        vigenere_candidates: int = 30,
+        hill_limit: int = 500,
+        vigenere_max_key_length: int = 12,
+    ):
+        """Initialize Vigenère→Hill composite.
+
+        Args:
+            vigenere_candidates: Number of Vigenère results to test (default: 30)
+            hill_limit: Number of Hill candidates per Vigenère (default: 500)
+            vigenere_max_key_length: Max Vigenère key length to test (default: 12)
+        """
+        stage1 = VigenereHypothesis(
+            min_key_length=1,
+            max_key_length=vigenere_max_key_length,
+            keys_per_length=5,
+            explicit_keywords=['BERLIN', 'CLOCK', 'KRYPTOS'],
+        )
+        stage2 = HillCipher2x2Hypothesis()
+
+        # Override stage2's generate_candidates to limit keys tested
+        original_generate = stage2.generate_candidates
+
+        def limited_generate(ciphertext: str, limit: int = 10) -> list[Candidate]:
+            return original_generate(ciphertext, limit=hill_limit)
+
+        stage2.generate_candidates = limited_generate
+
+        super().__init__(stage1, stage2, stage1_candidates=vigenere_candidates)

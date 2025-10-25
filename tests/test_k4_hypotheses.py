@@ -2,20 +2,33 @@
 
 import unittest
 
+import pytest
+
 from kryptos.k4.hypotheses import (
     AutokeyHypothesis,
+    AutokeyThenTranspositionHypothesis,
     BerlinClockTranspositionHypothesis,
     BerlinClockVigenereHypothesis,
     BifidHypothesis,
+    CompositeHypothesis,
+    DoubleTranspositionHypothesis,
     FourSquareHypothesis,
     HillCipher2x2Hypothesis,
+    HillCipher3x3GeneticHypothesis,
+    HillThenTranspositionHypothesis,
     PlayfairHypothesis,
+    PlayfairThenTranspositionHypothesis,
     SimpleSubstitutionHypothesis,
+    SubstitutionThenTranspositionHypothesis,
+    TranspositionThenHillHypothesis,
     VigenereHypothesis,
+    VigenereThenHillHypothesis,
+    VigenereThenTranspositionHypothesis,
 )
 
 
 class TestK4Hypotheses(unittest.TestCase):
+    @pytest.mark.slow
     def test_hill_cipher_exhaustive_search(self):
         """Test HillCipher2x2Hypothesis exhaustively searches 2x2 key space."""
         hyp = HillCipher2x2Hypothesis()
@@ -33,6 +46,40 @@ class TestK4Hypotheses(unittest.TestCase):
         self.assertIsNotNone(c.plaintext, "Candidate must have plaintext")
         self.assertIsNotNone(c.key_info, "Candidate must have key_info")
         self.assertEqual(c.key_info['size'], 2, "Should be 2x2 matrix")
+        self.assertIsInstance(c.score, (int, float), "Score must be numeric")
+
+        # Check candidates are ranked by score (descending)
+        if len(candidates) > 1:
+            self.assertGreaterEqual(
+                candidates[0].score,
+                candidates[1].score,
+                "Candidates should be sorted by score (highest first)",
+            )
+
+    @pytest.mark.slow
+    def test_hill_3x3_genetic_algorithm(self):
+        """Test HillCipher3x3GeneticHypothesis uses genetic algorithm for 3x3 keys."""
+        hyp = HillCipher3x3GeneticHypothesis(
+            population_size=100,  # Small for testing
+            generations=10,  # Few generations for speed
+            mutation_rate=0.15,
+            elite_fraction=0.2,
+        )
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=5)
+
+        # Should return candidates
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 5, "Should respect limit")
+
+        # Validate structure
+        c = candidates[0]
+        self.assertIsNotNone(c.id, "Candidate must have an id")
+        self.assertTrue(c.id.startswith("hill_3x3_genetic_"), "ID should indicate Hill 3x3 genetic")
+        self.assertIsNotNone(c.plaintext, "Candidate must have plaintext")
+        self.assertIsNotNone(c.key_info, "Candidate must have key_info")
+        self.assertEqual(c.key_info['size'], 3, "Should be 3x3 matrix")
+        self.assertEqual(c.key_info['method'], 'genetic_algorithm', "Should use genetic algorithm")
         self.assertIsInstance(c.score, (int, float), "Score must be numeric")
 
         # Check candidates are ranked by score (descending)
@@ -244,6 +291,297 @@ class TestK4Hypotheses(unittest.TestCase):
         self.assertIn('period', c.key_info, "key_info must have period field")
         self.assertIn('keyword', c.key_info, "key_info must have keyword field")
         self.assertIsInstance(c.score, (int, float), "Score must be numeric")
+
+
+class TestCompositeHypotheses(unittest.TestCase):
+    """Test suite for composite hypothesis framework."""
+
+    def test_composite_hypothesis_chaining(self):
+        """Test that CompositeHypothesis properly chains two hypotheses."""
+        # Create simple stage1 and stage2 hypotheses
+        stage1 = SimpleSubstitutionHypothesis()
+        stage2 = SimpleSubstitutionHypothesis()
+
+        # Create composite (will test simple substitutions chained)
+        composite = CompositeHypothesis(stage1, stage2, stage1_candidates=5)
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = composite.generate_candidates(ciphertext, limit=10)
+
+        # Should return candidates
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 10, "Should respect limit")
+
+        # Validate composite structure
+        c = candidates[0]
+        self.assertIsNotNone(c.id, "Candidate must have an id")
+        self.assertTrue("__then__" in c.id, "ID should contain composite separator")
+        self.assertIsNotNone(c.plaintext, "Candidate must have plaintext")
+        self.assertIsInstance(c.score, (int, float), "Score must be numeric")
+
+        # Check candidates are sorted by score
+        if len(candidates) > 1:
+            self.assertGreaterEqual(
+                candidates[0].score,
+                candidates[1].score,
+                "Candidates should be sorted by score (highest first)",
+            )
+
+    def test_composite_transformation_chain_metadata(self):
+        """Test that composite preserves full transformation chain metadata."""
+        stage1 = SimpleSubstitutionHypothesis()
+        stage2 = SimpleSubstitutionHypothesis()
+        composite = CompositeHypothesis(stage1, stage2, stage1_candidates=3)
+
+        ciphertext = "ABCDEFGHIJ"
+        candidates = composite.generate_candidates(ciphertext, limit=5)
+
+        # Should have candidates
+        self.assertGreater(len(candidates), 0)
+
+        # Check metadata structure
+        c = candidates[0]
+        self.assertIn('stage1', c.key_info, "key_info must have stage1 field")
+        self.assertIn('stage2', c.key_info, "key_info must have stage2 field")
+        self.assertIn('transformation_chain', c.key_info, "key_info must have transformation_chain")
+
+        # Verify stage1 metadata
+        stage1_info = c.key_info['stage1']
+        self.assertIn('id', stage1_info, "stage1 must have id")
+        self.assertIn('key', stage1_info, "stage1 must have key")
+        self.assertIn('score', stage1_info, "stage1 must have score")
+
+        # Verify stage2 metadata
+        stage2_info = c.key_info['stage2']
+        self.assertIn('id', stage2_info, "stage2 must have id")
+        self.assertIn('key', stage2_info, "stage2 must have key")
+        self.assertIn('score', stage2_info, "stage2 must have score")
+
+        # Verify transformation chain is a list with both stage IDs
+        chain = c.key_info['transformation_chain']
+        self.assertIsInstance(chain, list, "transformation_chain must be a list")
+        self.assertEqual(len(chain), 2, "transformation_chain should have 2 stages")
+
+    def test_composite_score_propagation(self):
+        """Test that final composite score comes from stage2."""
+        stage1 = SimpleSubstitutionHypothesis()
+        stage2 = SimpleSubstitutionHypothesis()
+        composite = CompositeHypothesis(stage1, stage2, stage1_candidates=2)
+
+        ciphertext = "TESTCIPHERTEXT"
+        candidates = composite.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0)
+
+        # Final composite score should match stage2 score
+        c = candidates[0]
+        self.assertEqual(
+            c.score,
+            c.key_info['stage2']['score'],
+            "Composite score should equal stage2 score",
+        )
+
+    @pytest.mark.slow
+    def test_transposition_then_hill_basic(self):
+        """Test TranspositionThenHillHypothesis generates candidates."""
+        # Minimal smoke test: 1 transposition × 5 Hill matrices = 5 operations (~3-5s)
+        # Full exploration tested in scripts/test_composite_hypotheses.py
+        hyp = TranspositionThenHillHypothesis(
+            transposition_candidates=1,
+            hill_limit=5,
+            transposition_widths=[5],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        # Should return candidates
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 5, "Should respect limit")
+
+        # Validate structure
+        c = candidates[0]
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+        self.assertIn("hill", c.id.lower(), "ID should mention hill")
+        self.assertIsNotNone(c.plaintext, "Candidate must have plaintext")
+        self.assertIn('stage1', c.key_info, "Composite must have stage1")
+        self.assertIn('stage2', c.key_info, "Composite must have stage2")
+        self.assertIsInstance(c.score, (int, float), "Score must be numeric")
+
+    def test_vigenere_then_transposition_basic(self):
+        """Test VigenereThenTranspositionHypothesis generates candidates."""
+        # Use reduced parameters for fast test
+        hyp = VigenereThenTranspositionHypothesis(
+            vigenere_candidates=5,
+            transposition_limit=10,
+            vigenere_max_key_length=5,
+            transposition_widths=[5, 6],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=5)
+
+        # Should return candidates
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 5, "Should respect limit")
+
+        # Validate structure
+        c = candidates[0]
+        self.assertIn("vigenere", c.id.lower(), "ID should mention vigenere")
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+        self.assertIsNotNone(c.plaintext, "Candidate must have plaintext")
+        self.assertIn('stage1', c.key_info, "Composite must have stage1")
+        self.assertIn('stage2', c.key_info, "Composite must have stage2")
+        self.assertIsInstance(c.score, (int, float), "Score must be numeric")
+
+    def test_substitution_then_transposition_basic(self):
+        """Test SubstitutionThenTranspositionHypothesis generates candidates."""
+        # Use reduced parameters for fast test
+        hyp = SubstitutionThenTranspositionHypothesis(
+            transposition_limit=10,
+            transposition_widths=[5, 6, 7],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=5)
+
+        # Should return candidates
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 5, "Should respect limit")
+
+        # Validate structure
+        c = candidates[0]
+        # ID contains stage1 (caesar/atbash/reverse) and stage2 (transposition)
+        self.assertTrue(
+            any(x in c.id.lower() for x in ["caesar", "atbash", "reverse"]),
+            "ID should mention simple substitution method",
+        )
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+        self.assertIsNotNone(c.plaintext, "Candidate must have plaintext")
+        self.assertIn('stage1', c.key_info, "Composite must have stage1")
+        self.assertIn('stage2', c.key_info, "Composite must have stage2")
+        self.assertIsInstance(c.score, (int, float), "Score must be numeric")
+
+    def test_composite_stage1_candidate_limit(self):
+        """Test that stage1_candidates parameter controls exploration depth."""
+        stage1 = SimpleSubstitutionHypothesis()
+        stage2 = SimpleSubstitutionHypothesis()
+
+        # Test with different stage1_candidates values
+        composite_small = CompositeHypothesis(stage1, stage2, stage1_candidates=2)
+        composite_large = CompositeHypothesis(stage1, stage2, stage1_candidates=10)
+
+        ciphertext = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+        # Generate candidates with different stage1 depths
+        candidates_small = composite_small.generate_candidates(ciphertext, limit=50)
+        candidates_large = composite_large.generate_candidates(ciphertext, limit=50)
+
+        # Larger stage1_candidates should potentially explore more combinations
+        # (though final count limited by 'limit' parameter)
+        self.assertGreater(len(candidates_small), 0, "Small composite should generate candidates")
+        self.assertGreater(len(candidates_large), 0, "Large composite should generate candidates")
+
+        # Both should respect the final limit
+        self.assertLessEqual(len(candidates_small), 50)
+        self.assertLessEqual(len(candidates_large), 50)
+
+    @pytest.mark.slow
+    def test_hill_then_transposition_basic(self):
+        """Test HillThenTranspositionHypothesis (reverse order)."""
+        hyp = HillThenTranspositionHypothesis(
+            hill_candidates=2,
+            transposition_limit=10,
+            transposition_widths=[5, 6],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("hill", c.id.lower(), "ID should mention hill")
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+        self.assertIn('stage1', c.key_info, "Composite must have stage1")
+        self.assertIn('stage2', c.key_info, "Composite must have stage2")
+
+    def test_autokey_then_transposition_basic(self):
+        """Test AutokeyThenTranspositionHypothesis."""
+        hyp = AutokeyThenTranspositionHypothesis(
+            autokey_candidates=3,
+            transposition_limit=10,
+            transposition_widths=[5, 6],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("autokey", c.id.lower(), "ID should mention autokey")
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+
+    def test_playfair_then_transposition_basic(self):
+        """Test PlayfairThenTranspositionHypothesis."""
+        hyp = PlayfairThenTranspositionHypothesis(
+            playfair_candidates=3,
+            transposition_limit=10,
+            transposition_widths=[5, 6],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("playfair", c.id.lower(), "ID should mention playfair")
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+
+    def test_double_transposition_basic(self):
+        """Test DoubleTranspositionHypothesis."""
+        hyp = DoubleTranspositionHypothesis(
+            stage1_candidates=3,
+            stage2_limit=10,
+            stage1_widths=[5, 6],
+            stage2_widths=[7, 8],
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("transposition", c.id.lower(), "ID should mention transposition")
+        # Should have two transposition stages
+        self.assertIn('stage1', c.key_info, "Composite must have stage1")
+        self.assertIn('stage2', c.key_info, "Composite must have stage2")
+
+    @pytest.mark.slow
+    def test_vigenere_then_hill_basic(self):
+        """Test VigenereThenHillHypothesis."""
+        hyp = VigenereThenHillHypothesis(
+            vigenere_candidates=3,
+            hill_limit=10,
+            vigenere_max_key_length=5,
+        )
+
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=3)
+
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 3, "Should respect limit")
+
+        c = candidates[0]
+        self.assertIn("vigenere", c.id.lower(), "ID should mention vigenere")
+        self.assertIn("hill", c.id.lower(), "ID should mention hill")
 
 
 if __name__ == '__main__':

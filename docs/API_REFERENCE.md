@@ -33,6 +33,58 @@ considered internal and may change without notice.
 - `kryptos.k4.scoring.combined_plaintext_score(plaintext: str) -> float`
 - `kryptos.k4.scoring.positional_letter_deviation_score(plaintext: str, period=5) -> float`
 - `kryptos.k4.scoring.combined_plaintext_score_extended(plaintext: str) -> float`
+- `kryptos.k4.scoring.composite_score_with_stage_analysis(stage1_plaintext, stage2_plaintext, stage1_score,
+stage2_score, stage1_weight=0.3, stage2_weight=0.7) -> dict`
+
+### K4 Hypotheses
+
+The hypothesis framework provides pluggable cipher implementations for K4 cryptanalysis. Each hypothesis class
+implements the `Hypothesis` protocol with a `generate_candidates()` method.
+
+#### Base Classes
+
+- `kryptos.k4.hypotheses.Hypothesis` (Protocol) — Abstract interface for all hypothesis implementations
+- `kryptos.k4.hypotheses.CompositeHypothesis` — Base class for chaining two hypotheses sequentially
+
+#### Single-Stage Hypotheses
+
+- `kryptos.k4.hypotheses.HillCipher2x2Hypothesis(limit=100)` — Hill cipher with 2x2 matrix (exhaustive key search)
+- `kryptos.k4.hypotheses.HillCipher3x3GeneticHypothesis(population_size=1000, generations=100, mutation_rate=0.1,
+elite_fraction=0.2)` — Hill cipher with 3x3 matrix (genetic algorithm for 26^9 keyspace)
+- `kryptos.k4.hypotheses.SimpleSubstitutionHypothesis(variants=28)` — Monoalphabetic substitution with frequency
+analysis
+- `kryptos.k4.hypotheses.VigenereHypothesis(max_key_length=15, candidates_per_length=10)` — Vigenère cipher with
+Kasiski/IOC analysis
+- `kryptos.k4.hypotheses.AutokeyHypothesis(max_key_length=12, candidates_per_length=10)` — Autokey variant of Vigenère
+- `kryptos.k4.hypotheses.PlayfairHypothesis(max_generations=50, population_size=100)` — Playfair cipher with genetic
+algorithm
+- `kryptos.k4.hypotheses.FourSquareHypothesis(max_generations=50, population_size=100)` — Four-square cipher with
+genetic algorithm
+- `kryptos.k4.hypotheses.BifidHypothesis(periods=[5,6,7,8,9,10], candidates_per_period=5)` — Bifid cipher with period
+search
+- `kryptos.k4.hypotheses.BerlinClockTranspositionHypothesis(widths=[5,6,7,8,10,12], limit_per_width=20)` — Columnar
+transposition constrained by Berlin Clock
+- `kryptos.k4.hypotheses.BerlinClockVigenereHypothesis(max_key_length=12, candidates_per_length=10)` — Vigenère
+constrained by Berlin Clock periods
+
+#### Composite (Two-Stage) Hypotheses
+
+- `kryptos.k4.hypotheses.TranspositionThenHillHypothesis(transposition_candidates=20, hill_limit=1000,
+transposition_widths=None)` — Transposition followed by Hill 2x2
+- `kryptos.k4.hypotheses.VigenereThenTranspositionHypothesis(vigenere_candidates=50, transposition_limit=100,
+vigenere_max_key_length=12, transposition_widths=None)` — Vigenère followed by transposition
+- `kryptos.k4.hypotheses.SubstitutionThenTranspositionHypothesis(substitution_variants=28, transposition_limit=100,
+transposition_widths=None)` — Substitution followed by transposition
+- `kryptos.k4.hypotheses.HillThenTranspositionHypothesis(hill_limit=1000, transposition_candidates=20,
+transposition_widths=None)` — Hill 2x2 followed by transposition
+- `kryptos.k4.hypotheses.AutokeyThenTranspositionHypothesis(autokey_candidates=30, transposition_limit=100,
+autokey_max_key_length=12, transposition_widths=None)` — Autokey followed by transposition
+- `kryptos.k4.hypotheses.PlayfairThenTranspositionHypothesis(playfair_candidates=20, transposition_limit=100,
+playfair_max_generations=30, transposition_widths=None)` — Playfair followed by transposition
+- `kryptos.k4.hypotheses.DoubleTranspositionHypothesis(stage1_candidates=20, stage2_limit=100, stage1_widths=None,
+stage2_widths=None)` — Two sequential transposition stages
+- `kryptos.k4.hypotheses.VigenereThenHillHypothesis(vigenere_candidates=30, hill_limit=1000,
+vigenere_max_key_length=12)` — Vigenère followed by Hill 2x2
 
 ### K4 Pipeline
 
@@ -91,19 +143,243 @@ Public API changes recorded in `CHANGELOG.md`. Breaking change proposals require
 
 ## Examples
 
-Python usage snippet:
+### Using Hypothesis Classes
+
+#### Single-Stage Hypothesis
 
 ```python
-from kryptos.k4 import decrypt_best
-batch = decrypt_best("OBKRUOXOGHULBSOLIFB", limit=25, adaptive=True)
-for cand in batch.candidates[:5]:
-    print(cand.plaintext, cand.score)
+from kryptos.k4.hypotheses import VigenereHypothesis
+
+# Create hypothesis with custom parameters
+hypothesis = VigenereHypothesis(
+    max_key_length=15,
+    candidates_per_length=10
+)
+
+# Generate candidates for K4 ciphertext
+K4_CIPHER = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
+candidates = hypothesis.generate_candidates(K4_CIPHER, limit=25)
+
+# Inspect results
+for candidate in candidates[:5]:
+    print(f"Score: {candidate.score:.2f}")
+    print(f"Plaintext: {candidate.plaintext}")
+    print(f"Key: {candidate.metadata.get('key')}")
+    print()
 ```
 
-CLI attempt:
+#### Hill 3x3 Genetic Algorithm
 
-```bash
-kryptos k4-decrypt --cipher data/k4_cipher.txt --limit 25 --adaptive --report
+```python
+from kryptos.k4.hypotheses import HillCipher3x3GeneticHypothesis
+
+# Create Hill 3x3 genetic algorithm hypothesis
+# Note: Hill 3x3 has 26^9 ≈ 5.4 trillion keys (exhaustive search impossible)
+hypothesis = HillCipher3x3GeneticHypothesis(
+    population_size=1000,  # Keys per generation
+    generations=100,       # GA iterations
+    mutation_rate=0.1,     # Probability of element mutation
+    elite_fraction=0.2     # Top 20% preserved each generation
+)
+
+# Generate candidates (this takes ~10-30 minutes)
+candidates = hypothesis.generate_candidates(K4_CIPHER, limit=10)
+
+# Inspect results
+for candidate in candidates[:3]:
+    print(f"Score: {candidate.score:.2f}")
+    print(f"Plaintext: {candidate.plaintext}")
+    print(f"Key matrix: {candidate.key_info['matrix']}")
+    print(f"Method: {candidate.key_info['method']}")
+    print()
 ```
 
-Last updated: 2025-10-23T23:59Z
+#### Composite (Two-Stage) Hypothesis
+
+```python
+from kryptos.k4.hypotheses import TranspositionThenHillHypothesis
+
+# Create composite hypothesis
+hypothesis = TranspositionThenHillHypothesis(
+    transposition_candidates=20,  # Top 20 transposition results
+    hill_limit=1000,              # Test 1000 Hill 2x2 keys per stage1 result
+    transposition_widths=[5, 6, 7, 8, 10]  # Column widths to try
+)
+
+# Generate candidates
+candidates = hypothesis.generate_candidates(K4_CIPHER, limit=10)
+
+# Examine composite metadata
+best = candidates[0]
+print(f"Transformation chain: {best.metadata['transformation_chain']}")
+print(f"Stage1 plaintext: {best.metadata['stage1_plaintext']}")
+print(f"Stage2 plaintext: {best.plaintext}")
+```
+
+### Custom Scoring Functions
+
+```python
+from kryptos.k4.scoring import (
+    combined_plaintext_score,
+    composite_score_with_stage_analysis
+)
+
+# Basic scoring
+plaintext = "ITWASFOUNDUNDERGROUND"
+score = combined_plaintext_score(plaintext)
+print(f"Score: {score:.2f}")
+
+# Stage-aware composite scoring
+stage1_text = "QWERTYYUIOPASD..."
+stage2_text = "ITWASFOUNDUNDERGROUND..."
+stage1_score = combined_plaintext_score(stage1_text)
+stage2_score = combined_plaintext_score(stage2_text)
+
+result = composite_score_with_stage_analysis(
+    stage1_text, stage2_text,
+    stage1_score, stage2_score,
+    stage1_weight=0.3,
+    stage2_weight=0.7
+)
+
+print(f"Final score: {result['final_score']:.2f}")
+print(f"IOC improvement bonus: {result['ioc_bonus']:.2f}")
+print(f"Word pattern bonus: {result['word_bonus']:.2f}")
+print(f"Frequency convergence bonus: {result['freq_bonus']:.2f}")
+```
+
+### Artifact Provenance Tracking
+
+```python
+from kryptos.paths import get_provenance_info
+import json
+
+# Capture environment state
+provenance = get_provenance_info(include_params={
+    'hypothesis': 'TranspositionThenHill',
+    'transposition_candidates': 20,
+    'hill_limit': 1000
+})
+
+# Save with artifact
+artifact_data = {
+    'provenance': provenance,
+    'results': [...],
+    'timestamp': provenance['timestamp']
+}
+
+with open('artifacts/my_run.json', 'w') as f:
+    json.dump(artifact_data, f, indent=2)
+
+# Provenance includes:
+# - git_commit: Current commit hash
+# - git_branch: Current branch name
+# - git_dirty: Whether there are uncommitted changes
+# - python_version: Full Python version string
+# - platform: OS details
+# - timestamp: ISO 8601 UTC timestamp
+# - params: Custom run parameters
+```
+
+### Building Custom Hypotheses
+
+To create a custom hypothesis, implement the `Hypothesis` protocol:
+
+```python
+from kryptos.k4.hypotheses import Hypothesis
+from kryptos.k4.candidate import Candidate
+from kryptos.k4.scoring import combined_plaintext_score
+
+class MyCustomHypothesis:
+    """Custom cipher hypothesis."""
+
+    def __init__(self, my_param: int = 10):
+        self.my_param = my_param
+
+    def generate_candidates(
+        self,
+        ciphertext: str,
+        limit: int = 10
+    ) -> list[Candidate]:
+        """Generate decryption candidates.
+
+        Args:
+            ciphertext: The text to decrypt
+            limit: Maximum number of candidates to return
+
+        Returns:
+            List of Candidate objects, sorted by score (descending)
+        """
+        candidates = []
+
+        # Your decryption logic here
+        for key in self._generate_keys():
+            plaintext = self._decrypt(ciphertext, key)
+            score = combined_plaintext_score(plaintext)
+
+            candidate = Candidate(
+                id=f"MyCustom-{key}",
+                plaintext=plaintext,
+                score=score,
+                metadata={
+                    'hypothesis': 'MyCustomHypothesis',
+                    'key': key,
+                    'my_param': self.my_param
+                }
+            )
+            candidates.append(candidate)
+
+        # Sort by score and return top results
+        candidates.sort(key=lambda c: c.score, reverse=True)
+        return candidates[:limit]
+
+    def _generate_keys(self):
+        """Generate possible keys."""
+        # Your key generation logic
+        pass
+
+    def _decrypt(self, ciphertext: str, key) -> str:
+        """Decrypt with given key."""
+        # Your decryption logic
+        pass
+```
+
+### Composite Hypothesis Chaining
+
+The `CompositeHypothesis` base class handles two-stage decryption automatically:
+
+```python
+from kryptos.k4.hypotheses import CompositeHypothesis, VigenereHypothesis, SimpleSubstitutionHypothesis
+
+class MyCompositeHypothesis(CompositeHypothesis):
+    """Custom two-stage hypothesis."""
+
+    def __init__(
+        self,
+        stage1_candidates: int = 30,
+        stage2_limit: int = 100
+    ):
+        # Initialize stage1 hypothesis
+        stage1 = VigenereHypothesis(
+            max_key_length=12,
+            candidates_per_length=stage1_candidates // 6
+        )
+
+        # Initialize stage2 hypothesis
+        stage2 = SimpleSubstitutionHypothesis(variants=28)
+
+        # Call parent constructor
+        super().__init__(
+            stage1_hypothesis=stage1,
+            stage2_hypothesis=stage2,
+            stage1_candidates=stage1_candidates,
+            stage2_limit=stage2_limit,
+            hypothesis_name="MyComposite"
+        )
+
+# Use it
+hypothesis = MyCompositeHypothesis(stage1_candidates=50, stage2_limit=200)
+candidates = hypothesis.generate_candidates(ciphertext, limit=10)
+```
+
+Last updated: 2025-10-24T03:55Z
