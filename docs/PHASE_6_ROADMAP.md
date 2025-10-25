@@ -16,21 +16,87 @@ cribs 9. ✅ **K4 Orchestration** - 2.5 attacks/second throughput 10. ✅ **Acad
 (3,500+ lines)
 
 ### Test Coverage
+
 - **564/564 tests passing** (100%)
 - **Duration:** 5 minutes 5 seconds
 - **All linting:** Clean
 
 ### Key Code Delivered
+
 - `src/kryptos/pipeline/validator.py` (418 lines)
 - `src/kryptos/pipeline/k4_campaign.py` (373 lines)
 - `src/kryptos/provenance/attack_log.py` (435 lines)
 - `src/kryptos/provenance/search_space.py` (401 lines)
 
-### Reference Documentation
-See `docs/reference/phase5/` for:
-- `methodology_phase5.md` - Complete implementation details
-- `banburismus_integration.md` - Turing's method adaptation
-- `reproducibility_checklist.md` - 8 reproducible experiments
+---
+
+## Source Code Audit (October 25, 2025)
+
+### Architecture Overview
+- **91 Python files** (712 KB total)
+- **33 subdirectories** (well-organized)
+- **688 test functions** (564 passing)
+- **119 test files** with edge case coverage
+
+### Module Breakdown
+**Agents (8 specialized):**
+- `spy.py` (464 lines), `spy_nlp.py` (474 lines), `linguist.py` (562 lines)
+- `ops.py` (603 lines), `ops_director.py` (609 lines), `q.py` (359 lines)
+- `k123_analyzer.py` (333 lines), `spy_web_intel.py`
+
+**Pipeline (4 orchestration):**
+- `validator.py` (418 lines), `k4_campaign.py` (373 lines)
+- `attack_generator.py`, `attack_executor.py`
+
+**Provenance (2 tracking):**
+- `attack_log.py` (435 lines), `search_space.py` (401 lines)
+
+**K4 Toolkit (29 modules):**
+- Vigenère, Beaufort, Hill (2×2, 3×3), transposition (columnar, routes)
+- Scoring (chi-square, n-grams, enhanced linguistics)
+- Pipeline stages (constraint, adaptive, multi-crib)
+
+**Research (4 academic):**
+- Paper search (arXiv/IACR), literature gaps, attack extraction
+
+### Critical Findings from Audit
+
+**Finding 1: OPS Placeholder Confusion**
+- **Location:** `agents/ops.py` line 360
+- **Issue:** Comment claims "placeholder" but real implementations exist
+- **Status:** `_execute_vigenere()` (lines 490-530), `_execute_hill()`, `_execute_transposition()` ARE implemented
+- **Action:** Update misleading comment, validate execution paths
+
+**Finding 2: K4 Campaign Placeholders**
+- **Location:** `pipeline/k4_campaign.py` lines 110-147
+- **Issue:** Vigenère attack marked "placeholder" but has structure
+- **Action:** Validate and remove placeholder markers
+
+**Finding 3: Deprecated Code**
+- **Location:** `k4/executor.py`
+- **Issue:** Entire file marked DEPRECATED in docstring
+- **Action:** Delete if truly unused (verify no imports)
+
+**Finding 4: Autonomous Coordinator Gaps**
+- **Location:** `autonomous_coordinator.py` lines 497-568
+- **Issue:** Resource allocation placeholders (CPU, process mgmt)
+- **Impact:** LOW - coordination works, resource mgmt is future enhancement
+
+**Finding 5: Test Coverage Gaps**
+- **688 test functions** but only **564 passing** (124 difference unexplained)
+- **Action:** Audit why 124 tests aren't running or are being skipped
+
+**Finding 6: K2 Alphabet Enumeration**
+- **Location:** `k4/vigenere_key_recovery.py`
+- **Issue:** Code EXISTS but not wired to orchestrator
+- **Action:** Connect to `attack_generator.py` and `k4_campaign.py`
+
+### Code Health Assessment
+- ✅ No critical TODO/FIXME bombs
+- ✅ Clear module boundaries
+- ✅ No shadow imports (naming discipline maintained)
+- ⚠️ Documentation debt (outdated placeholder comments)
+- ⚠️ Integration gaps (code exists but not wired)
 
 ---
 
@@ -102,21 +168,26 @@ reliably.**
 **Success Metric:** `python scripts/validate_known_kryptos.py` shows K2 100%
 
 #### Objective 3: Real Cipher Execution in OPS
-**Current:** Line 360 placeholder - no real decryption **Target:** End-to-end K1 auto-recovery
+**Current:** Line 360 comment misleading - real code exists but needs validation **Target:** End-to-end K1 auto-recovery
 
 **Tasks:**
-- [ ] Remove placeholder code from `src/kryptos/agents/ops.py`
-- [ ] Map attack types to cipher functions
-- [ ] Parse `key_or_params` correctly
-- [ ] Add SPY scoring integration
+- [ ] Validate `_execute_vigenere()` (lines 490-530) works correctly
+- [ ] Validate `_execute_hill()` and `_execute_transposition()`
+- [ ] Update/remove misleading placeholder comment at line 360
+- [ ] Verify attack parameter parsing
 - [ ] Test K1 end-to-end auto-recovery
 
 **Success Metric:** `kryptos attack K1` returns PALIMPSEST automatically
 
+**Additional Tasks:**
+- [ ] Delete deprecated `k4/executor.py` if unused
+- [ ] Audit 124 missing test cases (688 defined, 564 passing)
+- [ ] Clean up placeholder comments in k4_campaign.py
+
 **Deliverables:**
 - K3 transposition >95% reliable
 - K2 alphabet 100% working
-- Real OPS execution (no placeholders)
+- OPS execution validated (no misleading comments)
 - Updated tests (add ~15 tests)
 
 ---
@@ -126,11 +197,12 @@ reliably.**
 #### Objective 4: Implement V→T and T→V Chains
 **Current:** 6.2% success on composite **Target:** 100% on synthetic composites
 
+**Note:** `src/kryptos/k4/composite.py` already exists with fusion logic. Need to add chain execution.
+
 **Tasks:**
-- [ ] Create `src/kryptos/pipeline/composite.py`
-- [ ] Implement `CompositeAttackGenerator` class
-- [ ] Add V→T chain (Vigenère decrypt → transposition decrypt)
-- [ ] Add T→V chain (transposition decrypt → Vigenère decrypt)
+- [ ] Extend `composite.py` with `CompositeChainExecutor` class
+- [ ] Implement V→T chain (Vigenère decrypt → transposition decrypt)
+- [ ] Implement T→V chain (transposition decrypt → Vigenère decrypt)
 - [ ] Create synthetic test cases (known plaintext)
 - [ ] Test until 100% success on synthetics
 
@@ -233,9 +305,11 @@ for unexplored
 - [ ] K2 auto-recovery: 100% (currently 3.8%)
 - [ ] K3 auto-recovery: >95% (currently 27.5%)
 - [ ] Composite V→T: 100% on synthetics (currently 6.2%)
-- [ ] Real OPS execution: 0 placeholders (currently 100% placeholder)
+- [ ] OPS execution validated: All cipher paths tested (currently needs validation)
 - [ ] Adaptive learning: 50% waste reduction (currently 0%)
 - [ ] Production K4 campaign: 10K+ attacks complete
+- [ ] Test coverage: Audit 124 missing tests (688 defined, 564 passing)
+- [ ] Code cleanup: Remove deprecated executor.py, fix placeholder comments
 
 ### K4 Attack Readiness Checklist:
 - [ ] All K1-K3 auto-recovery working
@@ -298,35 +372,25 @@ K2 (target: 50% success)
 
 ---
 
-## Resources & Links
+## Documentation References
 
-### Documentation
-- **Phase 5 Reference:** `docs/reference/phase5/`
-- **Gap Analysis:** `docs/CRITICAL_GAP_ANALYSIS.md`
-- **This Plan:** `docs/PHASE_6_ROADMAP.md`
+**Phase Documentation:**
+- **This Roadmap:** `docs/PHASE_6_ROADMAP.md` - Phase 5 summary, Phase 6 objectives, source audit
+- **Changelog:** `docs/CHANGELOG.md` - Version history
+- **Reference Docs:** `docs/reference/` - Architecture, API, autonomous system
 
-### Code Locations
-- **Pipeline:** `src/kryptos/pipeline/`
-- **Provenance:** `src/kryptos/provenance/`
-- **Agents:** `src/kryptos/agents/`
-- **Ciphers:** `src/kryptos/k4/`
+**Analysis & Sources:**
+- **Coverage Analysis:** `docs/analysis/30_YEAR_GAP_COVERAGE.md`
+- **K1-K3 Patterns:** `docs/analysis/K123_PATTERN_ANALYSIS.md`
+- **Sanborn Sources:** `docs/sources/` - Original clues and timeline
 
-### Test Scripts
-- **K1-K3 Validation:** `scripts/validate_known_kryptos.py`
-- **K3 Specific:** `scripts/test_k3_transposition.py`
-- **Unified Pipeline:** `scripts/test_k123_unified_pipeline.py`
+**Scripts:**
+- **Validation:** `scripts/validation/` - K1-K3 testing
+- **Lint:** `scripts/lint/` - Code quality tools
 
 ---
 
-## Notes
-
-- Phase 5 gave us world-class architecture
-- Phase 6 makes it actually work on real ciphers
-- Phase 7 (future) will tackle novel research if needed
-- Academic publication planned after K4 solution
-
-**Philosophy:** "Perfect is the enemy of good. Ship working K1-K3 auto-recovery, then iterate on K4."
-
----
+**Last Updated:** October 25, 2025 **Status:** Phase 5 complete, Phase 6 audit done, ready for implementation **Next:**
+Fix GH deploy, then start Sprint 6.1
 
 **Next:** Begin Sprint 6.1 - K3 transposition fix is the critical path.
