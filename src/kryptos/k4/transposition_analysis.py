@@ -208,8 +208,9 @@ def detect_period_combined(ciphertext: str, max_period: int = 30) -> list[tuple[
         ioc_score = scores.get('ioc', 0)
         kasiski_score = scores.get('kasiski', 0)
 
-        # Weight IOC more heavily (more reliable for transposition)
-        confidence = (ioc_score * 0.7) + (kasiski_score * 0.3)
+        # Weight IOC much more heavily (more reliable for transposition)
+        # Kasiski can give false positives on short texts
+        confidence = (ioc_score * 0.9) + (kasiski_score * 0.1)
 
         # Determine primary detection method
         if ioc_score > kasiski_score:
@@ -430,18 +431,20 @@ def test_permutation_solver():
     print("TRANSPOSITION PERMUTATION SOLVER TEST")
     print("=" * 80)
 
-    # Create a simple test case
-    plaintext = "ATTACKATDAWN"
-    period = 4
-    # Permutation: [2, 0, 3, 1] means col 2 first, then 0, then 3, then 1
-    permutation = [2, 0, 3, 1]
+    # Create a simple test case - use a longer, more English-like text
+    plaintext = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG"
+    period = 7
+    # Permutation: [3, 1, 4, 0, 6, 2, 5] - random shuffling
+    permutation = [3, 1, 4, 0, 6, 2, 5]
 
-    # Encrypt: arrange in columns, read in permuted order
-    columns = ['', '', '', '']
+    # Encrypt: arrange in columns (fill row-by-row), read in permuted order (column-by-column)
+    # Note: Could track n, base_len, extra for uneven column handling
+    # Build columns by filling row-by-row
+    columns = ['' for _ in range(period)]
     for i, char in enumerate(plaintext):
         columns[i % period] += char
 
-    # Read in permuted order
+    # Read in permuted order (this is what attacker sees)
     ciphertext = ''.join(columns[p] for p in permutation)
 
     print(f"Plaintext:  {plaintext}")

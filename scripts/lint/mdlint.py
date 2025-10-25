@@ -247,12 +247,18 @@ def fix_file(path: Path) -> int:
         # Toggle code fence
         if stripped.startswith('```'):
             in_code = not in_code
-            out_lines.append(line)
+            out_lines.append(line.rstrip())  # Remove trailing whitespace
             continue
 
         if in_code:
-            out_lines.append(line)
+            out_lines.append(line.rstrip())  # Remove trailing whitespace even in code
             continue
+
+        # Fix trailing whitespace
+        original_line = line
+        line = line.rstrip()
+        if line != original_line:
+            fixes += 1
 
         # Fix MD036: Convert **Heading** to ### Heading
         if is_emphasis_heading(line):
