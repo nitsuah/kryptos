@@ -16,6 +16,7 @@ Organized scripts for Kryptos cryptanalysis system.
 - **`test_k4_execution.py`** - OPS agent attack execution testing
 
 **Usage:**
+
 ```bash
 # Run full K1-K3 validation
 python scripts/validation/validate_known_kryptos.py
@@ -25,6 +26,7 @@ python scripts/validation/test_k123_unified_pipeline.py
 ```
 
 **Current Status:**
+
 - K1: ✅ 100% reliable
 - K2: ⚠️ 3.8% (needs alphabet variant integration)
 - K3: ⚠️ 27.5% (needs SA tuning)
@@ -40,6 +42,7 @@ python scripts/validation/test_k123_unified_pipeline.py
 ## Quick Start
 
 ### Validate System Works
+
 ```bash
 # Full K1-K3 validation (recommended first step)
 python scripts/validation/validate_known_kryptos.py
@@ -49,6 +52,7 @@ python scripts/validation/test_k123_unified_pipeline.py
 ```
 
 ### Run Performance Benchmarks
+
 ```bash
 python scripts/benchmarks/benchmark_scoring.py
 ```
@@ -60,7 +64,9 @@ python scripts/benchmarks/benchmark_scoring.py
 ## Phase 6 Priority Scripts
 
 ### Sprint 6.1: K2/K3 Fixes
+
 Focus on these validation scripts:
+
 - `validation/test_k123_unified_pipeline.py` - Track improvement
 - `validation/test_k3_transposition.py` - Iterate on SA tuning
 - `validation/validate_known_kryptos.py` - End-to-end validation
@@ -72,12 +78,14 @@ Focus on these validation scripts:
 ## Key Metrics to Track
 
 ### Validation Success Rates
+
 - **K1 Vigenère:** Currently 100% ✅
 - **K2 Vigenère:** Currently 3.8% (Target: 100%)
 - **K3 Transposition:** Currently 27.5% (Target: >95%)
 - **Composite V→T:** Currently 6.2% (Target: 100%)
 
 ### Performance Benchmarks
+
 - **Attack throughput:** Currently 2.5/sec (Target: 10+/sec)
 - **Dictionary scoring:** ~0.1ms per candidate
 - **SA iterations:** 50k (Target: 100k-200k for K3)
@@ -87,6 +95,7 @@ Focus on these validation scripts:
 ## CLI Integration
 
 Many functionalities are available via CLI:
+
 - `kryptos k4-decrypt` - Run K4 attacks
 - `kryptos autonomous` - Autonomous system
 - `kryptos tuning-*` - Tuning operations

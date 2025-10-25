@@ -4,29 +4,29 @@
 
 ### Agent Triumvirate Completion (2025-10-24)
 
-### Infrastructure:
+### Infrastructure-
 
 - ✅ Implemented OPS agent (350 lines, 9 tests) - parallel hypothesis execution orchestrator
 - ✅ Implemented Q agent (310 lines, 17 tests) - statistical validation with 2σ/3σ thresholds
-- ✅ Agent triumvirate operational: SPY (435L) + OPS (350L) + Q (310L) = ~1,100 lines, 36 tests
+- ✅ Agent triumvirate operational- SPY (435L) + OPS (350L) + Q (310L) = ~1,100 lines, 36 tests
 
-### Test Coverage Push:
+### Test Coverage Push-
 
 - Added comprehensive hypothesis tests (SimpleSubstitution, Autokey, FourSquare, Bifid, Berlin Clock)
-- Coverage: 82% → **85%** (+3 points)
-- `hypotheses.py`: 59% → **95%** (+36 points!)
-- Tests: 277 → 281 (+4 net new)
+- Coverage- 82% → **85%** (+3 points)
+- `hypotheses.py`- 59% → **95%** (+36 points!)
+- Tests- 277 → 281 (+4 net new)
 
-### Documentation:
+### Documentation-
 
 - Updated K4_MASTER_PLAN.md with agent completion, stretch goals (90% coverage, sub-180s tests)
 - Updated AGENTS_ARCHITECTURE.md with OPS/Q implementation details and examples
 - Updated TECHDEBT.md with test performance analysis and new priorities
 - Deleted redundant dev scripts (test_new_ciphers.py, test_vigenere_expanded.py)
 
-### Performance:
+### Performance-
 
-- Test suite runtime: Varies 96s-335s depending on hypothesis complexity
+- Test suite runtime- Varies 96s-335s depending on hypothesis complexity
 - All 281 tests passing consistently
 - Test performance optimization identified as next priority
 
@@ -34,8 +34,8 @@
 
 - Added `kryptos.k4.tuning` module (weight sweeps, tiny param sweeps, best-weight selection)
 - Added `kryptos.k4.tuning.artifacts` (match file cleaning, run summarization, crib hit counts)
-- CLI foundation: sections listing, k4 decrypt, attempts
-- Pending: route scoring refinement, advanced Hill assemblies
+- CLI foundation- sections listing, k4 decrypt, attempts
+- Pending- route scoring refinement, advanced Hill assemblies
 
 ## [2025-10-23] Spy Namespace & Positional Scoring
 
