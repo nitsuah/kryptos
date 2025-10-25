@@ -4,8 +4,8 @@
       "cipher_type": "vigenere",
       "parameters": {},
       "total_size": 1000,
-      "explored_count": 24000,
-      "successful_count": 135
+      "explored_count": 40000,
+      "successful_count": 225
     },
     "high": {
       "cipher_type": "vigenere",
@@ -25,29 +25,29 @@
       "cipher_type": "vigenere",
       "parameters": {},
       "total_size": 1000,
-      "explored_count": 5700,
-      "successful_count": 150
+      "explored_count": 9500,
+      "successful_count": 250
     },
     "unexplored": {
       "cipher_type": "vigenere",
       "parameters": {},
       "total_size": 1000,
-      "explored_count": 150,
+      "explored_count": 250,
       "successful_count": 0
     },
     "region1": {
       "cipher_type": "vigenere",
       "parameters": {},
       "total_size": 1000,
-      "explored_count": 2850,
+      "explored_count": 4750,
       "successful_count": 0
     },
     "length_8": {
       "cipher_type": "vigenere",
       "parameters": {},
       "total_size": 1000,
-      "explored_count": 300,
-      "successful_count": 6
+      "explored_count": 500,
+      "successful_count": 10
     },
     "length_10": {
       "cipher_type": "vigenere",
