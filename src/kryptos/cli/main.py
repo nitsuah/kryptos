@@ -179,9 +179,24 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help='Maximum coordination cycles (None=infinite)',
     )
-    sp_autonomous.add_argument('--cycle-interval', type=int, default=5, help='Minutes between cycles')
-    sp_autonomous.add_argument('--ops-cycle', type=int, default=60, help='Minutes between OPS strategic analyses')
-    sp_autonomous.add_argument('--web-intel-hours', type=int, default=6, help='Hours between web intelligence checks')
+    sp_autonomous.add_argument(
+        '--cycle-interval',
+        type=float,
+        default=0.25,
+        help='Minutes between cycles (default: 15 sec)',
+    )
+    sp_autonomous.add_argument(
+        '--ops-cycle',
+        type=float,
+        default=0.5,
+        help='Minutes between OPS strategic analyses (default: 30 sec)',
+    )
+    sp_autonomous.add_argument(
+        '--web-intel-hours',
+        type=float,
+        default=0.5,
+        help='Hours between web intelligence checks (default: 30 min)',
+    )
     sp_autonomous.set_defaults(func=cmd_autonomous)
 
     # Examples smoke: fast health-check across example entrypoints

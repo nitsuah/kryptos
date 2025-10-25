@@ -237,15 +237,15 @@ class AutonomousCoordinator:
     def __init__(
         self,
         state_path: Path | None = None,
-        ops_cycle_minutes: int = 60,
-        web_intel_check_hours: int = 6,
+        ops_cycle_minutes: float = 0.5,
+        web_intel_check_hours: float = 0.5,
     ):
         """Initialize autonomous coordinator.
 
         Args:
             state_path: Path to persistent state file
-            ops_cycle_minutes: How often to run OPS strategic analysis
-            web_intel_check_hours: How often to check for new web intel
+            ops_cycle_minutes: How often to run OPS strategic analysis (default: 30 sec)
+            web_intel_check_hours: How often to check for new web intel (default: 30 min)
         """
         self.logger = setup_logging(logger_name="kryptos.autonomous")
         self.state_path = state_path or (get_artifacts_root() / "autonomous_state.json")
@@ -306,6 +306,117 @@ class AutonomousCoordinator:
         except (OSError, ValueError) as exc:
             self.logger.error(f"Failed to save state: {exc}")
 
+    def create_checkpoint(
+        self,
+        attack_type: str,
+        search_space_position: dict[str, Any],
+        tested_keys: list[str] | None = None,
+        promising_candidates: list[dict[str, Any]] | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
+        """Create a checkpoint for an attack's progress.
+
+        This enables resuming exactly where we left off after interruption.
+
+        Args:
+            attack_type: Type of attack (e.g., 'vigenere_northeast')
+            search_space_position: Current position in search space
+                (e.g., {'key_length': 8, 'key_index': 12345, 'crib_position': 5})
+            tested_keys: List of keys already tested (optional, can be large)
+            promising_candidates: Candidates worth revisiting
+            metadata: Additional checkpoint metadata
+        """
+        checkpoint = {
+            "timestamp": datetime.now().isoformat(),
+            "attack_type": attack_type,
+            "search_space_position": search_space_position,
+            "tested_keys_count": len(tested_keys) if tested_keys else 0,
+            "promising_candidates": promising_candidates or [],
+            "metadata": metadata or {},
+        }
+
+        # Add to state checkpoints
+        self.state.checkpoints.append(checkpoint)
+
+        # Keep only last 50 checkpoints to prevent bloat
+        if len(self.state.checkpoints) > 50:
+            self.state.checkpoints = self.state.checkpoints[-50:]
+
+        # Save tested keys to separate file if provided (can be huge)
+        if tested_keys:
+            self._save_tested_keys(attack_type, tested_keys)
+
+        self._save_state()
+        self.logger.info(
+            f"💾 Checkpoint created for {attack_type} "
+            f"(position: {search_space_position}, tested: {len(tested_keys) if tested_keys else 0})",
+        )
+
+    def _save_tested_keys(self, attack_type: str, tested_keys: list[str]) -> None:
+        """Save tested keys to separate file to keep state file small."""
+        keys_dir = self.state_path.parent / "tested_keys"
+        keys_dir.mkdir(parents=True, exist_ok=True)
+
+        keys_file = keys_dir / f"{attack_type}_tested_keys.json"
+        try:
+            # Load existing keys if file exists
+            existing_keys = set()
+            if keys_file.exists():
+                existing_keys = set(json.loads(keys_file.read_text(encoding="utf-8")))
+
+            # Add new keys
+            all_keys = existing_keys.union(set(tested_keys))
+
+            # Save back
+            keys_file.write_text(json.dumps(list(all_keys), indent=2), encoding="utf-8")
+            self.logger.debug(f"Saved {len(all_keys)} tested keys for {attack_type}")
+        except (OSError, ValueError) as exc:
+            self.logger.error(f"Failed to save tested keys: {exc}")
+
+    def load_tested_keys(self, attack_type: str) -> set[str]:
+        """Load previously tested keys for an attack.
+
+        Args:
+            attack_type: Type of attack
+
+        Returns:
+            Set of tested keys (empty if none found)
+        """
+        keys_file = self.state_path.parent / "tested_keys" / f"{attack_type}_tested_keys.json"
+        if not keys_file.exists():
+            return set()
+
+        try:
+            keys = json.loads(keys_file.read_text(encoding="utf-8"))
+            self.logger.info(f"Loaded {len(keys)} previously tested keys for {attack_type}")
+            return set(keys)
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            self.logger.error(f"Failed to load tested keys: {exc}")
+            return set()
+
+    def get_latest_checkpoint(self, attack_type: str) -> dict[str, Any] | None:
+        """Get the most recent checkpoint for an attack type.
+
+        Args:
+            attack_type: Type of attack
+
+        Returns:
+            Checkpoint dict or None if no checkpoint found
+        """
+        # Find most recent checkpoint for this attack type
+        matching_checkpoints = [cp for cp in reversed(self.state.checkpoints) if cp["attack_type"] == attack_type]
+
+        if not matching_checkpoints:
+            return None
+
+        checkpoint = matching_checkpoints[0]
+        self.logger.info(
+            f"📍 Found checkpoint for {attack_type} "
+            f"from {checkpoint['timestamp']} "
+            f"at position {checkpoint['search_space_position']}",
+        )
+        return checkpoint
+
     def _load_k123_patterns(self) -> None:
         """Load K123 pattern analysis to inform attack strategy."""
         if self.state.k123_patterns_loaded:
@@ -319,8 +430,8 @@ class AutonomousCoordinator:
         cribs = []
         for pattern in patterns:
             if pattern.category == "THEME" and pattern.confidence >= 0.85:
-                # Extract words from evidence
-                words = [w.strip() for w in pattern.evidence.split("-") if w.strip()]
+                # Extract words from evidence (evidence is list)
+                words = [w.strip() for item in pattern.evidence for w in str(item).split() if w.strip()]
                 cribs.extend(words[:10])  # Top 10 words per theme
 
         # Send insight to OPS
@@ -498,7 +609,21 @@ class AutonomousCoordinator:
         cycle_duration = (datetime.now() - cycle_start).total_seconds() / 3600
         self.state.total_runtime_hours += cycle_duration
 
-        # 6. Save state
+        # 6. Create checkpoint every 10 cycles
+        if self.state.coordination_cycles % 10 == 0:
+            for attack_name, attack_progress in self.state.active_attacks.items():
+                self.create_checkpoint(
+                    attack_type=attack_name,
+                    search_space_position={
+                        "attempts": attack_progress.attempts,
+                        "best_score": attack_progress.best_score,
+                        "time_elapsed_hours": attack_progress.time_elapsed_hours,
+                    },
+                    promising_candidates=[],
+                    metadata={"cycle": self.state.coordination_cycles},
+                )
+
+        # 7. Save state
         self._save_state()
 
         self.logger.info(

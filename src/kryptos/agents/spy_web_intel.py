@@ -12,6 +12,7 @@ monitoring of the Kryptos ecosystem.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass, field
@@ -76,6 +77,9 @@ class SpyWebIntel:
 
         self.cache_dir = cache_dir or Path("./data/intel_cache")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Track content we've already processed to avoid redundant work
+        self.processed_content_hashes: set[str] = set()
 
         # Define intelligence sources
         self.sources = [
@@ -206,6 +210,10 @@ class SpyWebIntel:
         Returns:
             List of potential crib candidates
         """
+        # Skip if we've already processed this content
+        if not self._is_content_new(text):
+            return []
+
         candidates = []
 
         # Pattern 1: Quoted text (Sanborn quotes are often hints)
@@ -335,8 +343,21 @@ class SpyWebIntel:
         threshold = frequency_hours.get(source.scrape_frequency, 24)
         return hours_since < threshold
 
+    def _content_hash(self, content: str) -> str:
+        """Generate hash for content to detect duplicates."""
+        return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+    def _is_content_new(self, content: str) -> bool:
+        """Check if we've already processed this content."""
+        content_hash = self._content_hash(content)
+        if content_hash in self.processed_content_hashes:
+            return False
+        self.processed_content_hashes.add(content_hash)
+        return True
+
     def _load_cache(self):
-        """Load cached intelligence."""
+        """Load cached intelligence and processed content hashes."""
+        # Load cribs
         cache_file = self.cache_dir / "cribs.json"
         if cache_file.exists():
             try:
@@ -357,8 +378,18 @@ class SpyWebIntel:
             except Exception as e:
                 print(f"Failed to load cache: {e}")
 
+        # Load processed content hashes
+        hashes_file = self.cache_dir / "processed_hashes.json"
+        if hashes_file.exists():
+            try:
+                with open(hashes_file) as f:
+                    self.processed_content_hashes = set(json.load(f))
+            except Exception as e:
+                print(f"Failed to load processed hashes: {e}")
+
     def _save_cache(self):
-        """Save intelligence to cache."""
+        """Save intelligence and processed hashes to cache."""
+        # Save cribs
         cache_file = self.cache_dir / "cribs.json"
         try:
             data = [
@@ -379,6 +410,14 @@ class SpyWebIntel:
 
         except Exception as e:
             print(f"Failed to save cache: {e}")
+
+        # Save processed content hashes
+        hashes_file = self.cache_dir / "processed_hashes.json"
+        try:
+            with open(hashes_file, "w") as f:
+                json.dump(list(self.processed_content_hashes), f, indent=2)
+        except Exception as e:
+            print(f"Failed to save processed hashes: {e}")
 
 
 def demo_web_intel():

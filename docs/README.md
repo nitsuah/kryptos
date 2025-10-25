@@ -6,13 +6,19 @@
 
 ## 🎯 Quick Start
 
-**New to this project?** Read [K4_MASTER_PLAN.md](K4_MASTER_PLAN.md) for the complete strategy.
+**New to this project?** Read [AUTONOMOUS_SYSTEM.md](AUTONOMOUS_SYSTEM.md) for the 24/7 autonomous cryptanalysis system.
 
-**Want to run a hypothesis?**
+**Want to run attacks?**
 
 ```bash
-python scripts/run_hypothesis.py --list
-python scripts/run_hypothesis.py berlin_clock
+# Run autonomous coordination (recommended)
+python -m kryptos.cli.main autonomous --max-cycles 100
+
+# Run single attack
+python -m kryptos.cli.main k4-decrypt --hypothesis vigenere_northeast
+
+# List all available attacks
+python -m kryptos.cli.main k4-decrypt --list
 ```
 
 **Check progress?** See test results in `artifacts/` or [CHANGELOG.md](CHANGELOG.md) for recent additions.
@@ -37,70 +43,69 @@ cleanup status, improvement roadmap
 ```text
 kryptos/
 ├── src/kryptos/          # Core Python package
-│   ├── agents/           # SPY (implemented), OPS/Q (planned)
+│   ├── agents/           # SPY v2.0, OPS Director, K123 Analyzer, Web Intel
 │   ├── k4/               # K4-specific pipeline and scoring
-│   ├── examples/         # Demo scripts (moved from scripts/demo/)
-│   └── ...
-├── scripts/              # Consolidated utilities
-│   ├── run_hypothesis.py     # Unified hypothesis runner ✅
-│   ├── run_random_baseline.py
-│   ├── dev/              # Development tools (3 files)
-│   ├── tuning/           # Tuning harnesses
-│   └── lint/             # Code quality tools
-├── tests/                # Test suite (249 passing)
+│   ├── autonomous_coordinator.py  # 24/7 autonomous orchestration
+│   ├── cli/              # CLI interface
+│   └── examples/         # Demo scripts
+├── scripts/              # Performance & tuning utilities (4 active)
+│   ├── benchmark_scoring.py
+│   ├── profile_scoring.py
+│   ├── calibrate_scoring_weights.py
+│   └── tuning.py
+├── tests/                # Test suite (30+ autonomous tests)
 ├── artifacts/            # Generated outputs (searches, runs, reports)
+├── docs/                 # Documentation (11 active files)
+```
 └── docs/                 # Documentation (cleaned: 20→6 files)
 ```
 
 ### Core Modules
 
+- `kryptos.autonomous_coordinator` - 24/7 autonomous orchestration with checkpointing
+- `kryptos.agents.spy_nlp` - Advanced NLP with poetry/semantic analysis (SPY v2.0)
+- `kryptos.agents.spy_web_intel` - Continuous web intelligence gathering
+- `kryptos.agents.k123_analyzer` - Sanborn pattern extraction from K1-K3
+- `kryptos.agents.ops_director` - Strategic attack decision-making
 - `kryptos.k4.hypotheses` - Pluggable cipher testing framework
 - `kryptos.k4.scoring` - Statistical plaintext quality metrics
 - `kryptos.k4.pipeline` - Multi-stage decryption pipeline
-- `kryptos.agents.spy` - Pattern recognition agent (✅ implemented)
-- `kryptos.agents.ops` - Parallel execution orchestrator (⏳ planned)
-- `kryptos.agents.q` - Quality validation module (⏳ planned)
 
-### Key Scripts
+### Key Commands
 
-- `scripts/run_hypothesis.py` - Run any hypothesis by name (unified interface)
-- `scripts/tuning/crib_weight_sweep.py` - Optimize scoring weights
-- `scripts/dev/orchestrator.py` - Agent coordination harness
+- `kryptos autonomous` - Run 24/7 autonomous coordination loop
+- `kryptos k4-decrypt` - Run specific attack hypothesis
+- CLI reference: See [API_REFERENCE.md](API_REFERENCE.md)
 
 ---
 
 ## 🔬 Current Status
 
-**Infrastructure:** ✅ Operational (281 tests passing, 85% coverage) **Hypotheses Tested:** 9 (Hill 2x2, Vigenère,
-Playfair, Transposition, Substitution, Autokey, Four-square, Bifid, Berlin Clock)
-**Agents:** SPY ✅ (435L, 10T) | OPS ✅ (350L, 9T) | Q ✅ (310L, 17T)
-**Lines of Code:** ~16,100 (agents + core logic)
+**Infrastructure:** ✅ Fully Autonomous (30+ tests passing, continuous learning)
+**Autonomous System:** SPY v2.0 + K123 Analyzer + Web Intel + OPS Director + Checkpointing
+**Agents:** 4 operational agents with 120x faster iteration (15s cycles)
+**Lines of Code:** ~20,000+ (autonomous system + agents + core logic)
 
-**Recent Achievements (Oct 2024):**
+**Recent Achievements (Oct 2025):**
 
-- ✅ Agent triumvirate operational (~1,100 lines, 36 tests)
-- ✅ Test coverage: 82% → 85% (hypothesis tests added)
-- ✅ 9 cipher types tested with real K4 ciphertext
-- ✅ Statistical validation (2σ/3σ thresholds established)
-
-**Stretch Goals:**
-
-- 🎯 90%+ test coverage (current: 85%)
-- 🎯 Sub-180s test suite runtime (current: 335s)
-- 🎯 Composite hypothesis testing (layered ciphers)
-- 🎯 SPY v2.0 with LLM/NLP intelligence
-
----
+- ✅ 24/7 autonomous coordination system operational
+- ✅ Incremental learning (never reprocess content)
+- ✅ Checkpoint system (never lose progress)
+- ✅ 120x faster cycles (15s coordination, 30s OPS, 30min web intel)
+- ✅ 13 Sanborn patterns extracted from K1-K3
+- ✅ Advanced NLP with poetry detection, semantic analysis
+- ✅ Continuous web intelligence gathering
 
 ## 🎯 Task Reference
 
 **I want to...**
 
-- **Understand the strategy** → [K4_MASTER_PLAN.md](K4_MASTER_PLAN.md)
-- **Run a hypothesis test** → `python scripts/run_hypothesis.py --list`
+- **Run the autonomous system** → `python -m kryptos.cli.main autonomous`
+- **Run a specific attack** → `python -m kryptos.cli.main k4-decrypt --hypothesis vigenere_northeast`
+- **Understand the system** → [AUTONOMOUS_SYSTEM.md](AUTONOMOUS_SYSTEM.md)
+- **Check agent architecture** → [AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)
 - **Add a new hypothesis** → See Hypothesis protocol in [API_REFERENCE.md](API_REFERENCE.md)
-- **Check agent status** → [AGENTS_ARCHITECTURE.md](AGENTS_ARCHITECTURE.md)
-- **Review technical debt** → [TECHDEBT.md](TECHDEBT.md)
+- **Review K123 patterns** → [K123_PATTERN_ANALYSIS.md](K123_PATTERN_ANALYSIS.md)
 - **See recent changes** → [CHANGELOG.md](CHANGELOG.md)
 - **Use the API** → [API_REFERENCE.md](API_REFERENCE.md)
 
@@ -108,8 +113,7 @@ Playfair, Transposition, Substitution, Autokey, Four-square, Bifid, Berlin Clock
 
 ## 📊 Historical Archive
 
-**archive/** folder contains superseded plans, dated milestones, and historical decision logs. These are kept for
-provenance but not actively maintained.
+**docs/archive/** contains `k3_double_rotation.py` (historical K3 exploration script) preserved for reference.
 
 ---
 
