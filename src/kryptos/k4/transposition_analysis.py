@@ -777,6 +777,59 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
     return best_perm, best_score
 
 
+def solve_columnar_permutation_exhaustive(
+    ciphertext: str,
+    period: int,
+    target_score: float | None = None,
+) -> tuple[list[int], float]:
+    """Solve columnar transposition by exhaustively trying all permutations.
+
+    Guaranteed to find optimal solution for small periods (≤6).
+    For period 6: 6! = 720 permutations (fast)
+    For period 7: 7! = 5,040 permutations (feasible)
+    For period 8+: Use SA or multi-start hill-climbing instead
+
+    Args:
+        ciphertext: Ciphertext to analyze
+        period: Period (should be ≤7 for reasonable performance)
+        target_score: Optional early termination threshold
+
+    Returns:
+        (best_permutation, best_score) tuple
+
+    Raises:
+        ValueError: If period > 8 (too expensive)
+    """
+    if period > 8:
+        raise ValueError(f"Exhaustive search not recommended for period {period} ({period}! permutations)")
+
+    import itertools
+
+    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+
+    best_perm = list(range(period))
+    best_score = float('-inf')
+    permutations_checked = 0
+
+    # Try all permutations
+    for perm in itertools.permutations(range(period)):
+        perm_list = list(perm)
+        plaintext = apply_columnar_permutation_reverse(text, period, perm_list)
+        score = score_combined(plaintext)
+
+        permutations_checked += 1
+
+        if score > best_score:
+            best_score = score
+            best_perm = perm_list
+
+        # Early termination if target score reached
+        if target_score is not None and score >= target_score:
+            break
+
+    return best_perm, best_score
+
+
 def solve_columnar_permutation(ciphertext: str, period: int, max_iterations: int = 10000) -> tuple[list[int], float]:
     """Solve columnar transposition permutation using hill-climbing.
 
