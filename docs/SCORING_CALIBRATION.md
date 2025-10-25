@@ -10,6 +10,7 @@ incorrect decryption attempts.
 ## Results
 
 ### Baseline Weights (Current)
+
 ```python
 {
     "ioc": 0.0,
@@ -20,10 +21,12 @@ incorrect decryption attempts.
     "crib": 0.2
 }
 ```
+
 - **Separation:** 1.15
 - **Accuracy:** 33.3%
 
 ### Optimized Weights (Calibrated)
+
 ```python
 {
     "ioc": 0.5,
@@ -34,6 +37,7 @@ incorrect decryption attempts.
     "crib": 0.0
 }
 ```
+
 - **Separation:** 5.75 (+400% improvement)
 - **Accuracy:** 33.3% (same, but better separation)
 
@@ -63,6 +67,7 @@ incorrect decryption attempts.
 ## Recommended Changes
 
 ### Option 1: Conservative (Safe)
+
 Update `combined_plaintext_score()` with modest improvements:
 ```python
 score = (
@@ -76,7 +81,9 @@ score = (
 ```
 
 ### Option 2: Aggressive (Use Calibrated)
+
 Use exact calibrated weights:
+
 ```python
 score = (
     0.5 * chi_square_stat_normalized(text) +
@@ -89,7 +96,9 @@ score = (
 ```
 
 ### Option 3: Hybrid (Recommended)
+
 Keep existing structure but adjust key weights:
+
 ```python
 score = (
     0.3 * chi_square_stat_normalized(text) +  # 3x increase
