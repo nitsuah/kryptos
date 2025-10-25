@@ -7,9 +7,12 @@
 * **CRITICAL:** Renamed `src/kryptos/logging.py` to `log_setup.py` to avoid shadowing Python's standard library
 `logging` module. This was causing `AttributeError: module 'logging' has no attribute 'getLogger'` in CI builds. All
 imports updated from `from kryptos.logging import setup_logging` to `from kryptos.log_setup import setup_logging`.
+
 * **CI Dependencies:** Fixed CI build failures:
+
   - Added `beautifulsoup4` to requirements.txt (required for web intelligence)
   - Added spaCy model download step to all CI workflows (`python -m spacy download en_core_web_sm`)
+
 * **Removed obsolete tests:** Deleted 5 test files referencing archived orchestrator (superseded by
 autonomous_coordinator.py)
 
@@ -22,7 +25,8 @@ autonomous_coordinator.py)
   - Full workflow: Q-Research hints → AttackGenerator → AttackLogger → Execution with provenance tracking
   - Placeholder execution (`_execute_single_attack()`) allows testing workflow without full cipher implementations
   - Deduplication working across both AttackGenerator (in-batch) and AttackLogger (cross-execution)
-  - 16 integration tests: configuration, generation, execution, workflows, statistics tracking
+  - 6 focused integration tests covering configuration, generation, execution, workflows, statistics, batching
+  - Demo script (`examples/attack_generation_demo.py`) showing end-to-end Phase 5 workflow
 * **Phase 5.1: Attack Generation Engine** - Systematic attack parameter generation from research insights:
   - `AttackGenerator` class (667 lines) converts Q-Research hints, coverage gaps, and literature analysis into
     executable `AttackParameters` for OPS Director orchestration

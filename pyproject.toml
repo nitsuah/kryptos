@@ -22,7 +22,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kryptos"
-version = "0.0.1"
+version = "0.0.5"
 description = "Kryptos tooling and autopilot harness"
 authors = [ { name = "nitsuah" } ]
 readme = "README.md"
