@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from statistics import mean, stdev
 from typing import Any
 
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 
 
 @dataclass

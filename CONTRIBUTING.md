@@ -102,6 +102,8 @@ functions.
 - Group related exports logically; avoid re-exporting internal helpers unnecessarily.
 - Name stages clearly: `make_<purpose>_stage()`.
 - Keep complexity controlled: stepwise search + scoring rather than monolithic brute force.
+- **CRITICAL:** Never name files after standard library modules (e.g., `logging.py`, `collections.py`, `typing.py`) as
+they will shadow the standard library and cause import errors.
 
 ## Testing
 

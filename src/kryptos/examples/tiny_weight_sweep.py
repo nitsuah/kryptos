@@ -16,7 +16,7 @@ from pathlib import Path
 
 from kryptos.k4.tuning import run_crib_weight_sweep
 from kryptos.k4.tuning.crib_sweep import WeightSweepRow
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 from kryptos.paths import get_artifacts_root
 
 _DEFAULT_WEIGHTS = (0.1, 0.5)  # trimmed for speed

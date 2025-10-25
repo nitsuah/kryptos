@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 from kryptos.autopilot import recommend_next_action, run_exchange
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 from kryptos.paths import get_artifacts_root
 
 

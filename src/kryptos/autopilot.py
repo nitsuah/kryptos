@@ -33,7 +33,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 from kryptos.paths import (
     get_artifacts_root,
     get_decisions_dir,

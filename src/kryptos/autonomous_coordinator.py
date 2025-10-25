@@ -58,7 +58,7 @@ from kryptos.agents.ops_director import (
 from kryptos.agents.spy_nlp import SpyNLP
 from kryptos.agents.spy_web_intel import SpyWebIntel
 from kryptos.autopilot import run_exchange
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 from kryptos.paths import get_artifacts_root, get_logs_dir
 
 

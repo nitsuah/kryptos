@@ -1,7 +1,7 @@
 """Central logging setup helper.
 
 Usage:
-    from kryptos.logging import setup_logging
+    from kryptos.log_setup import setup_logging
     log = setup_logging(logger_name="kryptos")
 
 Provides idempotent logger configuration without touching root handlers.

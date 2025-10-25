@@ -104,7 +104,7 @@ def evaluate(
 if __name__ == '__main__':
     import argparse
 
-    from kryptos.logging import setup_logging
+    from kryptos.log_setup import setup_logging
 
     p = argparse.ArgumentParser(description='Evaluate SPY extractor across thresholds')
     p.add_argument('--labels', type=str, default='data/spy_eval_labels.csv', help='CSV of run_dir,token')

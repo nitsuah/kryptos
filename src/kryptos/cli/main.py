@@ -23,7 +23,7 @@ from kryptos.k4.tuning import (
 )
 from kryptos.k4.tuning.artifacts import end_to_end_process
 from kryptos.k4.tuning.crib_sweep import WeightSweepRow
-from kryptos.logging import setup_logging
+from kryptos.log_setup import setup_logging
 from kryptos.sections import SECTIONS
 from kryptos.spy import extract as spy_module_extract
 from kryptos.tuning import spy_eval

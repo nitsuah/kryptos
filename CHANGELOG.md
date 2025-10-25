@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+* **CRITICAL:** Renamed `src/kryptos/logging.py` to `log_setup.py` to avoid shadowing Python's standard library
+`logging` module. This was causing `AttributeError: module 'logging' has no attribute 'getLogger'` in CI builds. All
+imports updated from `from kryptos.logging import setup_logging` to `from kryptos.log_setup import setup_logging`.
+
 ### Added
 
 * Composite pipeline stage timing (`stage_durations_ms`) instrumentation.
