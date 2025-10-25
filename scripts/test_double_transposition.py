@@ -141,7 +141,7 @@ def test_composite_detection():
 
 
 if __name__ == "__main__":
-    result, status = test_composite_detection()
+    result, test_status = test_composite_detection()
     print("\n" + "=" * 80)
-    print(f"Status: {status}")
+    print(f"Status: {test_status}")
     print(f"Final result (first 150 chars):\n{result[:150]}")
