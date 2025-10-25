@@ -2,6 +2,8 @@
 
 import unittest
 
+import pytest
+
 from kryptos.k4.hypotheses import (
     AutokeyHypothesis,
     AutokeyThenTranspositionHypothesis,
@@ -25,6 +27,7 @@ from kryptos.k4.hypotheses import (
 
 
 class TestK4Hypotheses(unittest.TestCase):
+    @pytest.mark.slow
     def test_hill_cipher_exhaustive_search(self):
         """Test HillCipher2x2Hypothesis exhaustively searches 2x2 key space."""
         hyp = HillCipher2x2Hypothesis()
@@ -343,6 +346,7 @@ class TestCompositeHypotheses(unittest.TestCase):
             "Composite score should equal stage2 score",
         )
 
+    @pytest.mark.slow
     def test_transposition_then_hill_basic(self):
         """Test TranspositionThenHillHypothesis generates candidates."""
         # Minimal smoke test: 1 transposition × 5 Hill matrices = 5 operations (~3-5s)
@@ -447,6 +451,7 @@ class TestCompositeHypotheses(unittest.TestCase):
         self.assertLessEqual(len(candidates_small), 50)
         self.assertLessEqual(len(candidates_large), 50)
 
+    @pytest.mark.slow
     def test_hill_then_transposition_basic(self):
         """Test HillThenTranspositionHypothesis (reverse order)."""
         hyp = HillThenTranspositionHypothesis(
@@ -524,6 +529,7 @@ class TestCompositeHypotheses(unittest.TestCase):
         self.assertIn('stage1', c.key_info, "Composite must have stage1")
         self.assertIn('stage2', c.key_info, "Composite must have stage2")
 
+    @pytest.mark.slow
     def test_vigenere_then_hill_basic(self):
         """Test VigenereThenHillHypothesis."""
         hyp = VigenereThenHillHypothesis(
