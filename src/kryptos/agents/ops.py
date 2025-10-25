@@ -17,6 +17,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from kryptos.agents.spy import SpyAgent
+from kryptos.ciphers import vigenere_decrypt
+from kryptos.k4.hill_cipher import hill_decrypt
+from kryptos.k4.transposition import apply_columnar_permutation
+from kryptos.k4.vigenere_key_recovery import recover_key_by_frequency
 from kryptos.log_setup import setup_logging
 from kryptos.pipeline.attack_generator import AttackGenerator, AttackSpec
 from kryptos.provenance.attack_log import AttackLogger, AttackResult
@@ -391,35 +396,168 @@ class OpsAgent:
 
     def _execute_single_attack(
         self,
-        attack_spec: AttackSpec,  # noqa: ARG002 - placeholder implementation
-        ciphertext: str,  # noqa: ARG002 - placeholder implementation
+        attack_spec: AttackSpec,
+        ciphertext: str,
     ) -> AttackResult:
-        """Execute a single attack (placeholder implementation).
-
-        NOTE: Replace with actual cipher execution logic.
+        """Execute a single attack with real cipher implementation.
 
         Args:
             attack_spec: Attack specification
             ciphertext: Ciphertext to attack
 
         Returns:
-            Attack result
+            Attack result with decryption and SPY scoring
         """
-        # Placeholder: Return dummy result
-        # In real implementation:
-        # 1. Map cipher_type to actual function (vigenere_decrypt, etc.)
-        # 2. Extract parameters from attack_spec.parameters
-        # 3. Execute attack
-        # 4. Score with SPY agent
-        # 5. Return proper AttackResult
+        start_time = time.time()
+        params = attack_spec.parameters
+        cipher_type = params.cipher_type
+        key_or_params = params.key_or_params
 
-        return AttackResult(
-            success=False,
-            plaintext_candidate=None,
-            confidence_scores={},
-            execution_time_seconds=0.01,
-            metadata={"note": "Placeholder execution - not implemented yet"},
-        )
+        try:
+            # Execute cipher based on type
+            plaintext_candidate = None
+
+            if cipher_type == "vigenere":
+                plaintext_candidate = self._execute_vigenere(ciphertext, key_or_params)
+            elif cipher_type == "hill":
+                plaintext_candidate = self._execute_hill(ciphertext, key_or_params)
+            elif cipher_type == "transposition":
+                plaintext_candidate = self._execute_transposition(ciphertext, key_or_params)
+            else:
+                # Unknown cipher type - return failure
+                return AttackResult(
+                    success=False,
+                    plaintext_candidate=None,
+                    confidence_scores={},
+                    execution_time_seconds=time.time() - start_time,
+                    error_message=f"Unknown cipher type: {cipher_type}",
+                    metadata={"cipher_type": cipher_type},
+                )
+
+            # If decryption failed, return failure
+            if plaintext_candidate is None:
+                return AttackResult(
+                    success=False,
+                    plaintext_candidate=None,
+                    confidence_scores={},
+                    execution_time_seconds=time.time() - start_time,
+                    error_message="Decryption returned None",
+                    metadata={"cipher_type": cipher_type, "params": str(key_or_params)[:100]},
+                )
+
+            # Score with SPY agent
+            spy = SpyAgent()
+            analysis = spy.analyze_candidate(plaintext_candidate)
+
+            # Extract confidence score
+            # SPY returns dict with 'summary' containing 'overall_confidence'
+            overall_confidence = 0.0
+            if "summary" in analysis and "overall_confidence" in analysis["summary"]:
+                overall_confidence = analysis["summary"]["overall_confidence"]
+
+            # Determine success based on confidence threshold
+            success = overall_confidence >= 0.3
+
+            execution_time = time.time() - start_time
+
+            return AttackResult(
+                success=success,
+                plaintext_candidate=plaintext_candidate,
+                confidence_scores={"spy": overall_confidence},
+                execution_time_seconds=execution_time,
+                metadata={
+                    "cipher_type": cipher_type,
+                    "attack_source": attack_spec.source,
+                    "attack_priority": attack_spec.priority,
+                    "spy_insights_count": len(analysis.get("insights", [])),
+                },
+            )
+
+        except Exception as e:
+            # Handle execution errors gracefully
+            execution_time = time.time() - start_time
+            return AttackResult(
+                success=False,
+                plaintext_candidate=None,
+                confidence_scores={},
+                execution_time_seconds=execution_time,
+                error_message=str(e),
+                metadata={
+                    "cipher_type": cipher_type,
+                    "error_type": type(e).__name__,
+                },
+            )
+
+    def _execute_vigenere(self, ciphertext: str, params: dict[str, Any]) -> str | None:
+        """Execute Vigenère decryption.
+
+        Args:
+            ciphertext: Ciphertext to decrypt
+            params: Dictionary with 'key_length' and optionally 'key'
+
+        Returns:
+            Decrypted plaintext or None
+        """
+        # If key is provided, use it directly
+        if "key" in params and params["key"]:
+            try:
+                return vigenere_decrypt(ciphertext, params["key"])
+            except Exception:
+                return None
+
+        # If only key_length provided, attempt key recovery
+        if "key_length" in params:
+            key_length = params["key_length"]
+            try:
+                # Attempt frequency-based key recovery
+                candidate_keys = recover_key_by_frequency(ciphertext, key_length, top_n=1)
+                if candidate_keys:
+                    # Try the best candidate
+                    return vigenere_decrypt(ciphertext, candidate_keys[0])
+            except Exception:
+                pass
+
+        return None
+
+    def _execute_hill(self, ciphertext: str, params: dict[str, Any]) -> str | None:
+        """Execute Hill cipher decryption.
+
+        Args:
+            ciphertext: Ciphertext to decrypt
+            params: Dictionary with 'key_matrix'
+
+        Returns:
+            Decrypted plaintext or None
+        """
+        if "key_matrix" not in params:
+            return None
+
+        try:
+            return hill_decrypt(ciphertext, params["key_matrix"])
+        except Exception:
+            return None
+
+    def _execute_transposition(self, ciphertext: str, params: dict[str, Any]) -> str | None:
+        """Execute transposition cipher decryption.
+
+        Args:
+            ciphertext: Ciphertext to decrypt
+            params: Dictionary with 'period' and 'permutation'
+
+        Returns:
+            Decrypted plaintext or None
+        """
+        # Columnar transposition
+        if "period" in params and "permutation" in params:
+            try:
+                n_cols = params["period"]
+                perm = tuple(params["permutation"])
+                return apply_columnar_permutation(ciphertext, n_cols, perm)
+            except Exception:
+                return None
+
+        # Other transposition methods would go here
+        return None
 
 
 def ops_report(results: list[JobResult]) -> str:

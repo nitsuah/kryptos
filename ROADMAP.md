@@ -7,6 +7,7 @@
 ## Current System Status
 
 ### ✅ Phase 1: Agent Triumvirate (COMPLETE)
+
 **Goal**: Build specialized agents for autonomous cryptanalysis
 
 **Completed Components**:
@@ -34,6 +35,7 @@
 ---
 
 ### ✅ Phase 2: Strategic Intelligence (COMPLETE)
+
 **Goal**: Add high-level decision making and state management
 
 **Completed Components**:
@@ -53,6 +55,7 @@
 ---
 
 ### ✅ Phase 3: Orchestration & Research (COMPLETE)
+
 **Goal**: High-level coordination and academic techniques
 
 **Completed Components**:
@@ -78,12 +81,14 @@
 ## Current System Capabilities
 
 ### What We Have (70% Coverage)
+
 1. **24/7 Autonomous Operation**: 15-second coordination cycles 2. **Core Classical Ciphers**: Vigenère, Hill,
 transposition 3. **Pattern-Based Attacks**: K1-K3 fingerprint guidance 4. **Web-Informed Cribs**: Community discoveries
 feed attacks 5. **Multi-Agent Validation**: SPY + LINGUIST cross-validation 6. **Strategic Intelligence**: LLM-powered
 pivot decisions 7. **State Persistence**: Never lose progress 8. **Performance Optimized**: 120x faster, <15s test suite
 
 ### What We're Missing (30% Gap)
+
 1. **Attack Provenance Logging**: No record of "we tried Vigenère length 8 with BERLIN at positions 0-5" 2. **Academic
 Integration**: No connection to arXiv, IACR, published papers 3. **Coverage Analysis**: Can't answer "have we exhausted
 Vigenère key space 1-20?" 4. **Exploration Heatmap**: No visualization of attacked vs unexplored spaces 5. **Community
@@ -99,6 +104,7 @@ approaches
 **Estimated Timeline**: 2-3 sprints **Priority**: CRITICAL - Prevents wasted computation on known failures
 
 ### Sprint 4.1: Attack Provenance System
+
 **Deliverables**:
 - `src/kryptos/provenance/attack_log.py` - Structured attack recording
 - `src/kryptos/provenance/search_space.py` - Key space tracking
@@ -115,6 +121,7 @@ approaches
 **Tests**: 25-30 tests covering logging, deduplication, coverage metrics
 
 ### Sprint 4.2: Academic Paper Integration (Q Agent Enhancement)
+
 **Deliverables**:
 - `src/kryptos/research/paper_search.py` - arXiv/IACR search
 - `src/kryptos/research/attack_extractor.py` - Parse papers for methods
@@ -131,6 +138,7 @@ approaches
 **Tests**: 20-25 tests covering search, parsing, deduplication
 
 ### Sprint 4.3: Strategic Coverage Analysis
+
 **Deliverables**:
 - `src/kryptos/analysis/coverage_report.py` - Gap analysis
 - `src/kryptos/analysis/heatmap.py` - Visual exploration map
@@ -162,6 +170,7 @@ approaches
 **Estimated Timeline**: 2-3 sprints **Priority**: HIGH - Makes system actually crack K4
 
 ### Sprint 5.1: Attack Generation Engine
+
 **Deliverables**:
 - `src/kryptos/attacks/generator.py` - Strategy → attacks
 - `src/kryptos/attacks/vigenere_suite.py` - Comprehensive Vigenère
@@ -177,6 +186,7 @@ approaches
 - Parallel execution (multi-core)
 
 ### Sprint 5.2: Validation Pipeline
+
 **Deliverables**:
 - `src/kryptos/pipeline/validator.py` - Multi-stage validation
 - `src/kryptos/pipeline/ranker.py` - Candidate scoring
@@ -191,6 +201,7 @@ approaches
 - Top-K selection for human review
 
 ### Sprint 5.3: End-to-End Orchestration
+
 **Deliverables**:
 - `src/kryptos/pipeline/k4_pipeline.py` - Complete K4 attack
 - `src/kryptos/cli.py` - Command-line interface
@@ -214,17 +225,20 @@ approaches
 **Estimated Timeline**: 2-3 sprints **Priority**: MEDIUM - Optimization after correctness
 
 ### Sprint 6.1: Distributed Computation
+
 - Multi-machine coordination
 - Work queue distribution
 - Result aggregation
 - Fault tolerance
 
 ### Sprint 6.2: GPU Acceleration
+
 - CUDA kernels for crypto operations
 - Batch parallel validation
 - Neural model GPU inference
 
 ### Sprint 6.3: Smart Pruning
+
 - ML-based unpromising key rejection
 - Adaptive search strategies
 - Resource allocation optimization
@@ -238,6 +252,7 @@ approaches
 **Estimated Timeline**: 4-6 sprints **Priority**: LOW - After exhausting known methods
 
 ### Research Areas
+
 1. **ML-Based Key Prediction**: Train models on K1-K3 to predict K4 keys 2. **Quantum-Inspired Algorithms**: Grover's
 algorithm simulation 3. **Side-Channel Analysis**: Sanborn's process, sculpture clues 4. **Genetic Algorithms**: Evolve
 keys toward valid plaintexts 5. **Ensemble Methods**: Combine multiple attack results
@@ -247,14 +262,17 @@ keys toward valid plaintexts 5. **Ensemble Methods**: Combine multiple attack re
 ## 📋 Immediate Next Steps (Sprint 4.1)
 
 ### Week 1: Attack Provenance Foundation
+
 1. Design attack log schema (JSON/SQLite) 2. Implement `AttackLogger` class 3. Create key space tracker 4. Add coverage
 metrics calculator 5. Tests: 10 tests for logging
 
 ### Week 2: Search Space Management
+
 1. Implement `SearchSpace` class for Vigenère 2. Add coverage percentage calculations 3. Create deduplication logic 4.
 Integrate with existing attack library 5. Tests: 10 tests for search space
 
 ### Week 3: Integration & Reporting
+
 1. Wire AttackLogger to all attack functions 2. Create coverage report generator 3. Build query interface 4. CLI tool:
 `kryptos coverage` 5. Tests: 10 tests for reporting
 
@@ -268,6 +286,7 @@ Integrate with existing attack library 5. Tests: 10 tests for search space
 ## Success Metrics
 
 ### Phase 4 Success Criteria
+
 - ✅ Zero duplicate attacks across 10,000+ attempts
 - ✅ Coverage reports accurate to ±1%
 - ✅ Can identify 50+ academic papers on K4/polyalphabetic
@@ -275,12 +294,14 @@ Integrate with existing attack library 5. Tests: 10 tests for search space
 - ✅ OPS Director uses coverage data for strategic pivots
 
 ### Phase 5 Success Criteria
+
 - ✅ Full K4 attack pipeline runs end-to-end
 - ✅ Top-10 candidates validated by all agents
 - ✅ Results exportable for academic publication
 - ✅ Average cycle time <5 minutes per major attack
 
 ### Ultimate Success Criteria
+
 - 🎯 **Crack Kryptos K4** with verifiable solution
 - 🎯 **Academic Paper**: Document approach & provenance
 - 🎯 **Open Source**: Release system for community use
@@ -291,18 +312,21 @@ Integrate with existing attack library 5. Tests: 10 tests for search space
 ## Resource Requirements
 
 ### Phase 4 (Attack Provenance)
+
 - **Development Time**: 3-4 weeks
 - **Compute**: Minimal (logging overhead <1%)
 - **Storage**: ~500MB per 100K attacks (SQLite)
 - **APIs**: arXiv API, IACR ePrint scraping
 
 ### Phase 5 (Unified Pipeline)
+
 - **Development Time**: 4-6 weeks
 - **Compute**: 8-16 cores recommended
 - **Storage**: ~5GB for intermediate results
 - **APIs**: OpenAI/Anthropic for strategic decisions
 
 ### Phase 6 (Scaling)
+
 - **Development Time**: 4-6 weeks
 - **Compute**: Multi-machine cluster OR GPU workstation
 - **Storage**: ~50GB for distributed cache
@@ -313,15 +337,19 @@ Integrate with existing attack library 5. Tests: 10 tests for search space
 ## Risk Mitigation
 
 ### Risk 1: Duplicate Work with Community
+
 **Mitigation**: Phase 4 academic integration catches this early
 
 ### Risk 2: Key Space Too Large
+
 **Mitigation**: Phase 6 smart pruning + distributed computation
 
 ### Risk 3: False Positives
+
 **Mitigation**: Multi-agent validation pipeline (SPY+LINGUIST+Q)
 
 ### Risk 4: System Complexity
+
 **Mitigation**: 140 comprehensive tests, checkpoint system
 
 ---

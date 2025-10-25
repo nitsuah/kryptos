@@ -18,12 +18,17 @@ autonomous_coordinator.py)
 
 ### Added
 
+* **Phase 5.3: Real Cipher Execution** - Replaced placeholder execution with actual cipher implementations:
+  - Implemented `_execute_single_attack()` with real cipher calls: Vigenère, Hill, Transposition
+  - Integrated SPY agent scoring for plaintext candidate evaluation
+  - Added confidence-based success thresholds (≥0.3 for success)
+  - Execution time tracking and comprehensive error handling
+  - Real decryption attempts now return actual plaintexts (when keys provided)
 * **Phase 5.2: OPS Attack Generation Integration** - Connected AttackGenerator to OPS Director orchestration:
   - Extended `OpsConfig` with `enable_attack_generation` and `attack_log_dir` configuration
   - OPS methods: `generate_attack_queue_from_q_hints()`, `generate_attack_queue_comprehensive()`,
     `execute_attack_queue()`
   - Full workflow: Q-Research hints → AttackGenerator → AttackLogger → Execution with provenance tracking
-  - Placeholder execution (`_execute_single_attack()`) allows testing workflow without full cipher implementations
   - Deduplication working across both AttackGenerator (in-batch) and AttackLogger (cross-execution)
   - 6 focused integration tests covering configuration, generation, execution, workflows, statistics, batching
   - Demo script (`examples/attack_generation_demo.py`) showing end-to-end Phase 5 workflow
