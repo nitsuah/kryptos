@@ -15,6 +15,16 @@ autonomous_coordinator.py)
 
 ### Added
 
+* **Phase 5.1: Attack Generation Engine** - Systematic attack parameter generation from research insights:
+  - `AttackGenerator` class (667 lines) converts Q-Research hints, coverage gaps, and literature analysis into
+    executable `AttackParameters` for OPS Director orchestration
+  - Q-Research integration: Vigenère metrics → key length attacks, transposition hints → period attacks
+  - Coverage-gap targeting: Automatically generates attacks for under-explored parameter spaces
+  - Literature-informed generation: Converts academic paper recommendations into attacks (placeholder for
+    LiteratureGapAnalyzer)
+  - 100% deduplication via `AttackLogger` fingerprinting (both in-batch and cross-execution)
+  - Priority scoring: Q-hints (0.6-0.9) > coverage gaps (0.5-0.7) > seeds (0.5)
+  - Comprehensive test suite: 24 tests covering hint conversion, gap targeting, deduplication, priority ordering
 * Composite pipeline stage timing (`stage_durations_ms`) instrumentation.
 * Provenance hash propagation (`provenance_hash`) into run profile and `DecryptResult.metadata`.
 * Rarity-weighted crib bonus (`scoring.rarity_weighted_crib_bonus`) and baseline stats integration.
