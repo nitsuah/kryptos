@@ -31,48 +31,6 @@ python scripts/validation/test_k123_unified_pipeline.py
 
 ---
 
-### `benchmarks/` - Performance & Calibration
-
-**Purpose:** Measure and optimize system performance
-
-- **`benchmark_scoring.py`** - Benchmark dictionary scoring performance
-- **`profile_scoring.py`** - Profile scoring functions for bottlenecks
-- **`calibrate_scoring_weights.py`** - Tune validation pipeline weights
-- **`tuning.py`** - General parameter tuning utilities
-
-**Usage:**
-```bash
-python scripts/benchmarks/benchmark_scoring.py
-python scripts/benchmarks/profile_scoring.py
-```
-
----
-
-### `experiments/` - Research & Prototypes
-
-**Purpose:** Test new features and attack strategies
-
-- **`test_exhaustive_search.py`** - Exhaustive permutation search (periods ≤8)
-- **`test_attack_provenance.py`** - Attack logging and deduplication
-- **`test_search_space.py`** - Coverage tracking validation
-- **`test_attack_gen_simple.py`** - Attack generation from Q-hints
-- **`demo_provenance.py`** - Demo of provenance logging system
-- **`debug_word_detection.py`** - Debug dictionary scoring
-
-**Usage:**
-```bash
-python scripts/experiments/test_exhaustive_search.py
-python scripts/experiments/test_attack_provenance.py
-```
-
----
-
-### `archive/` - Historical Scripts
-
-**Purpose:** Old test scripts kept for reference (no longer actively maintained)
-
----
-
 ### `lint/` - Code Quality
 
 **Purpose:** Linting and formatting scripts
@@ -96,10 +54,6 @@ python scripts/benchmarks/benchmark_scoring.py
 ```
 
 ### Test New Features
-```bash
-python scripts/experiments/test_attack_provenance.py
-python scripts/experiments/test_search_space.py
-```
 
 ---
 
@@ -142,8 +96,6 @@ Many functionalities are available via CLI:
 ## References
 
 - **Main docs:** `docs/PHASE_6_ROADMAP.md`
-- **Gap analysis:** `docs/CRITICAL_GAP_ANALYSIS.md`
-- **Phase 5 reference:** `docs/reference/phase5/`
 
 ---
 
