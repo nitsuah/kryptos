@@ -166,7 +166,7 @@ def recover_key_with_crib(
     crib: str,
     key_length: int,
     position: int | None = None,
-) -> list[str]:
+) -> list[tuple[str, int, float]]:
     """Recover Vigenère key using known plaintext (crib).
 
     Args:
@@ -176,23 +176,29 @@ def recover_key_with_crib(
         position: Optional known position of crib (tries all if None)
 
     Returns:
-        List of candidate keys
+        List of tuples: (candidate_key, position_found, confidence_score)
+        Sorted by confidence (higher = better)
     """
     ct = ''.join(c for c in ciphertext.upper() if c.isalpha())
     crib = ''.join(c for c in crib.upper() if c.isalpha())
 
-    if len(crib) < key_length:
+    # Need at least 3 characters to extract meaningful key info
+    if len(crib) < 3:
         return []
 
     positions = [position] if position is not None else range(len(ct) - len(crib) + 1)
-    candidates = []
+    candidates: list[tuple[str, int, float]] = []
 
     for pos in positions:
-        # Extract key from crib
+        # Extract partial key from crib
         key_chars = [''] * key_length
+        positions_filled = set()
         valid = True
 
         for i, plain_char in enumerate(crib):
+            if pos + i >= len(ct):
+                break
+
             cipher_char = ct[pos + i]
             key_pos = (pos + i) % key_length
 
@@ -205,6 +211,7 @@ def recover_key_with_crib(
                 # Check consistency
                 if key_chars[key_pos] == '':
                     key_chars[key_pos] = k_char
+                    positions_filled.add(key_pos)
                 elif key_chars[key_pos] != k_char:
                     valid = False
                     break
@@ -212,12 +219,125 @@ def recover_key_with_crib(
                 valid = False
                 break
 
-        if valid and all(key_chars):
-            key = ''.join(key_chars)
-            if key not in candidates:
-                candidates.append(key)
+        if not valid:
+            continue
 
-    return candidates
+        # Complete key using frequency analysis for unfilled positions
+        if len(positions_filled) == key_length:
+            # Full key recovered
+            key = ''.join(key_chars)
+            confidence = 1.0  # Complete key from crib
+            candidates.append((key, pos, confidence))
+        elif len(positions_filled) >= key_length // 2:
+            # Partial key - fill remaining with frequency analysis
+            unfilled = [i for i in range(key_length) if key_chars[i] == '']
+
+            # Use frequency analysis to complete the key
+            completed_keys = _complete_partial_key(ct, key_chars, unfilled)
+            for completed_key in completed_keys[:5]:  # Top 5 completions
+                confidence = len(positions_filled) / key_length  # Partial confidence
+                candidates.append((completed_key, pos, confidence))
+
+    # Sort by confidence (higher first), then by position (earlier first)
+    candidates.sort(key=lambda x: (-x[2], x[1]))
+
+    # Deduplicate by key
+    seen_keys = set()
+    unique_candidates = []
+    for key, pos, conf in candidates:
+        if key not in seen_keys:
+            seen_keys.add(key)
+            unique_candidates.append((key, pos, conf))
+
+    return unique_candidates
+
+
+def _complete_partial_key(ciphertext: str, partial_key: list[str], unfilled_positions: list[int]) -> list[str]:
+    """Complete a partial key using frequency analysis on remaining positions.
+
+    Args:
+        ciphertext: Full ciphertext
+        partial_key: Partially recovered key (empty strings for unknown positions)
+        unfilled_positions: Indices of positions that need to be filled
+
+    Returns:
+        List of completed keys (best candidates first)
+    """
+    if not unfilled_positions:
+        return [''.join(partial_key)]
+
+    key_length = len(partial_key)
+
+    # For small numbers of unfilled positions, try all combinations
+    if len(unfilled_positions) <= 3:
+        return _brute_force_complete(ciphertext, partial_key, unfilled_positions)
+
+    # For larger numbers, use frequency analysis
+    completed = partial_key.copy()
+
+    for pos in unfilled_positions:
+        # Extract column for this position
+        column = [ciphertext[i] for i in range(pos, len(ciphertext), key_length) if i < len(ciphertext)]
+
+        if len(column) < 3:  # Too few samples
+            completed[pos] = 'K'  # Default to 'K' (most common in Kryptos alphabet)
+            continue
+
+        # Try each possible key character and score
+        scores = []
+        for k_char in KEYED_ALPHABET:
+            try:
+                plaintext_col = []
+                for c_char in column:
+                    c_idx = KEYED_ALPHABET.index(c_char)
+                    k_idx = KEYED_ALPHABET.index(k_char)
+                    p_idx = (c_idx - k_idx) % len(KEYED_ALPHABET)
+                    plaintext_col.append(KEYED_ALPHABET[p_idx])
+
+                score = _score_english_frequency(''.join(plaintext_col))
+                scores.append((score, k_char))
+            except (ValueError, IndexError):
+                continue
+
+        if scores:
+            scores.sort(reverse=True)
+            completed[pos] = scores[0][1]
+
+    return [''.join(completed)]
+
+
+def _brute_force_complete(ciphertext: str, partial_key: list[str], unfilled_positions: list[int]) -> list[str]:
+    """Try all possible completions for a small number of unfilled positions.
+
+    Uses full decryption + English scoring to rank candidates.
+    """
+    from kryptos.ciphers import vigenere_decrypt
+
+    # Generate all combinations
+    candidates = []
+
+    def generate_combinations(pos_idx: int, current_key: list[str]) -> None:
+        if pos_idx >= len(unfilled_positions):
+            # Complete key - test it
+            key_str = ''.join(current_key)
+            try:
+                plaintext = vigenere_decrypt(ciphertext, key_str)
+                score = _score_english_frequency(plaintext)
+                candidates.append((score, key_str))
+            except (ValueError, KeyError):
+                pass
+            return
+
+        pos = unfilled_positions[pos_idx]
+        for char in KEYED_ALPHABET:
+            current_key[pos] = char
+            generate_combinations(pos_idx + 1, current_key[:])
+
+    generate_combinations(0, partial_key[:])
+
+    # Sort by score and return top candidates
+    candidates.sort(reverse=True)
+    return [key for _, key in candidates[:20]]  # Top 20
 
 
 def test_key_recovery():

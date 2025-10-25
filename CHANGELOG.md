@@ -24,6 +24,13 @@ autonomous_coordinator.py)
   - Added confidence-based success thresholds (≥0.3 for success)
   - Execution time tracking and comprehensive error handling
   - Real decryption attempts now return actual plaintexts (when keys provided)
+  - **Vigenère Key Recovery:** Implemented frequency-based key recovery for attacks with only key_length hints
+    - `recover_key_by_frequency()` uses chi-squared analysis against English letter frequencies
+    - Automatically attempts key recovery when OPS executes Vigenère attacks without explicit keys
+    - **VALIDATED:** Successfully recovered K2 key "ABSCISSA" as top candidate from ciphertext alone
+    - Alternative crib-based recovery available via `recover_key_with_crib()`
+  - **Validation script:** `scripts/validate_known_kryptos.py` tests against K1/K2/K3 known plaintexts
+  - System now capable of end-to-end autonomous cryptanalysis (research → generation → execution → scoring)
 * **Phase 5.2: OPS Attack Generation Integration** - Connected AttackGenerator to OPS Director orchestration:
   - Extended `OpsConfig` with `enable_attack_generation` and `attack_log_dir` configuration
   - OPS methods: `generate_attack_queue_from_q_hints()`, `generate_attack_queue_comprehensive()`,
