@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from .hill_cipher import invertible_2x2_keys
+from .hill_genetic import genetic_algorithm_hill3x3
 from .hill_search import score_decryptions
 from .transposition import search_columnar
 
@@ -151,6 +152,70 @@ class HillCipher2x2Hypothesis:
                     plaintext=result['text'],
                     key_info={'matrix': key_matrix, 'size': 2},
                     score=result['score'],
+                ),
+            )
+
+        return candidates
+
+
+class HillCipher3x3GeneticHypothesis:
+    """Hill 3x3 cipher with genetic algorithm key search.
+
+    Hill 3x3 has 26^9 ≈ 5.4 trillion possible keys. Instead of exhaustive search,
+    this uses a genetic algorithm to intelligently explore the keyspace.
+
+    Args:
+        population_size: Number of keys per generation (default: 1000)
+        generations: Number of GA iterations (default: 100)
+        mutation_rate: Probability of mutating each matrix element (default: 0.1)
+        elite_fraction: Fraction of top performers to preserve (default: 0.2)
+    """
+
+    def __init__(
+        self,
+        population_size: int = 1000,
+        generations: int = 100,
+        mutation_rate: float = 0.1,
+        elite_fraction: float = 0.2,
+    ):
+        """Initialize the Hill 3x3 genetic algorithm hypothesis."""
+        self.population_size = population_size
+        self.generations = generations
+        self.mutation_rate = mutation_rate
+        self.elite_fraction = elite_fraction
+
+    def generate_candidates(self, ciphertext: str, limit: int = 10) -> list[Candidate]:
+        """Generate candidates using genetic algorithm for 3x3 Hill cipher search.
+
+        Args:
+            ciphertext: The ciphertext to decrypt
+            limit: Maximum number of candidates to return
+
+        Returns:
+            List of Candidate objects, sorted by score descending
+        """
+        # Run genetic algorithm
+        results = genetic_algorithm_hill3x3(
+            ciphertext,
+            population_size=self.population_size,
+            generations=self.generations,
+            mutation_rate=self.mutation_rate,
+            elite_fraction=self.elite_fraction,
+        )
+
+        # Convert to Candidate objects
+        candidates = []
+        for i, (key_matrix, score, plaintext) in enumerate(results[:limit]):
+            # Create a unique ID from matrix elements
+            flat_key = [key_matrix[i][j] for i in range(3) for j in range(3)]
+            key_str = "_".join(str(x) for x in flat_key)
+
+            candidates.append(
+                Candidate(
+                    id=f"hill_3x3_genetic_{i}_{key_str[:20]}",  # Truncate for readability
+                    plaintext=plaintext,
+                    key_info={'matrix': key_matrix, 'size': 3, 'method': 'genetic_algorithm'},
+                    score=score,
                 ),
             )
 

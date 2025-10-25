@@ -14,6 +14,7 @@ from kryptos.k4.hypotheses import (
     DoubleTranspositionHypothesis,
     FourSquareHypothesis,
     HillCipher2x2Hypothesis,
+    HillCipher3x3GeneticHypothesis,
     HillThenTranspositionHypothesis,
     PlayfairHypothesis,
     PlayfairThenTranspositionHypothesis,
@@ -45,6 +46,40 @@ class TestK4Hypotheses(unittest.TestCase):
         self.assertIsNotNone(c.plaintext, "Candidate must have plaintext")
         self.assertIsNotNone(c.key_info, "Candidate must have key_info")
         self.assertEqual(c.key_info['size'], 2, "Should be 2x2 matrix")
+        self.assertIsInstance(c.score, (int, float), "Score must be numeric")
+
+        # Check candidates are ranked by score (descending)
+        if len(candidates) > 1:
+            self.assertGreaterEqual(
+                candidates[0].score,
+                candidates[1].score,
+                "Candidates should be sorted by score (highest first)",
+            )
+
+    @pytest.mark.slow
+    def test_hill_3x3_genetic_algorithm(self):
+        """Test HillCipher3x3GeneticHypothesis uses genetic algorithm for 3x3 keys."""
+        hyp = HillCipher3x3GeneticHypothesis(
+            population_size=100,  # Small for testing
+            generations=10,  # Few generations for speed
+            mutation_rate=0.15,
+            elite_fraction=0.2,
+        )
+        ciphertext = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
+        candidates = hyp.generate_candidates(ciphertext, limit=5)
+
+        # Should return candidates
+        self.assertGreater(len(candidates), 0, "Should return at least one candidate")
+        self.assertLessEqual(len(candidates), 5, "Should respect limit")
+
+        # Validate structure
+        c = candidates[0]
+        self.assertIsNotNone(c.id, "Candidate must have an id")
+        self.assertTrue(c.id.startswith("hill_3x3_genetic_"), "ID should indicate Hill 3x3 genetic")
+        self.assertIsNotNone(c.plaintext, "Candidate must have plaintext")
+        self.assertIsNotNone(c.key_info, "Candidate must have key_info")
+        self.assertEqual(c.key_info['size'], 3, "Should be 3x3 matrix")
+        self.assertEqual(c.key_info['method'], 'genetic_algorithm', "Should use genetic algorithm")
         self.assertIsInstance(c.score, (int, float), "Score must be numeric")
 
         # Check candidates are ranked by score (descending)

@@ -49,6 +49,8 @@ implements the `Hypothesis` protocol with a `generate_candidates()` method.
 #### Single-Stage Hypotheses
 
 - `kryptos.k4.hypotheses.HillCipher2x2Hypothesis(limit=100)` — Hill cipher with 2x2 matrix (exhaustive key search)
+- `kryptos.k4.hypotheses.HillCipher3x3GeneticHypothesis(population_size=1000, generations=100, mutation_rate=0.1,
+elite_fraction=0.2)` — Hill cipher with 3x3 matrix (genetic algorithm for 26^9 keyspace)
 - `kryptos.k4.hypotheses.SimpleSubstitutionHypothesis(variants=28)` — Monoalphabetic substitution with frequency
 analysis
 - `kryptos.k4.hypotheses.VigenereHypothesis(max_key_length=15, candidates_per_length=10)` — Vigenère cipher with
@@ -163,6 +165,32 @@ for candidate in candidates[:5]:
     print(f"Score: {candidate.score:.2f}")
     print(f"Plaintext: {candidate.plaintext}")
     print(f"Key: {candidate.metadata.get('key')}")
+    print()
+```
+
+#### Hill 3x3 Genetic Algorithm
+
+```python
+from kryptos.k4.hypotheses import HillCipher3x3GeneticHypothesis
+
+# Create Hill 3x3 genetic algorithm hypothesis
+# Note: Hill 3x3 has 26^9 ≈ 5.4 trillion keys (exhaustive search impossible)
+hypothesis = HillCipher3x3GeneticHypothesis(
+    population_size=1000,  # Keys per generation
+    generations=100,       # GA iterations
+    mutation_rate=0.1,     # Probability of element mutation
+    elite_fraction=0.2     # Top 20% preserved each generation
+)
+
+# Generate candidates (this takes ~10-30 minutes)
+candidates = hypothesis.generate_candidates(K4_CIPHER, limit=10)
+
+# Inspect results
+for candidate in candidates[:3]:
+    print(f"Score: {candidate.score:.2f}")
+    print(f"Plaintext: {candidate.plaintext}")
+    print(f"Key matrix: {candidate.key_info['matrix']}")
+    print(f"Method: {candidate.key_info['method']}")
     print()
 ```
 
