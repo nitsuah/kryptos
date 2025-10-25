@@ -7,13 +7,11 @@ This directory contains utility scripts for development, testing, and analysis.
 ### Performance & Optimization
 
 - **benchmark_scoring.py** - Quick scoring benchmarks with readable output
-
   ```bash
   python scripts/benchmark_scoring.py
   ```
 
 - **profile_scoring.py** - cProfile analysis for scoring hotspots
-
   ```bash
   python scripts/profile_scoring.py
   ```
@@ -21,16 +19,27 @@ This directory contains utility scripts for development, testing, and analysis.
 ### Tuning & Calibration
 
 - **tuning.py** - Main tuning orchestration script
-
   ```bash
   python scripts/tuning.py --help
   ```
 
 - **calibrate_scoring_weights.py** - Grid search for optimal scoring weights
-
   ```bash
   python scripts/calibrate_scoring_weights.py
   ```
+
+### Demos & Examples
+
+- **demo_provenance.py** - Demonstrate attack provenance system (Sprint 4.1)
+  ```bash
+  python scripts/demo_provenance.py
+  ```
+
+### Development Utilities
+
+- **lint/** - Linting utilities
+  - `mdlint.py` - Markdown documentation linting
+  - `README.md` - Linting documentation
 
 ## 🔄 Migration to CLI
 
@@ -45,14 +54,20 @@ Many script functionalities have been migrated to the main CLI (`kryptos` comman
 
 ## 📦 Archived Scripts
 
-**All archived scripts have been deleted** - they were fully replaced by:
+**Archived scripts have been moved to `docs/archive/`** - they were fully replaced by:
 - CLI commands (`kryptos k4-decrypt`, `kryptos autonomous`)
 - Proper pytest tests in `tests/` directory
+- Module functionality in `src/kryptos/`
 
-Previously archived (now deleted):
-- `test_*.py` scripts → Migrated to proper pytest tests
-- `run_hypothesis.py` → Replaced by `kryptos k4-decrypt`
-- `run_random_baseline.py` → Replaced by CLI
+**Recently Archived (October 2025):**
+- `dev/orchestrator.py` → `docs/archive/legacy_orchestrator.py`
+  - Superseded by `src/kryptos/autonomous_coordinator.py`
+  - Historical context preserved
+
+**Previously Archived:**
+- `test_*.py` scripts → Migrated to proper pytest tests in `tests/`
+- `run_hypothesis.py` → Replaced by `kryptos k4-decrypt` CLI command
+- `run_random_baseline.py` → Replaced by `kryptos k4-decrypt --random-baseline`
 
 ## 🎯 Script Guidelines
 
