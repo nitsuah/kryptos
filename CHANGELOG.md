@@ -20,6 +20,13 @@ validation).
 
 ### Changed
 
+* **Documentation Reorganization:** Restructured docs/ for better clarity (12 → 3 core files):
+  - **Core** (docs/): README.md, PHASE_5_BRIEFING.md, CHANGELOG.md
+  - **Reference** (docs/reference/): AUTONOMOUS_SYSTEM.md, AGENTS_ARCHITECTURE.md, API_REFERENCE.md
+  - **Analysis** (docs/analysis/): 30_YEAR_GAP_COVERAGE.md, K123_PATTERN_ANALYSIS.md
+  - **Archive**: Moved PERFORMANCE_OPTIMIZATION.md, SCORING_CALIBRATION.md, INDEX.md to archive/
+  - Updated README.md with new navigation structure
+  - Removed redundant INDEX.md (navigation now in README)
 * Migrated legacy `src/k4/` package into unified `kryptos/k4/` namespace; updated imports, tests,
 docs.
 * Normalized artifact metadata structure (timings + provenance).
