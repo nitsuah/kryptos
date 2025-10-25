@@ -249,6 +249,49 @@ def score_bigrams(text: str) -> float:
     return score / (len(text) - 1) if len(text) > 1 else 0.0
 
 
+COMMON_TRIGRAMS = {
+    'THE': 1.81,
+    'AND': 0.73,
+    'ING': 0.72,
+    'ENT': 0.42,
+    'ION': 0.42,
+    'HER': 0.36,
+    'FOR': 0.34,
+    'THA': 0.33,
+    'NTH': 0.33,
+    'INT': 0.32,
+    'ERE': 0.31,
+    'TIO': 0.31,
+    'TER': 0.30,
+    'EST': 0.28,
+    'ERS': 0.28,
+    'ATI': 0.26,
+    'HAT': 0.26,
+    'ATE': 0.25,
+    'ALL': 0.25,
+    'ETH': 0.24,
+}
+
+
+def score_trigrams(text: str) -> float:
+    """Score text based on English trigram frequencies."""
+    text = ''.join(c for c in text.upper() if c.isalpha())
+    if len(text) < 3:
+        return 0.0
+
+    score = 0.0
+    for i in range(len(text) - 2):
+        trigram = text[i : i + 3]
+        score += COMMON_TRIGRAMS.get(trigram, 0)
+
+    return score / (len(text) - 2) if len(text) > 2 else 0.0
+
+
+def score_combined(text: str) -> float:
+    """Combined bigram + trigram scoring."""
+    return score_bigrams(text) * 0.6 + score_trigrams(text) * 0.4
+
+
 def apply_columnar_permutation_reverse(ciphertext: str, period: int, permutation: list[int]) -> str:
     """Apply columnar transposition permutation to decrypt.
 
@@ -289,6 +332,113 @@ def apply_columnar_permutation_reverse(ciphertext: str, period: int, permutation
                 plaintext.append(col[row])
 
     return ''.join(plaintext)
+
+
+def solve_columnar_permutation_multi_start(
+    ciphertext: str,
+    period: int,
+    num_restarts: int = 10,
+    max_iterations: int = 5000,
+) -> tuple[list[int], float]:
+    """Solve columnar permutation with multiple random restarts.
+
+    Args:
+        ciphertext: Ciphertext to analyze
+        period: Known or suspected period
+        num_restarts: Number of random restarts
+        max_iterations: Max iterations per restart
+
+    Returns:
+        (best_permutation, best_score) tuple
+    """
+    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    global_best_perm = list(range(period))
+    global_best_score = float('-inf')
+
+    for _restart in range(num_restarts):
+        # Random start
+        current_perm = list(range(period))
+        random.shuffle(current_perm)
+        current_text = apply_columnar_permutation_reverse(text, period, current_perm)
+        current_score = score_combined(current_text)
+
+        best_perm = current_perm[:]
+        best_score = current_score
+        no_improvement = 0
+
+        for _ in range(max_iterations):
+            # Swap two positions
+            i, j = random.sample(range(period), 2)
+            new_perm = current_perm[:]
+            new_perm[i], new_perm[j] = new_perm[j], new_perm[i]
+
+            new_text = apply_columnar_permutation_reverse(text, period, new_perm)
+            new_score = score_combined(new_text)
+
+            if new_score > current_score:
+                current_perm = new_perm
+                current_score = new_score
+                no_improvement = 0
+                if current_score > best_score:
+                    best_perm = current_perm[:]
+                    best_score = current_score
+            else:
+                no_improvement += 1
+
+            if no_improvement >= 1000:
+                break
+
+        if best_score > global_best_score:
+            global_best_perm = best_perm
+            global_best_score = best_score
+
+    return global_best_perm, global_best_score
+
+
+def detect_period_by_brute_force(
+    ciphertext: str,
+    min_period: int = 2,
+    max_period: int = 20,
+    top_n: int = 5,
+) -> list[tuple[int, float, str]]:
+    """Detect period by trying all periods and ranking by decryption quality.
+
+    More compute-intensive but more reliable than IOC/Kasiski.
+
+    Args:
+        ciphertext: Ciphertext to analyze
+        min_period: Minimum period to test
+        max_period: Maximum period to test
+        top_n: Return top N results
+
+    Returns:
+        List of (period, score, plaintext_preview) tuples
+    """
+    results = []
+
+    for period in range(min_period, max_period + 1):
+        # Solve permutation for this period
+        perm, score = solve_columnar_permutation_multi_start(ciphertext, period, num_restarts=5, max_iterations=2000)
+
+        # Penalize periods that are multiples of smaller periods
+        # (they often score well but are wrong)
+        penalty = 1.0
+        for divisor in range(2, period):
+            if period % divisor == 0:
+                penalty *= 0.95  # 5% penalty per divisor
+
+        adjusted_score = score * penalty
+
+        # Get decrypted text preview
+        text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+        decrypted = apply_columnar_permutation_reverse(text, period, perm)
+        preview = decrypted[:50]
+
+        results.append((period, adjusted_score, preview))
+
+    # Sort by score
+    results.sort(key=lambda x: x[1], reverse=True)
+    return results[:top_n]
 
 
 def solve_columnar_permutation(ciphertext: str, period: int, max_iterations: int = 10000) -> tuple[list[int], float]:
