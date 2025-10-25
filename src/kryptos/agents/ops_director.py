@@ -10,6 +10,7 @@ what's working, what's not, and what we should try next.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -98,6 +99,9 @@ class OpsStrategicDirector:
         self.model = model
         self.cache_dir = cache_dir or Path("./data/ops_strategy")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Initialize LLM client
+        self.llm_client = self._init_llm_client()
 
         # Track active attacks and their progress
         self.active_attacks: dict[str, AttackProgress] = {}
@@ -323,6 +327,185 @@ class OpsStrategicDirector:
         if len(self.recent_insights) > 1000:
             self.recent_insights = self.recent_insights[-1000:]
 
+    def _init_llm_client(self) -> Any:
+        """Initialize LLM client based on provider.
+
+        Returns:
+            Initialized LLM client or None if using rule-based fallback
+        """
+        if self.llm_provider == "local":
+            return None  # Use rule-based logic
+
+        if self.llm_provider == "openai":
+            try:
+                import openai
+
+                api_key = os.getenv("OPENAI_API_KEY")
+                if not api_key:
+                    print("Warning: OPENAI_API_KEY not set, falling back to rule-based logic")
+                    return None
+                openai.api_key = api_key
+                return openai
+            except ImportError:
+                print("Warning: openai package not installed, falling back to rule-based logic")
+                return None
+
+        if self.llm_provider == "anthropic":
+            try:
+                import anthropic
+
+                api_key = os.getenv("ANTHROPIC_API_KEY")
+                if not api_key:
+                    print("Warning: ANTHROPIC_API_KEY not set, falling back to rule-based logic")
+                    return None
+                return anthropic.Anthropic(api_key=api_key)
+            except ImportError:
+                print("Warning: anthropic package not installed, falling back to rule-based logic")
+                return None
+
+        return None
+
+    def _call_llm(self, prompt: str) -> str | None:
+        """Call LLM with prompt and return response.
+
+        Args:
+            prompt: Prompt to send to LLM
+
+        Returns:
+            LLM response text or None if unavailable
+        """
+        if not self.llm_client:
+            return None
+
+        try:
+            if self.llm_provider == "openai":
+                response = self.llm_client.ChatCompletion.create(
+                    model=self.model,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7,
+                    max_tokens=1000,
+                )
+                return response.choices[0].message.content
+
+            if self.llm_provider == "anthropic":
+                response = self.llm_client.messages.create(
+                    model=self.model,
+                    max_tokens=1000,
+                    temperature=0.7,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                return response.content[0].text
+
+        except Exception as e:
+            print(f"Warning: LLM call failed ({e}), falling back to rule-based logic")
+            return None
+
+        return None
+
+    def _build_strategic_prompt(self, situation: dict[str, Any]) -> str:
+        """Build prompt for LLM strategic analysis.
+
+        Args:
+            situation: Current situation report
+
+        Returns:
+            Formatted prompt
+        """
+        prompt_parts = [
+            "You are OPS, the Strategic Director for Kryptos K4 cryptanalysis.",
+            "Your role is to analyze progress, synthesize agent insights, and make strategic decisions.",
+            "",
+            "## CURRENT SITUATION",
+            "",
+            "### Active Attacks",
+        ]
+
+        for attack_name, attack_data in situation["active_attacks"].items():
+            hours_since = (datetime.now() - attack_data["last_improvement"]).total_seconds() / 3600
+            prompt_parts.extend(
+                [
+                    f"**{attack_name}:**",
+                    f"- Attempts: {attack_data['attempts']:,}",
+                    f"- Best score: {attack_data['best_score']:.4f}",
+                    f"- Hours since improvement: {hours_since:.1f}",
+                    f"- Improvement rate: {attack_data['improvement_rate']:.4f}/hour",
+                    "",
+                ],
+            )
+
+        if situation["recent_insights"]:
+            prompt_parts.extend(["### Recent Agent Insights", ""])
+            for insight in situation["recent_insights"][-10:]:
+                prompt_parts.append(
+                    f"- [{insight['agent_name']}] {insight['description']} "
+                    f"(confidence: {insight['confidence']:.2f})",
+                )
+            prompt_parts.append("")
+
+        prompt_parts.extend(
+            [
+                "## YOUR TASK",
+                "",
+                "Analyze the situation and make a strategic decision:",
+                "- CONTINUE: Keep current approach (steady progress)",
+                "- BOOST: Increase resources to current approach (showing promise)",
+                "- REDUCE: Decrease resources (diminishing returns)",
+                "- PIVOT: Switch to different approach (stagnant)",
+                "- STOP: Abandon approach entirely (no progress)",
+                "- START_NEW: Begin new attack type (insights suggest new direction)",
+                "",
+                "## RESPONSE FORMAT",
+                "",
+                "Provide your response as JSON:",
+                "{",
+                '  "action": "CONTINUE|BOOST|REDUCE|PIVOT|STOP|START_NEW",',
+                '  "reasoning": "Brief explanation of your decision",',
+                '  "affected_attacks": ["attack_name"],',
+                '  "resource_changes": {"attack_name": 0.5},  // 0.0-1.0 CPU allocation',
+                '  "success_criteria": "What success looks like for this decision",',
+                '  "review_in_hours": 2.0,',
+                '  "confidence": 0.8  // 0.0-1.0',
+                "}",
+            ],
+        )
+
+        return "\n".join(prompt_parts)
+
+    def _parse_llm_decision(self, llm_response: str) -> StrategicDecision | None:
+        """Parse LLM response into StrategicDecision.
+
+        Args:
+            llm_response: Raw LLM response
+
+        Returns:
+            Parsed strategic decision or None if parsing fails
+        """
+        try:
+            # Extract JSON from response (LLM might add text before/after)
+            json_start = llm_response.find("{")
+            json_end = llm_response.rfind("}") + 1
+
+            if json_start == -1 or json_end == 0:
+                return None
+
+            json_str = llm_response[json_start:json_end]
+            data = json.loads(json_str)
+
+            return StrategicDecision(
+                timestamp=datetime.now(),
+                action=StrategyAction(data["action"].lower()),
+                reasoning=data["reasoning"],
+                affected_attacks=data["affected_attacks"],
+                resource_changes=data["resource_changes"],
+                success_criteria=data["success_criteria"],
+                review_in_hours=data["review_in_hours"],
+                confidence=data["confidence"],
+            )
+
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            print(f"Warning: Failed to parse LLM response ({e})")
+            return None
+
     def _gather_situation_report(self) -> dict[str, Any]:
         """Gather comprehensive situation report."""
         return {
@@ -353,7 +536,29 @@ class OpsStrategicDirector:
     def _make_strategic_decision(self, situation: dict[str, Any]) -> StrategicDecision:
         """Make a strategic decision based on situation.
 
-        For now, this uses rule-based logic. Later, we'll integrate LLM.
+        Uses LLM if available, falls back to rule-based logic.
+        """
+        # Try LLM-based decision first
+        if self.llm_client:
+            prompt = self._build_strategic_prompt(situation)
+            llm_response = self._call_llm(prompt)
+
+            if llm_response:
+                llm_decision = self._parse_llm_decision(llm_response)
+                if llm_decision:
+                    return llm_decision
+
+        # Fallback to rule-based logic
+        return self._rule_based_decision(situation)
+
+    def _rule_based_decision(self, situation: dict[str, Any]) -> StrategicDecision:
+        """Rule-based strategic decision (fallback when LLM unavailable).
+
+        Args:
+            situation: Current situation report
+
+        Returns:
+            Strategic decision
         """
         # Rule: If attack stagnant >8 hours, pivot
         for attack_name, attack_data in situation["active_attacks"].items():
