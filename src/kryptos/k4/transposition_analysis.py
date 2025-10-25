@@ -292,6 +292,45 @@ def score_combined(text: str) -> float:
     return score_bigrams(text) * 0.6 + score_trigrams(text) * 0.4
 
 
+def apply_columnar_permutation_encrypt(plaintext: str, period: int, permutation: list[int]) -> str:
+    """Encrypt plaintext with columnar transposition.
+
+    Write plaintext into grid row-by-row, read columns in permutation order.
+
+    Args:
+        plaintext: Text to encrypt
+        period: Number of columns
+        permutation: Column read order (e.g., [2,0,1] reads col 2, then 0, then 1)
+
+    Returns:
+        Ciphertext
+    """
+    text = ''.join(c for c in plaintext.upper() if c.isalpha())
+    rows = (len(text) + period - 1) // period
+
+    # Build grid
+    grid = []
+    idx = 0
+    for _ in range(rows):
+        row = []
+        for _ in range(period):
+            if idx < len(text):
+                row.append(text[idx])
+                idx += 1
+            else:
+                row.append('')  # Padding
+        grid.append(row)
+
+    # Read columns in permutation order
+    ciphertext = []
+    for col_idx in permutation:
+        for row in grid:
+            if col_idx < len(row) and row[col_idx]:
+                ciphertext.append(row[col_idx])
+
+    return ''.join(ciphertext)
+
+
 def apply_columnar_permutation_reverse(ciphertext: str, period: int, permutation: list[int]) -> str:
     """Apply columnar transposition permutation to decrypt.
 
@@ -393,6 +432,87 @@ def solve_columnar_permutation_multi_start(
             global_best_score = best_score
 
     return global_best_perm, global_best_score
+
+
+def apply_rotation(text: str, width: int, rotation_type: str) -> str:
+    """Apply rotation/traversal transformation to text.
+
+    Args:
+        text: Text to transform
+        width: Grid width (height calculated from text length)
+        rotation_type: Type of rotation (identity, 90cw, 90ccw, 180, spiral_in, etc.)
+
+    Returns:
+        Transformed text
+    """
+    if not text:
+        return text
+
+    height = (len(text) + width - 1) // width
+
+    # Build grid
+    grid = []
+    idx = 0
+    for _ in range(height):
+        row = []
+        for _ in range(width):
+            if idx < len(text):
+                row.append(text[idx])
+                idx += 1
+            else:
+                row.append(' ')
+        grid.append(row)
+
+    if rotation_type == 'identity':
+        pass  # No change
+
+    elif rotation_type == '90cw':
+        # Rotate 90 degrees clockwise
+        grid = [[grid[height - 1 - j][i] for j in range(height)] for i in range(width)]
+
+    elif rotation_type == '90ccw':
+        # Rotate 90 degrees counter-clockwise
+        grid = [[grid[j][width - 1 - i] for j in range(height)] for i in range(width)]
+
+    elif rotation_type == '180':
+        # Rotate 180 degrees
+        grid = [[grid[height - 1 - i][width - 1 - j] for j in range(width)] for i in range(height)]
+
+    elif rotation_type == 'flip_h':
+        # Horizontal flip
+        grid = [row[::-1] for row in grid]
+
+    elif rotation_type == 'flip_v':
+        # Vertical flip
+        grid = grid[::-1]
+
+    # Read back
+    result = ''.join(''.join(row) for row in grid)
+    return result.rstrip()
+
+
+def test_all_rotations(ciphertext: str, period: int, top_n: int = 3) -> list[tuple[str, float, str]]:
+    """Test all rotation types and rank by score.
+
+    Args:
+        ciphertext: Ciphertext to analyze
+        period: Grid width for rotation
+        top_n: Return top N results
+
+    Returns:
+        List of (rotation_type, score, preview) tuples
+    """
+    rotations = ['identity', '90cw', '90ccw', '180', 'flip_h', 'flip_v']
+    results = []
+
+    for rot_type in rotations:
+        rotated = apply_rotation(ciphertext, period, rot_type)
+        score = score_combined(rotated)
+        preview = rotated[:50]
+        results.append((rot_type, score, preview))
+
+    results.sort(key=lambda x: x[1], reverse=True)
+    return results[:top_n]
 
 
 def detect_period_by_brute_force(
