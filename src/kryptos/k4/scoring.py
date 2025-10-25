@@ -182,12 +182,17 @@ def chi_square_stat(text: str) -> float:
 
 
 def _score_ngrams(text: str, table: dict[str, float], size: int, unknown: float) -> float:
-    """Generic n-gram scoring function."""
+    """Generic n-gram scoring function (optimized)."""
+    # Pre-filter to avoid repeated isalpha() checks and uppercase conversion
     seq = ''.join(c for c in text.upper() if c.isalpha())
+    if len(seq) < size:
+        return 0.0
+
+    # Use direct string slicing instead of join (faster for this case)
     total = 0.0
+    table_get = table.get  # Local reference for faster lookup
     for i in range(len(seq) - size + 1):
-        gram = seq[i : i + size]
-        total += table.get(gram, unknown)
+        total += table_get(seq[i : i + size], unknown)
     return total
 
 
