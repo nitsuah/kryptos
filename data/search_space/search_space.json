@@ -1,0 +1,60 @@
+{
+  "vigenere": {
+    "length_5": {
+      "cipher_type": "vigenere",
+      "parameters": {},
+      "total_size": 1000,
+      "explored_count": 24000,
+      "successful_count": 135
+    },
+    "high": {
+      "cipher_type": "vigenere",
+      "parameters": {},
+      "total_size": 1000,
+      "explored_count": 900,
+      "successful_count": 0
+    },
+    "low": {
+      "cipher_type": "vigenere",
+      "parameters": {},
+      "total_size": 1000,
+      "explored_count": 100,
+      "successful_count": 0
+    },
+    "saturated": {
+      "cipher_type": "vigenere",
+      "parameters": {},
+      "total_size": 1000,
+      "explored_count": 5700,
+      "successful_count": 150
+    },
+    "unexplored": {
+      "cipher_type": "vigenere",
+      "parameters": {},
+      "total_size": 1000,
+      "explored_count": 150,
+      "successful_count": 0
+    },
+    "region1": {
+      "cipher_type": "vigenere",
+      "parameters": {},
+      "total_size": 1000,
+      "explored_count": 2850,
+      "successful_count": 0
+    },
+    "length_8": {
+      "cipher_type": "vigenere",
+      "parameters": {},
+      "total_size": 1000,
+      "explored_count": 300,
+      "successful_count": 6
+    },
+    "length_10": {
+      "cipher_type": "vigenere",
+      "parameters": {},
+      "total_size": 1000,
+      "explored_count": 0,
+      "successful_count": 0
+    }
+  }
+}
