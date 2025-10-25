@@ -7,6 +7,10 @@
 * **CRITICAL:** Renamed `src/kryptos/logging.py` to `log_setup.py` to avoid shadowing Python's standard library
 `logging` module. This was causing `AttributeError: module 'logging' has no attribute 'getLogger'` in CI builds. All
 imports updated from `from kryptos.logging import setup_logging` to `from kryptos.log_setup import setup_logging`.
+* **CI Dependencies:** Fixed CI build failures (Job 53648640053):
+  - Added `beautifulsoup4` to requirements.txt (required for web intelligence)
+  - Added spaCy model download step to all CI workflows (`python -m spacy download en_core_web_sm`)
+  - Legacy orchestrator test already marked as skipped (orchestrator archived)
 
 ### Added
 

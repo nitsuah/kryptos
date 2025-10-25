@@ -5,6 +5,7 @@ pytest
 pytest-cov
 pre-commit
 requests
+beautifulsoup4
 spacy>=3.7.0
 nltk>=3.8.0
 pyyaml>=6.0
