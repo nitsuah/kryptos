@@ -24,11 +24,15 @@ cryptanalysts may have attempted manually but couldn't exhaustively explore. Our
 with intelligent scoring to measure how "English-like" each result appears:
 
 1. **Hill Cipher** - Matrix-based substitution where letters become numbers, transform through matrix multiplication,
+then convert back.
 
-then convert back 2. **Transposition** - Systematic letter rearrangement (write in columns, read in rows, or more
-complex patterns) 3. **Masking** - Identifying and removing dummy letters that serve as padding or obfuscation 4.
-**Berlin Clock** - Using the iconic clock's binary time pattern as a cryptographic key 5. **Combo Attacks** - Chaining
-multiple methods together (K4 likely uses 2-3 techniques layered in sequence)
+1. **Transposition** - Systematic letter rearrangement (write in columns, read in rows, or more complex patterns)
+
+1. **Masking** - Identifying and removing dummy letters that serve as padding or obfuscation
+
+1. **Berlin Clock** - Using the iconic clock's binary time pattern as a cryptographic key
+
+1. **Combo Attacks** - Chaining multiple methods together (K4 likely uses 2-3 techniques layered in sequence)
 
 We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real word detection – to
 identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic

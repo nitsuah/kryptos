@@ -7,8 +7,8 @@ Tests real cipher execution on solved Kryptos sections.
 import sys
 from pathlib import Path
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Add project root to path (so 'src' is discoverable)
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from kryptos.agents.spy import SpyAgent  # noqa: E402
 from kryptos.ciphers import vigenere_decrypt  # noqa: E402

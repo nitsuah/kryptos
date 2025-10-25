@@ -228,6 +228,38 @@ def detect_period_combined(ciphertext: str, max_period: int = 30) -> list[tuple[
     return combined
 
 
+# Common English trigrams for scoring (consolidated from duplicates)
+COMMON_TRIGRAMS = {
+    'THE': 1.81,
+    'AND': 0.73,
+    'ING': 0.72,
+    'ENT': 0.42,
+    'ION': 0.42,
+    'HER': 0.36,
+    'FOR': 0.34,
+    'THA': 0.33,
+    'NTH': 0.33,
+    'INT': 0.32,
+    'ERE': 0.31,
+    'TIO': 0.31,
+    'TER': 0.30,
+    'EST': 0.28,
+    'ERS': 0.28,
+    'ATI': 0.26,
+    'HAT': 0.26,
+    'ATE': 0.25,
+    'ALL': 0.25,
+    'ETH': 0.24,
+    'HIS': 0.35,
+    'WAS': 0.26,
+    'YOU': 0.24,
+    'ITH': 0.24,
+    'VER': 0.24,
+    'WIT': 0.22,
+    'THI': 0.21,
+}
+
+
 def score_bigrams(text: str) -> float:
     """Score text based on English bigram frequencies.
 
@@ -247,30 +279,6 @@ def score_bigrams(text: str) -> float:
         score += COMMON_BIGRAMS.get(bigram, 0)
 
     return score / (len(text) - 1) if len(text) > 1 else 0.0
-
-
-COMMON_TRIGRAMS = {
-    'THE': 1.81,
-    'AND': 0.73,
-    'ING': 0.72,
-    'HER': 0.36,
-    'HAT': 0.36,
-    'HIS': 0.35,
-    'THA': 0.33,
-    'ERE': 0.31,
-    'FOR': 0.30,
-    'ENT': 0.28,
-    'ION': 0.27,
-    'TER': 0.27,
-    'WAS': 0.26,
-    'YOU': 0.24,
-    'ITH': 0.24,
-    'VER': 0.24,
-    'ALL': 0.22,
-    'WIT': 0.22,
-    'THI': 0.21,
-    'TIO': 0.21,
-}
 
 
 def score_words(text: str) -> float:
@@ -344,30 +352,6 @@ def score_combined_with_words(text: str) -> float:
 
     # Weight: 70% n-grams (fast, reliable) + 30% words (discriminating)
     return 0.7 * ngram_score + 0.3 * word_score
-
-
-COMMON_TRIGRAMS = {
-    'THE': 1.81,
-    'AND': 0.73,
-    'ING': 0.72,
-    'ENT': 0.42,
-    'ION': 0.42,
-    'HER': 0.36,
-    'FOR': 0.34,
-    'THA': 0.33,
-    'NTH': 0.33,
-    'INT': 0.32,
-    'ERE': 0.31,
-    'TIO': 0.31,
-    'TER': 0.30,
-    'EST': 0.28,
-    'ERS': 0.28,
-    'ATI': 0.26,
-    'HAT': 0.26,
-    'ATE': 0.25,
-    'ALL': 0.25,
-    'ETH': 0.24,
-}
 
 
 def score_trigrams(text: str) -> float:

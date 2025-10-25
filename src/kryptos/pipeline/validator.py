@@ -156,7 +156,7 @@ class PlaintextValidator:
             "score": score,
             "threshold": self.min_dictionary_score,
             "passed": passed,
-            "reason": f"Dictionary score {score:.3f} {'>==' if passed else '<'} {self.min_dictionary_score}",
+            "reason": f"Dictionary score {score:.3f} {'>=' if passed else '<'} {self.min_dictionary_score}",
         }
 
     def stage2_crib_matching(self, plaintext: str) -> dict[str, Any]:
