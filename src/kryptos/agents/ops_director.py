@@ -1,0 +1,461 @@
+"""OPS v2.0: LLM-Powered Strategic Director for K4 Cryptanalysis.
+
+This is the "brain" that coordinates all agents and makes high-level strategic
+decisions about which attacks to pursue, when to pivot, and how to allocate resources.
+
+Philosophy: Don't just throw compute at the problem - think strategically about
+what's working, what's not, and what we should try next.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from typing import Any
+
+
+class StrategyAction(Enum):
+    """Strategic actions OPS can recommend."""
+
+    CONTINUE = "continue"  # Keep current approach
+    BOOST = "boost"  # Increase resources to current approach
+    REDUCE = "reduce"  # Decrease resources
+    PIVOT = "pivot"  # Switch to different approach
+    STOP = "stop"  # Abandon approach entirely
+    START_NEW = "start_new"  # Begin new attack type
+    EMERGENCY_STOP = "emergency_stop"  # Human intervention needed
+
+
+@dataclass
+class AttackProgress:
+    """Progress metrics for an active attack."""
+
+    attack_type: str
+    attempts: int
+    best_score: float
+    time_elapsed_hours: float
+    cpu_allocation: float  # Percentage of total CPU
+    improvement_rate: float  # Score improvement per hour
+    last_improvement: datetime
+    confidence_trend: list[float]  # Recent score history
+
+
+@dataclass
+class AgentInsight:
+    """Insight reported by an agent."""
+
+    agent_name: str
+    timestamp: datetime
+    category: str  # 'pattern', 'linguistic', 'mathematical', 'external_intel'
+    description: str
+    confidence: float
+    actionable: bool  # Can we act on this immediately?
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class StrategicDecision:
+    """A strategic decision made by OPS."""
+
+    timestamp: datetime
+    action: StrategyAction
+    reasoning: str
+    affected_attacks: list[str]
+    resource_changes: dict[str, float]
+    success_criteria: str
+    review_in_hours: float
+    confidence: float
+
+
+class OpsStrategicDirector:
+    """LLM-powered strategic director for cryptanalysis operations.
+
+    This class acts as the project manager, data analyst, and strategic thinker
+    rolled into one. It continuously monitors progress, synthesizes insights from
+    all agents, and makes data-driven decisions about strategy.
+
+    Key responsibilities:
+    - Monitor attack progress and detect stagnation
+    - Synthesize insights from multiple agents
+    - Recommend strategic pivots when stuck
+    - Optimize resource allocation
+    - Generate human-readable reports
+    - Update project roadmap based on discoveries
+    """
+
+    def __init__(self, llm_provider: str = "openai", model: str = "gpt-4", cache_dir: Path | None = None):
+        """Initialize strategic director.
+
+        Args:
+            llm_provider: LLM provider ('openai', 'anthropic', 'local')
+            model: Model name (e.g., 'gpt-4', 'claude-3-opus')
+            cache_dir: Directory for caching decisions and history
+        """
+        self.llm_provider = llm_provider
+        self.model = model
+        self.cache_dir = cache_dir or Path("./data/ops_strategy")
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Track active attacks and their progress
+        self.active_attacks: dict[str, AttackProgress] = {}
+
+        # Agent insights buffer
+        self.recent_insights: list[AgentInsight] = []
+
+        # Decision history for learning
+        self.decision_history: list[StrategicDecision] = []
+
+        # Strategy knowledge base
+        self.strategy_kb = self._load_strategy_kb()
+
+    def analyze_situation(self, force_decision: bool = False) -> StrategicDecision | None:
+        """Analyze current cryptanalysis situation and make strategic decision.
+
+        This is the main strategic loop. It:
+        1. Gathers all available intelligence
+        2. Analyzes progress and trends
+        3. Synthesizes agent insights
+        4. Makes strategic recommendation
+        5. Updates decision history
+
+        Args:
+            force_decision: Force a decision even if situation seems stable
+
+        Returns:
+            Strategic decision, or None if no action needed
+        """
+        # Gather intelligence
+        situation = self._gather_situation_report()
+
+        # Check if we need to make a decision
+        if not force_decision and not self._needs_decision(situation):
+            return None
+
+        # Analyze with LLM (or rule-based for now)
+        decision = self._make_strategic_decision(situation)
+
+        # Log decision
+        self.decision_history.append(decision)
+        self._save_decision(decision)
+
+        return decision
+
+    def synthesize_agent_insights(self, insights: list[AgentInsight]) -> dict[str, Any]:
+        """Synthesize insights from multiple agents into actionable intelligence.
+
+        This is where cross-agent patterns emerge. For example:
+        - SPY finds rhyme + LINGUIST detects meter = poetic structure
+        - Q finds paper on artistic ciphers + SPY finds art patterns = try artistic approach
+        - MATHEMATICIAN detects period 14 + SPY finds word length 14 = period matches plaintext
+
+        Args:
+            insights: List of agent insights
+
+        Returns:
+            Synthesis with key findings and recommendations
+        """
+        # Group insights by category
+        by_category = {}
+        for insight in insights:
+            if insight.category not in by_category:
+                by_category[insight.category] = []
+            by_category[insight.category].append(insight)
+
+        # Look for cross-agent patterns
+        synthesis = {
+            "timestamp": datetime.now(),
+            "insight_count": len(insights),
+            "categories": list(by_category.keys()),
+            "key_findings": [],
+            "recommendations": [],
+            "confidence": 0.0,
+        }
+
+        # Pattern: Multiple agents detect linguistic structure
+        linguistic_insights = by_category.get("linguistic", [])
+        pattern_insights = by_category.get("pattern", [])
+
+        if len(linguistic_insights) >= 2 or (linguistic_insights and pattern_insights):
+            synthesis["key_findings"].append(
+                {
+                    "type": "linguistic_structure",
+                    "description": "Multiple agents detect coherent linguistic patterns",
+                    "confidence": sum(i.confidence for i in linguistic_insights + pattern_insights)
+                    / len(linguistic_insights + pattern_insights),
+                },
+            )
+            synthesis["recommendations"].append(
+                "Focus on linguistically-validated candidates - they score higher on multiple metrics",
+            )
+
+        # Pattern: External intel provides new cribs
+        intel_insights = by_category.get("external_intel", [])
+        if intel_insights:
+            new_cribs = [i.metadata.get("cribs", []) for i in intel_insights if "cribs" in i.metadata]
+            if new_cribs:
+                synthesis["key_findings"].append(
+                    {
+                        "type": "new_cribs",
+                        "description": f"Discovered {len(new_cribs)} new potential cribs",
+                        "cribs": new_cribs,
+                    },
+                )
+                synthesis["recommendations"].append("Integrate new cribs into known-plaintext attacks")
+
+        synthesis["confidence"] = min(1.0, len(synthesis["key_findings"]) * 0.3)
+
+        return synthesis
+
+    def generate_daily_report(self) -> str:
+        """Generate human-readable strategic report.
+
+        Returns:
+            Markdown-formatted report
+        """
+        report_lines = [
+            "# K4 CRYPTANALYSIS - STRATEGIC REPORT",
+            f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+            "",
+            "## Executive Summary",
+        ]
+
+        # Summary stats
+        total_attempts = sum(a.attempts for a in self.active_attacks.values())
+        best_score = max((a.best_score for a in self.active_attacks.values()), default=0.0)
+
+        report_lines.extend(
+            [
+                f"- **Total attempts (24h):** {total_attempts:,}",
+                f"- **Best candidate score:** {best_score:.4f}",
+                f"- **Active attacks:** {len(self.active_attacks)}",
+                f"- **Recent insights:** {len(self.recent_insights)}",
+                "",
+                "## Active Attacks",
+            ],
+        )
+
+        for name, progress in self.active_attacks.items():
+            hours_since_improvement = (datetime.now() - progress.last_improvement).total_seconds() / 3600
+
+            status_emoji = "🟢" if hours_since_improvement < 2 else "🟡" if hours_since_improvement < 6 else "🔴"
+
+            report_lines.extend(
+                [
+                    f"### {status_emoji} {name}",
+                    f"- Attempts: {progress.attempts:,}",
+                    f"- Best score: {progress.best_score:.4f}",
+                    f"- CPU allocation: {progress.cpu_allocation:.1f}%",
+                    f"- Time since improvement: {hours_since_improvement:.1f}h",
+                    f"- Improvement rate: {progress.improvement_rate:.4f}/hour",
+                    "",
+                ],
+            )
+
+        # Recent insights
+        if self.recent_insights:
+            report_lines.extend(["## Agent Insights (Last 24h)", ""])
+            for insight in self.recent_insights[-10:]:  # Last 10 insights
+                report_lines.append(
+                    f"- **[{insight.agent_name}]** {insight.description} " f"(confidence: {insight.confidence:.2f})",
+                )
+            report_lines.append("")
+
+        # Recent decisions
+        if self.decision_history:
+            report_lines.extend(["## Strategic Decisions", ""])
+            for decision in self.decision_history[-5:]:  # Last 5 decisions
+                report_lines.extend(
+                    [
+                        f"### {decision.action.value.upper()} - {decision.timestamp.strftime('%H:%M')}",
+                        f"**Reasoning:** {decision.reasoning}",
+                        f"**Success Criteria:** {decision.success_criteria}",
+                        "",
+                    ],
+                )
+
+        return "\n".join(report_lines)
+
+    def update_attack_progress(self, attack_type: str, attempts: int, best_score: float):
+        """Update progress metrics for an attack.
+
+        Args:
+            attack_type: Type of attack
+            attempts: Number of attempts made
+            best_score: Best score achieved
+        """
+        if attack_type not in self.active_attacks:
+            self.active_attacks[attack_type] = AttackProgress(
+                attack_type=attack_type,
+                attempts=attempts,
+                best_score=best_score,
+                time_elapsed_hours=0.0,
+                cpu_allocation=0.0,
+                improvement_rate=0.0,
+                last_improvement=datetime.now(),
+                confidence_trend=[best_score],
+            )
+        else:
+            progress = self.active_attacks[attack_type]
+            progress.attempts = attempts
+
+            # Check if score improved
+            if best_score > progress.best_score:
+                progress.best_score = best_score
+                progress.last_improvement = datetime.now()
+
+            # Update trend
+            progress.confidence_trend.append(best_score)
+            if len(progress.confidence_trend) > 100:
+                progress.confidence_trend = progress.confidence_trend[-100:]
+
+    def register_agent_insight(self, insight: AgentInsight):
+        """Register an insight from an agent.
+
+        Args:
+            insight: Agent insight
+        """
+        self.recent_insights.append(insight)
+
+        # Keep only last 1000 insights
+        if len(self.recent_insights) > 1000:
+            self.recent_insights = self.recent_insights[-1000:]
+
+    def _gather_situation_report(self) -> dict[str, Any]:
+        """Gather comprehensive situation report."""
+        return {
+            "timestamp": datetime.now(),
+            "active_attacks": {name: vars(progress) for name, progress in self.active_attacks.items()},
+            "recent_insights": [vars(i) for i in self.recent_insights[-50:]],
+            "decision_history": [vars(d) for d in self.decision_history[-10:]],
+        }
+
+    def _needs_decision(self, situation: dict[str, Any]) -> bool:
+        """Determine if a strategic decision is needed."""
+        # Decision needed if:
+        # 1. An attack hasn't improved in >6 hours
+        # 2. Multiple agents provide actionable insights
+        # 3. Resource allocation is suboptimal
+
+        for attack_data in situation["active_attacks"].values():
+            hours_since = (datetime.now() - attack_data["last_improvement"]).total_seconds() / 3600
+            if hours_since > 6:
+                return True
+
+        actionable_insights = [i for i in self.recent_insights if i.actionable]
+        if len(actionable_insights) >= 3:
+            return True
+
+        return False
+
+    def _make_strategic_decision(self, situation: dict[str, Any]) -> StrategicDecision:
+        """Make a strategic decision based on situation.
+
+        For now, this uses rule-based logic. Later, we'll integrate LLM.
+        """
+        # Rule: If attack stagnant >8 hours, pivot
+        for attack_name, attack_data in situation["active_attacks"].items():
+            hours_since = (datetime.now() - attack_data["last_improvement"]).total_seconds() / 3600
+
+            if hours_since > 8:
+                reasoning = (
+                    f"{attack_name} has not improved in {hours_since:.1f} hours. " f"Time to try different approach."
+                )
+                return StrategicDecision(
+                    timestamp=datetime.now(),
+                    action=StrategyAction.PIVOT,
+                    reasoning=reasoning,
+                    affected_attacks=[attack_name],
+                    resource_changes={attack_name: 0.0},  # Stop this attack
+                    success_criteria="New approach should improve score within 4 hours",
+                    review_in_hours=4.0,
+                    confidence=0.8,
+                )
+
+        # Default: continue current strategy
+        return StrategicDecision(
+            timestamp=datetime.now(),
+            action=StrategyAction.CONTINUE,
+            reasoning="All attacks making steady progress",
+            affected_attacks=list(situation["active_attacks"].keys()),
+            resource_changes={},
+            success_criteria="Maintain improvement rate",
+            review_in_hours=2.0,
+            confidence=0.6,
+        )
+
+    def _load_strategy_kb(self) -> dict[str, Any]:
+        """Load strategy knowledge base."""
+        kb_file = self.cache_dir / "strategy_kb.json"
+        if kb_file.exists():
+            with open(kb_file) as f:
+                return json.load(f)
+        return {"successful_strategies": [], "failed_strategies": [], "lessons_learned": []}
+
+    def _save_decision(self, decision: StrategicDecision):
+        """Save decision to history."""
+        decisions_file = self.cache_dir / "decisions.jsonl"
+        with open(decisions_file, "a") as f:
+            f.write(json.dumps(vars(decision), default=str) + "\n")
+
+
+def demo_ops_director():
+    """Demonstrate OPS strategic director."""
+    print("=" * 80)
+    print("OPS v2.0 STRATEGIC DIRECTOR DEMO")
+    print("=" * 80)
+    print()
+
+    ops = OpsStrategicDirector(llm_provider="local", model="rule-based")
+
+    # Simulate some attack progress
+    ops.update_attack_progress("hill_3x3", attempts=1_000_000, best_score=0.15)
+    ops.update_attack_progress("vigenere_period_14", attempts=500_000, best_score=0.28)
+
+    # Simulate agent insights
+    ops.register_agent_insight(
+        AgentInsight(
+            agent_name="SPY",
+            timestamp=datetime.now(),
+            category="pattern",
+            description="Found rhyme pattern in candidate #1247",
+            confidence=0.85,
+            actionable=True,
+            metadata={"candidate_id": 1247},
+        ),
+    )
+
+    ops.register_agent_insight(
+        AgentInsight(
+            agent_name="LINGUIST",
+            timestamp=datetime.now(),
+            category="linguistic",
+            description="Detected iambic meter in candidate #1247",
+            confidence=0.78,
+            actionable=True,
+        ),
+    )
+
+    # Analyze situation
+    print("📊 Analyzing current situation...")
+    decision = ops.analyze_situation(force_decision=True)
+
+    if decision:
+        print(f"\n🎯 STRATEGIC DECISION: {decision.action.value.upper()}")
+        print(f"Reasoning: {decision.reasoning}")
+        print(f"Confidence: {decision.confidence:.2f}")
+        print(f"Success Criteria: {decision.success_criteria}")
+        print()
+
+    # Generate report
+    print("\n" + "=" * 80)
+    print("📈 DAILY REPORT")
+    print("=" * 80)
+    report = ops.generate_daily_report()
+    print(report)
+
+
+if __name__ == "__main__":
+    demo_ops_director()
