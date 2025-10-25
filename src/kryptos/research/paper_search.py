@@ -238,6 +238,14 @@ class PaperSearch:
     def _normalize_title(self, title: str) -> str:
         """Normalize title for deduplication."""
         # Remove punctuation, lowercase, collapse whitespace
+        # Also normalize accented characters (è -> e)
+        import unicodedata
+
+        # Decompose and remove accents
+        title = unicodedata.normalize("NFD", title)
+        title = "".join(c for c in title if not unicodedata.combining(c))
+
+        # Remove punctuation, lowercase
         normalized = re.sub(r"[^\w\s]", "", title.lower())
         normalized = re.sub(r"\s+", " ", normalized).strip()
         return normalized

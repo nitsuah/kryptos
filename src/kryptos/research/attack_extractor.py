@@ -57,6 +57,7 @@ class AttackExtractor:
                 r"periodic\s+key",
             ],
             "hill": [
+                r"\bhill\b",  # Word boundary to match "Hill" standalone
                 r"hill\s+cipher",
                 r"matrix\s+cipher",
                 r"linear\s+transformation",
@@ -122,8 +123,16 @@ class AttackExtractor:
         # Detect cipher types
         cipher_types = self._detect_cipher_types(text)
 
+        # If no cipher types detected, skip
+        if not cipher_types:
+            return attacks
+
         # Detect attack methods
         attack_methods = self._detect_attack_methods(text)
+
+        # If no methods detected, use generic "cryptanalysis"
+        if not attack_methods:
+            attack_methods = ["cryptanalysis"]
 
         # Extract key parameters
         key_params = self._extract_key_parameters(text)
