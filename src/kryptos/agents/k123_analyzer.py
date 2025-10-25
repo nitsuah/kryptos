@@ -11,7 +11,7 @@ Key Questions:
 5. Cipher complexity progression - Does K4 follow a pattern?
 
 Hypothesis: K4 is NOT random - it reflects Sanborn's artistic vision.
-Understanding his style narrow the search space dramatically.
+Understanding his style may narrow the search space dramatically.
 """
 
 from __future__ import annotations
