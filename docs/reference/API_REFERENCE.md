@@ -34,6 +34,7 @@ considered internal and may change without notice.
 - `kryptos.k4.scoring.positional_letter_deviation_score(plaintext: str, period=5) -> float`
 - `kryptos.k4.scoring.combined_plaintext_score_extended(plaintext: str) -> float`
 - `kryptos.k4.scoring.composite_score_with_stage_analysis(stage1_plaintext, stage2_plaintext, stage1_score,
+
 stage2_score, stage1_weight=0.3, stage2_weight=0.7) -> dict`
 
 ### K4 Hypotheses
@@ -50,40 +51,70 @@ implements the `Hypothesis` protocol with a `generate_candidates()` method.
 
 - `kryptos.k4.hypotheses.HillCipher2x2Hypothesis(limit=100)` — Hill cipher with 2x2 matrix (exhaustive key search)
 - `kryptos.k4.hypotheses.HillCipher3x3GeneticHypothesis(population_size=1000, generations=100, mutation_rate=0.1,
+
 elite_fraction=0.2)` — Hill cipher with 3x3 matrix (genetic algorithm for 26^9 keyspace)
+
 - `kryptos.k4.hypotheses.SimpleSubstitutionHypothesis(variants=28)` — Monoalphabetic substitution with frequency
+
 analysis
+
 - `kryptos.k4.hypotheses.VigenereHypothesis(max_key_length=15, candidates_per_length=10)` — Vigenère cipher with
+
 Kasiski/IOC analysis
+
 - `kryptos.k4.hypotheses.AutokeyHypothesis(max_key_length=12, candidates_per_length=10)` — Autokey variant of Vigenère
 - `kryptos.k4.hypotheses.PlayfairHypothesis(max_generations=50, population_size=100)` — Playfair cipher with genetic
+
 algorithm
+
 - `kryptos.k4.hypotheses.FourSquareHypothesis(max_generations=50, population_size=100)` — Four-square cipher with
+
 genetic algorithm
+
 - `kryptos.k4.hypotheses.BifidHypothesis(periods=[5,6,7,8,9,10], candidates_per_period=5)` — Bifid cipher with period
+
 search
+
 - `kryptos.k4.hypotheses.BerlinClockTranspositionHypothesis(widths=[5,6,7,8,10,12], limit_per_width=20)` — Columnar
+
 transposition constrained by Berlin Clock
+
 - `kryptos.k4.hypotheses.BerlinClockVigenereHypothesis(max_key_length=12, candidates_per_length=10)` — Vigenère
+
 constrained by Berlin Clock periods
 
 #### Composite (Two-Stage) Hypotheses
 
 - `kryptos.k4.hypotheses.TranspositionThenHillHypothesis(transposition_candidates=20, hill_limit=1000,
+
 transposition_widths=None)` — Transposition followed by Hill 2x2
+
 - `kryptos.k4.hypotheses.VigenereThenTranspositionHypothesis(vigenere_candidates=50, transposition_limit=100,
+
 vigenere_max_key_length=12, transposition_widths=None)` — Vigenère followed by transposition
+
 - `kryptos.k4.hypotheses.SubstitutionThenTranspositionHypothesis(substitution_variants=28, transposition_limit=100,
+
 transposition_widths=None)` — Substitution followed by transposition
+
 - `kryptos.k4.hypotheses.HillThenTranspositionHypothesis(hill_limit=1000, transposition_candidates=20,
+
 transposition_widths=None)` — Hill 2x2 followed by transposition
+
 - `kryptos.k4.hypotheses.AutokeyThenTranspositionHypothesis(autokey_candidates=30, transposition_limit=100,
+
 autokey_max_key_length=12, transposition_widths=None)` — Autokey followed by transposition
+
 - `kryptos.k4.hypotheses.PlayfairThenTranspositionHypothesis(playfair_candidates=20, transposition_limit=100,
+
 playfair_max_generations=30, transposition_widths=None)` — Playfair followed by transposition
+
 - `kryptos.k4.hypotheses.DoubleTranspositionHypothesis(stage1_candidates=20, stage2_limit=100, stage1_widths=None,
+
 stage2_widths=None)` — Two sequential transposition stages
+
 - `kryptos.k4.hypotheses.VigenereThenHillHypothesis(vigenere_candidates=30, hill_limit=1000,
+
 vigenere_max_key_length=12)` — Vigenère followed by Hill 2x2
 
 ### K4 Pipeline

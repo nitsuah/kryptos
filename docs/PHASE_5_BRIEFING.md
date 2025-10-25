@@ -10,9 +10,13 @@ operational)
 We have a **sophisticated, intelligence-driven cryptanalysis system** ready for operational deployment:
 
 - **Agent Triumvirate**: SPY (pattern detection), LINGUIST (English validation), K123 Analyzer (learned patterns from
+
 K1-K3), OPS Director (strategic orchestration), Q-Research (academic cryptanalysis theory)
+
 - **20 Attack Hypotheses**: Vigenère, Hill (2x2/3x3), transposition, substitution, Playfair, Autokey, Bifid, Four-
+
 Square, Berlin Clock variants, and 10+ composite ciphers
+
 - **Intelligence Layer** (NEW - Phase 4):
   - **Attack Provenance**: 100% deduplication, zero repeat work
   - **Coverage Tracking**: Precise metrics on explored key space
@@ -40,6 +44,7 @@ test systematically.
 ### Confirmed Clues from Sanborn (High Confidence)
 
 #### 1. **BERLIN** (2010 Clue)
+
 - **What:** Characters 64-69 of K4 plaintext = "BERLIN"
 - **Ciphertext:** `NYPVTT` (positions 64-69)
 - **Implication:** Known plaintext anchor for Hill cipher (2x2/3x3) key solving
@@ -47,26 +52,32 @@ test systematically.
 - **Usage:** Constrains Hill key search space from infinite to ~10,000 candidates
 
 #### 2. **CLOCK** (2014 Clue)
+
 - **What:** Associated with "Berlin Clock" (Mengenlehreuhr) - time encoding lamp pattern
 - **Ciphertext:** Possibly `MZFPK` (unconfirmed position)
 - **Implication:** Temporal key streams (lamp states = shift sequences)
 - **Status in Code:** ✅ `BerlinClockTranspositionHypothesis`, `BerlinClockVigenereHypothesis`, `berlin_clock.py`
+
 (24-hour enumeration)
+
 - **Usage:** Generates 24 time-based key candidates (one per hour 00:00-23:00)
 
 #### 3. **NORTHEAST** (2020 Clue)
+
 - **What:** Characters 26-34 of K4 plaintext = "NORTHEAST"
 - **Implication:** Second known plaintext anchor (9 chars)
 - **Status in Code:** ✅ Hardcoded in `SPY.cribs` defaults, used in positional crib scoring
 - **Usage:** Can anchor transposition column detection, validate partial decryptions
 
 #### 4. **EAST** (2020/2023 Clues)
+
 - **What:** Individual letters `E`, `A`, `S`, `T` revealed at specific positions
 - **Implication:** Fine-grained constraints for column permutation solving
 - **Status in Code:** ⚠️ Partial (SPY detects "EAST" as crib, not position-locked)
 - **Gap:** Not yet using per-character positional constraints in hypothesis generation
 
 #### 5. **"Five or Six" Techniques** (2005 Interview)
+
 - **What:** Sanborn stated he used 5-6 cryptographic techniques
 - **Implication:** Multi-layer encryption likely (e.g., Vigenère → Transposition → Hill)
 - **Status in Code:** ✅ Composite hypotheses test 2-layer combos (10 variants)
@@ -74,6 +85,7 @@ test systematically.
 
 #### 6. **Themes from K1-K3**
 From `K123_PATTERN_ANALYSIS.md`:
+
 - **Location**: north, west, degrees, minutes, seconds → expect coordinates
 - **Archaeology**: debris, doorway, chamber, passage → Cold War bunker narrative?
 - **Misspellings**: IQLUSION (I→Q), UNDERGRUUND (O→U), DESPARATLY (E missing)
@@ -87,7 +99,7 @@ From `K123_PATTERN_ANALYSIS.md`:
 | **K2** | Vigenère (keyed alphabet) | Key: `ABSCISSA` | Coordinate encoding embedded. Geographic themes continue? |
 | **K3** | Double Transposition | 24×14 grid → rotate → 8-col reshape → rotate | Transposition is part of Sanborn's toolkit. Test multi-stage. |
 
-**Progression Pattern:** K1 (simple) → K2 (themed) → K3 (geometric) → K4 (???) **Hypothesis:** K4 likely **combines**
+### Progression Pattern:** K1 (simple) → K2 (themed) → K3 (geometric) → K4 (???) **Hypothesis:** K4 likely **combines
 polyalphabetic + transposition + possibly Hill cipher (most complex).
 
 ---
@@ -173,27 +185,31 @@ generator creates hypothesis class from template 4. Auto-test with K1-K3 known p
 ### Thematic Cribs (Pattern-Based from K1-K3)
 
 **Geography/Location** (Confidence: 95%)
+
 - NORTH, SOUTH, EAST, WEST
 - DEGREES, MINUTES, SECONDS
 - LATITUDE, LONGITUDE
 
 **Discovery/Archaeology** (Confidence: 90%)
+
 - SLOWLY, EMERGED, BREACH, PEERED
 - DEBRIS, DOORWAY, CHAMBER, PASSAGE
 - REMAINS, EXCAVATE, UNCOVER
 
 **Cold War/Espionage** (Confidence: 85%)
+
 - BERLIN, LANGLEY, MOSCOW
 - AGENT, MESSAGE, TRANSMITTED
 - INVISIBLE, BURIED, UNKNOWN
 
 **Time/Temporal** (Confidence: 75%)
+
 - CLOCK, HOUR, MINUTE, SECOND
 - TIME, DATE, YEAR
 
 ### Strategic Direction from Clues
 
-**What the clues tell us:**
+### What the clues tell us:
 
 1. **BERLIN + CLOCK → Cold War + Time Encoding**
    - Berlin Wall era (1961-1989) overlaps with Kryptos creation (1990)
@@ -229,6 +245,7 @@ generator creates hypothesis class from template 4. Auto-test with K1-K3 known p
 **Goal:** Wire Q-Research cryptanalysis hints into executable attack parameters.
 
 **Deliverables:** 1. **AttackGenerator** class:
+
    - Input: Q-Research hints (Vigenère metrics, transposition periods, digraph anomalies)
    - Output: `AttackParameters` objects (cipher type, key constraints, priority score)
    - Integration: Feed into AttackLogger deduplication before execution
@@ -242,7 +259,8 @@ generator creates hypothesis class from template 4. Auto-test with K1-K3 known p
    - Generate attacks specifically for unexplored key space
    - Example: "Vigenère length 7 only 10% explored → generate 1000 length-7 keys"
 
-**Success Criteria:**
+### Success Criteria:
+
 - Q-Research hints auto-convert to runnable attacks
 - 100% deduplication (no repeat attacks from previous runs)
 - Attack queue prioritized by: (1) coverage gap, (2) Q-Research confidence, (3) crib alignment
@@ -255,6 +273,7 @@ generator creates hypothesis class from template 4. Auto-test with K1-K3 known p
 **Goal:** Multi-stage candidate filtering to reduce false positives and surface high-confidence solutions.
 
 **Deliverables:** 1. **SPY Pre-Filter** (Fast Rejection):
+
    - Input: Raw attack output (100K+ candidates/hour)
    - Check: Contains ANY known cribs? (BERLIN, NORTHEAST, CLOCK)
    - Output: ~10% pass rate (90% rejected immediately)
@@ -274,7 +293,7 @@ generator creates hypothesis class from template 4. Auto-test with K1-K3 known p
    - Display: plaintext + key info + confidence breakdown + why it passed filters
    - User action: Accept/Reject/Request more detail
 
-**Architecture:**
+### Architecture:
 ```
 Raw Output → [SPY] 90% rejected
            → [LINGUIST] 90% rejected (of remaining)
@@ -282,7 +301,8 @@ Raw Output → [SPY] 90% rejected
            → [HUMAN] Final 10-100 candidates
 ```
 
-**Success Criteria:**
+### Success Criteria:
+
 - <1% false positive rate at human review stage
 - Real solution (if found) survives all filters
 - Pipeline processes 100K candidates in <5 minutes
@@ -294,7 +314,7 @@ Raw Output → [SPY] 90% rejected
 ### Sprint 5.3: End-to-End K4 Pipeline (2-3 weeks)
 **Goal:** Single-command orchestration of entire K4 cracking workflow.
 
-**CLI Design:**
+### CLI Design:
 ```bash
 # Full autonomous run
 kryptos k4 --attack-budget 10000 --max-runtime 24h
@@ -310,6 +330,7 @@ kryptos k4 --dry-run --show-strategy
 ```
 
 **Orchestration Flow:** 1. **OPS Director** - Strategy planning:
+
    - Query StrategicCoverageAnalyzer for saturated regions
    - Decide: PIVOT (try new cipher family), INTENSIFY (exploit high-success region), EXPLORE (sample widely)
    - Output: Prioritized hypothesis list
@@ -338,7 +359,8 @@ kryptos k4 --dry-run --show-strategy
    - Results: Best candidates with confidence scores
    - Recommendations: "Vigenère length 8 saturated (95%), pivot to Hill 3x3?"
 
-**Success Criteria:**
+### Success Criteria:
+
 - Single command solves K4 (if classical cipher)
 - Checkpoint/resume works (survive crashes, pause/continue)
 - Clear visibility: progress bars, coverage heatmaps, real-time candidate rankings
@@ -355,8 +377,10 @@ orchestration)
 **Current:** 539 tests in 4:48 (288s) **Target:** <2:30 (150s)
 
 **Strategies:** 1. **Parallel Execution**: `pytest-xdist -n 4` (4 CPU cores)
+
    - Expected: 4:48 → 2:24 (50% reduction)
 2. **Mark Slow Tests**: `@pytest.mark.slow` for genetic algorithms, skip in dev 3. **Reduce Genetic Iterations**: 5000 →
+
 500 in tests (10x speedup) 4. **Cache Expensive Fixtures**: spaCy models, frequency tables (load once)
 
 **Timeline:** 2-3 hours, low risk, high quality-of-life improvement
@@ -372,6 +396,7 @@ validates implementation)
 **Value:** Compress weeks → hours for new cipher integration.
 
 ### Phase 7: Advanced Features (Future)
+
 - **ML-Guided Attack Selection**: Train model on successful vs failed attacks, predict best next move
 - **Distributed Execution**: Run attacks across multiple machines (10x throughput)
 - **GPU Acceleration**: Hill cipher matrix operations on CUDA (100x speedup for 3x3)
@@ -384,6 +409,7 @@ validates implementation)
 ### Sprint 5.1 Kickoff: Attack Generation Engine
 
 **First Implementation Tasks:** 1. Create `src/kryptos/pipeline/attack_generator.py` (~400 lines)
+
    - `AttackParameters` dataclass (cipher_type, key_constraints, priority, provenance)
    - `AttackGenerator` class (convert Q hints → parameters)
    - `generate_from_coverage_gaps()` - target unexplored regions
@@ -403,7 +429,8 @@ validates implementation)
 
 **Estimated Time:** 6-8 hours of focused work (includes testing + integration)
 
-**Validation Points:**
+### Validation Points:
+
 - [ ] Q hints auto-convert to attack parameters
 - [ ] 100% deduplication (zero repeat attacks)
 - [ ] Coverage gaps correctly targeted
@@ -421,18 +448,21 @@ everything together into operational pipeline
 **Analogy:** We've built the engine, transmission, wheels, and steering. Phase 5 is assembling the car and driving it.
 
 ### Confidence Factors
-**High Confidence (90%+):**
+### High Confidence (90%+):
+
 - Classical cipher coverage (Vigenère, Hill, transposition families)
 - Composite cipher testing (2-layer combinations)
 - Deduplication and provenance (no wasted work)
 - Multi-agent validation (false positive reduction)
 
-**Medium Confidence (60-70%):**
+### Medium Confidence (60-70%):
+
 - Novel technique detection (if Sanborn invented something new)
 - Literature-guided adaptation (find missing techniques mid-flight)
 - 3+ layer cipher solving (exponential complexity)
 
-**Low Confidence (30-40%):**
+### Low Confidence (30-40%):
+
 - Unknown cipher type (pre-1990 but undocumented)
 - Unconventional encoding (e.g., visual/sculptural keys from physical Kryptos)
 
@@ -453,6 +483,7 @@ OPS pivots to new hypothesis (Phase 4.3 complete)
 ## MEASUREMENT OF SUCCESS
 
 ### Phase 5 Complete When:
+
 - [ ] Single command `kryptos k4 --budget 10000` runs end-to-end
 - [ ] Attack generation auto-targets coverage gaps (no manual parameter tuning)
 - [ ] Validation pipeline reduces 100K candidates → 10 human-reviewable
@@ -461,6 +492,7 @@ OPS pivots to new hypothesis (Phase 4.3 complete)
 - [ ] All 50-65 new tests passing (15 Sprint 5.1 + 25 Sprint 5.2 + 10-15 Sprint 5.3)
 
 ### K4 Solution Found When:
+
 1. **Plaintext Validation:**
    - Contains confirmed cribs: BERLIN (64-69), NORTHEAST (26-34)
    - Passes LINGUIST English scoring (>0.8 confidence)
@@ -483,7 +515,8 @@ OPS pivots to new hypothesis (Phase 4.3 complete)
 
 ### Based on Sanborn Intelligence
 
-**HIGHEST PRIORITY (Do First):** 1. **Berlin Clock + Hill 2x2/3x3 Composites**
+### HIGHEST PRIORITY (Do First):** 1. **Berlin Clock + Hill 2x2/3x3 Composites
+
    - Rationale: BERLIN crib (confirmed) + CLOCK theme + Hill cipher common in 1990s NSA
    - Method: `BerlinClockTranspositionHypothesis` → `HillCipher2x2Hypothesis`
    - Attack Budget: 50K combinations (24 clock states × 2K Hill keys)
@@ -498,7 +531,8 @@ OPS pivots to new hypothesis (Phase 4.3 complete)
    - Method: Lock those positions, solve for key parameters (Hill matrix, transposition columns)
    - Attack Budget: Constraint reduces Hill space from infinite → ~10K
 
-**MEDIUM PRIORITY (If Above Saturates):** 4. **Double Transposition (K3 Pattern Repeat)**
+### MEDIUM PRIORITY (If Above Saturates):** 4. **Double Transposition (K3 Pattern Repeat)
+
    - Rationale: K3 used double-rotate transposition. May be K4 technique.
    - Method: `DoubleTranspositionHypothesis` (all column width pairs)
 
@@ -506,17 +540,20 @@ OPS pivots to new hypothesis (Phase 4.3 complete)
    - Rationale: K1-K3 had consistent themes (location, archaeology, secrecy)
    - Method: Boost candidates containing: DEGREES, CHAMBER, MAGNETIC, LANGLEY
 
-**LOW PRIORITY (Unlikely but Completeness):** 6. **Obscure Classical Ciphers**
+### LOW PRIORITY (Unlikely but Completeness):** 6. **Obscure Classical Ciphers
+
    - Porta, Beaufort, Gronsfeld, ADFGVX, Nihilist
    - Only if all composite hypotheses saturate with no solution
 
 ### Strategic Pivot Points
-**If 50K attacks, no solution:**
+### If 50K attacks, no solution:
+
 - Query LiteratureGapAnalyzer: "What cipher families have we NOT tried?"
 - Review OPS recommendations: "Which regions unexplored?"
 - Consider 3-layer composites: Vigenère → Transposition → Hill
 
-**If Solution Found:**
+### If Solution Found:
+
 - Run validation suite: Does it decrypt to coherent English?
 - Check crib positions: BERLIN at 64-69? NORTHEAST at 26-34?
 - Compare themes: Does narrative fit K1-K3 progression?
@@ -550,6 +587,7 @@ driven, zero duplicate work, literature-informed adaptation.
 ## APPENDIX: QUICK REFERENCE
 
 ### Confirmed K4 Facts
+
 - **Length:** 97 characters
 - **Ciphertext:** `OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK`
 - **Known Plaintext:**
@@ -564,7 +602,8 @@ driven, zero duplicate work, literature-informed adaptation.
 **Single Ciphers:** Vigenère, Hill 2x2, Hill 3x3, Transposition (columnar/rail/route), Substitution, Playfair, Autokey,
 Four-Square, Bifid, Berlin Clock variants (2 types)
 
-**Composite Ciphers (10 variants):**
+### Composite Ciphers (10 variants):
+
 - Transposition → Hill
 - Vigenère → Transposition
 - Substitution → Transposition
@@ -575,6 +614,7 @@ Four-Square, Bifid, Berlin Clock variants (2 types)
 - Vigenère → Hill
 
 ### Test Status
+
 - **Total:** 539 tests passing
 - **Phase 1-3:** 493 tests (agents, ciphers, attacks)
 - **Phase 4:** +46 tests (provenance, literature, coverage)
@@ -582,6 +622,7 @@ Four-Square, Bifid, Berlin Clock variants (2 types)
 - **Runtime:** 4:48 (optimizable to ~2:30 with pytest-xdist)
 
 ### File Locations
+
 - **Attack Generator:** `src/kryptos/pipeline/attack_generator.py` (to be created)
 - **Validation Pipeline:** `src/kryptos/pipeline/validation.py` (to be created)
 - **CLI Orchestrator:** `src/kryptos/cli/k4_pipeline.py` (to be created)
@@ -606,6 +647,7 @@ kryptos k4 --dry-run --show-strategy
 ```
 
 ### Confidence Levels
+
 - **BERLIN crib:** 100% (Sanborn confirmed)
 - **CLOCK theme:** 95% (Sanborn confirmed, position uncertain)
 - **NORTHEAST crib:** 100% (Sanborn confirmed)

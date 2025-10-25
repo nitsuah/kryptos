@@ -9,7 +9,8 @@ Analyzed 13 patterns across K1, K2, and K3. These patterns inform our K4 attack 
 ### 'NORTHEAST' clue (2020) - characters 26-34
 **Confidence:** 1.00
 
-**Evidence:**
+### Evidence:
+
 - Sanborn confirmed 'NORTHEAST' appears in K4
 
 **K4 Hypothesis:** Known plaintext: chars 26-34 = 'NORTHEAST'. This gives us a known-plaintext attack anchor point.
@@ -19,7 +20,8 @@ work outward.
 ### Increasing cipher complexity across sections
 **Confidence:** 0.90
 
-**Evidence:**
+### Evidence:
+
 - K1: Modified Vigenère with keyword
 - K2: Vigenère with key + coordinate encoding
 - K3: Keyed-alphabet transposition
@@ -34,7 +36,8 @@ transposition) 2. Novel twist we haven't seen 3. Possible 'supercipher' using K1
 ### Intentional misspellings/substitutions
 **Confidence:** 0.95
 
-**Evidence:**
+### Evidence:
+
 - 'iqlusion' instead of illusion (I→Q substitution)
 - 'undergruund' instead of underground (O→U substitution)
 - 'desparatly' instead of desperately (E missing)
@@ -47,7 +50,8 @@ that are 'almost' English.
 ### Theme: location
 **Confidence:** 0.95
 
-**Evidence:**
+### Evidence:
+
 - north
 - west
 - degrees
@@ -59,7 +63,8 @@ that are 'almost' English.
 ### Theme: discovery
 **Confidence:** 0.95
 
-**Evidence:**
+### Evidence:
+
 - slowly
 - emerged
 - breach
@@ -71,7 +76,8 @@ that are 'almost' English.
 ### Theme: archaeology
 **Confidence:** 0.95
 
-**Evidence:**
+### Evidence:
+
 - debris
 - doorway
 - chamber
@@ -83,7 +89,8 @@ that are 'almost' English.
 ### Theme: communication
 **Confidence:** 0.90
 
-**Evidence:**
+### Evidence:
+
 - message
 - transmitted
 - information
@@ -94,7 +101,8 @@ that are 'almost' English.
 ### Theme: secrecy
 **Confidence:** 0.85
 
-**Evidence:**
+### Evidence:
+
 - invisible
 - buried
 - unknown
@@ -106,7 +114,8 @@ that are 'almost' English.
 ### 'X' used as separator/delimiter (5 times in K2)
 **Confidence:** 0.90
 
-**Evidence:**
+### Evidence:
+
 - X marks section breaks
 - Separates distinct ideas
 
@@ -116,7 +125,8 @@ boundaries, layers, or metadata.
 ### Geographic coordinates embedded in plaintext
 **Confidence:** 0.85
 
-**Evidence:**
+### Evidence:
+
 - 38°57'6.5"N, 77°8'44"W - CIA headquarters location
 
 **K4 Hypothesis:** K4 might contain coordinates, dates, or other numeric encodings. Look for number patterns, especially
@@ -125,7 +135,8 @@ related to Kryptos location or key dates.
 ### Preferred word lengths: 3, 4, 7, 6, 5
 **Confidence:** 0.75
 
-**Evidence:**
+### Evidence:
+
 - 3-letter words: 35 times
 - 4-letter words: 26 times
 - 7-letter words: 21 times
@@ -140,7 +151,8 @@ letter words.
 ### K1 uses poetic, artistic language
 **Confidence:** 0.85
 
-**Evidence:**
+### Evidence:
+
 - subtle
 - shading
 - absence
@@ -154,7 +166,8 @@ poetry detection (rhyme, meter, alliteration) will be crucial.
 ### K3 quotes historical event (King Tut discovery, 1922)
 **Confidence:** 0.80
 
-**Evidence:**
+### Evidence:
+
 - slowly desparatly
 - chamber
 - candle
@@ -169,6 +182,7 @@ CIA history, Cold War events. The 'WW' in K2 might be Wolfgang Weber or another 
 Based on K1-K3 analysis, prioritize:
 
 1. **Known-plaintext attacks** using 'NORTHEAST' (chars 26-34) 2. **Spelling-aware search** - expect Q↔I, U↔O
+
 substitutions 3. **Thematic cribs** - Try 'BERLIN', 'CLOCK', Cold War terms 4. **Poetry/artistic validation** - SPY NLP
 to detect Sanborn's style 5. **Supercipher hypothesis** - K4 might use K1-K3 as keys 6. **Historical quotes** - K3 is
 King Tut, K4 might quote something similar

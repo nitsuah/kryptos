@@ -7,7 +7,7 @@ before K4 composite attacks
 
 ## Executive Summary
 
-**Our System Can Autonomously Crack:**
+### Our System Can Autonomously Crack:
 
 - ✅ **K2** (Vigenère, 369 chars) - VALIDATED
 - ⚠️ **K1** (Vigenère, 63 chars) - Crib-based recovery works, needs top-50 human review
@@ -24,7 +24,7 @@ before K4 composite attacks
 **Cipher Type:** Vigenère with keyed alphabet **Key:** PALIMPSEST (10 characters) **Ciphertext Length:** 63 characters
 **Solved:** 1999 (Jim Gillogly)
 
-**Our Attack Capability:**
+### Our Attack Capability:
 
 | Method | Status | Notes |
 |--------|--------|-------|
@@ -34,13 +34,15 @@ before K4 composite attacks
 
 **Autonomous Crack:** ❌ NO (but close - correct key in top-50 with crib)
 
-**Why It's Hard:**
+### Why It's Hard:
+
 - 63 chars ÷ 10 key positions = 6.3 characters per column
 - Insufficient for reliable frequency analysis
 - SPY scoring unreliable on such short texts
 - Would need dictionary word matching or human review
 
-**What We'd Need:**
+### What We'd Need:
+
 - Return top-50 candidates for human review (correct key present)
 - OR implement dictionary-based ranking (check for real words)
 - OR longer crib (need 10+ character known word)
@@ -52,7 +54,7 @@ before K4 composite attacks
 **Cipher Type:** Vigenère with keyed alphabet **Key:** ABSCISSA (8 characters) **Ciphertext Length:** 369 characters
 **Solved:** 1999 (Jim Gillogly)
 
-**Our Attack Capability:**
+### Our Attack Capability:
 
 | Method | Status | Notes |
 |--------|--------|-------|
@@ -62,13 +64,15 @@ before K4 composite attacks
 
 **Autonomous Crack:** ✅ **YES** - System successfully recovered key from ciphertext alone
 
-**Why It Works:**
+### Why It Works:
+
 - 369 chars ÷ 8 key positions = 46.1 characters per column
 - Excellent statistical sample for frequency analysis
 - Chi-squared scoring against English frequencies works reliably
 - SPY agent correctly identifies high-confidence result
 
-**Performance:**
+### Performance:
+
 - Runtime: ~2 seconds
 - Success rate: 100% (correct key as top candidate)
 - Confidence: 142.0 (SPY pattern score)
@@ -80,7 +84,7 @@ before K4 composite attacks
 **Cipher Type:** Double rotational transposition (24×14 grid → rotate → 8-col grid → rotate) **Key:** Rotation method
 (no keyword) **Ciphertext Length:** 336 characters **Solved:** 2003 (after hints from Sanborn)
 
-**Our Attack Capability:**
+### Our Attack Capability:
 
 | Method | Status | Notes |
 |--------|--------|-------|
@@ -92,11 +96,13 @@ before K4 composite attacks
 
 **Autonomous Crack:** ❌ **NO** - Missing all transposition attack methods
 
-**Why We Can't Crack It:**
+### Why We Can't Crack It:
+
 - We have the decryption function (`k3_decrypt()`) but no way to discover the method
 - Transposition key recovery completely unimplemented
 - Would need:
 1. Period detection (IOC analysis, bigram scoring) 2. Permutation testing (anagramming columns) 3. Rotation pattern
+
 recognition 4. Multi-stage detection (identify it's double transposition)
 
 **Estimated Effort:** 2-3 days to implement transposition attacks
@@ -107,14 +113,15 @@ recognition 4. Multi-stage detection (identify it's double transposition)
 
 ### Known Facts About K4
 
-**Official Hints from Sanborn:**
+### Official Hints from Sanborn:
+
 - Contains word "BERLIN" (position ~64-69)
 - Contains word "CLOCK" (position unknown)
 - Position 26: Letter should be "X" (Sanborn typo - said "X" but intended something else)
 - Related to Berlin Clock (Mengenlehreuhr)
 - May involve themes from K1/K2/K3
 
-**Community Theories (30+ years):**
+### Community Theories (30+ years):
 
 | Theory | Cipher Type | Our Coverage | Notes |
 |--------|-------------|--------------|-------|
@@ -133,6 +140,7 @@ recognition 4. Multi-stage detection (identify it's double transposition)
 **Implemented & Working:** 1. ✅ **Vigenère frequency-based recovery** (best for 200+ chars) 2. ✅ **Vigenère crib-based
 recovery** (works with "BERLIN" or "CLOCK") 3. ✅ **Hill cipher decryption** (need key matrix) 4. ✅ **Columnar
 transposition decryption** (need period + permutation) 5. ✅ **SPY agent scoring** (pattern detection, word recognition)
+
 6. ✅ **Q-Research analysis** (IC, Kasiski, frequency analysis)
 
 **Missing (Critical for K4):** 1. ❌ **Transposition period detection** (IOC-based) 2. ❌ **Transposition permutation
@@ -145,22 +153,26 @@ recovery** 5. ❌ **Running key / crib dragging** 6. ❌ **Dictionary-based cand
 
 ### Major Breakthroughs
 
-**1999-2010: Initial Attacks**
+### 1999-2010: Initial Attacks
+
 - Exhaustive Vigenère key testing (failed - not simple Vigenère)
 - Frequency analysis on full text (no clear patterns)
 - IC analysis suggests polyalphabetic (IC ≈ 0.044)
 
-**2010: Berlin/Clock Hints**
+### 2010: Berlin/Clock Hints
+
 - Sanborn reveals "BERLIN" and "CLOCK" in plaintext
 - Community focuses on Berlin Clock, Cold War themes
 - Crib attacks attempted but unsuccessful
 
-**2014: Position 26 Clue**
+### 2014: Position 26 Clue
+
 - Sanborn says character 26 is incorrect on sculpture
 - Intended different letter (never clarified which)
 - Suggests careful attention to exact positions
 
-**2020-Present: Composite Theories**
+### 2020-Present: Composite Theories
+
 - Leading theory: Vigenère + Transposition (like K3 but reverse)
 - Alternative: Double encryption with different methods
 - Some suggest null cipher / steganographic layer
@@ -168,6 +180,7 @@ recovery** 5. ❌ **Running key / crib dragging** 6. ❌ **Dictionary-based cand
 ### Attack Methods Tried (Public Knowledge)
 
 1. **Brute Force Vigenère** - Tested all keys length 3-15: FAILED 2. **Kasiski/IC Analysis** - Suggests period 7-11:
+
 INCONCLUSIVE 3. **Crib Attacks with BERLIN** - Tested all positions: FAILED 4. **Anagramming** - Looking for BERLIN
 permutations: FAILED 5. **Transposition Testing** - Various periods: FAILED 6. **Hill Cipher** - Matrix key search:
 FAILED (computationally infeasible) 7. **Running Key** - Tested various texts (CIA docs, poetry): FAILED 8. **Pattern
@@ -179,7 +192,8 @@ Matching** - Looking for Berlin Clock digits: INCONCLUSIVE
 Multiple layers (like K3) 3. **Short text problem** - 97 chars limits statistical attacks 4. **Precision required** -
 May need exact transcription (Position 26 issue) 5. **Non-standard approach** - Sanborn may have used unique method
 
-**Our System's Position:**
+### Our System's Position:
+
 - We have the tools for standard attacks (Vigenère, basic transposition)
 - Missing advanced methods (composite detection, transposition key recovery)
 - Crib-based attacks should work IF K4 is Vigenère with BERLIN/CLOCK
@@ -192,11 +206,13 @@ May need exact transcription (Position 26 issue) 5. **Non-standard approach** - 
 ### What We Can Crack Now
 
 ✅ **K2-sized Vigenère ciphers** (200+ chars, key length 6-12)
+
 - Autonomous frequency-based key recovery
 - Validated on K2 (ABSCISSA key recovered)
 - Runtime: ~2 seconds
 
 ⚠️ **K1-sized Vigenère with cribs** (50-100 chars, known words)
+
 - Crib-based extraction works (7/10 key positions from "BETWEEN")
 - Needs human review of top-50 candidates (correct key present)
 - Runtime: ~3 minutes
@@ -213,13 +229,15 @@ autonomously**
 
 ### K4 Readiness: 50%
 
-**Have:**
+### Have:
+
 - Vigenère attacks (frequency + crib-based)
 - BERLIN/CLOCK cribs available
 - SPY scoring for candidate evaluation
 - 97 chars might be enough (between K1 and K2)
 
-**Need:**
+### Need:
+
 - Transposition period detection
 - Transposition permutation solver
 - Composite cipher detection
@@ -232,13 +250,15 @@ permutation solver 3. Day 3-4: Composite cipher detection 4. Day 4-5: Test on K3
 
 ## Recommendation
 
-**Before attacking K4, solidify foundation:**
+### Before attacking K4, solidify foundation:
 
 1. ✅ **Phase 5.3 Complete** - Real cipher execution working 2. ⏳ **Implement transposition attacks** - Critical for K3
+
 and likely K4 3. ⏳ **Test on K3** - Validate transposition methods work 4. ⏳ **Composite detection** - Handle multi-
 stage ciphers 5. ⏳ **Dictionary ranking** - Better candidate selection for short texts
 
-**Then attack K4 with:**
+### Then attack K4 with:
+
 - Crib-based Vigenère with BERLIN/CLOCK
 - Transposition period detection
 - Composite detection (test if it's Vigenère → Transposition)

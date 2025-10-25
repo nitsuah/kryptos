@@ -10,7 +10,8 @@ Based on profiling results from profile_scoring.py, this document identifies hot
 **Location:** `src/kryptos/k4/scoring.py:184` **Calls:** 600 / 300 / 200 **Issue:** High string join operations (68ms
 cumulative across runs) **Impact:** Called by bigram_score, trigram_score, quadgram_score
 
-**Optimization opportunities:**
+### Optimization opportunities:
+
 - Cache ngram lookups (table.get() called 130K+ times)
 - Vectorize string operations
 - Use string slicing instead of join for single characters
@@ -20,7 +21,8 @@ cumulative across runs) **Impact:** Called by bigram_score, trigram_score, quadg
 **Location:** `src/kryptos/k4/scoring.py:231` **Calls:** 300 + 100 = 400 **Issue:** Repeated pattern matching across all
 cribs **Impact:** Called once per combined_plaintext_score
 
-**Optimization opportunities:**
+### Optimization opportunities:
+
 - Cache _get_all_cribs() result (called 400 times, loads from disk each time)
 - Precompile regex patterns
 - Use Aho-Corasick for multi-pattern matching instead of individual searches
@@ -29,7 +31,8 @@ cribs **Impact:** Called once per combined_plaintext_score
 **Location:** `src/kryptos/k4/scoring.py:168` **Calls:** 1000 + 200 = 1200 **Issue:** List comprehensions for frequency
 counting (48ms total) **Impact:** Called once per combined_plaintext_score
 
-**Optimization opportunities:**
+### Optimization opportunities:
+
 - Use Counter directly instead of list comprehension
 - Cache expected frequencies (LETTER_FREQ dict)
 - Vectorize with numpy if available
@@ -38,7 +41,8 @@ counting (48ms total) **Impact:** Called once per combined_plaintext_score
 **Location:** `src/kryptos/k4/scoring.py:485` **Calls:** 1000 + 100 = 1100 **Issue:** List comprehension for letter
 counting (48ms + 7ms) **Impact:** Called in composite_score_with_stage_analysis
 
-**Optimization opportunities:**
+### Optimization opportunities:
+
 - Use Counter directly
 - Cache intermediate results
 - Early exit for texts with low letter count
@@ -47,7 +51,8 @@ counting (48ms + 7ms) **Impact:** Called in composite_score_with_stage_analysis
 **Location:** `src/kryptos/k4/scoring.py:383` **Calls:** 100 **Issue:** Generates all possible n-grams for sliding
 window search **Impact:** Moderate - only called in extended scoring
 
-**Optimization opportunities:**
+### Optimization opportunities:
+
 - Use trie structure for wordlist
 - Limit n-gram generation with early termination
 - Cache wordlist lookups
@@ -56,7 +61,7 @@ window search **Impact:** Moderate - only called in extended scoring
 ## HIGH-IMPACT OPTIMIZATIONS (Priority Order)
 
 ### Priority 1: Cache _get_all_cribs() result
-**Estimated speedup:** 15-20% overall **Effort:** Low (5 minutes) **Code:**
+### Estimated speedup:** 15-20% overall **Effort:** Low (5 minutes) **Code:
 ```python
 _CRIBS_CACHE = None
 
@@ -68,7 +73,7 @@ def _get_all_cribs() -> list[str]:
 ```
 
 ### Priority 2: Optimize _score_ngrams() with caching
-**Estimated speedup:** 25-30% overall **Effort:** Medium (30 minutes) **Code:**
+### Estimated speedup:** 25-30% overall **Effort:** Medium (30 minutes) **Code:
 ```python
 from functools import lru_cache
 
@@ -79,7 +84,7 @@ def _score_ngrams_cached(text: str, size: int, unknown: float) -> float:
 ```
 
 ### Priority 3: Use Counter instead of list comprehension
-**Estimated speedup:** 10-15% for chi_square and IOC **Effort:** Low (10 minutes) **Code:**
+### Estimated speedup:** 10-15% for chi_square and IOC **Effort:** Low (10 minutes) **Code:
 ```python
 from collections import Counter
 
@@ -94,7 +99,7 @@ def chi_square_stat(text: str) -> float:
 ```
 
 ### Priority 4: Precompile regex patterns in crib_bonus
-**Estimated speedup:** 5-10% **Effort:** Low (10 minutes) **Code:**
+### Estimated speedup:** 5-10% **Effort:** Low (10 minutes) **Code:
 ```python
 import re
 
@@ -119,18 +124,23 @@ def crib_bonus(text: str) -> float:
 ## IMPLEMENTATION PLAN
 
 ### Phase 1: Quick Wins (30 minutes)
+
 1. Cache _get_all_cribs() result (5 min) 2. Use Counter in chi_square_stat (10 min) 3. Use Counter in
+
 index_of_coincidence (10 min) 4. Add benchmarking to verify improvements (5 min)
 
 **Expected combined speedup:** 25-35%
 
 ### Phase 2: Medium Effort (1 hour)
+
 1. Add LRU cache to _score_ngrams (30 min) 2. Precompile regex patterns for crib matching (10 min) 3. Optimize
+
 wordlist_hit_rate with trie (20 min)
 
 **Expected combined speedup:** 40-50% total
 
 ### Phase 3: Advanced (Optional, 2-3 hours)
+
 1. Numba JIT compilation for hottest loops 2. Profile Hill cipher operations 3. Vectorize with numpy where beneficial
 
 **Expected combined speedup:** 2-5x total (if Numba works well)
@@ -151,6 +161,7 @@ diff results/profile_before.txt results/profile_after.txt
 ```
 
 Success criteria:
+
 - 30%+ speedup for Phase 1 optimizations
 - 50%+ total speedup for Phase 1+2
 - All 30 tests still passing
@@ -175,11 +186,13 @@ Success criteria:
 ## ESTIMATED TOTAL IMPACT
 
 Conservative estimate (Phase 1 + 2 only):
+
 - **Current:** 214s full test run
 - **After:** ~110-130s (40-50% speedup)
 - **Hypothesis execution:** 2-5x faster for ngram-heavy scoring
 
 Aggressive estimate (with Numba in Phase 3):
+
 - **Full test run:** ~50-70s (3-4x speedup)
 - **Hypothesis execution:** 5-10x faster
 
@@ -187,4 +200,5 @@ Aggressive estimate (with Numba in Phase 3):
 ## NEXT STEPS
 
 1. Implement Phase 1 optimizations (30 min) 2. Run profile_scoring.py to measure improvement 3. Run full test suite to
+
 verify correctness 4. Commit Phase 1 with benchmark results 5. Decide on Phase 2 based on Phase 1 results

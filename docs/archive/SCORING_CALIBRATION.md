@@ -129,6 +129,7 @@ score = (
 ## Next Steps
 
 1. Test recommended weights on test suite 2. Verify no regression on existing hypothesis tests 3. Compare composite
+
 hypothesis scores before/after 4. Document changes in CHANGELOG.md 5. Consider adding more test cases for weight
 validation
 

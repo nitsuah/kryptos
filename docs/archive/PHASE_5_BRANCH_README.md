@@ -8,6 +8,7 @@ and execute cryptanalysis attacks without manual parameter tuning.
 ## What's New
 
 ### Phase 5.1: Attack Generation Engine
+
 - **File:** `src/kryptos/pipeline/attack_generator.py` (667 lines)
 - **Tests:** 24 comprehensive tests
 - **Features:**
@@ -17,6 +18,7 @@ and execute cryptanalysis attacks without manual parameter tuning.
   - Priority-based ordering (Q-hints > gaps > literature)
 
 ### Phase 5.2: OPS Integration
+
 - **File:** `src/kryptos/agents/ops.py` (extended)
 - **Tests:** 6 focused integration tests
 - **Features:**
@@ -26,6 +28,7 @@ and execute cryptanalysis attacks without manual parameter tuning.
   - Placeholder execution (real ciphers in Phase 5.3)
 
 ### Demo
+
 - **File:** `examples/attack_generation_demo.py`
 - Shows complete workflow: Q-Research → Generation → Execution → Logging
 - Run with: `python examples/attack_generation_demo.py`
@@ -42,6 +45,7 @@ and execute cryptanalysis attacks without manual parameter tuning.
 ## Files Changed
 
 ### New Files
+
 - `src/kryptos/pipeline/attack_generator.py` - Attack generation engine
 - `tests/test_attack_generator.py` - 24 tests for AttackGenerator
 - `tests/test_ops_attack_generation.py` - 6 OPS integration tests
@@ -49,6 +53,7 @@ and execute cryptanalysis attacks without manual parameter tuning.
 - `docs/PHASE_5_SUMMARY.md` - Complete Phase 5 documentation
 
 ### Modified Files
+
 - `src/kryptos/agents/ops.py` - Added attack generation methods
 - `CHANGELOG.md` - Documented Phase 5.1 & 5.2
 
@@ -93,13 +98,15 @@ print(f"Unique attacks logged: {summary['attack_logger_stats']['unique_attacks']
 
 ## Next Steps After Merge
 
-**Phase 5.3: Real Cipher Execution**
+### Phase 5.3: Real Cipher Execution
+
 - Replace placeholder execution with real cipher calls
 - Integrate SPY agent for plaintext scoring
 - Filter candidates by confidence threshold
 - Return actual decryption results
 
-**Phase 5.4: Validation Pipeline**
+### Phase 5.4: Validation Pipeline
+
 - Multi-stage filtering: SPY → LINGUIST → Q → Human
 - Reduce 100K candidates → 10 reviewable
 - Export promising results for human analysis
@@ -124,6 +131,7 @@ Q-Research → AttackGenerator → AttackParameters
 ## Contact
 
 For questions about this branch:
+
 - See `docs/PHASE_5_SUMMARY.md` for detailed documentation
 - Run `python examples/attack_generation_demo.py` to see it in action
 - Check `tests/test_attack_generator.py` for usage examples

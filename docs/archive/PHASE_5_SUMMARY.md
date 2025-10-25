@@ -206,6 +206,7 @@ python examples/attack_generation_demo.py
 ```
 
 Output shows:
+
 - Q-Research analysis → attack generation
 - Parallel execution with batching
 - Deduplication across multiple runs
@@ -215,6 +216,7 @@ Output shows:
 ## Test Coverage
 
 ### AttackGenerator Tests (24)
+
 - Q-hint conversion (Vigenère, transposition, strategies)
 - Coverage-gap targeting
 - Priority ordering
@@ -224,6 +226,7 @@ Output shows:
 - Full workflows
 
 ### OPS Integration Tests (6)
+
 - Configuration (with/without generation)
 - Attack queue generation (Q-hints, comprehensive)
 - Execution with logging
@@ -232,22 +235,26 @@ Output shows:
 - Batching behavior
 
 ### Test Performance
+
 - All 30 Phase 5 tests: **< 2 seconds**
 - Full test suite (564 tests): **~5 minutes**
 
 ## Statistics
 
 ### Generation Performance
+
 - K4 (97 chars) Q-Research analysis: **~0.1s**
 - Attack generation (50 attacks): **~0.05s**
 - Comprehensive queue (200 attacks): **~0.15s**
 
 ### Deduplication Effectiveness
+
 - First run: 0 duplicates (all new)
 - Second run: ~60% duplicates filtered (Q-hints regenerate similar attacks)
 - Third run: ~80% duplicates filtered (converging on optimal attacks)
 
 ### Attack Distribution (Typical K4 Run)
+
 - Vigenère attacks: 60-70% (IC analysis produces multiple key lengths)
 - Transposition attacks: 20-30% (period suggestions from Q-Research)
 - Hybrid attacks: 5-10% (strategy combinations)
@@ -312,6 +319,7 @@ Output shows:
 ## Conclusion
 
 Phase 5.1 & 5.2 establish the foundation for autonomous cryptanalysis:
+
 - ✅ Automatic attack discovery from research insights
 - ✅ Structured parameter generation
 - ✅ Parallel orchestration framework

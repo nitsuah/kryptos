@@ -23,6 +23,7 @@ cryptanalysts may have attempted manually but couldn't exhaustively explore. Our
 with intelligent scoring to measure how "English-like" each result appears:
 
 1. **Hill Cipher** - Matrix-based substitution where letters become numbers, transform through matrix multiplication,
+
 then convert back 2. **Transposition** - Systematic letter rearrangement (write in columns, read in rows, or more
 complex patterns) 3. **Masking** - Identifying and removing dummy letters that serve as padding or obfuscation 4.
 **Berlin Clock** - Using the iconic clock's binary time pattern as a cryptographic key 5. **Combo Attacks** - Chaining
@@ -38,18 +39,21 @@ intuition rather than brute force. After all, humans design puzzles with intenti
 
 - **Status**: Solved.
 - **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional
+
 misspelling preserved: `IQLUSION`.
 
 ### ✅ K2: "It was totally invisible. How's that possible?"
 
 - **Status**: Solved.
 - **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for
+
 historical alignment. Contains geospatial coordinates and narrative text.
 
 ### ✅ K3: "Slowly, desperately slowly, the remains of passage debris..."
 
 - **Status**: Solved (double rotational transposition method).
 - **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid →
+
 second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling `DESPARATLY` (analogous
 to `IQLUSION` in K1).
 
@@ -57,8 +61,11 @@ to `IQLUSION` in K1).
 
 - **Status**: Unsolved.
 - **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint
+
 pipeline, multi-stage fusion).
+
 - **Latest Additions**: Multi-crib positional transposition stage, attempt logging & persistence,
+
 advanced linguistic metrics, 3x3 Hill key pruning (partial_len/partial_min tunable in hill constraint stage).
 
 ## Deliberate Misspellings / Anomalies
@@ -98,6 +105,7 @@ be treated as structural artifacts when analyzing pattern continuity or construc
 - **Attempt logging & persistence** (Hill, Clock, Transposition permutations → timestamped JSON) ([learn more](https://en.wikipedia.org/wiki/Logging))
 - **Candidate reporting artifacts** (JSON + optional CSV summaries) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
 - **Adaptive fusion weighting** (optional `adaptive=True` in composite run) leveraging wordlist hit rate & trigram
+
 entropy heuristics
 
 ## K4 Analysis Toolkit (New / Updated Modules)
@@ -231,8 +239,11 @@ and extraction outputs.
 ## Recent Changes
 
 - **2025-10-24**: Fixed CI failures by correcting `.gitignore` pattern - added agents source code (SPY, OPS, Q agents)
+
 that was previously blocked
+
 - **2025-10-22**: Added offline autopilot flow (Q/OPS/SPY), conservative SPY extractor with evaluation harness, demo
+
 smoke CI and packaging improvements. See `docs/AUTOPILOT.md` for details
 
 ## Autopilot (Q / OPS / SPY) Summary

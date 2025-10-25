@@ -214,7 +214,11 @@ def cmd_reflow(argv: list[str]) -> int:
 def is_list_line(line: str) -> bool:
     """Check if line is a list item."""
     s = line.lstrip()
-    return s.startswith(('- ', '* ', '+ ')) or (s and s[0].isdigit() and '. ' in s[:4])
+    if s.startswith(('- ', '* ', '+ ')):
+        return True
+    if s and s[0].isdigit() and '. ' in s[:4]:
+        return True
+    return False
 
 
 def is_emphasis_heading(line: str) -> bool:

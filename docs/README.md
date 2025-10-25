@@ -20,12 +20,15 @@ K4**
 **New to this project?****New to this project?** Read [AUTONOMOUS_SYSTEM.md](AUTONOMOUS_SYSTEM.md) for the 24/7
 
 1. **[PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md)** - Current roadmap, K4 odds (60-70%), Sanborn clues, attack
+
 prioritiesautonomous cryptanalysis system.
 
 2. **[analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md)** - Coverage assessment (95% of pre-1990
+
 cryptography)
 
 3. **[reference/AUTONOMOUS_SYSTEM.md](reference/AUTONOMOUS_SYSTEM.md)** - 24/7 autonomous system usage1. Read
+
 **[PHASE_5_BRIEFING.md](PHASE_5_BRIEFING.md)** - Complete Phase 5 roadmap with Sanborn clues analysis
 
 
