@@ -17,6 +17,7 @@ from kryptos.k4.hypotheses import (
     TranspositionThenHillHypothesis,
     VigenereThenTranspositionHypothesis,
 )
+from kryptos.paths import get_provenance_info
 
 # K4 ciphertext (97 chars)
 K4_CIPHERTEXT = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
@@ -179,9 +180,20 @@ def main():
     timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
     output_file = artifacts_dir / f"full_test_{timestamp}.json"
 
+    # Capture provenance info for reproducibility
+    provenance = get_provenance_info(
+        include_params={
+            'test_type': 'full_scale_composite',
+            'ciphertext_length': len(K4_CIPHERTEXT),
+            'threshold_2sigma': THRESHOLD_2SIGMA,
+            'threshold_3sigma': THRESHOLD_3SIGMA,
+        },
+    )
+
     output_data = {
         'test_type': 'full_scale_composite',
         'timestamp': timestamp,
+        'provenance': provenance,
         'ciphertext': K4_CIPHERTEXT,
         'ciphertext_length': len(K4_CIPHERTEXT),
         'threshold_2sigma': THRESHOLD_2SIGMA,
