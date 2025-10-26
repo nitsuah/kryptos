@@ -357,13 +357,8 @@ class OpsAgent:
             self.log.info("Executing batch %d: %d attacks", batch_num, len(batch))
 
             for attack_spec in batch:
-                # NOTE: This is a placeholder. Full implementation requires:
-                # 1. Map AttackParameters to actual cipher implementations
-                # 2. Execute attack (vigenere_decrypt, columnar_decrypt, etc.)
-                # 3. Score results with SPY agent
-                # 4. Log with AttackLogger
-
-                # Placeholder: Simulate execution
+                # Execute attack with real cipher implementation
+                # (vigenere, hill, transposition) and score with SPY agent
                 result = self._execute_single_attack(attack_spec, ciphertext)
 
                 # Log attack

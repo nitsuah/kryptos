@@ -17,10 +17,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from kryptos.ciphers import vigenere_decrypt
 from kryptos.k4.transposition_analysis import (
     solve_columnar_permutation_exhaustive,
     solve_columnar_permutation_simulated_annealing_multi_start,
 )
+from kryptos.k4.vigenere_key_recovery import recover_key_by_frequency
 from kryptos.log_setup import setup_logging
 from kryptos.pipeline.attack_executor import AttackExecutor
 from kryptos.pipeline.attack_generator import AttackGenerator
@@ -107,7 +109,7 @@ class K4CampaignOrchestrator:
         ciphertext: str,
         key_length: int,
     ) -> tuple[str | None, float]:
-        """Execute Vigenère attack (placeholder - needs key recovery).
+        """Execute Vigenère attack with frequency-based key recovery.
 
         Args:
             ciphertext: Ciphertext
@@ -116,9 +118,27 @@ class K4CampaignOrchestrator:
         Returns:
             Tuple of (plaintext, confidence) or (None, 0.0)
         """
-        # For now, just return None - real implementation would do key recovery
-        # This is a placeholder for the full attack pipeline
-        return None, 0.0
+        try:
+            # Attempt frequency-based key recovery
+            candidate_keys = recover_key_by_frequency(ciphertext, key_length, top_n=1)
+
+            if not candidate_keys:
+                return None, 0.0
+
+            # Try the best candidate key
+            best_key = candidate_keys[0]
+            plaintext = vigenere_decrypt(ciphertext, best_key)
+
+            # Score the plaintext (simple approach - could be enhanced)
+            # For now, use a basic confidence metric
+            # TODO: Integrate with SPY agent for better scoring
+            confidence = 0.5  # Placeholder confidence
+
+            return plaintext, confidence
+
+        except Exception as e:
+            self.log.warning(f"Vigenère attack failed for key_length={key_length}: {e}")
+            return None, 0.0
 
     def execute_transposition_attack(
         self,

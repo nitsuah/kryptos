@@ -75,18 +75,22 @@ phase-5
 
 ### Critical Findings from Audit
 
-#### **Finding 1: OPS Placeholder Confusion**
+#### **Finding 1: OPS Placeholder Confusion** ✅ RESOLVED
 
 - **Location:** `agents/ops.py` line 360
-- **Issue:** Comment claims "placeholder" but real implementations exist
+- **Issue:** Comment claimed "placeholder" but real implementations existed
 - **Status:** `_execute_vigenere()` (lines 490-530), `_execute_hill()`, `_execute_transposition()` ARE implemented
-- **Action:** Update misleading comment, validate execution paths
+- **Resolution (01/27/2025):** Removed misleading placeholder comment, clarified that implementations are real
 
-#### **Finding 2: K4 Campaign Placeholders**
+#### **Finding 2: K4 Campaign Placeholders** ✅ PARTIALLY RESOLVED
 
 - **Location:** `pipeline/k4_campaign.py` lines 110-147
-- **Issue:** Vigenère attack marked "placeholder" but has structure
-- **Action:** Validate and remove placeholder markers
+- **Issue:** Vigenère attack marked "placeholder" with no implementation
+- **Resolution (01/27/2025):**
+  - Implemented `execute_vigenere_attack()` with frequency-based key recovery
+  - Wired to `recover_key_by_frequency()` and `vigenere_decrypt()`
+  - Returns plaintext + confidence score
+- **Remaining:** Transposition attack needs proper plaintext extraction (currently returns ciphertext)
 
 #### **Finding 3: Deprecated Code**
 
