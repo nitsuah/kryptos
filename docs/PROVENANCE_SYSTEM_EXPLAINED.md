@@ -12,6 +12,7 @@
 **File**: `search_space.json`
 
 **What it tracks**:
+
 ```json
 {
   "vigenere": {

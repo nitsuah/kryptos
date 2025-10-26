@@ -17,6 +17,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+from kryptos.paths import get_artifacts_root
+
 
 class StrategyAction(Enum):
     """Strategic actions OPS can recommend."""
@@ -97,7 +99,7 @@ class OpsStrategicDirector:
         """
         self.llm_provider = llm_provider
         self.model = model
-        self.cache_dir = cache_dir or Path("./data/ops_strategy")
+        self.cache_dir = cache_dir or (get_artifacts_root() / "ops_strategy")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize LLM client

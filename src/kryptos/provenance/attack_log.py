@@ -16,6 +16,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from kryptos.paths import get_artifacts_root
+
 
 @dataclass
 class AttackParameters:
@@ -111,7 +113,7 @@ class AttackLogger:
         Args:
             log_dir: Directory for storing attack logs
         """
-        self.log_dir = log_dir or Path("./data/attack_logs")
+        self.log_dir = log_dir or (get_artifacts_root() / "attack_logs")
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
         # In-memory index for fast lookups

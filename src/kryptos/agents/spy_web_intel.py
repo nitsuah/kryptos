@@ -20,6 +20,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from kryptos.paths import get_artifacts_root
+
 try:
     import requests
     from bs4 import BeautifulSoup
@@ -70,12 +72,12 @@ class SpyWebIntel:
         """Initialize web intelligence system.
 
         Args:
-            cache_dir: Directory to cache scraped data (default: ./data/intel_cache)
+            cache_dir: Directory to cache scraped data (default: artifacts/intel_cache)
         """
         if not WEB_AVAILABLE:
             raise ImportError("requests and beautifulsoup4 required. Install: pip install requests beautifulsoup4")
 
-        self.cache_dir = cache_dir or Path("./data/intel_cache")
+        self.cache_dir = cache_dir or (get_artifacts_root() / "intel_cache")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Track content we've already processed to avoid redundant work

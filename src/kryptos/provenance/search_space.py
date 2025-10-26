@@ -16,6 +16,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from kryptos.paths import get_artifacts_root
+
 
 @dataclass
 class KeySpaceRegion:
@@ -69,7 +71,7 @@ class SearchSpaceTracker:
         Args:
             cache_dir: Directory for caching coverage data
         """
-        self.cache_dir = cache_dir or Path("./data/search_space")
+        self.cache_dir = cache_dir or (get_artifacts_root() / "search_space")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         # Track regions: cipher_type -> region_key -> KeySpaceRegion

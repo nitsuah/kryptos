@@ -15,6 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from kryptos.paths import get_artifacts_root
 from kryptos.provenance.search_space import SearchSpaceTracker
 
 
@@ -69,7 +70,7 @@ class StrategicCoverageAnalyzer:
             history_dir: Directory for storing coverage history
         """
         self.tracker = tracker or SearchSpaceTracker()
-        self.history_dir = history_dir or Path("artifacts/coverage_history")
+        self.history_dir = history_dir or (get_artifacts_root() / "coverage_history")
         self.history_dir.mkdir(parents=True, exist_ok=True)
 
         self.coverage_history: list[CoverageTrend] = []
