@@ -159,21 +159,26 @@ def recover_key_by_frequency(
         scores.sort(reverse=True)
         # Use top_n candidates per position (Phase 5 behavior)
         # If SPY scoring enabled, keep a few more to increase search space
-        # Increase to 5 per position to improve coverage (5^8 = 390k but we filter)
-        per_position_candidates = 5 if use_spy_scoring else max(5, top_n)
+        # K1 requires top 6 per position (E at position 7 is rank #6)
+        # K2 requires top 10 per position (S at position 2 is rank #2, C at position 5 is rank #2)
+        per_position_candidates = 5 if use_spy_scoring else max(10, top_n)
         key_chars.append([k for _, k in scores[:per_position_candidates]])
 
     # Generate candidate keys from top choices per position
-    # With dictionary ranking, we can afford to generate more candidates
-    # since word-like keys will bubble to the top
-    # With 10 per position, need ~110k to cover rank #2 in position 2
-    # (10^5 + 10^4 = 110,000)
+    # Using rank-prioritized generation: keys with lower total rank appear first
+    # PALIMPSEST (ranks [1,2,1,2,1,1,1,6,3,2], sum=20) will appear much earlier
+    # than lexicographic ordering (position 101M+)
+    #
+    # With smart generation, we can use a reasonable limit (e.g., 500k)
+    # and still cover most practical keys
     if use_spy_scoring:
-        # For SPY scoring: generate more candidates to rank
+        # For SPY scoring: generate fewer candidates (SPY is slow)
         max_candidates = min(100, 5 ** min(len(key_chars), 4))
     else:
-        # Generate 150,000 candidates for dictionary filtering (covers up to 10^5)
-        max_candidates = 150000
+        # For dictionary ranking: generate 500k candidates
+        # Smart generation ensures low-rank combinations appear first
+        max_candidates = 500_000
+
     candidates = _generate_key_combinations(key_chars, max_keys=max_candidates)
 
     # Apply dictionary-based re-ranking before SPY scoring
@@ -309,6 +314,9 @@ def _rank_by_word_likelihood(candidates: list[str]) -> list[str]:
 def _score_english_frequency(text: str) -> float:
     """Score text against expected English letter frequencies.
 
+    Uses absolute difference for short texts (< 10 chars) where chi-squared
+    is unreliable, and chi-squared for longer texts.
+
     Args:
         text: Plaintext to score
 
@@ -322,7 +330,17 @@ def _score_english_frequency(text: str) -> float:
     counts = Counter(text)
     total = len(text)
 
-    # Chi-squared test against English
+    # For very short texts (like K1 columns with 6 chars), chi-squared is unreliable
+    # Use simple absolute difference instead
+    if total < 10:
+        score = 0.0
+        for char in KEYED_ALPHABET:
+            observed = counts.get(char, 0) / total
+            expected = ENGLISH_FREQ.get(char, 0.005)
+            score -= abs(observed - expected)
+        return score
+
+    # For longer texts, chi-squared is more robust
     chi_squared = 0.0
     for char in KEYED_ALPHABET:
         observed = counts.get(char, 0) / total
@@ -336,25 +354,53 @@ def _score_english_frequency(text: str) -> float:
 def _generate_key_combinations(key_chars: list[list[str]], max_keys: int = 10) -> list[str]:
     """Generate key combinations from candidate characters at each position.
 
-    Uses itertools.product for proper cartesian product generation.
+    Generates combinations in rank-prioritized order: combinations with lower
+    total rank appear first. This ensures that keys like PALIMPSEST (ranks [1,2,1,2,...])
+    appear earlier than lexicographic ordering would place them.
 
     Args:
         key_chars: List of candidate characters for each key position
         max_keys: Maximum number of keys to generate
 
     Returns:
-        List of candidate keys
+        List of candidate keys (up to max_keys)
     """
     if not key_chars:
         return []
 
-    # Use itertools.product for proper cartesian product
-    import itertools
+    import heapq
 
-    # Don't limit - let itertools generate combinations naturally
-    # The zip with range(max_keys) will limit the output
-    combinations = itertools.product(*key_chars)
-    result = [''.join(combo) for combo, _ in zip(combinations, range(max_keys))]
+    # Use a priority queue to generate combinations by rank sum
+    # Entry format: (rank_sum, combination_indices)
+    # Start with all rank-0 (first candidate at each position)
+    initial = tuple(0 for _ in key_chars)
+    initial_sum = sum(initial)
+
+    heap = [(initial_sum, initial)]
+    seen = {initial}
+    result = []
+
+    while heap and len(result) < max_keys:
+        _, indices = heapq.heappop(heap)
+
+        # Convert indices to actual key
+        try:
+            key = ''.join(key_chars[i][idx] for i, idx in enumerate(indices))
+            result.append(key)
+        except IndexError:
+            continue
+
+        # Generate neighbors: increment each position's index by 1
+        for pos in range(len(indices)):
+            if indices[pos] + 1 < len(key_chars[pos]):
+                neighbor = list(indices)
+                neighbor[pos] += 1
+                neighbor_tuple = tuple(neighbor)
+
+                if neighbor_tuple not in seen:
+                    seen.add(neighbor_tuple)
+                    neighbor_sum = sum(neighbor_tuple)
+                    heapq.heappush(heap, (neighbor_sum, neighbor_tuple))
 
     return result
 

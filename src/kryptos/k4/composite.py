@@ -5,11 +5,15 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from ..ciphers import vigenere_decrypt
 from ..paths import ensure_reports_dir, provenance_hash
 from .attempt_logging import persist_attempt_logs  # new import
 from .pipeline import Pipeline, Stage, StageResult
 from .reporting import generate_candidate_artifacts
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score
 from .scoring import trigram_entropy, wordlist_hit_rate  # ensure metrics imported
+from .transposition import search_columnar
+from .vigenere_key_recovery import recover_key_by_frequency
 
 
 def aggregate_stage_candidates(results: list[StageResult]) -> list[dict[str, Any]]:
@@ -247,10 +251,107 @@ def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float
     return weights
 
 
+class CompositeChainExecutor:
+    """Execute multi-stage cipher chains (e.g., Vigenère → Transposition)."""
+
+    def vigenere_then_transposition(
+        self,
+        ciphertext: str,
+        vigenere_key_length: int,
+        transposition_col_range: tuple[int, int] = (5, 8),
+        top_n: int = 5,
+    ) -> list[dict[str, Any]]:
+        """V→T chain: Decrypt Vigenère first, then try transposition on result.
+
+        Args:
+            ciphertext: Original ciphertext
+            vigenere_key_length: Expected Vigenère key length
+            transposition_col_range: (min_cols, max_cols) for transposition
+            top_n: Return top N results
+
+        Returns:
+            List of candidates with keys, scores, and plaintext
+        """
+        # Stage 1: Recover Vigenère keys
+        v_keys = recover_key_by_frequency(ciphertext, vigenere_key_length, top_n=top_n * 2)
+
+        candidates = []
+        for v_key in v_keys[:top_n]:
+            # Decrypt with Vigenère
+            v_plaintext = vigenere_decrypt(ciphertext, v_key)
+
+            # Stage 2: Try transposition on Vigenère result
+            min_cols, max_cols = transposition_col_range
+            t_results = search_columnar(v_plaintext, min_cols=min_cols, max_cols=max_cols)
+            for t_result in t_results[:3]:  # Top 3 transposition results per Vigenère key
+                candidates.append(
+                    {
+                        'plaintext': t_result['text'],
+                        'score': t_result['score'],
+                        'vigenere_key': v_key,
+                        'transposition_cols': t_result['cols'],
+                        'transposition_perm': t_result['perm'],
+                        'chain': 'V→T',
+                    },
+                )
+
+        # Sort by score and return top N
+        candidates.sort(key=lambda x: x['score'], reverse=True)
+        return candidates[:top_n]
+
+    def transposition_then_vigenere(
+        self,
+        ciphertext: str,
+        transposition_col_range: tuple[int, int] = (5, 8),
+        vigenere_key_length: int = 8,
+        top_n: int = 5,
+    ) -> list[dict[str, Any]]:
+        """T→V chain: Decrypt transposition first, then Vigenère.
+
+        Args:
+            ciphertext: Original ciphertext
+            transposition_col_range: (min_cols, max_cols) for transposition
+            vigenere_key_length: Expected Vigenère key length
+            top_n: Return top N results
+
+        Returns:
+            List of candidates with keys, scores, and plaintext
+        """
+        candidates = []
+
+        # Stage 1: Try transposition first
+        min_cols, max_cols = transposition_col_range
+        t_results = search_columnar(ciphertext, min_cols=min_cols, max_cols=max_cols)
+
+        for t_result in t_results[: top_n * 2]:
+            t_plaintext = t_result['text']
+
+            # Stage 2: Try Vigenère on transposition result
+            v_keys = recover_key_by_frequency(t_plaintext, vigenere_key_length, top_n=3)
+            for v_key in v_keys:
+                v_plaintext = vigenere_decrypt(t_plaintext, v_key)
+                score = combined_plaintext_score(v_plaintext)
+                candidates.append(
+                    {
+                        'plaintext': v_plaintext,
+                        'score': score,
+                        'transposition_cols': t_result['cols'],
+                        'transposition_perm': t_result['perm'],
+                        'vigenere_key': v_key,
+                        'chain': 'T→V',
+                    },
+                )
+
+        # Sort by score and return top N
+        candidates.sort(key=lambda x: x['score'], reverse=True)
+        return candidates[:top_n]
+
+
 __all__ = [
     'aggregate_stage_candidates',
     'run_composite_pipeline',
     'normalize_scores',
     'fuse_scores_weighted',
     'adaptive_fusion_weights',
+    'CompositeChainExecutor',
 ]

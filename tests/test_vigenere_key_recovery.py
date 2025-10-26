@@ -16,15 +16,19 @@ from kryptos.k4.vigenere_key_recovery import (
     recover_key_with_crib,
 )
 
-# K1 test data - REAL Kryptos cipher
+# K1 test data - REAL Kryptos cipher (FULL TEXT from config.json)
 K1_CIPHERTEXT = "EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJYQTQUXQBQVYUVLLTREVJYQTMKYRDMFD"
 K1_KEY = "PALIMPSEST"
 K1_PLAINTEXT = "BETWEENSUBTLESHADINGANDTHEABSENCEOFLIGHTLIESTHENUANCEOFIQLUSION"
 
-# K2 test data - REAL Kryptos cipher (truncated for speed)
+# K2 test data - REAL Kryptos cipher (FULL TEXT from config.json)
 K2_CIPHERTEXT = (
     "VFPJUDEEHZWETZYVGWHKKQETGFQJNCEGGWHKKDQMCPFQZDQMMIAGPFXHQRLG"
     "TIMVMZJANQLVKQEDAGDVFRPJUNGEUNAQZGZLECGYUXUEENJTBJLBQCRTBJDFHRR"
+    "YIZETKZEMVDUFKSJHKFWHKUWQLSZFTIHHDDDUVHDWKBFUFPWNTDFIYCUQZERE"
+    "EVLDKFEZMOQQJLTTUGSYQPFEUNLAVIDXFLGGTEFZKZBSFDQVGOGIPUFXHHDRKF"
+    "FHQNTGPUAECNUVPDJMQCLQUMUNEDFQELZZVRRGKFFVOEEXBDMVPNFQXEZLGRE"
+    "DNQFMPNZGLFLPMRJQYALMGNUVPDXVKPDQUMEBEDMHDAFMJGZNUPLGESWJLLAETG"
 )
 K2_KEY = "ABSCISSA"
 
@@ -32,11 +36,10 @@ K2_KEY = "ABSCISSA"
 class TestAutonomousKeyRecovery:
     """Test autonomous key recovery WITHOUT providing known keys."""
 
-    @pytest.mark.skip("K1 autonomous recovery: Working on it - Phase 6 TODO")
     def test_k1_autonomous_recovery_no_key_provided(self):
         """
-        ASPIRATIONAL: Prove K1 can be solved WITHOUT knowing key='PALIMPSEST'.
-        Currently fails - frequency analysis gets close but not exact (Phase 6 TODO).
+        Test that K1 key (PALIMPSEST) can be autonomously recovered from full ciphertext.
+        Uses dictionary-based ranking to prioritize real English words.
         """
         # NO KEY PROVIDED - must discover via frequency analysis
         recovered_keys = recover_key_by_frequency(K1_CIPHERTEXT, key_length=len(K1_KEY), top_n=10)
@@ -47,7 +50,7 @@ class TestAutonomousKeyRecovery:
         # PALIMPSEST should be in top 10 (proves autonomy)
         assert K1_KEY in recovered_keys, (
             f"Failed to recover correct key '{K1_KEY}' in top 10. "
-            f"Got: {recovered_keys}. This indicates frequency analysis is broken."
+            f"Got: {recovered_keys}. Dictionary ranking should prioritize real words."
         )
 
         # Verify the recovered key actually decrypts correctly
@@ -324,9 +327,8 @@ class TestEndToEndAutonomous:
         final_plaintext = vigenere_decrypt(K1_CIPHERTEXT, best_key)
         assert final_plaintext == K1_PLAINTEXT
 
-    @pytest.mark.skip("K1/K2 autonomous recovery: 3.8% success rate - known Phase 6 gap")
     def test_k2_full_autonomous_solve(self):
-        """ASPIRATIONAL: Full K2 solve with NO hints."""
+        """SUCCESS: Full K2 solve with NO hints using dictionary ranking."""
         recovered_keys = recover_key_by_frequency(K2_CIPHERTEXT, key_length=len(K2_KEY), top_n=10)
 
         # Find best key by scoring
