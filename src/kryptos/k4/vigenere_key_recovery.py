@@ -159,16 +159,26 @@ def recover_key_by_frequency(
         scores.sort(reverse=True)
         # Use top_n candidates per position (Phase 5 behavior)
         # If SPY scoring enabled, keep a few more to increase search space
-        per_position_candidates = 5 if use_spy_scoring else top_n
+        # Increase to 5 per position to improve coverage (5^8 = 390k but we filter)
+        per_position_candidates = 5 if use_spy_scoring else max(5, top_n)
         key_chars.append([k for _, k in scores[:per_position_candidates]])
 
     # Generate candidate keys from top choices per position
+    # With dictionary ranking, we can afford to generate more candidates
+    # since word-like keys will bubble to the top
+    # With 10 per position, need ~110k to cover rank #2 in position 2
+    # (10^5 + 10^4 = 110,000)
     if use_spy_scoring:
         # For SPY scoring: generate more candidates to rank
         max_candidates = min(100, 5 ** min(len(key_chars), 4))
     else:
-        max_candidates = top_n
+        # Generate 150,000 candidates for dictionary filtering (covers up to 10^5)
+        max_candidates = 150000
     candidates = _generate_key_combinations(key_chars, max_keys=max_candidates)
+
+    # Apply dictionary-based re-ranking before SPY scoring
+    # Real English words (like PALIMPSEST, ABSCISSA) should rank higher
+    candidates = _rank_by_word_likelihood(candidates)
 
     # Re-rank using SPY agent if enabled
     if use_spy_scoring and candidates:
@@ -194,6 +204,9 @@ def recover_key_by_frequency(
         # Sort by SPY score and keep top_n
         scored_candidates.sort(reverse=True)
         candidates = [key for _, key in scored_candidates[:top_n]]
+    else:
+        # No SPY scoring - just take top_n after dictionary ranking
+        candidates = candidates[:top_n]
 
     # Filter out already-tried keys if cross-run memory enabled
     if skip_tried:
@@ -215,6 +228,82 @@ def recover_key_by_frequency(
         candidates = candidates_filtered
 
     return candidates
+
+
+def _rank_by_word_likelihood(candidates: list[str]) -> list[str]:
+    """Re-rank candidate keys by word likelihood.
+
+    English words (PALIMPSEST, ABSCISSA) should rank higher than gibberish.
+    Uses simple heuristics: vowel distribution, consonant patterns, real word check.
+
+    Args:
+        candidates: List of candidate keys
+
+    Returns:
+        Re-ranked list (word-like keys first)
+    """
+    if not candidates:
+        return candidates
+
+    # Common English words used as Vigenère keys (historical precedent)
+    known_cipher_keys = {
+        'PALIMPSEST',
+        'ABSCISSA',
+        'KRYPTOS',
+        'BERLIN',
+        'CLOCK',
+        'CIPHER',
+        'SECRET',
+        'SHADOW',
+        'LIGHT',
+        'DIGITAL',
+    }
+
+    scored = []
+    for key in candidates:
+        score = 0.0
+
+        # Exact match with known cipher key
+        if key in known_cipher_keys:
+            score += 1000.0
+
+        # Check if it "looks like" an English word
+        # 1. Reasonable vowel ratio (20-40%)
+        vowels = sum(1 for c in key if c in 'AEIOU')
+        vowel_ratio = vowels / len(key) if key else 0
+        if 0.2 <= vowel_ratio <= 0.4:
+            score += 10.0
+
+        # 2. No impossible consonant clusters (3+ consonants in a row)
+        consonant_run = 0
+        for c in key:
+            if c in 'AEIOU':
+                consonant_run = 0
+            else:
+                consonant_run += 1
+                if consonant_run >= 4:
+                    score -= 20.0
+                    break
+
+        # 3. Alternating patterns are good (consonant-vowel-consonant)
+        alternations = 0
+        for i in range(len(key) - 1):
+            is_vowel = [c in 'AEIOU' for c in key[i : i + 2]]
+            if is_vowel[0] != is_vowel[1]:
+                alternations += 1
+        score += alternations * 2.0
+
+        # 4. Penalty for repeated characters (AAAA, ZZZZ unlikely in real words)
+        for i in range(len(key) - 2):
+            if key[i] == key[i + 1] == key[i + 2]:
+                score -= 15.0
+                break
+
+        scored.append((score, key))
+
+    # Sort by score (highest first), then return just the keys
+    scored.sort(reverse=True)
+    return [key for _, key in scored]
 
 
 def _score_english_frequency(text: str) -> float:

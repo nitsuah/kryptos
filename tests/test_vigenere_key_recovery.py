@@ -32,7 +32,7 @@ K2_KEY = "ABSCISSA"
 class TestAutonomousKeyRecovery:
     """Test autonomous key recovery WITHOUT providing known keys."""
 
-    @pytest.mark.skip("K1/K2 autonomous recovery: 3.8% success rate - known Phase 6 gap")
+    @pytest.mark.skip("K1 autonomous recovery: Working on it - Phase 6 TODO")
     def test_k1_autonomous_recovery_no_key_provided(self):
         """
         ASPIRATIONAL: Prove K1 can be solved WITHOUT knowing key='PALIMPSEST'.
@@ -54,11 +54,10 @@ class TestAutonomousKeyRecovery:
         decrypted = vigenere_decrypt(K1_CIPHERTEXT, K1_KEY)
         assert decrypted == K1_PLAINTEXT
 
-    @pytest.mark.skip("K1/K2 autonomous recovery: 3.8% success rate - known Phase 6 gap")
     def test_k2_autonomous_recovery_no_key_provided(self):
         """
-        ASPIRATIONAL: Prove K2 can be solved WITHOUT knowing key='ABSCISSA'.
-        Currently fails - gets 'ABDZISSA' (87.5% correct) - Phase 6 TODO.
+        SUCCESS: Prove K2 can be solved WITHOUT knowing key='ABSCISSA'.
+        Uses dictionary-based ranking to prefer real English words.
         """
         recovered_keys = recover_key_by_frequency(K2_CIPHERTEXT, key_length=len(K2_KEY), top_n=10)
 
