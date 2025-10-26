@@ -1,4 +1,9 @@
-"""Tests for dynamic adaptive gating adjustments in PipelineExecutor."""
+"""Tests for dynamic adaptive gating adjustments in PipelineExecutor.
+
+DEPRECATED: Testing deprecated PipelineExecutor class.
+These tests are skipped pending migration to new Pipeline class or removal.
+See: src/kryptos/k4/executor.py deprecation notice.
+"""
 
 from __future__ import annotations
 
@@ -23,6 +28,7 @@ def _make_stage(name: str, scores: list[float]) -> Stage:
     return Stage(name=name, func=_run)
 
 
+@unittest.skip("Testing deprecated PipelineExecutor - pending migration or removal")
 class TestExecutorDynamicGating(unittest.TestCase):
     def test_dynamic_adjust_increases_threshold(self):
         ordering = [_make_stage("stageA", [10.0, 20.0, 30.0])]

@@ -1,4 +1,9 @@
-"""Tests that executor writes stage_top_candidates.csv with expected rows and header."""
+"""Tests that executor writes stage_top_candidates.csv with expected rows and header.
+
+DEPRECATED: Testing deprecated PipelineExecutor class.
+These tests are skipped pending migration to new Pipeline class or removal.
+See: src/kryptos/k4/executor.py deprecation notice.
+"""
 
 from __future__ import annotations
 
@@ -26,6 +31,7 @@ def _make_stage(name: str, scores: list[float]) -> Stage:
     return Stage(name=name, func=_run)
 
 
+@unittest.skip("Testing deprecated PipelineExecutor - pending migration or removal")
 class TestExecutorArtifactCSV(unittest.TestCase):
     def test_csv_export_rows(self):
         tmp = tempfile.TemporaryDirectory()

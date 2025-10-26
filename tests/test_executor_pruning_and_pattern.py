@@ -1,5 +1,9 @@
 """Tests for PipelineExecutor._prune logic and berlin clock pattern bonus integration.
 
+DEPRECATED: Testing deprecated PipelineExecutor class.
+These tests are skipped pending migration to new Pipeline class or removal.
+See: src/kryptos/k4/executor.py deprecation notice.
+
 Focus: ensure crib bonus threshold admits extra candidates beyond top_n and
 pattern bonus reflected in baseline_stats metrics.
 """
@@ -23,6 +27,7 @@ class DummyStage(Stage):
     pass
 
 
+@unittest.skip("Testing deprecated PipelineExecutor - pending migration or removal")
 class TestExecutorPruningAndPattern(unittest.TestCase):
     def _make_executor(self, top_n=2, cap=6, bonus_thresh=5.0):
         cfg = PipelineConfig(

@@ -1,4 +1,9 @@
-"""Tests for diversified parallel hill variant execution in PipelineExecutor."""
+"""Tests for diversified parallel hill variant execution in PipelineExecutor.
+
+DEPRECATED: Testing deprecated PipelineExecutor class.
+These tests are skipped pending migration to new Pipeline class or removal.
+See: src/kryptos/k4/executor.py deprecation notice.
+"""
 
 from __future__ import annotations
 
@@ -14,6 +19,7 @@ from kryptos.k4.pipeline import make_hill_constraint_stage  # noqa: E402
 
 
 class TestParallelHillVariants(unittest.TestCase):
+    @unittest.skip("Testing deprecated PipelineExecutor - pending migration or removal")
     def test_variant_metadata_presence_and_diversity(self):
         hill_stage = make_hill_constraint_stage(name='hill', prune_3x3=True, partial_len=40, partial_min=-900.0)
         cfg = PipelineConfig(

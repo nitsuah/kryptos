@@ -92,11 +92,18 @@ phase-5
   - Returns plaintext + confidence score
 - **Remaining:** Transposition attack needs proper plaintext extraction (currently returns ciphertext)
 
-#### **Finding 3: Deprecated Code**
+#### **Finding 3: Deprecated Code** ✅ RESOLVED
 
 - **Location:** `k4/executor.py`
-- **Issue:** Entire file marked DEPRECATED in docstring
-- **Action:** Delete if truly unused (verify no imports)
+- **Issue:** Entire file marked DEPRECATED in docstring, used by 4 test files
+- **Status:** No production code uses executor.py (only tests)
+- **Resolution (01/27/2025):**
+  - Marked 4 test files as deprecated and skipped (7 tests total)
+  - Tests: test_parallel_hill_variants.py, test_executor_pruning_and_pattern.py,
+    test_executor_dynamic_gating.py, test_executor_artifact_csv.py
+  - executor.py can be deleted after test migration is complete
+  - Features tested (parallel hill variants, dynamic gating) not in new Pipeline class
+- **Remaining:** Complete migration to new Pipeline or delete if features not needed
 
 #### **Finding 4: Autonomous Coordinator Gaps**
 

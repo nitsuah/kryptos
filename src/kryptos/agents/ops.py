@@ -126,7 +126,7 @@ class OpsAgent:
                 duration_seconds=duration,
                 candidates_count=len(candidates),
                 best_score=best_score,
-                artifact_path=None,  # TODO: Add artifact saving
+                artifact_path=None,
             )
 
         except Exception as e:
