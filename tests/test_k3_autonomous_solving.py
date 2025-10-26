@@ -7,6 +7,8 @@ provides real measured capability.
 
 import random
 
+import pytest
+
 from kryptos.k4.transposition_analysis import (
     apply_columnar_permutation_encrypt,
     apply_columnar_permutation_reverse,
@@ -14,6 +16,7 @@ from kryptos.k4.transposition_analysis import (
 )
 
 
+@pytest.mark.slow
 def test_k3_autonomous_period_5():
     """Test SA solver on period-5 transposition (baseline)."""
     # Known plaintext (English-like)
@@ -58,6 +61,7 @@ def test_k3_autonomous_period_5():
     print("\n  NOTE: This is a single probabilistic run. See Monte Carlo test for success rate.")
 
 
+@pytest.mark.slow
 def test_k3_autonomous_period_6():
     """Test SA solver on period-6 transposition."""
     plaintext = (
@@ -88,6 +92,7 @@ def test_k3_autonomous_period_6():
     print("\n  NOTE: This is a single probabilistic run. See Monte Carlo test for success rate.")
 
 
+@pytest.mark.slow
 def test_k3_autonomous_period_7():
     """Test SA solver on period-7 transposition (harder)."""
     plaintext = (
@@ -122,6 +127,7 @@ def test_k3_autonomous_period_7():
     print("\n  NOTE: Period 7 is harder. This is a single probabilistic run.")
 
 
+@pytest.mark.slow
 def test_k3_monte_carlo_period_5(runs=10):
     """Monte Carlo test: Run period-5 recovery multiple times to get success rate.
 

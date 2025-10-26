@@ -4,6 +4,8 @@ Validates actual success rates with confidence intervals instead of single-case 
 Measures: success rate, variance, failure modes, performance.
 """
 
+import pytest
+
 from kryptos.ciphers import vigenere_decrypt
 from kryptos.k4.vigenere_key_recovery import recover_key_by_frequency
 
@@ -26,6 +28,7 @@ K2_PLAINTEXT = "ITWASTOTALLYIN"  # First 14 chars (enough to validate)
 K2_KEY = "ABSCISSA"
 
 
+@pytest.mark.slow
 def test_k1_monte_carlo_50runs():
     """50-run Monte Carlo validation of K1 autonomous key recovery.
 
@@ -103,6 +106,7 @@ def test_k1_monte_carlo_50runs():
     assert rank_1 == runs, f"K1 recovery should be deterministic - expected {runs} successes, got {rank_1}"
 
 
+@pytest.mark.slow
 def test_k2_monte_carlo_50runs():
     """50-run Monte Carlo validation of K2 autonomous key recovery.
 

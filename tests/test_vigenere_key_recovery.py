@@ -36,6 +36,7 @@ K2_KEY = "ABSCISSA"
 class TestAutonomousKeyRecovery:
     """Test autonomous key recovery WITHOUT providing known keys."""
 
+    @pytest.mark.slow
     def test_k1_autonomous_recovery_no_key_provided(self):
         """
         Test that K1 key (PALIMPSEST) can be autonomously recovered from full ciphertext.
@@ -57,6 +58,7 @@ class TestAutonomousKeyRecovery:
         decrypted = vigenere_decrypt(K1_CIPHERTEXT, K1_KEY)
         assert decrypted == K1_PLAINTEXT
 
+    @pytest.mark.slow
     def test_k2_autonomous_recovery_no_key_provided(self):
         """
         SUCCESS: Prove K2 can be solved WITHOUT knowing key='ABSCISSA'.
@@ -263,6 +265,7 @@ class TestPerformance:
         assert elapsed < 5.0, f"Recovery took {elapsed:.2f}s (too slow)"
         assert len(recovered_keys) > 0
 
+    @pytest.mark.slow
     def test_long_ciphertext_still_performant(self):
         """Test with longer ciphertext (full K2)."""
         import time
