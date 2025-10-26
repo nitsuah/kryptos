@@ -4,7 +4,7 @@
 
 **Audience:** Human developers and AI agents working on this project.
 
-**Last Updated:** January 27, 2025
+**Last Updated:** October 26, 2025
 
 ---
 
@@ -50,6 +50,106 @@ Procedures](#audit-procedures) 9. [AI Agent Prompts](#ai-agent-prompts)
    - Delete clutter (outdated code, obsolete docs)
    - Document assumptions (what we believe to be true)
    - Record learnings (what we discovered)
+
+6. **Code Cleanliness Over Cleverness**
+   - Docs explain WHAT and WHY (architecture, integrations, philosophy)
+   - Code shows HOW (implementation details)
+   - Type hints ARE documentation (parameters, returns)
+   - No redundancy: code doesn't repeat what docs explain
+   - Minimal logging: errors/warnings only, not progress narratives
+   - Surgical cleanup: manual file-by-file preserves functionality
+
+---
+
+## Automation & Pre-Commit Hooks
+
+### Philosophy on Automation
+
+**Automate safely:**
+- Formatting (black, isort) - safe, deterministic
+- Linting (ruff, pylint) - catches bugs, enforces style
+- Type checking (mypy) - catches type errors
+- Simple cleanups (trailing whitespace, unused imports)
+
+**Don't automate:**
+- Docstring removal - breaks code structure
+- Comment removal - loses context
+- Log statement removal - manual judgment needed
+- Complex refactoring - requires understanding
+
+### Lessons Learned: Code Cleanup
+
+**What DOESN'T work:**
+- ❌ `astor` - reformats code, renames classes, breaks imports
+- ❌ `docformatter` - argument errors, unreliable
+- ❌ PowerShell regex on Python - breaks indentation
+- ❌ AST manipulation without source preservation
+- ❌ Batch removal of comments/logs without context
+
+**What DOES work:**
+- ✅ Manual file-by-file cleanup (surgical, preserves functionality)
+- ✅ Black/isort for formatting only
+- ✅ Ruff for linting and safe auto-fixes
+- ✅ grep/semantic search to find patterns, manual review to remove
+- ✅ Test after each file to ensure nothing breaks
+
+**Cleanup Workflow:** 1. Search for patterns (verbose docstrings, log.info calls, etc.) 2. Review each file individually
+3. Make targeted edits 4. Run imports/tests to verify 5. Commit per-file or per-module 6. Document what was removed and
+why
+
+### Pre-Commit Hook Setup
+
+Recommended `.pre-commit-config.yaml`:
+
+```yaml
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.1.1
+    hooks:
+      - id: black
+        language_version: python3.10
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.14
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-all]
+        args: [--ignore-missing-imports]
+```
+
+Install: `pip install pre-commit && pre-commit install`
+
+Run manually: `pre-commit run --all-files`
+
+### What Pre-Commit Should NOT Do
+
+- Don't auto-remove docstrings (needs manual review)
+- Don't auto-remove comments (context matters)
+- Don't auto-remove log statements (errors should stay)
+- Don't run slow tests (use CI for full test suite)
+- Don't modify line counts aggressively (breaks git blame)
 
 ---
 
@@ -714,6 +814,12 @@ it makes mistakes, update the prompts
 
 ## Version History
 
+- **v1.1** (2025-10-26): Added automation & cleanup principles
+  - Documented what works/doesn't work for automated cleanup
+  - Added pre-commit hook recommendations
+  - Added "Code Cleanliness Over Cleverness" principle
+  - Emphasized surgical manual cleanup over batch automation
+
 - **v1.0** (2025-01-27): Initial version based on K1/K2/K3 validation experience
   - Established core principles
   - Created audit procedures
@@ -722,7 +828,7 @@ it makes mistakes, update the prompts
 
 ---
 
-**Next Review Date:** April 27, 2025 (3 months)
+**Next Review Date:** January 26, 2026 (3 months)
 
 **Maintainer:** Project team
 

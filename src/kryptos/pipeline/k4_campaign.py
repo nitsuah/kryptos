@@ -78,8 +78,6 @@ class K4CampaignOrchestrator:
             min_confidence=0.7,
         )
 
-        self.log.info("✓ All components initialized")
-
     def execute_vigenere_attack(
         self,
         ciphertext: str,

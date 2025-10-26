@@ -98,7 +98,6 @@ class AttackGenerator:
         Returns:
             List of attack specifications
         """
-        self.log.info("Generating attacks from Q-Research hints")
 
         attacks = []
 
@@ -122,7 +121,6 @@ class AttackGenerator:
 
         self.stats["from_q_hints"] += len(attacks)
         self.stats["generated"] += len(attacks)
-        self.log.info(f"Generated {len(attacks)} attacks from Q-Research hints")
 
         return attacks[:max_attacks]
 
@@ -144,7 +142,6 @@ class AttackGenerator:
         Returns:
             List of attack specifications targeting gaps
         """
-        self.log.info(f"Generating attacks for {cipher_type} coverage gaps")
 
         attacks = []
 
@@ -158,7 +155,6 @@ class AttackGenerator:
             self.log.warning(f"No coverage data for {cipher_type}, generating seed attacks")
             seed_attacks = self._generate_seed_attacks(cipher_type, ciphertext, max_attacks)
             self.stats["from_coverage_gaps"] += len(seed_attacks)
-            self.log.info(f"Generated {len(seed_attacks)} gap-filling attacks")
             return seed_attacks
 
         # Find under-covered regions
@@ -169,7 +165,6 @@ class AttackGenerator:
             self.log.warning(f"No regions tracked for {cipher_type}, generating seed attacks")
             seed_attacks = self._generate_seed_attacks(cipher_type, ciphertext, max_attacks)
             self.stats["from_coverage_gaps"] += len(seed_attacks)
-            self.log.info(f"Generated {len(seed_attacks)} gap-filling attacks")
             return seed_attacks
         for region_data in regions:
             coverage = region_data.get("coverage_percent", 0.0)
@@ -192,7 +187,6 @@ class AttackGenerator:
 
         self.stats["from_coverage_gaps"] += len(attacks)
         self.stats["generated"] += len(attacks)
-        self.log.info(f"Generated {len(attacks)} gap-filling attacks")
 
         return attacks[:max_attacks]
 
@@ -212,7 +206,6 @@ class AttackGenerator:
         Returns:
             List of attack specifications from literature
         """
-        self.log.info(f"Generating attacks from {len(paper_recommendations)} literature recommendations")
 
         attacks = []
 
@@ -227,7 +220,6 @@ class AttackGenerator:
 
         self.stats["from_literature"] += len(attacks)
         self.stats["generated"] += len(attacks)
-        self.log.info(f"Generated {len(attacks)} literature-informed attacks")
 
         return attacks[:max_attacks]
 
@@ -247,7 +239,6 @@ class AttackGenerator:
         Returns:
             Prioritized, deduplicated attack queue
         """
-        self.log.info("Generating comprehensive attack queue")
 
         cipher_types = cipher_types or ["vigenere", "transposition", "hill", "hybrid"]
 
@@ -276,7 +267,6 @@ class AttackGenerator:
         all_attacks = sorted(all_attacks, key=lambda x: x.priority, reverse=True)
 
         self.stats["generated"] = len(all_attacks)
-        self.log.info(f"Generated {len(all_attacks)} total attacks (deduplicated)")
 
         return all_attacks[:max_total]
 
@@ -618,7 +608,6 @@ class AttackGenerator:
             # Check if it's been executed before (via AttackLogger)
             if self.attack_logger.is_duplicate(attack.parameters):
                 self.stats["duplicates_filtered"] += 1
-                self.log.debug(f"Skipping duplicate attack: {attack.rationale}")
                 continue
 
             # New attack
@@ -669,5 +658,3 @@ class AttackGenerator:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "w") as f:
             json.dump(output_data, f, indent=2)
-
-        self.log.info(f"Exported {len(attacks)} attacks to {output_path}")

@@ -29,8 +29,6 @@ from kryptos.provenance.attack_log import AttackLogger, AttackResult
 
 @dataclass
 class JobResult:
-    """Result from a hypothesis test job."""
-
     hypothesis_name: str
     success: bool
     duration_seconds: float
@@ -42,35 +40,17 @@ class JobResult:
 
 @dataclass
 class OpsConfig:
-    """Configuration for OPS agent orchestration."""
-
-    max_workers: int | None = None  # None = CPU count
-    job_timeout_seconds: int = 300  # 5 minutes per hypothesis
+    max_workers: int | None = None
+    job_timeout_seconds: int = 300
     retry_failed: bool = False
     save_artifacts: bool = True
     log_level: str = "INFO"
-    enable_attack_generation: bool = True  # Enable AttackGenerator integration
-    attack_log_dir: Path | None = None  # Directory for attack logs
+    enable_attack_generation: bool = True
+    attack_log_dir: Path | None = None
 
 
 class OpsAgent:
-    """Operations orchestrator for parallel hypothesis execution.
-
-    Manages parallel testing of multiple cryptanalysis hypotheses with:
-    - Process pool execution
-    - Timeout enforcement
-    - Resource monitoring
-    - Queue management
-    - Result aggregation
-    - Attack generation from Q-Research hints (Phase 5.1+)
-    """
-
     def __init__(self, config: OpsConfig | None = None):
-        """Initialize OPS agent.
-
-        Args:
-            config: Configuration for orchestration behavior
-        """
         self.config = config or OpsConfig()
         self.log = setup_logging(
             level=self.config.log_level,
@@ -78,7 +58,6 @@ class OpsAgent:
         )
         self.results: list[JobResult] = []
 
-        # Phase 5.1: Attack generation integration
         if self.config.enable_attack_generation:
             self.attack_logger = AttackLogger(log_dir=self.config.attack_log_dir)
             self.attack_generator = AttackGenerator(
@@ -96,28 +75,11 @@ class OpsAgent:
         ciphertext: str,
         **kwargs: Any,
     ) -> JobResult:
-        """Execute a single hypothesis test (designed to run in worker process).
-
-        Args:
-            hypothesis_name: Name identifier for the hypothesis
-            hypothesis_class: Hypothesis class to instantiate
-            ciphertext: K4 ciphertext to test
-            **kwargs: Additional parameters for hypothesis
-
-        Returns:
-            JobResult with test outcomes
-        """
         start = time.time()
         try:
-            # Instantiate hypothesis
             hypothesis = hypothesis_class(**kwargs)
-
-            # Generate candidates
             candidates = list(hypothesis.generate_candidates(ciphertext, limit=10))
-
             duration = time.time() - start
-
-            # Extract best score
             best_score = candidates[0].score if candidates else None
 
             return JobResult(
@@ -143,25 +105,10 @@ class OpsAgent:
         jobs: list[dict[str, Any]],
         ciphertext: str,
     ) -> list[JobResult]:
-        """Run multiple hypothesis tests in parallel.
-
-        Args:
-            jobs: List of job specifications, each with:
-                  - 'name': hypothesis identifier
-                  - 'class': hypothesis class
-                  - 'params': dict of parameters (optional)
-            ciphertext: K4 ciphertext to test
-
-        Returns:
-            List of JobResults for all jobs
-        """
         self.results = []
         max_workers = self.config.max_workers or mp.cpu_count()
 
-        self.log.info(f"Starting parallel execution: {len(jobs)} jobs, {max_workers} workers")
-
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
-            # Submit all jobs
             future_to_job = {}
             for job_spec in jobs:
                 name = job_spec["name"]
@@ -177,7 +124,6 @@ class OpsAgent:
                 )
                 future_to_job[future] = name
 
-            # Collect results as they complete
             for future in as_completed(
                 future_to_job,
                 timeout=self.config.job_timeout_seconds * len(jobs),
@@ -186,14 +132,6 @@ class OpsAgent:
                 try:
                     result = future.result(timeout=self.config.job_timeout_seconds)
                     self.results.append(result)
-
-                    if result.success:
-                        self.log.info(
-                            f"✓ {job_name}: {result.candidates_count} candidates, "
-                            f"best={result.best_score:.2f}, {result.duration_seconds:.2f}s",
-                        )
-                    else:
-                        self.log.error(f"✗ {job_name}: FAILED - {result.error} " f"({result.duration_seconds:.2f}s)")
 
                 except TimeoutError:
                     self.log.error(f"✗ {job_name}: TIMEOUT after {self.config.job_timeout_seconds}s")
@@ -220,20 +158,13 @@ class OpsAgent:
         return self.results
 
     def summarize(self) -> dict[str, Any]:
-        """Generate summary statistics from completed jobs.
-
-        Returns:
-            Dictionary with execution statistics
-        """
         if not self.results:
             return {"status": "no_jobs"}
 
         successful = [r for r in self.results if r.success]
         failed = [r for r in self.results if not r.success]
-
         total_duration = sum(r.duration_seconds for r in self.results)
         total_candidates = sum(r.candidates_count for r in successful)
-
         best_result = max(successful, key=lambda r: r.best_score or float("-inf")) if successful else None
 
         return {
@@ -246,39 +177,18 @@ class OpsAgent:
             "best_score": round(best_result.best_score, 2) if best_result and best_result.best_score else None,
         }
 
-    # ===== PHASE 5.1+: ATTACK GENERATION INTEGRATION =====
-
     def generate_attack_queue_from_q_hints(
         self,
         ciphertext: str,
         max_attacks: int = 50,
     ) -> list[AttackSpec]:
-        """Generate attack queue from Q-Research cryptanalysis hints.
-
-        This method bridges Q-Research insights with executable attacks.
-        Converts Vigenère metrics, transposition hints, and strategy
-        suggestions into prioritized AttackParameters.
-
-        Args:
-            ciphertext: Ciphertext to analyze and attack
-            max_attacks: Maximum attacks to generate
-
-        Returns:
-            Prioritized list of attack specifications
-
-        Raises:
-            RuntimeError: If attack generation is not enabled
-        """
         if not self.attack_generator:
             raise RuntimeError("Attack generation not enabled. Set enable_attack_generation=True in OpsConfig.")
 
-        self.log.info("Generating attack queue from Q-Research hints")
         attacks = self.attack_generator.generate_from_q_hints(
             ciphertext=ciphertext,
             max_attacks=max_attacks,
         )
-
-        self.log.info("Generated %d attacks from Q-Research", len(attacks))
         return attacks
 
     def generate_attack_queue_comprehensive(
@@ -287,35 +197,14 @@ class OpsAgent:
         cipher_types: list[str] | None = None,
         max_attacks: int = 200,
     ) -> list[AttackSpec]:
-        """Generate comprehensive attack queue from all sources.
-
-        Combines:
-        - Q-Research hints (Vigenère, transposition)
-        - Coverage gap targeting
-        - Literature recommendations (when available)
-
-        Args:
-            ciphertext: Ciphertext to attack
-            cipher_types: Cipher types to consider
-            max_attacks: Maximum total attacks
-
-        Returns:
-            Prioritized, deduplicated attack queue
-
-        Raises:
-            RuntimeError: If attack generation is not enabled
-        """
         if not self.attack_generator:
             raise RuntimeError("Attack generation not enabled. Set enable_attack_generation=True in OpsConfig.")
 
-        self.log.info("Generating comprehensive attack queue")
         attacks = self.attack_generator.generate_comprehensive_queue(
             ciphertext=ciphertext,
             cipher_types=cipher_types,
             max_total=max_attacks,
         )
-
-        self.log.info("Generated %d attacks (comprehensive)", len(attacks))
         return attacks
 
     def execute_attack_queue(
@@ -324,44 +213,20 @@ class OpsAgent:
         ciphertext: str,
         batch_size: int = 10,
     ) -> dict[str, Any]:
-        """Execute generated attack queue with logging and progress tracking.
-
-        This is a placeholder that demonstrates the intended workflow.
-        Full implementation requires cipher-specific execution logic.
-
-        Args:
-            attack_queue: Queue of attacks to execute
-            ciphertext: Ciphertext to attack
-            batch_size: Number of attacks to execute in parallel
-
-        Returns:
-            Execution summary with statistics
-
-        Raises:
-            RuntimeError: If attack logging is not enabled
-        """
         if not self.attack_logger:
             raise RuntimeError("Attack logging not enabled.")
-
-        self.log.info("Executing %d attacks in batches of %d", len(attack_queue), batch_size)
 
         executed = 0
         successful = 0
         best_score = float("-inf")
         best_attack = None
 
-        # Process in batches
         for i in range(0, len(attack_queue), batch_size):
             batch = attack_queue[i : i + batch_size]
-            batch_num = i // batch_size + 1
-            self.log.info("Executing batch %d: %d attacks", batch_num, len(batch))
 
             for attack_spec in batch:
-                # Execute attack with real cipher implementation
-                # (vigenere, hill, transposition) and score with SPY agent
                 result = self._execute_single_attack(attack_spec, ciphertext)
 
-                # Log attack
                 _attack_id, _is_duplicate = self.attack_logger.log_attack(
                     ciphertext=ciphertext,
                     parameters=attack_spec.parameters,
@@ -377,7 +242,7 @@ class OpsAgent:
                         best_score = result.confidence_scores["spy"]
                         best_attack = attack_spec
 
-        summary = {
+        return {
             "total_attacks": len(attack_queue),
             "executed": executed,
             "successful": successful,
@@ -386,30 +251,17 @@ class OpsAgent:
             "attack_logger_stats": self.attack_logger.stats,
         }
 
-        self.log.info("Execution complete: %d/%d successful", successful, executed)
-        return summary
-
     def _execute_single_attack(
         self,
         attack_spec: AttackSpec,
         ciphertext: str,
     ) -> AttackResult:
-        """Execute a single attack with real cipher implementation.
-
-        Args:
-            attack_spec: Attack specification
-            ciphertext: Ciphertext to attack
-
-        Returns:
-            Attack result with decryption and SPY scoring
-        """
         start_time = time.time()
         params = attack_spec.parameters
         cipher_type = params.cipher_type
         key_or_params = params.key_or_params
 
         try:
-            # Execute cipher based on type
             plaintext_candidate = None
 
             if cipher_type == "vigenere":
@@ -419,7 +271,6 @@ class OpsAgent:
             elif cipher_type == "transposition":
                 plaintext_candidate = self._execute_transposition(ciphertext, key_or_params)
             else:
-                # Unknown cipher type - return failure
                 return AttackResult(
                     success=False,
                     plaintext_candidate=None,
@@ -429,7 +280,6 @@ class OpsAgent:
                     metadata={"cipher_type": cipher_type},
                 )
 
-            # If decryption failed, return failure
             if plaintext_candidate is None:
                 return AttackResult(
                     success=False,

@@ -311,7 +311,6 @@ class PlaintextValidator:
         Returns:
             ValidationResult with all stage results
         """
-        self.log.debug(f"Validating plaintext: {plaintext[:50]}...")
 
         stage_results = {}
         reasons = []
@@ -320,34 +319,24 @@ class PlaintextValidator:
         stage1 = self.stage1_dictionary_score(plaintext)
         stage_results["stage1_dictionary"] = stage1
         reasons.append(stage1["reason"])
-        self.log.debug(f"Stage 1 (Dictionary): {stage1['passed']}")
 
         # Stage 2: Crib matching
         stage2 = self.stage2_crib_matching(plaintext)
         stage_results["stage2_crib"] = stage2
         reasons.append(stage2["reason"])
-        self.log.debug(f"Stage 2 (Crib): {stage2['passed']}")
 
         # Stage 3: Linguistic validation
         stage3 = self.stage3_linguistic_validation(plaintext)
         stage_results["stage3_linguistic"] = stage3
         reasons.append(stage3["reason"])
-        self.log.debug(f"Stage 3 (Linguistic): {stage3['passed']}")
 
         # Stage 4: Confidence scoring
         stage4 = self.stage4_confidence_scoring(stage_results)
         stage_results["stage4_confidence"] = stage4
         confidence = stage4["confidence"]
         reasons.append(f"Overall confidence: {confidence:.1%}")
-        self.log.debug(f"Stage 4 (Confidence): {confidence:.3f}")
 
-        # Overall validation
         is_valid = confidence >= self.min_confidence
-
-        if is_valid:
-            self.log.info(f"✓ Plaintext VALID (confidence: {confidence:.1%})")
-        else:
-            self.log.info(f"✗ Plaintext INVALID (confidence: {confidence:.1%})")
 
         return ValidationResult(
             is_valid=is_valid,
