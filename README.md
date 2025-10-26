@@ -9,7 +9,9 @@ decrypt the famous Kryptos sculpture.
 This Kryptos repository is a research toolkit for exploring layered cipher hypotheses (Vigenère, Hill, transposition,
 masking, and related hybrids) with an emphasis on reproducible pipelines and scoring heuristics.
 
-Related documents / quick links:
+## docs
+
+All Related documents / quick links can generally be found in `docs/`:
 
 - Phase 6 Roadmap: `docs/PHASE_6_ROADMAP.md`
 - Agents Architecture: `docs/reference/AGENTS_ARCHITECTURE.md`

@@ -11,6 +11,21 @@ from collections import Counter
 from kryptos.provenance.search_space import SearchSpaceTracker
 
 KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
+STANDARD_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+# Lazy import to avoid circular dependencies
+_spy_agent = None
+
+
+def _get_spy_agent():
+    """Lazy load SPY agent to avoid import at module level."""
+    global _spy_agent
+    if _spy_agent is None:
+        from kryptos.agents.spy import SpyAgent
+
+        _spy_agent = SpyAgent()
+    return _spy_agent
+
 
 # Expected frequencies for English (approximate, based on standard corpus)
 # Adjusted for Kryptos context
@@ -50,8 +65,14 @@ def recover_key_by_frequency(
     top_n: int = 3,
     skip_tried: bool = False,
     tracker: SearchSpaceTracker | None = None,
+    alphabet: str | None = None,
+    try_all_alphabets: bool = False,
+    use_spy_scoring: bool = False,
 ) -> list[str]:
     """Recover Vigenère key using frequency analysis.
+
+    NOTE: SPY scoring (use_spy_scoring=True) is expensive and often doesn't improve results.
+    Default is False for performance. Enable only if you need better candidate ranking.
 
     Args:
         ciphertext: Ciphertext to analyze
@@ -59,10 +80,43 @@ def recover_key_by_frequency(
         top_n: Return top N candidate keys
         skip_tried: If True, filter out keys that were already tried (cross-run memory)
         tracker: Optional SearchSpaceTracker instance (creates default if None and skip_tried=True)
+        alphabet: Alphabet to use (default: KEYED_ALPHABET). Can also be STANDARD_ALPHABET.
+        try_all_alphabets: If True, try both KEYED and STANDARD alphabets and return best results
+        use_spy_scoring: If True, re-rank candidates using SPY agent scoring (slow, often unhelpful)
 
     Returns:
         List of candidate keys (most likely first), filtered if skip_tried=True
     """
+    # If try_all_alphabets is enabled, recursively try both and merge results
+    if try_all_alphabets:
+        keyed_results = recover_key_by_frequency(
+            ciphertext,
+            key_length,
+            top_n=top_n,
+            skip_tried=skip_tried,
+            tracker=tracker,
+            alphabet=KEYED_ALPHABET,
+        )
+        standard_results = recover_key_by_frequency(
+            ciphertext,
+            key_length,
+            top_n=top_n,
+            skip_tried=skip_tried,
+            tracker=tracker,
+            alphabet=STANDARD_ALPHABET,
+        )
+        # Merge and deduplicate
+        seen = set()
+        merged = []
+        for key in keyed_results + standard_results:
+            if key not in seen:
+                seen.add(key)
+                merged.append(key)
+        return merged[:top_n]
+
+    # Use provided alphabet or default to keyed
+    if alphabet is None:
+        alphabet = KEYED_ALPHABET
     # Clean ciphertext
     ct = ''.join(c for c in ciphertext.upper() if c.isalpha())
 
@@ -83,16 +137,16 @@ def recover_key_by_frequency(
 
         # Try each possible key character and score
         scores = []
-        for k_char in KEYED_ALPHABET:
-            k_idx = KEYED_ALPHABET.index(k_char)
+        for k_char in alphabet:
+            k_idx = alphabet.index(k_char)
 
             # Decrypt this column with this key char
             decrypted = []
             for c in column:
                 try:
-                    c_idx = KEYED_ALPHABET.index(c)
-                    p_idx = (c_idx - k_idx) % len(KEYED_ALPHABET)
-                    decrypted.append(KEYED_ALPHABET[p_idx])
+                    c_idx = alphabet.index(c)
+                    p_idx = (c_idx - k_idx) % len(alphabet)
+                    decrypted.append(alphabet[p_idx])
                 except ValueError:
                     continue
 
@@ -103,10 +157,43 @@ def recover_key_by_frequency(
 
         # Get top candidates for this position
         scores.sort(reverse=True)
-        key_chars.append([k for _, k in scores[:top_n]])
+        # Use top_n candidates per position (Phase 5 behavior)
+        # If SPY scoring enabled, keep a few more to increase search space
+        per_position_candidates = 5 if use_spy_scoring else top_n
+        key_chars.append([k for _, k in scores[:per_position_candidates]])
 
     # Generate candidate keys from top choices per position
-    candidates = _generate_key_combinations(key_chars, max_keys=top_n)
+    if use_spy_scoring:
+        # For SPY scoring: generate more candidates to rank
+        max_candidates = min(100, 5 ** min(len(key_chars), 4))
+    else:
+        max_candidates = top_n
+    candidates = _generate_key_combinations(key_chars, max_keys=max_candidates)
+
+    # Re-rank using SPY agent if enabled
+    if use_spy_scoring and candidates:
+        from kryptos.ciphers import vigenere_decrypt
+
+        spy = _get_spy_agent()
+        scored_candidates = []
+
+        for key in candidates:
+            try:
+                # Decrypt with this key
+                plaintext = vigenere_decrypt(ciphertext, key)
+
+                # Score with SPY agent
+                analysis = spy.analyze_candidate(plaintext)
+                spy_score = analysis.get('pattern_score', 0.0)
+
+                scored_candidates.append((spy_score, key))
+            except (ValueError, KeyError):
+                # Skip invalid keys
+                continue
+
+        # Sort by SPY score and keep top_n
+        scored_candidates.sort(reverse=True)
+        candidates = [key for _, key in scored_candidates[:top_n]]
 
     # Filter out already-tried keys if cross-run memory enabled
     if skip_tried:
@@ -160,6 +247,8 @@ def _score_english_frequency(text: str) -> float:
 def _generate_key_combinations(key_chars: list[list[str]], max_keys: int = 10) -> list[str]:
     """Generate key combinations from candidate characters at each position.
 
+    Uses itertools.product for proper cartesian product generation.
+
     Args:
         key_chars: List of candidate characters for each key position
         max_keys: Maximum number of keys to generate
@@ -170,23 +259,14 @@ def _generate_key_combinations(key_chars: list[list[str]], max_keys: int = 10) -
     if not key_chars:
         return []
 
-    # Start with first position
-    keys = [[c] for c in key_chars[0]]
+    # Use itertools.product for proper cartesian product
+    import itertools
 
-    # Add each subsequent position
-    for position in key_chars[1:]:
-        new_keys = []
-        for key in keys:
-            for char in position:
-                new_keys.append(key + [char])
-                if len(new_keys) >= max_keys * 10:  # Limit explosion
-                    break
-            if len(new_keys) >= max_keys * 10:
-                break
-        keys = new_keys
+    # Don't limit - let itertools generate combinations naturally
+    # The zip with range(max_keys) will limit the output
+    combinations = itertools.product(*key_chars)
+    result = [''.join(combo) for combo, _ in zip(combinations, range(max_keys))]
 
-    # Convert to strings and limit
-    result = [''.join(k) for k in keys[:max_keys]]
     return result
 
 
