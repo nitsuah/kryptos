@@ -66,17 +66,6 @@ class StrategicDecision:
 
 
 class OpsStrategicDirector:
-    """LLM-powered strategic director for cryptanalysis operations.
-
-    Key responsibilities:
-    - Monitor attack progress and detect stagnation
-    - Synthesize insights from multiple agents
-    - Recommend strategic pivots when stuck
-    - Optimize resource allocation
-    - Generate human-readable reports
-    - Update project roadmap based on discoveries
-    """
-
     def __init__(self, llm_provider: str = "openai", model: str = "gpt-4", cache_dir: Path | None = None):
         self.llm_provider = llm_provider
         self.model = model
