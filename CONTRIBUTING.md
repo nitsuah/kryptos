@@ -2,6 +2,21 @@
 
 Thank you for your interest in advancing K4 analysis.
 
+## Maintenance & Code Quality
+
+**📖 New contributors should read [`docs/MAINTENANCE_GUIDE.md`](docs/MAINTENANCE_GUIDE.md) first!**
+
+This guide covers:
+- How to keep the codebase clean and maintainable
+- When to add tests vs scripts
+- Documentation best practices
+- Code review checklist
+- Audit procedures for quarterly cleanup
+
+Understanding our maintenance philosophy will help your contributions align with project standards.
+
+---
+
 ## Getting Started
 
 1. Install dependencies:
