@@ -10,16 +10,12 @@ from collections.abc import Iterable, Sequence
 from functools import lru_cache
 from pathlib import Path
 
-# Paths
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
 CONFIG_PATH = os.path.join(ROOT_DIR, 'config', 'config.json')
 
-# ---------------- Loaders ----------------
-
 
 def _load_letter_freq(path: str) -> dict[str, float]:
-    """Load letter frequency table from file."""
     freq: dict[str, float] = {}
     try:
         with open(path, encoding='utf-8') as fh:
@@ -39,7 +35,6 @@ def _load_letter_freq(path: str) -> dict[str, float]:
 
 
 def _load_ngrams(path: str) -> dict[str, float]:
-    """Load n-gram frequency table from file."""
     grams: dict[str, float] = {}
     try:
         with open(path, encoding='utf-8') as fh:
@@ -55,13 +50,11 @@ def _load_ngrams(path: str) -> dict[str, float]:
                 if gram.isalpha():
                     grams[gram] = float(val)
     except FileNotFoundError:
-        # Missing n-gram file: return empty; letter freq fallback handled separately.
         return {}
     return grams
 
 
 def _load_config_cribs(path: str) -> list[str]:
-    """Load cribs from config file (expects top-level 'cribs' list)."""
     try:
         with open(path, encoding='utf-8') as fh:
             data = json.load(fh)
@@ -72,7 +65,6 @@ def _load_config_cribs(path: str) -> list[str]:
 
 
 def _load_wordlist(path: str) -> set[str]:
-    """Load wordlist (one word per line) into uppercase set. Only keep length >=3."""
     words: set[str] = set()
     try:
         with open(path, encoding='utf-8') as fh:
@@ -85,11 +77,9 @@ def _load_wordlist(path: str) -> set[str]:
     return words
 
 
-# ---------------- Data ----------------
 LETTER_FREQ: dict[str, float] = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv'))
 BIGRAMS: dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'bigrams.tsv'))
 TRIGRAMS: dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'trigrams.tsv'))
-# Prefer high quality quadgrams file if present
 _quad_hi_path = os.path.join(DATA_DIR, 'quadgrams_high_quality.tsv')
 if os.path.exists(_quad_hi_path):
     QUADGRAMS: dict[str, float] = _load_ngrams(_quad_hi_path)
@@ -99,10 +89,8 @@ else:
 CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
 WORDLIST: set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
 
-# Cache for promoted cribs with mtime tracking (mtime, cribs_set)
 _promoted_cribs_cache: dict[str, tuple[float, set[str]]] = {}
 
-# Berlin Clock pattern reference words (stub for pattern validator)
 BERLIN_CLOCK_TERMS = {'BERLIN', 'CLOCK'}
 
 if not LETTER_FREQ:
@@ -135,7 +123,6 @@ if not LETTER_FREQ:
         'Z': 0.074,
     }
 
-# Minimal fallback wordlist (placeholder)
 if not WORDLIST:
     WORDLIST = {
         'THE',
@@ -160,13 +147,10 @@ if not WORDLIST:
 
 _UNKNOWN_BIGRAM = -2.0
 _UNKNOWN_TRIGRAM = -2.5
-_UNKNOWN_QUADGRAM = -4.0  # slightly harsher unknown penalty with higher quality table
-
-# ---------------- Metrics ----------------
+_UNKNOWN_QUADGRAM = -4.0
 
 
 def chi_square_stat(text: str) -> float:
-    """Chi-square statistic vs English letter frequencies (lower is better)."""
     filtered = [c for c in text.upper() if c.isalpha()]
     n = len(filtered)
     if n == 0:
@@ -182,43 +166,35 @@ def chi_square_stat(text: str) -> float:
 
 
 def _score_ngrams(text: str, table: dict[str, float], size: int, unknown: float) -> float:
-    """Generic n-gram scoring function (optimized)."""
-    # Pre-filter to avoid repeated isalpha() checks and uppercase conversion
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if len(seq) < size:
         return 0.0
 
-    # Use direct string slicing instead of join (faster for this case)
     total = 0.0
-    table_get = table.get  # Local reference for faster lookup
+    table_get = table.get
     for i in range(len(seq) - size + 1):
         total += table_get(seq[i : i + size], unknown)
     return total
 
 
 def bigram_score(text: str) -> float:
-    """Score text based on bigram frequencies."""
     return _score_ngrams(text, BIGRAMS, 2, _UNKNOWN_BIGRAM)
 
 
 def trigram_score(text: str) -> float:
-    """Score text based on trigram frequencies."""
     return _score_ngrams(text, TRIGRAMS, 3, _UNKNOWN_TRIGRAM)
 
 
 def quadgram_score(text: str) -> float:
-    """Score text based on quadgram frequencies."""
     return _score_ngrams(text, QUADGRAMS, 4, _UNKNOWN_QUADGRAM)
 
 
 def _get_all_cribs() -> list[str]:
-    """Get combined list of config cribs + promoted cribs (with mtime cache)."""
     from kryptos.spy.crib_store import PROMOTED_CRIBS_PATH, load_promoted_cribs
 
-    all_cribs = list(CRIBS)  # Start with config cribs
-    config_set = set(CRIBS)  # Create set once for deduplication
+    all_cribs = list(CRIBS)
+    config_set = set(CRIBS)
 
-    # Check if promoted cribs file exists and load with caching
     if PROMOTED_CRIBS_PATH.exists():
         mtime = PROMOTED_CRIBS_PATH.stat().st_mtime
         cache_key = "promoted"
@@ -228,13 +204,11 @@ def _get_all_cribs() -> list[str]:
             _promoted_cribs_cache[cache_key] = (mtime, promoted)
         else:
             promoted = cached[1]
-        # Add promoted cribs that aren't already in config
         all_cribs.extend([c for c in promoted if c not in config_set])
     return all_cribs
 
 
 def crib_bonus(text: str) -> float:
-    """Bonus score for presence of known cribs (config + promoted)."""
     upper = ''.join(c for c in text.upper() if c.isalpha())
     bonus = 0.0
     for crib in _get_all_cribs():
@@ -244,32 +218,12 @@ def crib_bonus(text: str) -> float:
 
 
 def rarity_weighted_crib_bonus(text: str) -> float:
-    """Rarity-weighted crib bonus (config + promoted).
-
-    Assign higher bonus to cribs composed of rarer letters (per LETTER_FREQ) so that
-    infrequent-letter cribs (e.g., containing J/Q/Z/X) contribute proportionally more
-    than common ones like THE. This mitigates overweighting of extremely frequent cribs
-    while still rewarding their presence.
-
-    Formula per crib occurrence:
-        base = len(crib)
-        rarity_factor = average( (1 / (freq(letter)/100)) for letter in crib ) normalized
-        bonus_per_occurrence = 4.0 * base * rarity_factor
-
-    Normalization: We scale by dividing each letter rarity term by the maximum rarity term
-    observed among A-Z so values are in (0,1]; then average.
-
-    Multiple occurrences of same crib each count; overlapping permitted. If CRIBS empty returns 0.
-    Missing frequency entries fall back to a neutral 1.0 factor.
-    """
     all_cribs = _get_all_cribs()
     if not all_cribs:
         return 0.0
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if not seq:
         return 0.0
-    # Precompute rarity scaling
-    # Convert frequency percentage to probability; rarity term = 1 / p.
     rarities: dict[str, float] = {}
     max_rarity = 0.0
     for letter, pct in LETTER_FREQ.items():
@@ -293,7 +247,6 @@ def rarity_weighted_crib_bonus(text: str) -> float:
         if not c or c not in seq:
             continue
         occs = _crib_occurrences(c)
-        # Compute rarity factor (average normalized rarities)
         factors = []
         for letter in c:
             r = rarities.get(letter, 1.0)
@@ -308,12 +261,6 @@ def rarity_weighted_crib_bonus(text: str) -> float:
 
 
 def positional_crib_bonus(text: str, positional: dict[str, Sequence[int]], window: int = 5) -> float:
-    """Compute bonus for cribs appearing near expected positional indices.
-    positional: mapping crib -> iterable of expected start indices (0-based).
-    For each occurrence of crib in text, if distance to any expected index <= window,
-    award (8 * len(crib) - distance). Multiple positions can contribute; occurrences outside
-    window give no bonus. Cribs not found yield zero.
-    """
     if not positional:
         return 0.0
     upper = ''.join(c for c in text.upper() if c.isalpha())
@@ -322,14 +269,12 @@ def positional_crib_bonus(text: str, positional: dict[str, Sequence[int]], windo
         c = crib.upper()
         if not c or c not in upper:
             continue
-        # Find all occurrences
         starts = []
         idx = upper.find(c)
         while idx != -1:
             starts.append(idx)
             idx = upper.find(c, idx + 1)
         for occ in starts:
-            # Compute closest expected index
             if expected_positions:
                 dist = min(abs(occ - ep) for ep in expected_positions)
                 if dist <= window:
@@ -338,7 +283,6 @@ def positional_crib_bonus(text: str, positional: dict[str, Sequence[int]], windo
 
 
 def combined_plaintext_score(text: str) -> float:
-    """Higher is better: n-gram scores minus weighted chi-square plus crib bonus."""
     chi = chi_square_stat(text)
     bi = bigram_score(text)
     tri = trigram_score(text)
@@ -346,17 +290,12 @@ def combined_plaintext_score(text: str) -> float:
     return bi + tri + quad - 0.05 * chi + crib_bonus(text)
 
 
-# Cached wrapper (memoization for repeated scoring of identical plaintexts)
 @lru_cache(maxsize=10000)
 def combined_plaintext_score_cached(text: str) -> float:
-    """Cached version of combined_plaintext_score."""
     return combined_plaintext_score(text)
 
 
 def berlin_clock_pattern_validator(text: str) -> dict[str, bool | int]:
-    """Stub validator: check presence & ordering of BERLIN before CLOCK; future logic may
-    incorporate lamp pattern alignment or temporal sequencing. Returns dict with flags.
-    """
     upper = ''.join(c for c in text.upper() if c.isalpha())
     has_berlin = 'BERLIN' in upper
     has_clock = 'CLOCK' in upper
@@ -367,28 +306,18 @@ def berlin_clock_pattern_validator(text: str) -> dict[str, bool | int]:
         'has_berlin': has_berlin,
         'has_clock': has_clock,
         'berlin_before_clock': order_ok,
-        'pattern_bonus': int(has_berlin and has_clock and order_ok),  # simple 1/0 bonus
+        'pattern_bonus': int(has_berlin and has_clock and order_ok),
     }
 
 
 def combined_plaintext_score_extended(text: str) -> float:
-    """Extended combined score including berlin clock pattern bonus (small weight)."""
     base = combined_plaintext_score(text)
     pattern = berlin_clock_pattern_validator(text)
-    # Positional letter distribution score (added later): assess per-position (mod period)
-    # letter frequency alignment to English to penalize clustered atypical distributions.
     pos_score = positional_letter_deviation_score(text)
-    # weight bonuses modestly to avoid overpowering n-gram scoring
     return base + 25.0 * pattern['pattern_bonus'] + 30.0 * pos_score
 
 
-# --- Advanced linguistic metrics -------------------------------------------
-
-
 def wordlist_hit_rate(text: str, min_len: int = 3, max_len: int = 8) -> float:
-    """Approximate word-likeness: ratio of substring windows that appear in WORDLIST.
-    Iterates all windows length in [min_len, max_len]; caps total windows at 5000 for performance.
-    """
     seq = ''.join(c for c in text.upper() if c.isalpha())
     n = len(seq)
     if n < min_len:
@@ -410,7 +339,6 @@ def wordlist_hit_rate(text: str, min_len: int = 3, max_len: int = 8) -> float:
 
 
 def trigram_entropy(text: str) -> float:
-    """Shannon entropy over trigram distribution (A-Z only)."""
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if len(seq) < 3:
         return 0.0
@@ -425,10 +353,6 @@ def trigram_entropy(text: str) -> float:
 
 
 def bigram_gap_variance(text: str) -> float:
-    """Average variance of gaps between repeated bigram occurrences.
-    For each bigram occurring >=2 times, compute gaps between each start indices.
-    Return average variance across such bigrams (0 if none).
-    """
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if len(seq) < 4:
         return 0.0
@@ -451,11 +375,7 @@ def bigram_gap_variance(text: str) -> float:
     return sum(gap_vars) / len(gap_vars)
 
 
-# ---------------- Baseline stats ----------------
-
-
 def baseline_stats(text: str) -> dict[str, float]:
-    """Return dictionary of baseline scoring metrics for a candidate plaintext."""
     stats = {
         'chi_square': chi_square_stat(text),
         'bigram_score': bigram_score(text),
@@ -483,12 +403,10 @@ def baseline_stats(text: str) -> dict[str, float]:
 
 
 def segment_plaintext_scores(segments: Iterable[str]) -> dict[str, float]:
-    """Compute combined plaintext scores for multiple segments."""
     return {seg: combined_plaintext_score(seg) for seg in segments}
 
 
 def index_of_coincidence(text: str) -> float:
-    """Compute index of coincidence (IC)."""
     letters = [c for c in text.upper() if c.isalpha()]
     n = len(letters)
     if n < 2:
@@ -500,7 +418,6 @@ def index_of_coincidence(text: str) -> float:
 
 
 def vowel_ratio(text: str) -> float:
-    """Return proportion of letters that are vowels (AEIOUY)."""
     letters = [c for c in text.upper() if c.isalpha()]
     if not letters:
         return 0.0
@@ -510,13 +427,11 @@ def vowel_ratio(text: str) -> float:
 
 
 def letter_coverage(text: str) -> float:
-    """Return fraction of alphabet present in text."""
     letters = {c for c in text.upper() if c.isalpha()}
     return len(letters) / 26.0
 
 
 def letter_entropy(text: str) -> float:
-    """Shannon entropy (bits) of letter distribution (A-Z only)."""
     letters = [c for c in text.upper() if c.isalpha()]
     n = len(letters)
     if n == 0:
@@ -530,9 +445,6 @@ def letter_entropy(text: str) -> float:
 
 
 def repeating_bigram_fraction(text: str) -> float:
-    """Fraction of bigrams that are repeats (duplicate occurrences) among all bigrams.
-    0 if no bigrams.
-    """
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if len(seq) < 2:
         return 0.0
@@ -543,22 +455,9 @@ def repeating_bigram_fraction(text: str) -> float:
 
 
 def positional_letter_deviation_score(text: str, period: int = 5) -> float:
-    """Return a normalized positional letter deviation score in [0,1].
-
-    The text is partitioned into `period` positional buckets by index modulo period.
-    For each bucket we compute a chi-square statistic versus expected English letter
-    frequencies. Each bucket contributes 1/(1+chi) so lower deviation (smaller chi)
-    yields a value approaching 1, high deviation approaches 0. Final score is the
-    average across non-empty buckets. Short texts or texts with insufficient letters
-    return 0.0.
-
-    Rationale: Natural plaintext tends to distribute common letters more evenly across
-    positions; transposition or random shuffles can create positional clustering that
-    inflates per-bucket chi-square. This metric gently rewards balanced distributions.
-    """
     letters = [c for c in text.upper() if c.isalpha()]
     n = len(letters)
-    if n < period * 2:  # need at least two cycles for stability
+    if n < period * 2:
         return 0.0
     buckets: list[list[str]] = [[] for _ in range(period)]
     for i, c in enumerate(letters):
@@ -583,18 +482,12 @@ def positional_letter_deviation_score(text: str, period: int = 5) -> float:
 
 
 def combined_plaintext_score_with_positions(text: str, positional: dict[str, Sequence[int]], window: int = 5) -> float:
-    """Combined plaintext score augmented with positional crib bonuses."""
     base = combined_plaintext_score(text)
     pos_bonus = positional_crib_bonus(text, positional, window)
     return base + pos_bonus
 
 
 def load_cribs_from_file(path: str | Path) -> list[str]:
-    """Load a simple tab-separated crib candidate file (CANDIDATE\tSOURCE\tCONTEXT).
-
-    Returns list of uppercase candidate tokens. Gracefully returns empty list on
-    missing file or parse errors.
-    """
     try:
         p = Path(path)
     except (TypeError, ValueError):
@@ -674,44 +567,34 @@ def composite_score_with_stage_analysis(
     """
     import re
 
-    # Calculate IOC for both stages
     stage1_ioc = index_of_coincidence(stage1_plaintext)
     stage2_ioc = index_of_coincidence(stage2_plaintext)
 
-    # IOC improvement bonus (positive = moving toward English IOC ~0.067)
     english_ioc = 0.067
     stage1_ioc_distance = abs(stage1_ioc - english_ioc)
     stage2_ioc_distance = abs(stage2_ioc - english_ioc)
     ioc_improvement = stage1_ioc_distance - stage2_ioc_distance
 
-    # Bonus for IOC improvement (up to +10 points)
     ioc_bonus = min(10.0, max(0.0, ioc_improvement * 150))
 
-    # Count partial word matches (3+ consecutive letters that form words)
     def count_partial_words(text: str, min_length: int = 3) -> int:
-        """Count potential word fragments (3+ alpha chars)."""
         words = re.findall(r'[A-Z]{' + str(min_length) + r',}', text.upper())
         return len(words)
 
     stage1_words = count_partial_words(stage1_plaintext)
     stage2_words = count_partial_words(stage2_plaintext)
 
-    # Bonus for increasing word-like patterns (up to +5 points)
     word_improvement = stage2_words - stage1_words
     word_bonus = min(5.0, max(0.0, word_improvement * 0.5))
 
-    # Letter frequency convergence toward English
     stage1_freq_dist = chi_square_stat(stage1_plaintext)
     stage2_freq_dist = chi_square_stat(stage2_plaintext)
     freq_convergence = stage1_freq_dist - stage2_freq_dist
 
-    # Bonus for frequency convergence (up to +8 points)
     freq_bonus = min(8.0, max(0.0, freq_convergence * 0.01))
 
-    # Calculate total bonus
     total_bonus = ioc_bonus + word_bonus + freq_bonus
 
-    # Weighted final score
     base_score = (stage1_weight * stage1_score) + (stage2_weight * stage2_score)
     final_score = base_score + total_bonus
 

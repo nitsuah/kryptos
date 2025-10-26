@@ -18,7 +18,7 @@ from pathlib import Path
 @dataclass(frozen=True)
 class MatchEntry:
     sample: str
-    matched: str  # pipe-delimited crib tokens (deduplicated, sorted)
+    matched: str
 
 
 def find_match_files(run_dir: Path) -> list[Path]:
@@ -26,16 +26,12 @@ def find_match_files(run_dir: Path) -> list[Path]:
 
 
 def _clean_match_file(path: Path) -> list[MatchEntry]:
-    """Return cleaned entries (deduped + sorted tokens) for a single match file.
-
-    Overwrites the original file in-place with normalized content & header.
-    """
     if not path.exists():
         return []
     out: list[MatchEntry] = []
     with path.open('r', encoding='utf-8') as fh:
         reader = csv.reader(fh)
-        next(reader, None)  # skip header if present
+        next(reader, None)
         for row in reader:
             if not row:
                 continue
@@ -48,7 +44,6 @@ def _clean_match_file(path: Path) -> list[MatchEntry]:
             else:
                 joined = ''
             out.append(MatchEntry(sample=sample, matched=joined))
-    # overwrite normalized
     with path.open('w', encoding='utf-8', newline='') as fh:
         w = csv.writer(fh)
         w.writerow(['sample', 'matched_cribs'])
@@ -58,11 +53,6 @@ def _clean_match_file(path: Path) -> list[MatchEntry]:
 
 
 def clean_all_match_files(run_dir: Path) -> dict[str, list[MatchEntry]]:
-    """Clean every matches_weight_*.csv file returning mapping weight->entries.
-
-    Weight key extracted from filename suffix: matches_weight_<weight>.csv where
-    '.' in weight is replaced by '_' in file naming convention.
-    """
     cleaned: dict[str, list[MatchEntry]] = {}
     for f in find_match_files(run_dir):
         weight_key = f.stem.replace('matches_weight_', '')
@@ -85,13 +75,7 @@ def load_weight_sweep_csv(run_dir: Path) -> list[list[str]]:
 
 
 def summarize_run(run_dir: Path) -> dict:
-    """Produce an in-memory summary of a tuning run.
-
-    Returns a dict with keys: run_dir, top_deltas (list), weight_stats (dict).
-    Does not write to disk (call write_summary_text / write_summary_json).
-    """
     sweep_rows = load_weight_sweep_csv(run_dir)
-    # parse rows: weight, sample, baseline, with_cribs, delta
     parsed = []
     by_weight: dict[str, list[float]] = {}
     for row in sweep_rows:
@@ -126,13 +110,12 @@ def write_summary_text(run_dir: Path, summary: dict) -> Path:
 
 
 def crib_hit_counts(run_dir: Path) -> dict[str, int]:
-    """Aggregate crib hit frequencies across all cleaned match files."""
     counts: dict[str, int] = {}
     for f in find_match_files(run_dir):
         if not f.exists():
             continue
         with f.open('r', encoding='utf-8') as fh:
-            next(fh, None)  # header
+            next(fh, None)
             for line in fh:
                 parts = line.rstrip('\n').split(',', 1)
                 if len(parts) < 2:
@@ -155,11 +138,6 @@ def write_crib_hit_counts(run_dir: Path, counts: dict[str, int]) -> Path:
 
 
 def end_to_end_process(run_dir: Path, write: bool = True) -> dict:
-    """Convenience: clean match files, summarize run, compute crib hit counts.
-
-    If write=True, updates match files and writes summary + crib counts artifacts.
-    Returns a combined dict with keys: summary, counts.
-    """
     clean_all_match_files(run_dir)
     summary = summarize_run(run_dir)
     counts = crib_hit_counts(run_dir)

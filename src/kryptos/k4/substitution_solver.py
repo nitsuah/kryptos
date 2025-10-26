@@ -32,10 +32,6 @@ def random_swap(mapping: dict[str, str]) -> None:
 
 
 def solve_substitution(ciphertext: str, iterations: int = 5000, restarts: int = 5) -> tuple[str, float, dict[str, str]]:
-    """Attempt to solve monoalphabetic substitution for ciphertext.
-
-    Returns best plaintext, score, and mapping.
-    """
     best_plain = ''
     best_score = float('-inf')
     best_map: dict[str, str] = {}
@@ -46,7 +42,6 @@ def solve_substitution(ciphertext: str, iterations: int = 5000, restarts: int = 
         score = combined_plaintext_score(plain)
         stagnant = 0
         for _it in range(iterations):
-            # Copy and mutate
             candidate = dict(mapping)
             random_swap(candidate)
             cand_plain = apply_mapping(ciphertext, candidate)
@@ -59,7 +54,6 @@ def solve_substitution(ciphertext: str, iterations: int = 5000, restarts: int = 
             else:
                 stagnant += 1
             if stagnant > 400:
-                # mild reheating: random shuffle 3 swaps
                 for _s in range(3):
                     random_swap(mapping)
                 plain = apply_mapping(ciphertext, mapping)

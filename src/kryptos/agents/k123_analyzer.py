@@ -21,7 +21,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-# Known K1-K3 plaintexts (from CIA/Sanborn confirmations)
 K1_PLAINTEXT = """Between subtle shading and the absence of light lies the nuance of iqlusion"""
 
 K2_PLAINTEXT = """It was totally invisible hows that possible they used the earths magnetic field x
@@ -39,20 +38,15 @@ the mist x can you see anything q"""
 
 @dataclass
 class SanbornPattern:
-    """A pattern discovered in K1-K3 that might apply to K4."""
-
-    category: str  # 'spelling', 'theme', 'structure', 'artistic', 'cipher'
+    category: str
     description: str
     evidence: list[str]
-    k4_hypothesis: str  # How this might apply to K4
+    k4_hypothesis: str
     confidence: float
 
 
 class K123Analyzer:
-    """Analyze K1-K3 for patterns that inform K4 attacks."""
-
     def __init__(self):
-        """Initialize analyzer with known plaintexts."""
         self.k1 = self._normalize(K1_PLAINTEXT)
         self.k2 = self._normalize(K2_PLAINTEXT)
         self.k3 = self._normalize(K3_PLAINTEXT)
@@ -61,7 +55,6 @@ class K123Analyzer:
         self.patterns: list[SanbornPattern] = []
 
     def analyze_all(self) -> list[SanbornPattern]:
-        """Run all pattern analyses."""
         self.patterns = []
 
         self.patterns.extend(self._analyze_spelling_quirks())
@@ -74,10 +67,8 @@ class K123Analyzer:
         return self.patterns
 
     def _analyze_spelling_quirks(self) -> list[SanbornPattern]:
-        """Find intentional misspellings - these are GOLD for K4."""
         patterns = []
 
-        # Known misspellings
         quirks = {
             "iqlusion": "illusion (I→Q substitution)",
             "undergruund": "underground (O→U substitution)",
@@ -105,16 +96,14 @@ class K123Analyzer:
         return patterns
 
     def _analyze_themes(self) -> list[SanbornPattern]:
-        """Identify recurring themes."""
         patterns = []
 
-        # Thematic word groups
         themes = {
             "secrecy": ["invisible", "buried", "hidden", "secret", "unknown"],
             "location": ["north", "south", "east", "west", "coordinates", "degrees", "minutes", "seconds"],
             "discovery": ["slowly", "emerged", "breach", "peered", "see", "found"],
             "communication": ["message", "transmitted", "information", "gathered"],
-            "archaeology": ["debris", "doorway", "chamber", "remains", "passage"],  # K3 is King Tut's tomb!
+            "archaeology": ["debris", "doorway", "chamber", "remains", "passage"],
         }
 
         for theme_name, keywords in themes.items():
@@ -134,14 +123,12 @@ class K123Analyzer:
         return patterns
 
     def _analyze_word_lengths(self) -> list[SanbornPattern]:
-        """Analyze word length distribution."""
         words = [w for w in self.all_text.split() if w.isalpha()]
         lengths = [len(w) for w in words]
         length_dist = Counter(lengths)
 
         patterns = []
 
-        # Most common word lengths
         common_lengths = length_dist.most_common(5)
         top_two = f"{common_lengths[0][0]}-{common_lengths[1][0]}"
 
@@ -161,10 +148,8 @@ class K123Analyzer:
         return patterns
 
     def _analyze_artistic_choices(self) -> list[SanbornPattern]:
-        """Detect artistic/poetic elements."""
         patterns = []
 
-        # K1 has poetic language
         k1_poetic = ["subtle", "shading", "absence", "light", "nuance", "iqlusion"]
         patterns.append(
             SanbornPattern(
@@ -178,7 +163,6 @@ class K123Analyzer:
             ),
         )
 
-        # K3 is Howard Carter discovering King Tut's tomb
         patterns.append(
             SanbornPattern(
                 category="artistic",
@@ -194,10 +178,8 @@ class K123Analyzer:
         return patterns
 
     def _analyze_structural_markers(self) -> list[SanbornPattern]:
-        """Find structural elements (X markers, coordinates, etc.)."""
         patterns = []
 
-        # X as separator in K2
         x_count = self.k2.lower().count(" x ")
         if x_count > 0:
             patterns.append(
@@ -211,7 +193,6 @@ class K123Analyzer:
                 ),
             )
 
-        # Coordinates in K2
         if "degrees" in self.k2.lower():
             patterns.append(
                 SanbornPattern(
@@ -227,7 +208,6 @@ class K123Analyzer:
         return patterns
 
     def _analyze_cipher_progression(self) -> list[SanbornPattern]:
-        """Analyze cipher complexity progression K1→K2→K3."""
         patterns = []
 
         patterns.append(
@@ -249,7 +229,6 @@ class K123Analyzer:
             ),
         )
 
-        # NORTHEAST clue suggests K4 uses different alphabet
         patterns.append(
             SanbornPattern(
                 category="cipher",
@@ -259,14 +238,13 @@ class K123Analyzer:
                 "This gives us a known-plaintext attack anchor point. "
                 "Combined with 'BERLIN' theme from K3, suggests Cold War espionage angle. "
                 "Try ciphers where we can lock in NORTHEAST and work outward.",
-                confidence=1.0,  # This is confirmed!
+                confidence=1.0,
             ),
         )
 
         return patterns
 
     def generate_report(self) -> str:
-        """Generate detailed report of all patterns."""
         if not self.patterns:
             self.analyze_all()
 
@@ -280,7 +258,6 @@ class K123Analyzer:
             "",
         ]
 
-        # Group by category
         by_category = {}
         for pattern in sorted(self.patterns, key=lambda p: p.confidence, reverse=True):
             if pattern.category not in by_category:
@@ -304,7 +281,6 @@ class K123Analyzer:
 
                 lines.extend(["", "**K4 Hypothesis:**", f"{pattern.k4_hypothesis}", ""])
 
-        # Strategic recommendations
         lines.extend(
             [
                 "## STRATEGIC RECOMMENDATIONS FOR K4",
@@ -324,14 +300,11 @@ class K123Analyzer:
         return "\n".join(lines)
 
     def _normalize(self, text: str) -> str:
-        """Normalize plaintext."""
-        # Remove newlines but keep spaces
         text = " ".join(text.split())
         return text
 
 
 def main():
-    """Generate K1-K3 pattern analysis report."""
     analyzer = K123Analyzer()
     patterns = analyzer.analyze_all()
 
@@ -347,7 +320,6 @@ def main():
         print(f"  K4 Impact: {pattern.k4_hypothesis[:100]}...")
         print()
 
-    # Save report
     report = analyzer.generate_report()
     report_path = Path("docs/K123_PATTERN_ANALYSIS.md")
     report_path.parent.mkdir(parents=True, exist_ok=True)

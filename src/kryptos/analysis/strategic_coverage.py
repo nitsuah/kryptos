@@ -15,13 +15,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from kryptos.paths import get_artifacts_root
 from kryptos.provenance.search_space import SearchSpaceTracker
 
 
 @dataclass
 class CoverageTrend:
-    """Time-series data point for coverage tracking."""
-
     timestamp: datetime
     cipher_type: str
     region_key: str
@@ -30,7 +29,6 @@ class CoverageTrend:
     successful_count: int
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary."""
         return {
             **asdict(self),
             "timestamp": self.timestamp.isoformat(),
@@ -39,24 +37,19 @@ class CoverageTrend:
 
 @dataclass
 class SaturationAnalysis:
-    """Analysis of whether a region is saturated."""
-
     cipher_type: str
     region_key: str
     is_saturated: bool
     coverage_percent: float
-    exploration_rate: float  # Keys/hour or similar
+    exploration_rate: float
     estimated_completion_hours: float | None
     recommendation: str
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary."""
         return asdict(self)
 
 
 class StrategicCoverageAnalyzer:
-    """Analyze coverage strategically for OPS Director integration."""
-
     def __init__(
         self,
         tracker: SearchSpaceTracker | None = None,
@@ -69,14 +62,13 @@ class StrategicCoverageAnalyzer:
             history_dir: Directory for storing coverage history
         """
         self.tracker = tracker or SearchSpaceTracker()
-        self.history_dir = history_dir or Path("artifacts/coverage_history")
+        self.history_dir = history_dir or (get_artifacts_root() / "coverage_history")
         self.history_dir.mkdir(parents=True, exist_ok=True)
 
         self.coverage_history: list[CoverageTrend] = []
         self._load_history()
 
     def record_coverage_snapshot(self):
-        """Record current coverage state for time-series analysis."""
         timestamp = datetime.now()
 
         for cipher_type, regions in self.tracker.regions.items():
@@ -115,12 +107,10 @@ class StrategicCoverageAnalyzer:
         analyses = []
 
         for region_key, region in self.tracker.regions[cipher_type].items():
-            # Get historical data for this region
             region_history = [
                 t for t in self.coverage_history if t.cipher_type == cipher_type and t.region_key == region_key
             ]
 
-            # Calculate exploration rate
             exploration_rate = 0.0
             if len(region_history) >= min_samples:
                 first = region_history[-min_samples]
@@ -130,16 +120,13 @@ class StrategicCoverageAnalyzer:
                     explored_diff = last.explored_count - first.explored_count
                     exploration_rate = explored_diff / time_diff
 
-            # Estimate completion time
             estimated_hours = None
             if exploration_rate > 0 and region.total_size > 0:
                 remaining = region.total_size - region.explored_count
                 estimated_hours = remaining / exploration_rate
 
-            # Determine saturation status
             is_saturated = region.coverage_percent >= saturation_threshold
 
-            # Generate recommendation
             if is_saturated:
                 recommendation = (
                     f"PIVOT: Region {saturation_threshold}%+ explored. "
@@ -209,23 +196,18 @@ class StrategicCoverageAnalyzer:
         recommendations = []
 
         for cipher_type in self.tracker.regions.keys():
-            # Analyze saturation
             saturations = self.analyze_saturation(cipher_type, min_coverage)
 
-            # Find saturated regions (need to pivot away)
             saturated = [s for s in saturations if s.is_saturated]
 
-            # Find promising regions (high success rate)
             promising = [
                 s
                 for s in saturations
                 if not s.is_saturated and self.tracker.regions[cipher_type][s.region_key].success_rate > 5.0
             ]
 
-            # Find unexplored regions
             unexplored = [s for s in saturations if s.coverage_percent < 10.0]
 
-            # Generate recommendations
             if saturated:
                 recommendations.append(
                     {
@@ -262,16 +244,10 @@ class StrategicCoverageAnalyzer:
                     },
                 )
 
-        # Sort by priority
         recommendations.sort(key=lambda x: x["priority"])
         return recommendations[:top_n]
 
     def generate_coverage_report_for_ops(self) -> dict[str, Any]:
-        """Generate comprehensive report for OPS Director.
-
-        Returns:
-            Strategic coverage report
-        """
         report = {
             "timestamp": datetime.now().isoformat(),
             "overall_status": {},
@@ -280,7 +256,6 @@ class StrategicCoverageAnalyzer:
             "trends": self._analyze_trends(),
         }
 
-        # Overall status per cipher type
         for cipher_type in self.tracker.regions.keys():
             coverage = self.tracker.get_coverage(cipher_type)
             total_regions = len(self.tracker.regions[cipher_type])
@@ -293,17 +268,14 @@ class StrategicCoverageAnalyzer:
                 "saturation_rate": saturated / total_regions * 100 if total_regions else 0,
             }
 
-            # Saturation analysis
             report["saturation_analysis"][cipher_type] = [s.to_dict() for s in self.analyze_saturation(cipher_type)]
 
         return report
 
     def _analyze_trends(self) -> dict[str, Any]:
-        """Analyze coverage trends over time."""
         if len(self.coverage_history) < 2:
             return {"status": "insufficient_data"}
 
-        # Group by cipher type
         trends = {}
         for cipher_type in self.tracker.regions.keys():
             cipher_history = [t for t in self.coverage_history if t.cipher_type == cipher_type]
@@ -327,7 +299,6 @@ class StrategicCoverageAnalyzer:
         return trends
 
     def _generate_html_heatmap(self, heatmap_data: dict[str, Any]) -> str:
-        """Generate HTML heatmap visualization."""
         html = """
 <!DOCTYPE html>
 <html>
@@ -372,7 +343,6 @@ class StrategicCoverageAnalyzer:
         return html
 
     def _load_history(self):
-        """Load coverage history from disk."""
         history_file = self.history_dir / "coverage_history.json"
         if not history_file.exists():
             return
@@ -395,7 +365,6 @@ class StrategicCoverageAnalyzer:
             self.coverage_history = []
 
     def _save_history(self):
-        """Save coverage history to disk."""
         history_file = self.history_dir / "coverage_history.json"
         data = [t.to_dict() for t in self.coverage_history]
         with open(history_file, "w", encoding="utf-8") as f:
@@ -403,7 +372,6 @@ class StrategicCoverageAnalyzer:
 
 
 def demo_strategic_coverage():
-    """Demonstrate strategic coverage analysis."""
     print("=" * 80)
     print("STRATEGIC COVERAGE ANALYSIS DEMO")
     print("=" * 80)
@@ -414,7 +382,6 @@ def demo_strategic_coverage():
     tracker = SearchSpaceTracker()
     analyzer = StrategicCoverageAnalyzer(tracker=tracker)
 
-    # Set up some regions
     for length in range(1, 11):
         tracker.register_region(
             "vigenere",
@@ -423,12 +390,10 @@ def demo_strategic_coverage():
             min(26**length, 1000000),
         )
 
-    # Simulate exploration
     tracker.record_exploration("vigenere", "length_3", count=15000, successful=100)
     tracker.record_exploration("vigenere", "length_5", count=8000, successful=40)
     tracker.record_exploration("vigenere", "length_8", count=1000, successful=2)
 
-    # Record snapshot
     analyzer.record_coverage_snapshot()
 
     print("-" * 80)

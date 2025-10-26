@@ -9,15 +9,6 @@ ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 def berlin_clock_shifts(t: time) -> list[int]:
-    """Return a base shift pattern derived from Berlin Clock lamp counts.
-    Lamps simplified to five numeric components:
-      H5 = hours//5 (0-4)
-      H1 = hours%5 (0-4)
-      M5 = minutes//5 (0-11)
-      M1 = minutes%5 (0-4)
-      S = seconds%2 (0 or 1)
-    Returns list of ints to be cycled as Vigenère-like shifts.
-    """
     h5 = t.hour // 5
     h1 = t.hour % 5
     m5 = t.minute // 5
@@ -27,7 +18,6 @@ def berlin_clock_shifts(t: time) -> list[int]:
 
 
 def apply_clock_shifts(ciphertext: str, shifts: Sequence[int], decrypt: bool = False) -> str:
-    """Apply cyclic Berlin Clock-derived shifts (encrypt/decrypt)."""
     letters = [c for c in ciphertext.upper() if c.isalpha()]
     out: list[str] = []
     sign = -1 if decrypt else 1
@@ -40,14 +30,6 @@ def apply_clock_shifts(ciphertext: str, shifts: Sequence[int], decrypt: bool = F
 
 
 def full_clock_state(t: time) -> dict[str, list[int]]:
-    """Return full Berlin Clock lamp state as lists of ints.
-    Top hours row: 4 lamps (5-hour blocks)
-    Bottom hours row: 4 lamps (1-hour blocks)
-    Top minutes row: 11 lamps (5-min blocks) with quarter markers
-    Bottom minutes row: 4 lamps (1-min blocks)
-    Seconds lamp: single value (1 lit on even seconds else 0)
-    Lit standard lamp = 1, quarter marker lit = 2 (to differentiate weighting), unlit = 0.
-    """
     h = t.hour
     m = t.minute
     s = t.second
@@ -55,7 +37,7 @@ def full_clock_state(t: time) -> dict[str, list[int]]:
     bottom_hours = [1 if i < h % 5 else 0 for i in range(4)]
     top_minutes = []
     five_blocks = m // 5
-    quarter_positions = {2, 5, 8}  # 0-based indices for 15,30,45 markers
+    quarter_positions = {2, 5, 8}
     for i in range(11):
         if i < five_blocks:
             top_minutes.append(2 if i in quarter_positions else 1)
@@ -73,14 +55,12 @@ def full_clock_state(t: time) -> dict[str, list[int]]:
 
 
 def encode_clock_state(state: dict[str, list[int]]) -> list[int]:
-    """Flatten clock state dict into a single shift sequence list."""
     return (
         state['top_hours'] + state['bottom_hours'] + state['top_minutes'] + state['bottom_minutes'] + state['seconds']
     )
 
 
 def full_berlin_clock_shifts(t: time) -> list[int]:
-    """Convenience wrapper returning encoded full lamp shift sequence for time t."""
     return encode_clock_state(full_clock_state(t))
 
 

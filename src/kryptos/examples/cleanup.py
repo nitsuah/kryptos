@@ -24,7 +24,7 @@ class PurgeResult:
 
 def _iter_demo_dirs(root: Path) -> Iterable[Path]:
     demo_root = root / "demo"
-    if not demo_root.exists():  # pragma: no cover - absent in fresh checkout
+    if not demo_root.exists():
         return []
     for p in demo_root.iterdir():
         if p.is_dir():
@@ -32,41 +32,22 @@ def _iter_demo_dirs(root: Path) -> Iterable[Path]:
 
 
 def purge_demo_artifacts(max_age_hours: int | None = 24, max_keep: int | None = 10) -> PurgeResult:
-    """Purge demo artifact subdirectories based on age and count.
-
-    Parameters
-    ----------
-    max_age_hours:
-        Remove any demo directory whose newest mtime is older than this many hours.
-        If ``None`` age filtering is skipped.
-    max_keep:
-        After age filtering, ensure only this many *newest* demo directories remain.
-        If ``None`` count limiting is skipped.
-
-    Returns
-    -------
-    PurgeResult
-        Lists of removed and kept directories.
-    """
-    # Import dynamically so tests can monkeypatch kryptos.paths.get_artifacts_root
-    from kryptos import paths as _paths  # local import to avoid binding early
+    from kryptos import paths as _paths
 
     root = _paths.get_artifacts_root()
     now = datetime.utcnow()
     demo_dirs = list(_iter_demo_dirs(root))
-    # Annotate with newest mtime (files or dir itself)
     annotated: list[tuple[Path, float]] = []
     for d in demo_dirs:
         newest = d.stat().st_mtime
         for sub in d.rglob('*'):
             try:
                 mt = sub.stat().st_mtime
-            except OSError:  # pragma: no cover - transient deletion race
+            except OSError:
                 continue
             if mt > newest:
                 newest = mt
         annotated.append((d, newest))
-    # Age filter
     to_consider: list[tuple[Path, float]] = []
     removed: list[Path] = []
     if max_age_hours is not None:
@@ -79,9 +60,7 @@ def purge_demo_artifacts(max_age_hours: int | None = 24, max_keep: int | None = 
                 to_consider.append((d, mt))
     else:
         to_consider = annotated
-    # Count limiting
     if max_keep is not None and len(to_consider) > max_keep:
-        # Sort newest first
         to_consider.sort(key=lambda x: x[1], reverse=True)
         keep = to_consider[:max_keep]
         spill = to_consider[max_keep:]
@@ -89,7 +68,6 @@ def purge_demo_artifacts(max_age_hours: int | None = 24, max_keep: int | None = 
         kept_dirs = [p for p, _ in keep]
     else:
         kept_dirs = [p for p, _ in to_consider]
-    # Perform deletions
     for d in removed:
         try:
             for sub in sorted(d.rglob('*'), reverse=True):
@@ -99,7 +77,6 @@ def purge_demo_artifacts(max_age_hours: int | None = 24, max_keep: int | None = 
                     sub.rmdir()
             d.rmdir()
         except OSError:
-            # Best effort; ignore failures (permissions, races)
             continue
     return PurgeResult(removed=removed, kept=kept_dirs)
 

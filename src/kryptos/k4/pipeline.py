@@ -42,13 +42,10 @@ class Pipeline:
             start = time.perf_counter()
             res = stage.func(current)
             duration = time.perf_counter() - start
-            # attach duration profiling info
             res.metadata['duration'] = duration
             results.append(res)
             current = res.output
         return results
-
-    # New helper to build a Hill constraint stage
 
 
 def make_hill_constraint_stage(
@@ -108,11 +105,6 @@ def get_clock_attempt_log(clear: bool = False) -> list[dict[str, Any]]:
 
 
 def make_berlin_clock_stage(name: str = 'berlin-clock', step_seconds: int = 3600, limit: int = 50) -> Stage:
-    """Create a stage that applies multiple Berlin Clock shift sequences and scores outputs.
-    Enumerates times across a day at given step; applies shifts (decrypt-style) attempting to reveal plaintext.
-    Returns best candidate text as stage output; all candidates stored in metadata.
-    """
-
     def _run(ct: str) -> StageResult:
         seqs = enumerate_clock_shift_sequences(step_seconds=step_seconds)
         cands: list[dict[str, Any]] = []
@@ -157,9 +149,6 @@ def make_berlin_clock_stage(name: str = 'berlin-clock', step_seconds: int = 3600
         )
 
     return Stage(name=name, func=_run)
-
-
-# New transposition search stage
 
 
 def make_transposition_stage(
@@ -212,9 +201,6 @@ def make_transposition_stage(
         )
 
     return Stage(name=name, func=_run)
-
-
-# Adaptive transposition search stage
 
 
 def make_transposition_adaptive_stage(
@@ -271,8 +257,6 @@ def make_transposition_adaptive_stage(
 
 
 def make_masking_stage(name: str = 'masking', null_chars=None, limit: int = 25) -> Stage:
-    """Create a stage that generates and scores masking/null-removal variants."""
-
     def _run(ct: str) -> StageResult:
         cands = score_mask_variants(ct, null_chars)
         for c in cands:
@@ -313,7 +297,7 @@ def make_transposition_multi_crib_stage(
         for n_cols in range(min_cols, max_cols + 1):
             cands = search_with_multiple_cribs_positions(
                 ct,
-                positional_cribs=dict(positional_cribs),  # ensure concrete dict for API
+                positional_cribs=dict(positional_cribs),
                 n_cols=n_cols,
                 window=window,
                 max_perms=max_perms,

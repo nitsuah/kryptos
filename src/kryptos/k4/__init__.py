@@ -80,7 +80,7 @@ def decrypt_best(
 
     clean_ct = ''.join(ciphertext.split())
 
-    if strategy != "default":  # placeholder for future strategies
+    if strategy != "default":
         raise ValueError(f"Unknown strategy '{strategy}' (only 'default' currently supported)")
 
     # Default stage bundle (ordered): masking -> adaptive transposition -> transposition -> berlin clock

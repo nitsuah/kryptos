@@ -4,7 +4,7 @@ Public API:
 - load_cribs(path: Path) -> set[str]
 - find_latest_run() -> Path | None
 - scan_run(run_dir: Path, cribs: set[str]) -> list[SpyMatch]
-- extract(min_conf: float = 0.0) -> list[SpyMatch]  (appends to agents/LEARNED.md)
+- extract(min_conf: float = 0.0) -> list[SpyMatch]  (appends to artifacts/spy_extractions/LEARNED.md)
 - aggregate_phrases(input_path: Path, output_path: Path) -> int
 
 These functions consolidate prior dev/experimental scripts:

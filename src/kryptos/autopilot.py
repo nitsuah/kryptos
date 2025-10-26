@@ -42,7 +42,6 @@ from kryptos.paths import (
     get_tuning_runs_root,
 )
 
-# Centralized path references via kryptos.paths
 REPO_ROOT = get_repo_root()
 LOG_DIR = get_logs_dir()
 DECISIONS_DIR = get_decisions_dir()
@@ -64,7 +63,6 @@ def _save_state(state: dict) -> None:
 
 
 def _persona_prompts() -> dict[str, str]:
-    """Load persona prompt stubs (dev friendly / test safe)."""
     agents_dir = REPO_ROOT / "agents"
     mapping: dict[str, str] = {}
     state = _load_state()
@@ -76,7 +74,6 @@ def _persona_prompts() -> dict[str, str]:
                 notes = " ".join(f"{n['persona']}:{n['note']}" for n in state.get("learned", []))
                 txt += f"\n\n# LEARNED_SUMMARY: {notes}\n"
             mapping[fname.split(".", maxsplit=1)[0].upper()] = txt
-    # Conservative fallbacks for CI/tests
     mapping.setdefault("Q", "Q_PLACEHOLDER: Provide short recommendation or review.")
     mapping.setdefault("OPS", "OPS_PLACEHOLDER: Manage tuning runs; idle.")
     mapping.setdefault("SPY", "SPY_PLACEHOLDER: Extract conservative cribs; none found.")
@@ -84,21 +81,14 @@ def _persona_prompts() -> dict[str, str]:
 
 
 def recommend_next_action() -> tuple[str, str, dict]:
-    """Return recommendation, justification, structured plan dict.
-
-    Minimal plan schema:
-      {'action': 'run_ops'|'analyze_artifacts'|'push_pr'|'noop', 'params': {...}, 'metadata': {...}}
-    """
     tr_dir = get_tuning_runs_root()
     has_artifacts = tr_dir.exists() and any(d.is_dir() for d in tr_dir.iterdir())
-    # Detect presence of migrated spy extractor package instead of legacy script
     try:
         import kryptos.spy.extractor as _spy_mod  # noqa: F401
 
         has_spy = True
     except (ImportError, ModuleNotFoundError):
         has_spy = False
-    # ops availability heuristic: presence of consolidated tuning script
     has_ops = (REPO_ROOT / "scripts" / "tuning.py").exists()
     metadata = {
         "has_artifacts": bool(has_artifacts),
@@ -123,7 +113,6 @@ def recommend_next_action() -> tuple[str, str, dict]:
 
 
 def _simulate_action(name: str, prompt: str) -> str:
-    # Deterministic placeholder simulation keeping prior semantics.
     if name == "SPY":
         if "PLAN_CHECK:" in prompt:
             plan = prompt.split("PLAN_CHECK:", 1)[1].strip()
@@ -146,21 +135,9 @@ def _simulate_action(name: str, prompt: str) -> str:
 
 
 def _update_cribs_from_spy(run_id: str) -> dict[str, int]:
-    """Extract SPY observations and promote cribs.
-
-    Args:
-        run_id: Identifier for this run (e.g., timestamp).
-
-    Returns:
-        Dictionary mapping promoted token -> count of distinct runs.
-    """
     from kryptos.spy.crib_store import load_promoted_cribs, promote_cribs
 
-    # Mock/stub: in real implementation, would scan tuning run artifacts
-    # For now, return empty observations to establish the hook
     observations = []
-    # Future: scan latest tuning run for high-confidence tokens
-    # observations = extract_from_tuning_run(get_tuning_runs_root() / run_id)
     promoted_before = load_promoted_cribs()
     promoted_after = promote_cribs(observations)
     new_count = len(promoted_after) - len(promoted_before)
@@ -168,15 +145,10 @@ def _update_cribs_from_spy(run_id: str) -> dict[str, int]:
 
 
 def run_exchange(plan_text: str | None = None, autopilot: bool = True) -> Path:
-    """Run a single multi-persona exchange.
-
-    Writes a jsonl log file under artifacts/logs and returns the path.
-    """
     personas = _persona_prompts()
     if autopilot and not plan_text:
         rec, just, plan = recommend_next_action()
         plan_text = f"Recommendation: {rec}. Reason: {just}"
-        # Structured one-line JSON plan for downstream tools
         structured = {
             "action": plan.get("action"),
             "recommendation": rec,
@@ -191,7 +163,7 @@ def run_exchange(plan_text: str | None = None, autopilot: bool = True) -> Path:
     out_path = LOG_DIR / f"run_{ts}.jsonl"
     state = _load_state()
     with out_path.open("w", encoding="utf-8") as fh:
-        for r in range(1, 2):  # single round for now
+        for r in range(1, 2):
             for name, prompt in personas.items():
                 act = _simulate_action(name, prompt)
                 entry = {"round": r, "persona": name, "action": act, "time": datetime.utcnow().isoformat()}
@@ -202,7 +174,6 @@ def run_exchange(plan_text: str | None = None, autopilot: bool = True) -> Path:
                     state.setdefault("learned", []).append(
                         {"persona": name, "note": learn_text, "time": datetime.utcnow().isoformat()},
                     )
-    # Update cribs from SPY extractions
     try:
         crib_update = _update_cribs_from_spy(run_id=ts)
         crib_log = json.dumps({"event": "cribs_updated", **crib_update, "timestamp": ts})
@@ -210,7 +181,6 @@ def run_exchange(plan_text: str | None = None, autopilot: bool = True) -> Path:
         with out_path.open("a", encoding="utf-8") as fh:
             fh.write(crib_log + "\n")
     except (OSError, ValueError) as exc:
-        # Log but don't fail exchange if crib update fails
         print(f"Warning: crib update failed: {exc}")
     _save_state(state)
     return out_path

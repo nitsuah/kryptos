@@ -88,7 +88,6 @@ def build_parser() -> argparse.ArgumentParser:
     sp_attempts.add_argument('--label', type=str, default='k4', help='Label for attempt log file prefix')
     sp_attempts.set_defaults(func=cmd_k4_attempts)
 
-    # Tuning: crib weight sweep
     sp_tuning_sweep = sub.add_parser('tuning-crib-weight-sweep', help='Run crib weight sweep over provided weights')
     sp_tuning_sweep.add_argument('--weights', type=str, default='0.5,1.0,1.5', help='Comma-separated weights')
     sp_tuning_sweep.add_argument('--cribs', type=str, default='', help='Comma-separated crib tokens')
@@ -101,12 +100,10 @@ def build_parser() -> argparse.ArgumentParser:
     sp_tuning_sweep.add_argument('--json', action='store_true', help='Emit JSON rows to stdout')
     sp_tuning_sweep.set_defaults(func=cmd_tuning_crib_weight_sweep)
 
-    # Tuning: pick best weight from a sweep CSV (stdin unsupported; pass path)
     sp_tuning_pick = sub.add_parser('tuning-pick-best', help='Pick best weight from a sweep CSV file')
     sp_tuning_pick.add_argument('--csv', type=Path, required=True, help='Path to crib_weight_sweep.csv')
     sp_tuning_pick.set_defaults(func=cmd_tuning_pick_best)
 
-    # Tuning: summarize run (end-to-end process)
     sp_tuning_summary = sub.add_parser(
         'tuning-summarize-run',
         help='Clean, summarize, and count crib hits for a run dir',
@@ -119,11 +116,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_tuning_summary.set_defaults(func=cmd_tuning_summarize_run)
 
-    # Tuning: tiny param sweep demo
     sp_tuning_tiny = sub.add_parser('tuning-tiny-param-sweep', help='Run tiny deterministic param sweep')
     sp_tuning_tiny.set_defaults(func=cmd_tuning_tiny_param_sweep)
 
-    # Tuning: holdout score (replacement for scripts/tools/holdout_score.py)
     sp_tuning_holdout = sub.add_parser('tuning-holdout-score', help='Compute holdout scoring deltas for a crib weight')
     sp_tuning_holdout.add_argument('--weight', type=float, required=True, help='Crib weight to score')
     sp_tuning_holdout.add_argument(
@@ -139,7 +134,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_tuning_holdout.set_defaults(func=cmd_tuning_holdout_score)
 
-    # SPY evaluation
     sp_spy_eval = sub.add_parser('spy-eval', help='Evaluate SPY thresholds and print metrics')
     sp_spy_eval.add_argument('--labels', type=Path, default=Path('data/spy_eval_labels.csv'), help='Labels CSV path')
     sp_spy_eval.add_argument('--runs', type=Path, default=Path('artifacts/tuning_runs'), help='Root runs directory')
@@ -160,7 +154,6 @@ def build_parser() -> argparse.ArgumentParser:
     sp_tuning_report.add_argument('--no-markdown', action='store_true', help='Skip markdown generation')
     sp_tuning_report.set_defaults(func=cmd_tuning_report)
 
-    # Autopilot (unified daemon replacement)
     sp_autopilot = sub.add_parser('autopilot', help='Run a single exchange or loop until safe decision')
     sp_autopilot.add_argument('--plan', type=str, default=None, help='Optional plan text appended to Q prompt')
     sp_autopilot.add_argument('--dry-run', action='store_true', help='Dry-run (no destructive actions)')
@@ -170,7 +163,6 @@ def build_parser() -> argparse.ArgumentParser:
     sp_autopilot.add_argument('--force', action='store_true', help='Override dry-run inside loop')
     sp_autopilot.set_defaults(func=cmd_autopilot)
 
-    # Autonomous coordination: unified agent orchestration
     sp_autonomous = sub.add_parser('autonomous', help='Run autonomous coordination loop (24/7 cryptanalysis)')
     sp_autonomous.add_argument('--max-hours', type=float, default=None, help='Maximum runtime in hours (None=infinite)')
     sp_autonomous.add_argument(
@@ -199,7 +191,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_autonomous.set_defaults(func=cmd_autonomous)
 
-    # Examples smoke: fast health-check across example entrypoints
     sp_examples_smoke = sub.add_parser(
         'examples-smoke',
         help='Run fast example demos (sections, tiny sweep, composite) for CI smoke validation',
@@ -215,7 +206,7 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
-def main(argv: list[str] | None = None) -> int:  # pragma: no cover - thin wrapper
+def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     level = getattr(logging, args.log_level.upper(), logging.INFO)
@@ -224,9 +215,6 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - thin wrapp
     if args.quiet:
         logger.setLevel(logging.ERROR)
     return args.func(args)
-
-
-# -------------------- Command Implementations --------------------
 
 
 def _load_samples(path: Path) -> list[str]:
@@ -254,7 +242,6 @@ def cmd_tuning_pick_best(args: argparse.Namespace) -> int:
     if not args.csv.exists():
         print(json.dumps({'error': 'csv_not_found', 'path': str(args.csv)}))
         return 2
-    # parse CSV into WeightSweepRow list
     import csv
 
     rows: list[WeightSweepRow] = []
@@ -304,7 +291,6 @@ def cmd_tuning_tiny_param_sweep(_args: argparse.Namespace) -> int:
 
 def cmd_tuning_holdout_score(args: argparse.Namespace) -> int:
     setup_logging(logger_name='kryptos.cli')
-    # Minimal representative holdout samples (formerly in holdout_score.py)
     holdout_samples = [
         'IN THE QUIET AFTERNOON THE SHADOWS GREW LONG ON THE FLOOR',
         'THE SECRET MESSAGE WAS HIDDEN IN PLAIN SIGHT AMONG THE TEXT',
@@ -321,7 +307,6 @@ def cmd_tuning_holdout_score(args: argparse.Namespace) -> int:
     if args.no_write:
         print(json.dumps(out, indent=2))
         return 0
-    # write CSV
     args.out.parent.mkdir(parents=True, exist_ok=True)
     import csv
 
@@ -351,7 +336,6 @@ def cmd_spy_eval(args: argparse.Namespace) -> int:
 
 def cmd_spy_extract(args: argparse.Namespace) -> int:
     setup_logging(logger_name='kryptos.cli')
-    # Use new spy module extraction (latest run only) or iterate runs
     tokens_by_run = {}
     for run_dir in args.runs.iterdir():
         if run_dir.is_dir() and run_dir.name.startswith('run_'):
@@ -386,19 +370,12 @@ def cmd_autopilot(args: argparse.Namespace) -> int:
         )
         print(json.dumps({'mode': 'loop', 'exit_code': code}))
         return code
-    # single exchange
     path = autopilot_mod.run_exchange(plan_text=args.plan, autopilot=True)
     print(json.dumps({'mode': 'single', 'log_path': str(path)}))
     return 0
 
 
 def cmd_autonomous(args: argparse.Namespace) -> int:
-    """Run autonomous coordination loop with SPY v2, OPS, K123 patterns, web intel.
-
-    This is the 24/7 self-sustaining cryptanalysis system that runs with minimal
-    human intervention. It coordinates all agents, makes strategic decisions,
-    and continuously works toward solving K4.
-    """
     from kryptos.autonomous_coordinator import AutonomousCoordinator
 
     logger = setup_logging(logger_name='kryptos.cli')
@@ -425,22 +402,13 @@ def cmd_autonomous(args: argparse.Namespace) -> int:
 
 
 def cmd_examples_smoke(args: argparse.Namespace) -> int:
-    """Run a minimal cross-section of example demos quickly.
-
-    Steps:
-      1. sections listing (without K4 heavy import)
-      2. tiny weight sweep (default weights)
-      3. composite demo (small limit)
-      4. purge old demo artifacts retaining newest N
-    Prints JSON summary; non-zero exit on any internal error.
-    """
     setup_logging(logger_name='kryptos.cli')
     try:
         sections = run_sections_demo()
         sweep_dir = run_tiny_weight_sweep()
         composite_dir = run_composite_demo(limit=args.limit)
         purge_res = purge_demo_artifacts(max_keep=args.keep)
-    except Exception as exc:  # pragma: no cover - defensive
+    except Exception as exc:
         print(json.dumps({'status': 'error', 'error': repr(exc)}))
         return 2
     out = {
@@ -455,5 +423,5 @@ def cmd_examples_smoke(args: argparse.Namespace) -> int:
     return 0
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     raise SystemExit(main())

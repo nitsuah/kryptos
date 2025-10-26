@@ -17,7 +17,6 @@ def _column_lengths(n: int, n_cols: int) -> list[int]:
 
 
 def invert_columnar(ciphertext: str, n_cols: int, perm: tuple[int, ...]) -> str:
-    """Invert columnar transposition with given column permutation."""
     ct = normalize_cipher(ciphertext)
     n = len(ct)
     col_lengths = _column_lengths(n, n_cols)
@@ -41,9 +40,6 @@ def invert_columnar(ciphertext: str, n_cols: int, perm: tuple[int, ...]) -> str:
 
 
 def search_with_crib(ciphertext: str, crib: str, n_cols: int, max_perms: int = 1000) -> list[dict]:
-    """Search permutations where decrypted text contains crib substring.
-    Returns top results sorted by score.
-    """
     ct = normalize_cipher(ciphertext)
     target = normalize_cipher(crib)
     perms_iter = itertools.permutations(range(n_cols))
@@ -86,9 +82,6 @@ def search_with_crib_at_position(
     return results[:25]
 
 
-# --- New: multi-crib positional anchoring ----------------------------------
-
-
 def search_with_multiple_cribs_positions(
     ciphertext: str,
     positional_cribs: dict[str, Sequence[int]],
@@ -112,14 +105,12 @@ def search_with_multiple_cribs_positions(
         if count >= max_perms:
             break
         pt = invert_columnar(ct, n_cols, perm)
-        # Check each crib for at least one occurrence within positional window
         all_ok = True
         occurrences: dict[str, int] = {}
         for crib, expected_positions in positional_cribs.items():
             target = crib_norm_map[crib.upper()]
             if not target:
                 continue
-            # find all occurrences
             starts: list[int] = []
             idx = pt.find(target)
             while idx != -1:
@@ -128,7 +119,6 @@ def search_with_multiple_cribs_positions(
             if not starts:
                 all_ok = False
                 break
-            # verify any occurrence near expected positions
             matched_pos = None
             for s in starts:
                 if expected_positions and min(abs(s - ep) for ep in expected_positions) <= window:

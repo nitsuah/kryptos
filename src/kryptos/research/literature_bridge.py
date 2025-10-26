@@ -18,8 +18,6 @@ from kryptos.research.paper_search import PaperSearch
 
 
 class LiteratureGapAnalyzer:
-    """Analyze gaps between academic literature and our attack attempts."""
-
     def __init__(
         self,
         attack_logger: AttackLogger | None = None,
@@ -53,13 +51,10 @@ class LiteratureGapAnalyzer:
         Returns:
             Gap analysis report
         """
-        # Search for relevant papers
         papers = self.paper_searcher.search_combined(query, max_results_per_source=max_papers // 2)
 
-        # Extract attacks from papers
         literature_attacks = self.attack_extractor.extract_from_papers(papers)
 
-        # Check which attacks we haven't tried
         untried_attacks = []
         tried_attacks = []
 
@@ -72,7 +67,6 @@ class LiteratureGapAnalyzer:
             else:
                 untried_attacks.append(extracted)
 
-        # Generate report
         return {
             "query": query,
             "papers_analyzed": len(papers),
@@ -89,7 +83,7 @@ class LiteratureGapAnalyzer:
                     "source": a.source_paper,
                     "confidence": a.confidence,
                 }
-                for a in untried_attacks[:10]  # Top 10
+                for a in untried_attacks[:10]
             ],
             "papers": [
                 {
@@ -120,22 +114,12 @@ class LiteratureGapAnalyzer:
         """
         gap_analysis = self.find_literature_gaps(query, ciphertext)
 
-        # Sort untried attacks by confidence
         untried = gap_analysis["untried_attacks"]
         sorted_attacks = sorted(untried, key=lambda x: x["confidence"], reverse=True)
 
         return sorted_attacks[:top_n]
 
     def generate_coverage_report(self, queries: list[str], ciphertext: str) -> dict[str, Any]:
-        """Generate comprehensive literature coverage report.
-
-        Args:
-            queries: List of search queries to analyze
-            ciphertext: Ciphertext being analyzed
-
-        Returns:
-            Combined coverage report
-        """
         total_papers = 0
         total_attacks = 0
         total_tried = 0
@@ -148,7 +132,6 @@ class LiteratureGapAnalyzer:
             total_tried += gap_analysis["already_tried"]
             all_untried.extend(gap_analysis["untried_attacks"])
 
-        # Deduplicate untried attacks
         seen = set()
         unique_untried = []
         for attack in all_untried:
@@ -169,7 +152,6 @@ class LiteratureGapAnalyzer:
 
 
 def demo_literature_gap_analysis():
-    """Demonstrate literature gap analysis."""
     print("=" * 80)
     print("LITERATURE GAP ANALYSIS DEMO")
     print("=" * 80)
@@ -178,17 +160,14 @@ def demo_literature_gap_analysis():
     print("Solution: Cross-reference papers with attack provenance log")
     print()
 
-    # Create analyzer
     analyzer = LiteratureGapAnalyzer()
 
-    # K4 ciphertext sample
     k4_sample = "OBKRUOXOGHULBSOLIFBBWFLR"
 
     print("-" * 80)
     print("1. Search Academic Literature")
     print("-" * 80)
 
-    # Analyze Vigenère literature
     gap_analysis = analyzer.find_literature_gaps("vigenere cryptanalysis", k4_sample, max_papers=10)
 
     print(f"Papers analyzed: {gap_analysis['papers_analyzed']}")

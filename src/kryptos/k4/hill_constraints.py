@@ -5,9 +5,8 @@ from __future__ import annotations
 from itertools import combinations, permutations
 
 from .hill_cipher import ALPHABET, hill_decrypt, matrix_inv_mod, solve_2x2_key
-from .scoring import combined_plaintext_score_cached as combined_plaintext_score  # cached
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score
 
-# Example known cribs (plaintext -> cipher segment) from Kryptos K4 clues
 KNOWN_CRIBS = {
     'BERLIN': 'NYPVTT',
     'CLOCK': 'MZFPK',
@@ -24,17 +23,7 @@ def get_hill_attempt_log(clear: bool = False) -> list[dict]:
     return out
 
 
-# --- 3x3 helpers (refined) -------------------------------------------------
-
-
 def _assemble_3x3_variants(seq: str) -> list[list[list[int]]]:
-    """Return multiple 3x3 matrix assemblies from a 9-letter sequence.
-    Strategies:
-    - row: fill rows left->right (default)
-    - col: fill columns top->bottom
-    - diag: place letters along diagonals (remaining fill row-major)
-    Deduplicate identical matrices.
-    """
     seq = ''.join(ch for ch in seq.upper() if ch.isalpha())
     if len(seq) < 9:
         return []
@@ -42,13 +31,11 @@ def _assemble_3x3_variants(seq: str) -> list[list[list[int]]]:
     variants: list[list[list[int]]] = []
     seen: set[tuple[int, ...]] = set()
 
-    # row-major
     row = [[ALPHABET.index(letters[r * 3 + c]) for c in range(3)] for r in range(3)]
     flat = tuple(v for rr in row for v in rr)
     variants.append(row)
     seen.add(flat)
 
-    # column-major
     col_mat = [[0] * 3 for _ in range(3)]
     idx = 0
     for c in range(3):
@@ -60,18 +47,14 @@ def _assemble_3x3_variants(seq: str) -> list[list[list[int]]]:
         variants.append(col_mat)
         seen.add(flat)
 
-    # diagonal emphasis (first 3 main diag, next 2 anti-diag (excluding center), rest fill)
-    diag_mat = [[-1] * 3 for _ in range(3)]  # use -1 sentinel
+    diag_mat = [[-1] * 3 for _ in range(3)]
     assigned: set[tuple[int, int]] = set()
-    # main diagonal (3 cells)
     for i, (r, c) in enumerate([(0, 0), (1, 1), (2, 2)]):
         diag_mat[r][c] = ALPHABET.index(letters[i])
         assigned.add((r, c))
-    # anti-diagonal excluding center (2 cells)
     for j, (r, c) in enumerate([(0, 2), (2, 0)], start=3):
         diag_mat[r][c] = ALPHABET.index(letters[j])
         assigned.add((r, c))
-    # fill remaining cells row-major with remaining letters
     fill_idx = 5
     for r in range(3):
         for c in range(3):
@@ -87,8 +70,6 @@ def _assemble_3x3_variants(seq: str) -> list[list[list[int]]]:
 
 
 def _solve_3x3_keys(plain: str, cipher: str) -> list[list[list[int]]]:
-    """Attempt to derive 3x3 keys from concatenated 9-letter plain/cipher slices using multiple assemblies.
-    Returns list of invertible key matrices (may be empty)."""
     p = ''.join(ch for ch in plain.upper() if ch.isalpha())
     c = ''.join(ch for ch in cipher.upper() if ch.isalpha())
     if len(p) < 9 or len(c) < 9:
@@ -119,9 +100,6 @@ def _solve_3x3_keys(plain: str, cipher: str) -> list[list[list[int]]]:
     return keys
 
 
-# --- 3x3 candidate generator (orders + sliding windows refined) ------------
-
-
 def _generate_3x3_candidates(cribs: dict[str, str]) -> list[dict]:
     items = list(cribs.items())
     results: list[dict] = []
@@ -132,7 +110,6 @@ def _generate_3x3_candidates(cribs: dict[str, str]) -> list[dict]:
         max_len = min(len(plain_concat), len(cipher_concat))
         if max_len < 9:
             continue
-        # all overlapping 9-char windows
         for start in range(0, max_len - 9 + 1):
             p_slice = plain_concat[start : start + 9]
             c_slice = cipher_concat[start : start + 9]
@@ -147,23 +124,14 @@ def _generate_3x3_candidates(cribs: dict[str, str]) -> list[dict]:
     return results
 
 
-# --- Public API --------------------------------------------------------------
-
-
 def derive_candidate_keys() -> list[dict]:
-    """Derive candidate 2x2 and refined 3x3 Hill cipher keys from crib segments.
-    Generates single/pair 2x2 keys and multiple window/order 3x3 heuristic keys.
-    Caches results.
-    """
     if 'keys' in _cache_holder:
         return _cache_holder['keys']
     keys: list[dict] = []
-    # Single cribs (2x2)
     for plain, cipher in KNOWN_CRIBS.items():
         k = solve_2x2_key(plain, cipher)
         if k:
             keys.append({'key': k, 'source': f'single:{plain}', 'size': 2})
-    # Pairwise combinations (2x2)
     crib_items = list(KNOWN_CRIBS.items())
     for (p1, c1), (p2, c2) in combinations(crib_items, 2):
         plain_block = p1[:2] + p2[:2]
@@ -171,7 +139,6 @@ def derive_candidate_keys() -> list[dict]:
         k2 = solve_2x2_key(plain_block, cipher_block)
         if k2:
             keys.append({'key': k2, 'source': f'pair:{p1}+{p2}', 'size': 2})
-    # Expanded refined 3x3 heuristic candidates
     keys.extend(_generate_3x3_candidates(KNOWN_CRIBS))
     _cache_holder['keys'] = keys
     return keys

@@ -16,44 +16,25 @@ from kryptos.log_setup import setup_logging
 
 @dataclass
 class ValidationResult:
-    """Result from a quality validation check."""
-
     check_name: str
     passed: bool
-    severity: str  # 'info', 'warning', 'error'
+    severity: str
     message: str
     details: dict[str, Any] | None = None
 
 
 @dataclass
 class QConfig:
-    """Configuration for Q agent validation."""
-
-    baseline_mean: float = -355.92  # K4 random baseline mean
-    baseline_stddev: float = 14.62  # K4 random baseline stddev
-    sigma_2_threshold: float = -326.68  # 2σ threshold (95% confidence)
-    sigma_3_threshold: float = -312.06  # 3σ threshold (99.7% confidence)
+    baseline_mean: float = -355.92
+    baseline_stddev: float = 14.62
+    sigma_2_threshold: float = -326.68
+    sigma_3_threshold: float = -312.06
     min_candidates: int = 10
     log_level: str = "INFO"
 
 
 class QAgent:
-    """Quality assurance agent for statistical validation.
-
-    Performs rigorous checks on hypothesis testing results:
-    - Statistical significance testing
-    - Baseline comparison
-    - Sanity checks (alphabet coverage, length validation)
-    - Anomaly detection
-    - False positive filtering
-    """
-
     def __init__(self, config: QConfig | None = None):
-        """Initialize Q agent.
-
-        Args:
-            config: Configuration for validation behavior
-        """
         self.config = config or QConfig()
         self.log = setup_logging(
             level=self.config.log_level,
@@ -80,7 +61,6 @@ class QAgent:
         sigma_3 = self.config.sigma_3_threshold
 
         if score > sigma_3:
-            # Score exceeds 3σ threshold - highly significant
             return ValidationResult(
                 check_name="statistical_significance",
                 passed=True,
@@ -95,7 +75,6 @@ class QAgent:
             )
 
         elif score > sigma_2:
-            # Score between 2σ and 3σ - weak signal, needs validation
             return ValidationResult(
                 check_name="statistical_significance",
                 passed=True,
@@ -112,7 +91,6 @@ class QAgent:
             )
 
         else:
-            # Score below 2σ - not statistically significant
             return ValidationResult(
                 check_name="statistical_significance",
                 passed=False,
@@ -142,7 +120,6 @@ class QAgent:
         """
         results = []
 
-        # Check length
         if len(plaintext) != expected_length:
             results.append(
                 ValidationResult(
@@ -163,7 +140,6 @@ class QAgent:
                 ),
             )
 
-        # Check alphabet coverage (should be mostly A-Z)
         alpha_chars = sum(1 for c in plaintext if c.isalpha())
         alpha_ratio = alpha_chars / len(plaintext) if plaintext else 0
 
@@ -187,7 +163,6 @@ class QAgent:
                 ),
             )
 
-        # Check for excessive repetition (likely artifact)
         char_counts = {}
         for c in plaintext:
             char_counts[c] = char_counts.get(c, 0) + 1
@@ -195,7 +170,7 @@ class QAgent:
         max_count = max(char_counts.values()) if char_counts else 0
         max_ratio = max_count / len(plaintext) if plaintext else 0
 
-        if max_ratio > 0.15:  # Any single char >15% is suspicious
+        if max_ratio > 0.15:
             results.append(
                 ValidationResult(
                     check_name="repetition_check",
@@ -242,7 +217,6 @@ class QAgent:
                 details={"count": len(scores), "minimum": min_expected},
             )
 
-        # Check score distribution
         if len(scores) > 1:
             score_mean = mean(scores)
             score_stddev = stdev(scores)
@@ -285,7 +259,6 @@ class QAgent:
         if not candidates:
             return results
 
-        # Check for duplicate plaintexts (key collisions?)
         plaintexts = [c.get("plaintext", "") for c in candidates]
         unique_count = len(set(plaintexts))
 
@@ -304,11 +277,10 @@ class QAgent:
                 ),
             )
 
-        # Check for identical scores (suspicious)
         scores = [c.get("score", 0.0) for c in candidates]
         unique_scores = len(set(scores))
 
-        if unique_scores < len(scores) / 2:  # More than 50% duplicate scores
+        if unique_scores < len(scores) / 2:
             results.append(
                 ValidationResult(
                     check_name="duplicate_scores",
@@ -322,11 +294,6 @@ class QAgent:
         return results
 
     def generate_report(self) -> str:
-        """Generate human-readable validation report.
-
-        Returns:
-            Formatted report string
-        """
         lines = ["=" * 80, "Q AGENT VALIDATION REPORT", "=" * 80, ""]
 
         passed = [v for v in self.validations if v.passed]
@@ -357,14 +324,6 @@ class QAgent:
 
 
 def q_report(validations: list[ValidationResult]) -> str:
-    """Generate human-readable report from Q validations.
-
-    Args:
-        validations: List of validation results
-
-    Returns:
-        Formatted report string
-    """
     agent = QAgent()
     agent.validations = validations
     return agent.generate_report()

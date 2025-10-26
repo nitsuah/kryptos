@@ -4,7 +4,6 @@ from __future__ import annotations
 
 
 def normalize_cipher(text: str) -> str:
-    """Return uppercase letters-only form of ciphertext/plaintext input."""
     return ''.join(c for c in text.upper() if c.isalpha())
 
 
@@ -31,14 +30,12 @@ def annotate_cribs(
     results: list[dict[str, object]] = []
     for plain, expected_cipher in crib_plain_to_cipher.items():
         exp_norm = normalize_cipher(expected_cipher)
-        # Expected positions: locate given expected cipher substring once if present
         idx = ct.find(exp_norm)
         expected_positions: tuple[int, int] | None = None
         if idx != -1:
             start = idx + (1 if one_based else 0)
             end = start + len(exp_norm) - (1 if one_based else 0)
             expected_positions = (start, end)
-        # All occurrences of plaintext crib itself (if already decrypted somewhere hypothetical)
         plain_norm = normalize_cipher(plain)
         found_positions: list[int] = []
         search_start = 0

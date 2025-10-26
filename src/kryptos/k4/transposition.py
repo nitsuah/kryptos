@@ -4,14 +4,13 @@ import itertools
 import random
 from collections.abc import Iterable
 
-from .scoring import combined_plaintext_score_cached as combined_plaintext_score  # cached
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score
 
-# Attempt log storage
 _attempt_log: list[dict] = []
 
 
 def _log_attempt(cols: int, perm: tuple[int, ...], partial: float | None, final: float | None, pruned: bool) -> None:
-    if len(_attempt_log) < 10000:  # cap to avoid runaway memory
+    if len(_attempt_log) < 10000:
         _attempt_log.append(
             {
                 'cols': cols,
@@ -24,7 +23,6 @@ def _log_attempt(cols: int, perm: tuple[int, ...], partial: float | None, final:
 
 
 def get_transposition_attempt_log(clear: bool = False) -> list[dict]:
-    """Return collected attempt log (permutation evaluations). Optionally clear after retrieval."""
     out = list(_attempt_log)
     if clear:
         _attempt_log.clear()
@@ -32,19 +30,13 @@ def get_transposition_attempt_log(clear: bool = False) -> list[dict]:
 
 
 def apply_columnar_permutation(ciphertext: str, n_cols: int, perm: tuple[int, ...]) -> str:
-    """Attempt to invert a columnar transposition given a permutation of column indices.
-    Assumes ciphertext produced by reading columns top-to-bottom after permuting columns.
-    This reconstruction is heuristic; for short text may be imperfect but good for scoring search.
-    """
     ct = ''.join(c for c in ciphertext if c.isalpha())
     n = len(ct)
     if n_cols <= 0:
         return ct
     n_rows = (n + n_cols - 1) // n_cols
-    # Approximate column lengths: first (n % n_cols) columns have n_rows, others n_rows-1
     full_cols = n % n_cols if n % n_cols != 0 else n_cols
     col_lengths = [n_rows if i < full_cols else (n_rows - 1) for i in range(n_cols)]
-    # Split ciphertext into columns in permuted order
     cols: list[str] = []
     idx = 0
     for p in perm:
@@ -64,7 +56,6 @@ def apply_columnar_permutation(ciphertext: str, n_cols: int, perm: tuple[int, ..
 
 
 def _partial_score(text: str, length: int) -> float:
-    """Score only a leading segment of text for pruning heuristics."""
     segment = text[:length]
     return combined_plaintext_score(segment)
 
@@ -105,9 +96,6 @@ def search_columnar(
     return results[:50]
 
 
-# Adaptive search with sampling and prefix caching
-
-
 def search_columnar_adaptive(
     ciphertext: str,
     min_cols: int = 5,
@@ -146,10 +134,8 @@ def search_columnar_adaptive(
             _log_attempt(n_cols, perm, partial, score, pruned_flag)
             all_results.append({'cols': n_cols, 'perm': perm, 'score': score, 'partial': partial, 'text': pt})
             if score > early_stop_threshold:
-                # Could log or flag; keep collecting for breadth
                 pass
             if len(prefix_cache) > prefix_cache_max:
-                # Simple eviction: shrink by removing lowest 20%
                 sorted_items = sorted(prefix_cache.items(), key=lambda kv: kv[1], reverse=True)
                 keep = int(len(sorted_items) * 0.8)
                 prefix_cache = dict(sorted_items[:keep])

@@ -15,7 +15,7 @@ from ..paths import ensure_reports_dir
 from .pipeline import get_clock_attempt_log, get_hill_attempt_log
 from .transposition import get_transposition_attempt_log
 
-DEF_LIMIT = 5000  # safety cap per category
+DEF_LIMIT = 5000
 
 
 def _ensure_dir(path: str) -> None:
@@ -55,7 +55,6 @@ def persist_attempt_logs(
     with open(path, 'w', encoding='utf-8') as fh:
         json.dump(payload, fh, indent=2)
     if clear:
-        # Clear only after successful write
         get_hill_attempt_log(clear=True)
         get_clock_attempt_log(clear=True)
         get_transposition_attempt_log(clear=True)

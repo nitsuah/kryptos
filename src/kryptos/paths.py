@@ -6,9 +6,9 @@ Primary helpers (cached):
     get_logs_dir() -> Path
     get_decisions_dir() -> Path
     get_tuning_runs_root() -> Path
-    ensure_reports_dir() -> Path  # timestamped subdir for K4 runs
+    ensure_reports_dir() -> Path
     provenance_hash(text: str, meta: dict) -> str
-    get_provenance_info() -> dict  # capture environment state for reproducibility
+    get_provenance_info() -> dict
 
 Env override: KRYPTOS_REPO_ROOT can force a root for tests.
 """
@@ -68,11 +68,6 @@ def get_tuning_runs_root() -> Path:
 
 
 def ensure_reports_dir(ts: str | None = None) -> Path:
-    """Return a timestamped reports directory path, creating it.
-
-    Pattern: artifacts/reports/<YYYYMMDD>/<TS>/
-    If ts provided it is used as final segment; otherwise generate UTC Zulu compact.
-    """
     root = get_artifacts_root()
     date_seg = datetime.utcnow().strftime("%Y%m%d")
     base = root / "reports" / date_seg
@@ -85,37 +80,17 @@ def ensure_reports_dir(ts: str | None = None) -> Path:
 
 
 def provenance_hash(text: str, meta: dict) -> str:
-    """Stable short hash from text + sorted JSON of meta for lineage tagging."""
     hasher = hashlib.sha1()
     hasher.update(text.encode("utf-8"))
     try:
         meta_bytes = json.dumps(meta, sort_keys=True, separators=(",", ":")).encode("utf-8")
     except TypeError:
-        # Fallback: string repr
         meta_bytes = repr(meta).encode("utf-8")
     hasher.update(meta_bytes)
     return hasher.hexdigest()[:16]
 
 
 def get_provenance_info(include_params: dict | None = None) -> dict:
-    """Capture environment state for reproducibility.
-
-    Returns dictionary with:
-        - timestamp: ISO 8601 UTC timestamp
-        - git_commit: Current git commit hash (or None if not in git repo)
-        - git_branch: Current git branch name (or None)
-        - git_dirty: Whether there are uncommitted changes
-        - python_version: Python version string
-        - platform: OS platform info
-        - repo_root: Repository root path
-        - params: Optional user-provided parameters for the run
-
-    Args:
-        include_params: Optional dict of run-specific parameters to include
-
-    Returns:
-        Dictionary containing provenance information
-    """
     info = {
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "python_version": sys.version,
@@ -132,11 +107,9 @@ def get_provenance_info(include_params: dict | None = None) -> dict:
         "repo_root": str(get_repo_root()),
     }
 
-    # Try to get git information
     try:
         repo_root = get_repo_root()
 
-        # Get commit hash
         result = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             cwd=repo_root,
@@ -150,7 +123,6 @@ def get_provenance_info(include_params: dict | None = None) -> dict:
         else:
             info["git_commit"] = None
 
-        # Get branch name
         result = subprocess.run(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"],
             cwd=repo_root,
@@ -164,7 +136,6 @@ def get_provenance_info(include_params: dict | None = None) -> dict:
         else:
             info["git_branch"] = None
 
-        # Check for uncommitted changes
         result = subprocess.run(
             ["git", "status", "--porcelain"],
             cwd=repo_root,
@@ -179,12 +150,10 @@ def get_provenance_info(include_params: dict | None = None) -> dict:
             info["git_dirty"] = None
 
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
-        # Git not available or not a git repo
         info["git_commit"] = None
         info["git_branch"] = None
         info["git_dirty"] = None
 
-    # Include user-provided parameters
     if include_params:
         info["params"] = include_params
 

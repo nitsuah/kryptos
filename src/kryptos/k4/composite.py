@@ -5,15 +5,18 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from ..ciphers import vigenere_decrypt
 from ..paths import ensure_reports_dir, provenance_hash
-from .attempt_logging import persist_attempt_logs  # new import
+from .attempt_logging import persist_attempt_logs
 from .pipeline import Pipeline, Stage, StageResult
 from .reporting import generate_candidate_artifacts
-from .scoring import trigram_entropy, wordlist_hit_rate  # ensure metrics imported
+from .scoring import combined_plaintext_score_cached as combined_plaintext_score
+from .scoring import trigram_entropy, wordlist_hit_rate
+from .transposition import search_columnar
+from .vigenere_key_recovery import recover_key_by_frequency
 
 
 def aggregate_stage_candidates(results: list[StageResult]) -> list[dict[str, Any]]:
-    """Aggregate candidates from multiple StageResults, annotate with stage name."""
     agg: list[dict[str, Any]] = []
     for res in results:
         cands = res.metadata.get('candidates', [])
@@ -28,14 +31,11 @@ def aggregate_stage_candidates(results: list[StageResult]) -> list[dict[str, Any
                     'time': c.get('time'),
                     'mode': c.get('mode'),
                     'shifts': c.get('shifts'),
-                    'trace': c.get('trace'),  # propagate trace
+                    'trace': c.get('trace'),
                 },
             )
     agg.sort(key=lambda x: x.get('score', 0.0), reverse=True)
     return agg
-
-
-# Weighted fusion utilities
 
 
 def _min_max(values: list[float]) -> tuple[float, float]:
@@ -43,7 +43,6 @@ def _min_max(values: list[float]) -> tuple[float, float]:
 
 
 def normalize_scores(candidates: list[dict[str, Any]], key: str = 'score') -> list[dict[str, Any]]:
-    """Return new list with added 'norm_score' using min-max normalization per stage grouping."""
     grouped: dict[str, list[dict[str, Any]]] = {}
     for c in candidates:
         grouped.setdefault(c['stage'], []).append(c)
@@ -126,10 +125,8 @@ def run_composite_pipeline(
             'provenance_hash': prov,
         },
     }
-    # Build lineage list (stage names in order)
     lineage = [r.name for r in stage_results]
     fused_candidates: list[dict[str, Any]] = []
-    # If adaptive requested, compute weights dynamically (overrides provided weights)
     if adaptive:
         weights = adaptive_fusion_weights(aggregated)
         metrics_samples = [
@@ -162,9 +159,8 @@ def run_composite_pipeline(
         fused_candidates = fuse_scores_weighted(candidates_for_fusion, weights, use_normalized=normalize)
         out['fused'] = fused_candidates[:limit]
     if report:
-        # Canonicalize report_dir; default now under artifacts/k4_runs
         if report_dir is None or report_dir == 'reports':
-            base = Path(ensure_reports_dir()).parent  # points to artifacts/<timestamp> parent
+            base = Path(ensure_reports_dir()).parent
             k4_root = base / 'k4_runs'
             k4_root.mkdir(parents=True, exist_ok=True)
             report_dir = str(k4_root)
@@ -196,19 +192,8 @@ def run_composite_pipeline(
 
 
 def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float]:
-    """Compute dynamic stage weights from top candidate linguistic metrics.
-    Heuristic:
-      - Base weight = 1.0
-      - +0.30 if top candidate wordlist_hit_rate > median of stage tops
-      - +0.20 if trigram_entropy in [3.0, 5.2] (plausible English band)
-      - -0.15 if trigram_entropy outside that band
-      - +0.10 if candidate raw score in top 10% of all aggregated scores
-      - Clamp weights to [0.3, 2.5]
-    Returns mapping stage->weight.
-    """
     if not candidates:
         return {}
-    # Identify top candidate per stage (highest raw score)
     by_stage: dict[str, dict[str, Any]] = {}
     all_scores: list[float] = []
     for c in candidates:
@@ -217,7 +202,6 @@ def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float
         stage = c['stage']
         if stage not in by_stage or sc > by_stage[stage].get('score', -1e9):
             by_stage[stage] = c
-    # Compute metrics
     tops = list(by_stage.values())
     wl_rates = [wordlist_hit_rate(t['text']) for t in tops]
     median_wl = sorted(wl_rates)[len(wl_rates) // 2]
@@ -238,7 +222,6 @@ def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float
             w -= 0.15
         if raw_score >= top_cutoff_score:
             w += 0.10
-        # clamp
         if w < 0.3:
             w = 0.3
         if w > 2.5:
@@ -247,10 +230,98 @@ def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float
     return weights
 
 
+class CompositeChainExecutor:
+    def vigenere_then_transposition(
+        self,
+        ciphertext: str,
+        vigenere_key_length: int,
+        transposition_col_range: tuple[int, int] = (5, 8),
+        top_n: int = 5,
+    ) -> list[dict[str, Any]]:
+        """V→T chain: Decrypt Vigenère first, then try transposition on result.
+
+        Args:
+            ciphertext: Original ciphertext
+            vigenere_key_length: Expected Vigenère key length
+            transposition_col_range: (min_cols, max_cols) for transposition
+            top_n: Return top N results
+
+        Returns:
+            List of candidates with keys, scores, and plaintext
+        """
+        v_keys = recover_key_by_frequency(ciphertext, vigenere_key_length, top_n=top_n * 2)
+
+        candidates = []
+        for v_key in v_keys[:top_n]:
+            v_plaintext = vigenere_decrypt(ciphertext, v_key)
+
+            min_cols, max_cols = transposition_col_range
+            t_results = search_columnar(v_plaintext, min_cols=min_cols, max_cols=max_cols)
+            for t_result in t_results[:3]:
+                candidates.append(
+                    {
+                        'plaintext': t_result['text'],
+                        'score': t_result['score'],
+                        'vigenere_key': v_key,
+                        'transposition_cols': t_result['cols'],
+                        'transposition_perm': t_result['perm'],
+                        'chain': 'V→T',
+                    },
+                )
+
+        candidates.sort(key=lambda x: x['score'], reverse=True)
+        return candidates[:top_n]
+
+    def transposition_then_vigenere(
+        self,
+        ciphertext: str,
+        transposition_col_range: tuple[int, int] = (5, 8),
+        vigenere_key_length: int = 8,
+        top_n: int = 5,
+    ) -> list[dict[str, Any]]:
+        """T→V chain: Decrypt transposition first, then Vigenère.
+
+        Args:
+            ciphertext: Original ciphertext
+            transposition_col_range: (min_cols, max_cols) for transposition
+            vigenere_key_length: Expected Vigenère key length
+            top_n: Return top N results
+
+        Returns:
+            List of candidates with keys, scores, and plaintext
+        """
+        candidates = []
+
+        min_cols, max_cols = transposition_col_range
+        t_results = search_columnar(ciphertext, min_cols=min_cols, max_cols=max_cols)
+
+        for t_result in t_results[: top_n * 2]:
+            t_plaintext = t_result['text']
+
+            v_keys = recover_key_by_frequency(t_plaintext, vigenere_key_length, top_n=3)
+            for v_key in v_keys:
+                v_plaintext = vigenere_decrypt(t_plaintext, v_key)
+                score = combined_plaintext_score(v_plaintext)
+                candidates.append(
+                    {
+                        'plaintext': v_plaintext,
+                        'score': score,
+                        'transposition_cols': t_result['cols'],
+                        'transposition_perm': t_result['perm'],
+                        'vigenere_key': v_key,
+                        'chain': 'T→V',
+                    },
+                )
+
+        candidates.sort(key=lambda x: x['score'], reverse=True)
+        return candidates[:top_n]
+
+
 __all__ = [
     'aggregate_stage_candidates',
     'run_composite_pipeline',
     'normalize_scores',
     'fuse_scores_weighted',
     'adaptive_fusion_weights',
+    'CompositeChainExecutor',
 ]

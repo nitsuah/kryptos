@@ -7,7 +7,6 @@ from .scoring import combined_plaintext_score
 
 
 def score_decryptions(ciphertext: str, keys: list[list[list[int]]], limit: int = 100) -> list[dict]:
-    """Score decryptions of ciphertext using provided Hill cipher keys."""
     results: list[dict] = []
     for k in keys[:limit]:
         dec = hill_decrypt(ciphertext, k)

@@ -9,7 +9,9 @@ decrypt the famous Kryptos sculpture.
 This Kryptos repository is a research toolkit for exploring layered cipher hypotheses (Vigenère, Hill, transposition,
 masking, and related hybrids) with an emphasis on reproducible pipelines and scoring heuristics.
 
-Related documents / quick links:
+## docs
+
+All Related documents / quick links can generally be found in `docs/`:
 
 - Phase 6 Roadmap: `docs/PHASE_6_ROADMAP.md`
 - Agents Architecture: `docs/reference/AGENTS_ARCHITECTURE.md`
@@ -24,15 +26,37 @@ cryptanalysts may have attempted manually but couldn't exhaustively explore. Our
 with intelligent scoring to measure how "English-like" each result appears:
 
 1. **Hill Cipher** - Matrix-based substitution where letters become numbers, transform through matrix multiplication,
+then convert back.
 
-then convert back 2. **Transposition** - Systematic letter rearrangement (write in columns, read in rows, or more
-complex patterns) 3. **Masking** - Identifying and removing dummy letters that serve as padding or obfuscation 4.
-**Berlin Clock** - Using the iconic clock's binary time pattern as a cryptographic key 5. **Combo Attacks** - Chaining
-multiple methods together (K4 likely uses 2-3 techniques layered in sequence)
+1. **Transposition** - Systematic letter rearrangement (write in columns, read in rows, or more complex patterns)
+
+1. **Masking** - Identifying and removing dummy letters that serve as padding or obfuscation
+
+1. **Berlin Clock** - Using the iconic clock's binary time pattern as a cryptographic key
+
+1. **Combo Attacks** - Chaining multiple methods together (K4 likely uses 2-3 techniques layered in sequence)
 
 We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real word detection – to
 identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic
 intuition rather than brute force. After all, humans design puzzles with intention, not randomness!
+
+## Recent Updates
+
+### Phase 6 Comprehensive Cleanup (October 2025)
+
+**Code Optimization**: Removed **3,554 lines** of unnecessary code while preserving all functionality
+
+- Automated cleanup: -2,877 lines (docstrings, comments, verbose logging) across 65 files
+- Deprecated code removal: -677 lines (unused configs, obsolete tests)
+- Fixed K3 ciphertext correction (336 chars)
+
+**Test Suite Optimization**: 607 tests total (**583 fast** / 24 slow)
+
+- Added `@pytest.mark.slow` to long-running statistical validation tests
+- Fast iteration: `pytest -m "not slow"` runs 583 tests in ~1-2 minutes
+- Full validation: `pytest` includes Monte Carlo tests (10+ min) for autonomous solving verification
+
+**Result**: Leaner codebase, faster development cycle, maintained 100% test pass rate
 
 ## Current Progress
 

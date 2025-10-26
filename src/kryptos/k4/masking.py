@@ -15,13 +15,11 @@ DEFAULT_NULLS = {'X', 'Y'}
 
 
 def remove_chars(text: str, chars: Iterable[str]) -> str:
-    """Return text with all occurrences of chars removed (case-insensitive for alpha)."""
     remove = {c.upper() for c in chars}
     return ''.join(ch for ch in text if ch.upper() not in remove)
 
 
 def collapse_runs(text: str, char: str, max_run: int = 2) -> str:
-    """Collapse runs of a given char longer than max_run down to max_run length."""
     out: list[str] = []
     run = 0
     for ch in text:
@@ -36,7 +34,6 @@ def collapse_runs(text: str, char: str, max_run: int = 2) -> str:
 
 
 def mask_variants(text: str, null_chars: Iterable[str] | None = None) -> list[str]:
-    """Generate simple masking variants: full removal and run-collapsed versions for each null char."""
     if null_chars is None:
         null_chars = DEFAULT_NULLS
     variants: list[str] = []
@@ -46,9 +43,7 @@ def mask_variants(text: str, null_chars: Iterable[str] | None = None) -> list[st
         variants.append(removed)
         collapsed = collapse_runs(base, n, max_run=1)
         variants.append(collapsed)
-    # Combined removal of all
     variants.append(remove_chars(base, null_chars))
-    # Deduplicate while preserving order
     seen = set()
     uniq: list[str] = []
     for v in variants:
@@ -59,7 +54,6 @@ def mask_variants(text: str, null_chars: Iterable[str] | None = None) -> list[st
 
 
 def score_mask_variants(text: str, null_chars: Iterable[str] | None = None) -> list[dict[str, Any]]:
-    """Produce scored variant list sorted by score desc."""
     vars_ = mask_variants(text, null_chars)
     scored: list[dict[str, Any]] = []
     for v in vars_:

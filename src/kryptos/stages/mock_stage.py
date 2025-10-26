@@ -7,8 +7,6 @@ __all__ = ["MockStage"]
 
 
 class MockStage(Stage):
-    """Produces trivial candidates for testing."""
-
     def run(self, ctx: StageContext) -> list[CandidateResult]:
         if not ctx.ciphertext:
             return []

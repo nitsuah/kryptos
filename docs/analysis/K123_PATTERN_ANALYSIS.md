@@ -1,15 +1,18 @@
 # K1-K3 PATTERN ANALYSIS REPORT
+
 Generated: 2025-10-25 01:20:57
 
 ## Overview
+
 Analyzed 13 patterns across K1, K2, and K3. These patterns inform our K4 attack strategy.
 
 ## CIPHER PATTERNS
 
 ### 'NORTHEAST' clue (2020) - characters 26-34
+
 **Confidence:** 1.00
 
-### Evidence:
+### Evidence
 
 - Sanborn confirmed 'NORTHEAST' appears in K4
 
@@ -18,9 +21,10 @@ Combined with 'BERLIN' theme from K3, suggests Cold War espionage angle. Try cip
 work outward.
 
 ### Increasing cipher complexity across sections
+
 **Confidence:** 0.90
 
-### Evidence:
+### Overall Evidence
 
 - K1: Modified Vigenère with keyword
 - K2: Vigenère with key + coordinate encoding
@@ -34,9 +38,10 @@ transposition) 2. Novel twist we haven't seen 3. Possible 'supercipher' using K1
 ## SPELLING PATTERNS
 
 ### Intentional misspellings/substitutions
+
 **Confidence:** 0.95
 
-### Evidence:
+### Misspelling Evidence
 
 - 'iqlusion' instead of illusion (I→Q substitution)
 - 'undergruund' instead of underground (O→U substitution)
@@ -48,9 +53,10 @@ that are 'almost' English.
 ## THEME PATTERNS
 
 ### Theme: location
+
 **Confidence:** 0.95
 
-### Evidence:
+### Keyword Evidence
 
 - north
 - west
@@ -61,9 +67,10 @@ that are 'almost' English.
 **K4 Hypothesis:** K4 may continue location theme. Try these as cribs: north, west, degrees, minutes, seconds
 
 ### Theme: discovery
+
 **Confidence:** 0.95
 
-### Evidence:
+### Discovery Keywords
 
 - slowly
 - emerged
@@ -74,9 +81,10 @@ that are 'almost' English.
 **K4 Hypothesis:** K4 may continue discovery theme. Try these as cribs: slowly, emerged, breach, peered, see
 
 ### Theme: archaeology
+
 **Confidence:** 0.95
 
-### Evidence:
+### Archaeology Keywords
 
 - debris
 - doorway
@@ -87,9 +95,10 @@ that are 'almost' English.
 **K4 Hypothesis:** K4 may continue archaeology theme. Try these as cribs: debris, doorway, chamber, remains, passage
 
 ### Theme: communication
+
 **Confidence:** 0.90
 
-### Evidence:
+### Communication Keywords
 
 - message
 - transmitted
@@ -99,9 +108,10 @@ that are 'almost' English.
 **K4 Hypothesis:** K4 may continue communication theme. Try these as cribs: message, transmitted, information, gathered
 
 ### Theme: secrecy
+
 **Confidence:** 0.85
 
-### Evidence:
+### Secrecy Keywords
 
 - invisible
 - buried
@@ -112,9 +122,10 @@ that are 'almost' English.
 ## STRUCTURE PATTERNS
 
 ### 'X' used as separator/delimiter (5 times in K2)
+
 **Confidence:** 0.90
 
-### Evidence:
+### Structure Evidence
 
 - X marks section breaks
 - Separates distinct ideas
@@ -123,19 +134,21 @@ that are 'almost' English.
 boundaries, layers, or metadata.
 
 ### Geographic coordinates embedded in plaintext
+
 **Confidence:** 0.85
 
-### Evidence:
+### Geo Evidence
 
 - 38°57'6.5"N, 77°8'44"W - CIA headquarters location
 
 **K4 Hypothesis:** K4 might contain coordinates, dates, or other numeric encodings. Look for number patterns, especially
-related to Kryptos location or key dates.
+related to Kryptos location or key dates. Or an X,Y,Z coordinate system.
 
 ### Preferred word lengths: 3, 4, 7, 6, 5
+
 **Confidence:** 0.75
 
-### Evidence:
+### Keyword Length Evidence
 
 - 3-letter words: 35 times
 - 4-letter words: 26 times
@@ -149,9 +162,10 @@ letter words.
 ## ARTISTIC PATTERNS
 
 ### K1 uses poetic, artistic language
+
 **Confidence:** 0.85
 
-### Evidence:
+### Poetic Evidence
 
 - subtle
 - shading
@@ -164,9 +178,10 @@ letter words.
 poetry detection (rhyme, meter, alliteration) will be crucial.
 
 ### K3 quotes historical event (King Tut discovery, 1922)
+
 **Confidence:** 0.80
 
-### Evidence:
+### Tut Evidence
 
 - slowly desparatly
 - chamber

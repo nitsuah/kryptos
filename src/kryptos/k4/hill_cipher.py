@@ -25,7 +25,6 @@ def _chunks(seq: Sequence[int], size: int):
 
 
 def mod_inv(a: int, m: int = MOD) -> int | None:
-    """Modular inverse of a mod m, or None if not invertible."""
     a = a % m
     for x in range(1, m):
         if (a * x) % m == 1:
@@ -34,9 +33,6 @@ def mod_inv(a: int, m: int = MOD) -> int | None:
 
 
 def matrix_det(mat: list[list[int]]) -> int:
-    """
-    Determinant of a 2x2 or 3x3 matrix.
-    """
     n = len(mat)
     if n == 2:
         return mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]
@@ -49,9 +45,6 @@ def matrix_det(mat: list[list[int]]) -> int:
 
 
 def matrix_inv_mod(mat: list[list[int]], m: int = MOD) -> list[list[int]] | None:
-    """
-    Modular inverse of a 2x2 or 3x3 matrix mod m, or None if not invertible.
-    """
     n = len(mat)
     det = matrix_det(mat) % m
     inv_det = mod_inv(det, m)
@@ -65,7 +58,6 @@ def matrix_inv_mod(mat: list[list[int]], m: int = MOD) -> list[list[int]] | None
         a, b, c = mat[0]
         d, e, f = mat[1]
         g, h, i = mat[2]
-        # Cofactors
         C11 = e * i - f * h
         C12 = -(d * i - f * g)
         C13 = d * h - e * g
@@ -77,7 +69,6 @@ def matrix_inv_mod(mat: list[list[int]], m: int = MOD) -> list[list[int]] | None
         C31 = b * f - c * e
         C32 = -(a * f - c * d)
         C33 = a * e - b * d
-        # Construct adjugate matrix by transposing the cofactor matrix
         adj = [
             [C11, C21, C31],
             [C12, C22, C32],
@@ -90,13 +81,11 @@ def matrix_inv_mod(mat: list[list[int]], m: int = MOD) -> list[list[int]] | None
 
 
 def hill_encrypt_block(block: Sequence[int], key: list[list[int]]) -> list[int]:
-    """Encrypt a block using Hill cipher with given key."""
     size = len(key)
     return [sum(key[row][col] * block[col] for col in range(size)) % MOD for row in range(size)]
 
 
 def hill_decrypt_block(block: Sequence[int], key: list[list[int]]) -> list[int] | None:
-    """Decrypt a block using Hill cipher with given key."""
     inv = matrix_inv_mod(key)
     if inv is None:
         return None
@@ -105,7 +94,6 @@ def hill_decrypt_block(block: Sequence[int], key: list[list[int]]) -> list[int] 
 
 
 def hill_encrypt(text: str, key: list[list[int]]) -> str:
-    """Encrypt text using Hill cipher with given key."""
     t = ''.join(c for c in text.upper() if c.isalpha())
     nums = [_char_to_int(c) for c in t]
     size = len(key)
@@ -116,7 +104,6 @@ def hill_encrypt(text: str, key: list[list[int]]) -> str:
 
 
 def hill_decrypt(text: str, key: list[list[int]]) -> str | None:
-    """Decrypt text using Hill cipher with given key."""
     t = ''.join(c for c in text.upper() if c.isalpha())
     nums = [_char_to_int(c) for c in t]
     size = len(key)
@@ -130,7 +117,6 @@ def hill_decrypt(text: str, key: list[list[int]]) -> str | None:
 
 
 def invertible_2x2_keys() -> list[list[list[int]]]:
-    """Generate all invertible 2x2 Hill cipher keys mod 26."""
     keys: list[list[list[int]]] = []
     for a in range(26):
         for b in range(26):
@@ -143,7 +129,6 @@ def invertible_2x2_keys() -> list[list[list[int]]]:
 
 
 def solve_2x2_key(plain: str, cipher: str) -> list[list[int]] | None:
-    """Solve for 2x2 Hill cipher key mapping plain to cipher (first 4 letters each)."""
     p = ''.join(ch for ch in plain.upper() if ch.isalpha())
     ct = ''.join(ch for ch in cipher.upper() if ch.isalpha())
     if len(p) < 4 or len(ct) < 4:
@@ -172,7 +157,6 @@ def solve_2x2_key(plain: str, cipher: str) -> list[list[int]] | None:
 
 
 def brute_force_crib(cipher_segment: str, plain_segment: str, limit: int = 1000) -> list[dict]:
-    """Brute-force search for 2x2 Hill cipher keys mapping plain_segment to cipher_segment."""
     p = ''.join(ch for ch in plain_segment.upper() if ch.isalpha())[:4]
     ct = ''.join(ch for ch in cipher_segment.upper() if ch.isalpha())[:4]
     if len(p) < 4 or len(ct) < 4:

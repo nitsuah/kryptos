@@ -19,7 +19,6 @@ from kryptos.paths import get_artifacts_root
 
 def run_demo(limit: int = 10) -> str:
     setup_logging(level=logging.INFO, logger_name="kryptos.demo")
-    log = logging.getLogger("kryptos.demo")
 
     cipher = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTW"
     stages = [
@@ -41,11 +40,10 @@ def run_demo(limit: int = 10) -> str:
     out_dir = get_artifacts_root() / "demo" / f"run_{ts}"
     out_dir.mkdir(parents=True, exist_ok=True)
     persist_attempt_logs(out_dir=str(out_dir), label="K4-DEMO", clear=False)
-    log.info("Demo complete. Artifacts written to: %s", out_dir)
     return str(out_dir)
 
 
-def _main() -> None:  # pragma: no cover
+def _main() -> None:
     import argparse
 
     p = argparse.ArgumentParser(description="Run a tiny K4 demo pipeline")
@@ -54,5 +52,5 @@ def _main() -> None:  # pragma: no cover
     run_demo(limit=args.limit)
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     _main()

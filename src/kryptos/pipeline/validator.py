@@ -17,7 +17,6 @@ from typing import Any
 
 from kryptos.log_setup import setup_logging
 
-# English letter frequencies (from large corpus)
 ENGLISH_FREQ = {
     'E': 12.70,
     'T': 9.06,
@@ -49,18 +48,9 @@ ENGLISH_FREQ = {
 
 
 def simple_dictionary_score(text: str) -> float:
-    """Calculate simple dictionary score based on letter frequencies.
-
-    Args:
-        text: Text to score
-
-    Returns:
-        Score 0.0-1.0 (higher is better)
-    """
     if not text:
         return 0.0
 
-    # Calculate letter frequencies in text
     normalized = "".join(c.upper() for c in text if c.isalpha())
     if not normalized:
         return 0.0
@@ -69,19 +59,15 @@ def simple_dictionary_score(text: str) -> float:
     for c in normalized:
         freq[c] = freq.get(c, 0) + 1
 
-    # Convert to percentages
     total = len(normalized)
     for c in freq:
         freq[c] = (freq[c] / total) * 100
 
-    # Calculate chi-squared statistic (lower is better)
     chi_squared = 0.0
     for letter, expected in ENGLISH_FREQ.items():
         observed = freq.get(letter, 0.0)
         chi_squared += ((observed - expected) ** 2) / expected
 
-    # Convert to 0-1 score (normalize chi-squared)
-    # Typical chi-squared for English: 10-50, gibberish: 100-500+
     score = max(0.0, min(1.0, 1.0 - (chi_squared / 500)))
 
     return score
@@ -89,15 +75,12 @@ def simple_dictionary_score(text: str) -> float:
 
 @dataclass
 class ValidationResult:
-    """Result of plaintext validation."""
-
     is_valid: bool
-    confidence: float  # 0.0-1.0
+    confidence: float
     stage_results: dict[str, Any] = field(default_factory=dict)
     reasons: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary."""
         return {
             "is_valid": self.is_valid,
             "confidence": self.confidence,
@@ -107,8 +90,6 @@ class ValidationResult:
 
 
 class PlaintextValidator:
-    """Multi-stage plaintext validator."""
-
     def __init__(
         self,
         known_cribs: list[str] | None = None,
@@ -130,18 +111,9 @@ class PlaintextValidator:
         self.log = setup_logging(level=log_level, logger_name="kryptos.pipeline.validator")
 
     def normalize(self, text: str) -> str:
-        """Normalize text for validation."""
         return "".join(c.upper() for c in text if c.isalpha())
 
     def stage1_dictionary_score(self, plaintext: str) -> dict[str, Any]:
-        """Stage 1: Dictionary-based scoring.
-
-        Args:
-            plaintext: Plaintext to validate
-
-        Returns:
-            Dictionary with score and pass/fail
-        """
         normalized = self.normalize(plaintext)
 
         try:
@@ -156,18 +128,10 @@ class PlaintextValidator:
             "score": score,
             "threshold": self.min_dictionary_score,
             "passed": passed,
-            "reason": f"Dictionary score {score:.3f} {'>==' if passed else '<'} {self.min_dictionary_score}",
+            "reason": f"Dictionary score {score:.3f} {'>=' if passed else '<'} {self.min_dictionary_score}",
         }
 
     def stage2_crib_matching(self, plaintext: str) -> dict[str, Any]:
-        """Stage 2: Check for known cribs.
-
-        Args:
-            plaintext: Plaintext to validate
-
-        Returns:
-            Dictionary with crib matches and pass/fail
-        """
         normalized = self.normalize(plaintext)
 
         matches = []
@@ -192,20 +156,6 @@ class PlaintextValidator:
         }
 
     def stage3_linguistic_validation(self, plaintext: str) -> dict[str, Any]:
-        """Stage 3: Linguistic validation.
-
-        Checks for:
-        - Reasonable letter frequencies
-        - English word patterns
-        - No excessive repetition
-        - Vowel/consonant balance
-
-        Args:
-            plaintext: Plaintext to validate
-
-        Returns:
-            Dictionary with linguistic metrics and pass/fail
-        """
         normalized = self.normalize(plaintext)
 
         if not normalized:
@@ -215,24 +165,19 @@ class PlaintextValidator:
                 "metrics": {},
             }
 
-        # Calculate metrics
         length = len(normalized)
 
-        # Vowel ratio (English: ~40%)
         vowels = sum(1 for c in normalized if c in "AEIOUY")
         vowel_ratio = vowels / length if length > 0 else 0.0
         vowel_ok = 0.25 < vowel_ratio < 0.55
 
-        # Check for excessive repetition
         max_repeat = max((len(list(group)) for char, group in __import__('itertools').groupby(normalized)), default=0)
-        repetition_ok = max_repeat <= 4  # No more than 4 consecutive same chars
+        repetition_ok = max_repeat <= 4
 
-        # Check for common English digraphs
         common_digraphs = ["TH", "HE", "IN", "ER", "AN", "RE", "ON", "AT", "EN", "ND"]
         digraph_count = sum(1 for dg in common_digraphs if dg in normalized)
-        digraph_ok = digraph_count >= 2 or length < 20  # At least 2 common digraphs (or short text)
+        digraph_ok = digraph_count >= 2 or length < 20
 
-        # Overall pass
         passed = vowel_ok and repetition_ok and digraph_ok
 
         reasons = []
@@ -254,26 +199,10 @@ class PlaintextValidator:
         }
 
     def stage4_confidence_scoring(self, stage_results: dict[str, dict[str, Any]]) -> dict[str, Any]:
-        """Stage 4: Calculate overall confidence.
-
-        Weighs different validation stages:
-        - Dictionary score: 40%
-        - Crib matching: 30%
-        - Linguistic validation: 30%
-
-        Args:
-            stage_results: Results from previous stages
-
-        Returns:
-            Dictionary with confidence score and breakdown
-        """
-        # Extract scores (0.0-1.0)
         dict_score = stage_results["stage1_dictionary"]["score"]
 
-        # Crib score: 1.0 if any match, 0.0 otherwise
         crib_score = 1.0 if stage_results["stage2_crib"]["passed"] else 0.0
 
-        # Linguistic score: proportion of checks passed
         ling_metrics = stage_results["stage3_linguistic"]["metrics"]
         ling_checks = []
         if "vowel_ratio" in ling_metrics:
@@ -285,7 +214,6 @@ class PlaintextValidator:
 
         ling_score = sum(ling_checks) / len(ling_checks) if ling_checks else 0.0
 
-        # Weighted confidence
         confidence = 0.40 * dict_score + 0.30 * crib_score + 0.30 * ling_score
 
         return {
@@ -303,51 +231,27 @@ class PlaintextValidator:
         }
 
     def validate(self, plaintext: str) -> ValidationResult:
-        """Run full validation pipeline.
-
-        Args:
-            plaintext: Plaintext to validate
-
-        Returns:
-            ValidationResult with all stage results
-        """
-        self.log.debug(f"Validating plaintext: {plaintext[:50]}...")
-
         stage_results = {}
         reasons = []
 
-        # Stage 1: Dictionary score
         stage1 = self.stage1_dictionary_score(plaintext)
         stage_results["stage1_dictionary"] = stage1
         reasons.append(stage1["reason"])
-        self.log.debug(f"Stage 1 (Dictionary): {stage1['passed']}")
 
-        # Stage 2: Crib matching
         stage2 = self.stage2_crib_matching(plaintext)
         stage_results["stage2_crib"] = stage2
         reasons.append(stage2["reason"])
-        self.log.debug(f"Stage 2 (Crib): {stage2['passed']}")
 
-        # Stage 3: Linguistic validation
         stage3 = self.stage3_linguistic_validation(plaintext)
         stage_results["stage3_linguistic"] = stage3
         reasons.append(stage3["reason"])
-        self.log.debug(f"Stage 3 (Linguistic): {stage3['passed']}")
 
-        # Stage 4: Confidence scoring
         stage4 = self.stage4_confidence_scoring(stage_results)
         stage_results["stage4_confidence"] = stage4
         confidence = stage4["confidence"]
         reasons.append(f"Overall confidence: {confidence:.1%}")
-        self.log.debug(f"Stage 4 (Confidence): {confidence:.3f}")
 
-        # Overall validation
         is_valid = confidence >= self.min_confidence
-
-        if is_valid:
-            self.log.info(f"✓ Plaintext VALID (confidence: {confidence:.1%})")
-        else:
-            self.log.info(f"✗ Plaintext INVALID (confidence: {confidence:.1%})")
 
         return ValidationResult(
             is_valid=is_valid,
@@ -357,20 +261,11 @@ class PlaintextValidator:
         )
 
     def quick_validate(self, plaintext: str) -> tuple[bool, float]:
-        """Quick validation (just pass/fail and confidence).
-
-        Args:
-            plaintext: Plaintext to validate
-
-        Returns:
-            Tuple of (is_valid, confidence)
-        """
         result = self.validate(plaintext)
         return result.is_valid, result.confidence
 
 
 def demo_validator():
-    """Demonstrate validator on K1."""
     import json
     from pathlib import Path
 
@@ -379,21 +274,18 @@ def demo_validator():
     print("=" * 80)
     print()
 
-    # Load config
     config_path = Path(__file__).parent.parent.parent.parent / "config" / "config.json"
     with open(config_path) as f:
         config = json.load(f)
 
     cribs = config["cribs"]
 
-    # Create validator
     validator = PlaintextValidator(
         known_cribs=cribs,
         min_dictionary_score=0.5,
         min_confidence=0.7,
     )
 
-    # Test cases
     test_cases = [
         ("BETWEENSUBTLESHADINGANDTHEABSENCEOFLIGHTLIESTHENUANCEOFIQLUSION", "K1 correct plaintext"),
         ("ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ", "Alphabet (gibberish)"),
