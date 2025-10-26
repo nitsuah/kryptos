@@ -254,6 +254,7 @@ class TestAutonomousLearning:
 class TestPerformance:
     """Test performance characteristics."""
 
+    @pytest.mark.slow
     def test_recovery_completes_in_reasonable_time(self):
         """Test that key recovery completes quickly (<5 seconds for K1)."""
         import time
