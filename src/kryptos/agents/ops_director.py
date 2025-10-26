@@ -21,48 +21,40 @@ from kryptos.paths import get_artifacts_root
 
 
 class StrategyAction(Enum):
-    """Strategic actions OPS can recommend."""
-
-    CONTINUE = "continue"  # Keep current approach
-    BOOST = "boost"  # Increase resources to current approach
-    REDUCE = "reduce"  # Decrease resources
-    PIVOT = "pivot"  # Switch to different approach
-    STOP = "stop"  # Abandon approach entirely
-    START_NEW = "start_new"  # Begin new attack type
-    EMERGENCY_STOP = "emergency_stop"  # Human intervention needed
+    CONTINUE = "continue"
+    BOOST = "boost"
+    REDUCE = "reduce"
+    PIVOT = "pivot"
+    STOP = "stop"
+    START_NEW = "start_new"
+    EMERGENCY_STOP = "emergency_stop"
 
 
 @dataclass
 class AttackProgress:
-    """Progress metrics for an active attack."""
-
     attack_type: str
     attempts: int
     best_score: float
     time_elapsed_hours: float
-    cpu_allocation: float  # Percentage of total CPU
-    improvement_rate: float  # Score improvement per hour
+    cpu_allocation: float
+    improvement_rate: float
     last_improvement: datetime
-    confidence_trend: list[float]  # Recent score history
+    confidence_trend: list[float]
 
 
 @dataclass
 class AgentInsight:
-    """Insight reported by an agent."""
-
     agent_name: str
     timestamp: datetime
-    category: str  # 'pattern', 'linguistic', 'mathematical', 'external_intel'
+    category: str
     description: str
     confidence: float
-    actionable: bool  # Can we act on this immediately?
+    actionable: bool
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class StrategicDecision:
-    """A strategic decision made by OPS."""
-
     timestamp: datetime
     action: StrategyAction
     reasoning: str
@@ -76,10 +68,6 @@ class StrategicDecision:
 class OpsStrategicDirector:
     """LLM-powered strategic director for cryptanalysis operations.
 
-    This class acts as the project manager, data analyst, and strategic thinker
-    rolled into one. It continuously monitors progress, synthesizes insights from
-    all agents, and makes data-driven decisions about strategy.
-
     Key responsibilities:
     - Monitor attack progress and detect stagnation
     - Synthesize insights from multiple agents
@@ -90,87 +78,39 @@ class OpsStrategicDirector:
     """
 
     def __init__(self, llm_provider: str = "openai", model: str = "gpt-4", cache_dir: Path | None = None):
-        """Initialize strategic director.
-
-        Args:
-            llm_provider: LLM provider ('openai', 'anthropic', 'local')
-            model: Model name (e.g., 'gpt-4', 'claude-3-opus')
-            cache_dir: Directory for caching decisions and history
-        """
         self.llm_provider = llm_provider
         self.model = model
         self.cache_dir = cache_dir or (get_artifacts_root() / "ops_strategy")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-        # Initialize LLM client
         self.llm_client = self._init_llm_client()
 
-        # Track active attacks and their progress
         self.active_attacks: dict[str, AttackProgress] = {}
 
-        # Agent insights buffer
         self.recent_insights: list[AgentInsight] = []
 
-        # Decision history for learning
         self.decision_history: list[StrategicDecision] = []
-
-        # Strategy knowledge base
         self.strategy_kb = self._load_strategy_kb()
 
     def analyze_situation(self, force_decision: bool = False) -> StrategicDecision | None:
-        """Analyze current cryptanalysis situation and make strategic decision.
-
-        This is the main strategic loop. It:
-        1. Gathers all available intelligence
-        2. Analyzes progress and trends
-        3. Synthesizes agent insights
-        4. Makes strategic recommendation
-        5. Updates decision history
-
-        Args:
-            force_decision: Force a decision even if situation seems stable
-
-        Returns:
-            Strategic decision, or None if no action needed
-        """
-        # Gather intelligence
         situation = self._gather_situation_report()
 
-        # Check if we need to make a decision
         if not force_decision and not self._needs_decision(situation):
             return None
 
-        # Analyze with LLM (or rule-based for now)
         decision = self._make_strategic_decision(situation)
-
-        # Log decision
         self.decision_history.append(decision)
         self._save_decision(decision)
 
         return decision
 
     def synthesize_agent_insights(self, insights: list[AgentInsight]) -> dict[str, Any]:
-        """Synthesize insights from multiple agents into actionable intelligence.
-
-        This is where cross-agent patterns emerge. For example:
-        - SPY finds rhyme + LINGUIST detects meter = poetic structure
-        - Q finds paper on artistic ciphers + SPY finds art patterns = try artistic approach
-        - MATHEMATICIAN detects period 14 + SPY finds word length 14 = period matches plaintext
-
-        Args:
-            insights: List of agent insights
-
-        Returns:
-            Synthesis with key findings and recommendations
-        """
-        # Group insights by category
         by_category = {}
         for insight in insights:
             if insight.category not in by_category:
                 by_category[insight.category] = []
             by_category[insight.category].append(insight)
 
-        # Look for cross-agent patterns
         synthesis = {
             "timestamp": datetime.now(),
             "insight_count": len(insights),
@@ -180,7 +120,6 @@ class OpsStrategicDirector:
             "confidence": 0.0,
         }
 
-        # Pattern: Multiple agents detect linguistic structure
         linguistic_insights = by_category.get("linguistic", [])
         pattern_insights = by_category.get("pattern", [])
 
@@ -197,7 +136,6 @@ class OpsStrategicDirector:
                 "Focus on linguistically-validated candidates - they score higher on multiple metrics",
             )
 
-        # Pattern: External intel provides new cribs
         intel_insights = by_category.get("external_intel", [])
         if intel_insights:
             new_cribs = [i.metadata.get("cribs", []) for i in intel_insights if "cribs" in i.metadata]
@@ -216,11 +154,6 @@ class OpsStrategicDirector:
         return synthesis
 
     def generate_daily_report(self) -> str:
-        """Generate human-readable strategic report.
-
-        Returns:
-            Markdown-formatted report
-        """
         report_lines = [
             "# K4 CRYPTANALYSIS - STRATEGIC REPORT",
             f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
@@ -228,7 +161,6 @@ class OpsStrategicDirector:
             "## Executive Summary",
         ]
 
-        # Summary stats
         total_attempts = sum(a.attempts for a in self.active_attacks.values())
         best_score = max((a.best_score for a in self.active_attacks.values()), default=0.0)
 
@@ -260,19 +192,17 @@ class OpsStrategicDirector:
                 ],
             )
 
-        # Recent insights
         if self.recent_insights:
             report_lines.extend(["## Agent Insights (Last 24h)", ""])
-            for insight in self.recent_insights[-10:]:  # Last 10 insights
+            for insight in self.recent_insights[-10:]:
                 report_lines.append(
                     f"- **[{insight.agent_name}]** {insight.description} " f"(confidence: {insight.confidence:.2f})",
                 )
             report_lines.append("")
 
-        # Recent decisions
         if self.decision_history:
             report_lines.extend(["## Strategic Decisions", ""])
-            for decision in self.decision_history[-5:]:  # Last 5 decisions
+            for decision in self.decision_history[-5:]:
                 report_lines.extend(
                     [
                         f"### {decision.action.value.upper()} - {decision.timestamp.strftime('%H:%M')}",
@@ -285,13 +215,6 @@ class OpsStrategicDirector:
         return "\n".join(report_lines)
 
     def update_attack_progress(self, attack_type: str, attempts: int, best_score: float):
-        """Update progress metrics for an attack.
-
-        Args:
-            attack_type: Type of attack
-            attempts: Number of attempts made
-            best_score: Best score achieved
-        """
         if attack_type not in self.active_attacks:
             self.active_attacks[attack_type] = AttackProgress(
                 attack_type=attack_type,
@@ -307,36 +230,23 @@ class OpsStrategicDirector:
             progress = self.active_attacks[attack_type]
             progress.attempts = attempts
 
-            # Check if score improved
             if best_score > progress.best_score:
                 progress.best_score = best_score
                 progress.last_improvement = datetime.now()
 
-            # Update trend
             progress.confidence_trend.append(best_score)
             if len(progress.confidence_trend) > 100:
                 progress.confidence_trend = progress.confidence_trend[-100:]
 
     def register_agent_insight(self, insight: AgentInsight):
-        """Register an insight from an agent.
-
-        Args:
-            insight: Agent insight
-        """
         self.recent_insights.append(insight)
 
-        # Keep only last 1000 insights
         if len(self.recent_insights) > 1000:
             self.recent_insights = self.recent_insights[-1000:]
 
     def _init_llm_client(self) -> Any:
-        """Initialize LLM client based on provider.
-
-        Returns:
-            Initialized LLM client or None if using rule-based fallback
-        """
         if self.llm_provider == "local":
-            return None  # Use rule-based logic
+            return None
 
         if self.llm_provider == "openai":
             try:
@@ -368,14 +278,6 @@ class OpsStrategicDirector:
         return None
 
     def _call_llm(self, prompt: str) -> str | None:
-        """Call LLM with prompt and return response.
-
-        Args:
-            prompt: Prompt to send to LLM
-
-        Returns:
-            LLM response text or None if unavailable
-        """
         if not self.llm_client:
             return None
 
@@ -405,14 +307,6 @@ class OpsStrategicDirector:
         return None
 
     def _build_strategic_prompt(self, situation: dict[str, Any]) -> str:
-        """Build prompt for LLM strategic analysis.
-
-        Args:
-            situation: Current situation report
-
-        Returns:
-            Formatted prompt
-        """
         prompt_parts = [
             "You are OPS, the Strategic Director for Kryptos K4 cryptanalysis.",
             "Your role is to analyze progress, synthesize agent insights, and make strategic decisions.",
@@ -474,16 +368,7 @@ class OpsStrategicDirector:
         return "\n".join(prompt_parts)
 
     def _parse_llm_decision(self, llm_response: str) -> StrategicDecision | None:
-        """Parse LLM response into StrategicDecision.
-
-        Args:
-            llm_response: Raw LLM response
-
-        Returns:
-            Parsed strategic decision or None if parsing fails
-        """
         try:
-            # Extract JSON from response (LLM might add text before/after)
             json_start = llm_response.find("{")
             json_end = llm_response.rfind("}") + 1
 
@@ -509,7 +394,6 @@ class OpsStrategicDirector:
             return None
 
     def _gather_situation_report(self) -> dict[str, Any]:
-        """Gather comprehensive situation report."""
         return {
             "timestamp": datetime.now(),
             "active_attacks": {name: vars(progress) for name, progress in self.active_attacks.items()},
@@ -518,12 +402,6 @@ class OpsStrategicDirector:
         }
 
     def _needs_decision(self, situation: dict[str, Any]) -> bool:
-        """Determine if a strategic decision is needed."""
-        # Decision needed if:
-        # 1. An attack hasn't improved in >6 hours
-        # 2. Multiple agents provide actionable insights
-        # 3. Resource allocation is suboptimal
-
         for attack_data in situation["active_attacks"].values():
             hours_since = (datetime.now() - attack_data["last_improvement"]).total_seconds() / 3600
             if hours_since > 6:
@@ -536,11 +414,6 @@ class OpsStrategicDirector:
         return False
 
     def _make_strategic_decision(self, situation: dict[str, Any]) -> StrategicDecision:
-        """Make a strategic decision based on situation.
-
-        Uses LLM if available, falls back to rule-based logic.
-        """
-        # Try LLM-based decision first
         if self.llm_client:
             prompt = self._build_strategic_prompt(situation)
             llm_response = self._call_llm(prompt)
@@ -550,19 +423,9 @@ class OpsStrategicDirector:
                 if llm_decision:
                     return llm_decision
 
-        # Fallback to rule-based logic
         return self._rule_based_decision(situation)
 
     def _rule_based_decision(self, situation: dict[str, Any]) -> StrategicDecision:
-        """Rule-based strategic decision (fallback when LLM unavailable).
-
-        Args:
-            situation: Current situation report
-
-        Returns:
-            Strategic decision
-        """
-        # Rule: If attack stagnant >8 hours, pivot
         for attack_name, attack_data in situation["active_attacks"].items():
             hours_since = (datetime.now() - attack_data["last_improvement"]).total_seconds() / 3600
 
@@ -575,13 +438,12 @@ class OpsStrategicDirector:
                     action=StrategyAction.PIVOT,
                     reasoning=reasoning,
                     affected_attacks=[attack_name],
-                    resource_changes={attack_name: 0.0},  # Stop this attack
+                    resource_changes={attack_name: 0.0},
                     success_criteria="New approach should improve score within 4 hours",
                     review_in_hours=4.0,
                     confidence=0.8,
                 )
 
-        # Default: continue current strategy
         return StrategicDecision(
             timestamp=datetime.now(),
             action=StrategyAction.CONTINUE,
@@ -594,7 +456,6 @@ class OpsStrategicDirector:
         )
 
     def _load_strategy_kb(self) -> dict[str, Any]:
-        """Load strategy knowledge base."""
         kb_file = self.cache_dir / "strategy_kb.json"
         if kb_file.exists():
             with open(kb_file) as f:
@@ -602,14 +463,12 @@ class OpsStrategicDirector:
         return {"successful_strategies": [], "failed_strategies": [], "lessons_learned": []}
 
     def _save_decision(self, decision: StrategicDecision):
-        """Save decision to history."""
         decisions_file = self.cache_dir / "decisions.jsonl"
         with open(decisions_file, "a") as f:
             f.write(json.dumps(vars(decision), default=str) + "\n")
 
 
 def demo_ops_director():
-    """Demonstrate OPS strategic director."""
     print("=" * 80)
     print("OPS v2.0 STRATEGIC DIRECTOR DEMO")
     print("=" * 80)
@@ -617,11 +476,9 @@ def demo_ops_director():
 
     ops = OpsStrategicDirector(llm_provider="local", model="rule-based")
 
-    # Simulate some attack progress
     ops.update_attack_progress("hill_3x3", attempts=1_000_000, best_score=0.15)
     ops.update_attack_progress("vigenere_period_14", attempts=500_000, best_score=0.28)
 
-    # Simulate agent insights
     ops.register_agent_insight(
         AgentInsight(
             agent_name="SPY",
@@ -645,7 +502,6 @@ def demo_ops_director():
         ),
     )
 
-    # Analyze situation
     print("📊 Analyzing current situation...")
     decision = ops.analyze_situation(force_decision=True)
 
@@ -656,7 +512,6 @@ def demo_ops_director():
         print(f"Success Criteria: {decision.success_criteria}")
         print()
 
-    # Generate report
     print("\n" + "=" * 80)
     print("📈 DAILY REPORT")
     print("=" * 80)

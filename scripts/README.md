@@ -1,26 +1,14 @@
 # Scripts Directory# Scripts Directory
 
-
-
 **Status:** Cleaned up (January 27, 2025)Organized scripts for Kryptos cryptanalysis system.
-
-
 
 ------
 
-
-
 ## Current Contents## Directory Structure
-
-
 
 ### `lint/` - Code Quality Tools### `validation/` - K1-K3 Validation Scripts
 
-
-
 Development utilities for code quality:**Purpose:** Verify our system can crack known Kryptos sections
-
-
 
 - **`autofix_unused_vars.py`** - Automatically fix unused variable warnings- **`validate_known_kryptos.py`** -
 Comprehensive K1-K3 validation suite
