@@ -11,29 +11,44 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from kryptos.agents.spy import SpyAgent  # noqa: E402
-from kryptos.ciphers import vigenere_decrypt  # noqa: E402
+from kryptos.ciphers import k3_decrypt, vigenere_decrypt  # noqa: E402
+from kryptos.k1 import decrypt as k1_decrypt  # noqa: E402
 from kryptos.k4.vigenere_key_recovery import recover_key_by_frequency  # noqa: E402
 
 
 def test_k1():
-    """Test K1 (transposition cipher - not Vigenère)."""
+    """Test K1 (Vigenère with keyed alphabet and key PALIMPSEST)."""
     print("\n" + "=" * 80)
-    print("K1: Columnar Transposition")
+    print("K1: Vigenère with Keyed Alphabet")
     print("=" * 80)
 
     # K1 ciphertext
-    k1_cipher = "EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ" "YQTQUXQBQVYUVLLTREVJYQTMKYRDMFD"
+    k1_cipher = "EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJYQTQUXQBQVYUVLLTREVJYQTMKYRDMFD"
+
+    # K1 known key
+    k1_key = "PALIMPSEST"
 
     # K1 known plaintext
     k1_plain = "BETWEENSUBTLESHADINGANDTHEABSENCEOFLIGHTLIESTHENUANCEOFIQLUSION"
 
     print(f"Ciphertext: {k1_cipher}")
+    print(f"Known key: {k1_key}")
     print(f"Known plaintext: {k1_plain}")
-    print("\nNote: K1 is columnar transposition, not Vigenère")
-    print("Phase 5.3 currently supports Vigenère key recovery only")
-    print("Status: SKIP (cipher type not supported yet)")
 
-    return None
+    # Test direct decryption
+    print("\n--- Test: Direct decryption with known key ---")
+    decrypted = k1_decrypt(k1_cipher, k1_key)
+    matches = decrypted == k1_plain
+    print(f"Decrypted: {decrypted}")
+    print(f"Expected:  {k1_plain}")
+    print(f"Match: {'✅ PASS' if matches else '❌ FAIL'}")
+
+    if matches:
+        print("\n✅ K1 decryption working correctly!")
+        return True
+    else:
+        print("\n❌ K1 decryption failed")
+        return False
 
 
 def test_k2():
@@ -56,12 +71,13 @@ def test_k2():
     # K2 key
     k2_key = "ABSCISSA"
 
-    # K2 known plaintext
+    # K2 known plaintext (corrected - actual decrypt output)
     k2_plain = (
-        "ITWASTOTALLYINVISIBLEHOWSTHATPOSSIBLETHEYUSEDTHEEARTHSMAGNETICFIELDTHE"
-        "XDATACAMEFROMASATELLITESPECTROSCOPYITHEHOWSOCRYSTALLIZETHEYLAYEREDMAN"
-        "TICROCKSYLAMAGNESIUMFERROUSHOWDOWEMOLYTHEYTILTEDTHECRYSTALLINESTRUCTURENO"
-        "TCARBROHYDRATESMOLBDENMECARBONCARATNALUMINYMOLIDBDENUM"
+        "ITWASTOTALLYINVISIBLEHOWSTHATPOSSIBLETHEYUSEDTHEEARTHSMAGNETICFIELDX"
+        "THEINFORMATIONWASGATHEREDANDTRANSMITTEDUNDERGRUUNDTOANUNKNOWNLOCATIONX"
+        "DOESLANGLEYKNOWABOUTTHISTHEYSHOULDITSBURIEDOUTTHERESOMEWHEREXWHOKNOWSTHE"
+        "EXACTLOCATIONONLYWWTHISWASHISLASTMESSAGEXTHIRTYEIGHTDEGREESFIFTYSEVENMINUTES"
+        "SIXPOINTFIVESECONDSNORTHSEVENTYSEVENDEGREESEIGHTMINUTESFORTYFOURSECONDSWESTIDBYROWS"
     )
 
     print(f"Ciphertext length: {len(k2_cipher)}")
@@ -107,9 +123,9 @@ def test_k2():
 
 
 def test_k3():
-    """Test K3 (transposition cipher - not Vigenère)."""
+    """Test K3 (double rotational transposition)."""
     print("\n" + "=" * 80)
-    print("K3: Columnar Transposition")
+    print("K3: Double Rotational Transposition")
     print("=" * 80)
 
     # K3 ciphertext
@@ -127,22 +143,34 @@ def test_k3():
         "ECDMRIPFEIMEHNLSSTTRTVDOHW"
     )
 
-    # K3 known plaintext
+    # K3 known plaintext (actual decrypt output - no spaces, has Sanborn typos)
+    # Note: "DESPARATLY", "IINSERTED" are intentional misspellings
     k3_plain = (
-        "SLOWLYDESPARATLEYSLOWLYTHEREMAINSOFPASSAGEDEBRISTHATENCUMBEREDTHELOWER"
-        "PARTOFTHEDOORWAYWASREMOVEDWITHTREMBLINGHANDSIMADEATINYBREACHINTHEUPPERLEFT"
-        "HANDCORNERANDTHENWIDENINGTHEHOLEALITTLEINSERTEDTHECANDLEANDPEEREDINTHEHOTAIR"
-        "ESCAPINGFROMTHECHAMBERCAUSEDTHEFLAMETOFLICKERBUTTHENESSENTIALLYDARKNESSAND"
-        "BLANKSPACE"
+        "SLOWLYDESPARATLYSLOWLYTHEREMAINSOFPASSAGEDEBRISTHATENCUMBEREDTHELOWERPARTOFTHEDOORWAY"
+        "WASREMOVEDWITHTREMBLINGHANDSIMADEATINYBREACHINTHEUPPERLEFTHANDCORNERANDTHENWIDENINGTHEHOLEALITTLE"
+        "IINSERTEDTHECANDLEANDPEEREDINTHEHOTAIRESCAPINGFROMTHECHAMBERCAUSEDTHEFLAMETOFLICKER"
+        "BUTPRESENTLYDETAILSOFTHEROOMWITHINEMERGEDFROMTHEMISTXCANYOUSEEANYTHINGQ"
     )
 
     print(f"Ciphertext: {k3_cipher[:60]}...")
     print(f"Known plaintext: {k3_plain[:60]}...")
-    print("\nNote: K3 is columnar transposition, not Vigenère")
-    print("Phase 5.3 currently supports Vigenère key recovery only")
-    print("Status: SKIP (cipher type not supported yet)")
 
-    return None
+    # Test direct decryption
+    print("\n--- Test: Direct decryption with k3_decrypt() ---")
+    decrypted = k3_decrypt(k3_cipher)
+    matches = decrypted == k3_plain
+    print(f"Decrypted: {decrypted[:80]}...")
+    print(f"Expected:  {k3_plain[:80]}...")
+    print(f"Match: {'✅ PASS' if matches else '❌ FAIL'}")
+
+    if matches:
+        print("\n✅ K3 decryption working correctly!")
+        return True
+    else:
+        # Show differences
+        diffs = sum(1 for i in range(min(len(decrypted), len(k3_plain))) if decrypted[i] != k3_plain[i])
+        print(f"\n❌ K3 decryption failed ({diffs} character differences)")
+        return False
 
 
 def main():
@@ -166,18 +194,25 @@ def main():
     print("\n" + "=" * 80)
     print("SUMMARY")
     print("=" * 80)
-    print(f"K1 (Transposition): {'SKIP' if results['k1'] is None else ('PASS' if results['k1'] else 'FAIL')}")
-    print(f"K2 (Vigenère):      {'SKIP' if results['k2'] is None else ('✅ PASS' if results['k2'] else '❌ FAIL')}")
-    print(f"K3 (Transposition): {'SKIP' if results['k3'] is None else ('PASS' if results['k3'] else 'FAIL')}")
 
-    if results['k2']:
-        print("\n✅ SUCCESS: K2 key recovery working!")
-        print("Phase 5.3 real cipher execution validated.")
+    k1_status = "✅ PASS" if results['k1'] else "❌ FAIL"
+    k2_status = "✅ PASS" if results['k2'] else "❌ FAIL"
+    k3_status = "✅ PASS" if results['k3'] else "❌ FAIL"
+
+    print(f"K1 (Vigenère/Keyed):     {k1_status}")
+    print(f"K2 (Vigenère/Keyed):     {k2_status}")
+    print(f"K3 (Double Transposition): {k3_status}")
+
+    all_pass = all(results.values())
+    if all_pass:
+        print("\n✅ SUCCESS: All K1/K2/K3 decryptions working correctly!")
+        print("Phase 6 validation complete.")
     else:
-        print("\n❌ NEEDS WORK: K2 key recovery not finding correct key")
-        print("Next step: Tune frequency analysis for Kryptos keyed alphabet")
+        failed = [k.upper() for k, v in results.items() if not v]
+        print(f"\n❌ NEEDS WORK: {', '.join(failed)} decryption(s) failing")
+        print("Review cipher implementations and expected plaintexts")
 
-    return 0 if results['k2'] else 1
+    return 0 if all_pass else 1
 
 
 if __name__ == "__main__":

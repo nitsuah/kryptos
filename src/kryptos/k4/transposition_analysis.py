@@ -645,9 +645,9 @@ def detect_period_by_brute_force(
 def solve_columnar_permutation_simulated_annealing(
     ciphertext: str,
     period: int,
-    max_iterations: int = 10000,
-    initial_temp: float = 10.0,
-    cooling_rate: float = 0.995,
+    max_iterations: int = 150000,
+    initial_temp: float = 50.0,
+    cooling_rate: float = 0.9995,
 ) -> tuple[list[int], float]:
     """Solve columnar transposition using simulated annealing.
 
@@ -724,10 +724,10 @@ def solve_columnar_permutation_simulated_annealing(
 def solve_columnar_permutation_simulated_annealing_multi_start(
     ciphertext: str,
     period: int,
-    num_restarts: int = 5,
-    max_iterations: int = 10000,
-    initial_temp: float = 10.0,
-    cooling_rate: float = 0.995,
+    num_restarts: int = 10,
+    max_iterations: int = 100000,
+    initial_temp: float = 50.0,
+    cooling_rate: float = 0.9995,
 ) -> tuple[list[int], float]:
     """Solve columnar transposition with multiple simulated annealing runs.
 
