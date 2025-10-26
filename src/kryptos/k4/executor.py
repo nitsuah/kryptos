@@ -32,20 +32,19 @@ class PipelineConfig:
     ordering: list[Stage]
     candidate_cap_per_stage: int = 40
     pruning_top_n: int = 15
-    crib_bonus_threshold: float = 1.0  # keep any candidate with bonus >= threshold
+    crib_bonus_threshold: float = 1.0
     adaptive_thresholds: dict[str, float] = field(default_factory=dict)
     retry_on_empty: dict[str, Callable[[str], str]] = field(default_factory=dict)
     artifact_root: str = "artifacts"
-    artifact_run_subdir: str | None = None  # if set, run_* dirs live under artifact_root/<subdir>/
+    artifact_run_subdir: str | None = None
     label: str = "K4"
     enable_attempt_log: bool = True
-    parallel_hill_variants: int = 0  # if >0 run hill stage variants in parallel stub
+    parallel_hill_variants: int = 0
 
 
-class PipelineExecutor:  # DEPRECATED: see module docstring
+class PipelineExecutor:
     def __init__(self, config: PipelineConfig):
         self.config = config
-        # Track dynamic threshold adjustments per stage
         self._dynamic_thresholds: dict[str, float] = {}
 
     def _artifact_dir(self) -> str:
@@ -54,7 +53,6 @@ class PipelineExecutor:  # DEPRECATED: see module docstring
         if self.config.artifact_run_subdir:
             base_root = os.path.join(base_root, self.config.artifact_run_subdir)
         else:
-            # Default to executor_runs subdirectory to avoid cluttering artifacts root
             base_root = os.path.join(base_root, "executor_runs")
         path = os.path.join(base_root, f"run_{ts}")
         os.makedirs(path, exist_ok=True)
@@ -70,7 +68,6 @@ class PipelineExecutor:  # DEPRECATED: see module docstring
     def _prune(self, candidates: list[dict]) -> list[dict]:
         if not candidates:
             return []
-        # Preserve any precomputed crib_bonus supplied by upstream stages; only compute if missing
         for c in candidates:
             if 'crib_bonus' not in c:
                 txt = c.get('text', '')
@@ -127,7 +124,7 @@ class PipelineExecutor:  # DEPRECATED: see module docstring
                     results.append(r)
                     vp = r.metadata.get('variant_params', {})
                     variant_meta.append({'score': r.score, **vp})
-                except (RuntimeError, ValueError) as e:  # pragma: no cover
+                except (RuntimeError, ValueError) as e:
                     results.append(
                         StageResult(
                             name=hill_stage.name,
@@ -304,4 +301,4 @@ class PipelineExecutor:  # DEPRECATED: see module docstring
         return summary
 
 
-__all__ = ['PipelineConfig', 'PipelineExecutor']  # PipelineExecutor deprecated
+__all__ = ['PipelineConfig', 'PipelineExecutor']

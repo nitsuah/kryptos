@@ -34,7 +34,6 @@ class CampaignResult:
     statistics: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary."""
         return {
             "campaign_id": self.campaign_id,
             "start_time": self.start_time.isoformat(),
@@ -236,7 +235,6 @@ class K4CampaignOrchestrator:
 
 
 def demo_k4_campaign():
-    """Run demo K4 campaign."""
     import tempfile
 
     print("=" * 80)
@@ -244,25 +242,21 @@ def demo_k4_campaign():
     print("=" * 80)
     print()
 
-    # Load K4
     config_path = Path(__file__).parent.parent.parent.parent / "config" / "config.json"
     with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     k4_cipher = config["ciphertexts"]["K4"]
 
-    # Create orchestrator
     workspace = Path(tempfile.mkdtemp())
     orchestrator = K4CampaignOrchestrator(workspace_dir=workspace)
 
-    # Run campaign
     result = orchestrator.run_campaign(
         ciphertext=k4_cipher,
-        max_attacks=20,  # Limited for demo
-        max_time_seconds=60,  # 1 minute limit
+        max_attacks=20,
+        max_time_seconds=60,
     )
 
-    # Print summary
     orchestrator.print_summary(result)
 
 

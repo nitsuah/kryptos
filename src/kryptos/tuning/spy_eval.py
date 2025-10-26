@@ -47,17 +47,13 @@ def select_best_threshold(
 
 
 def run_extractor_on_run(run_dir: Path, min_conf: float = 0.0) -> set[str]:
-    """Default extraction using package spy extract API.
-
-    Returns uppercase tokens with confidence >= min_conf. Empty set on failure.
-    """
     try:
         from kryptos.spy import extract as spy_extract
     except ImportError:
         return set()
     try:
         matches = spy_extract(min_conf=min_conf, run_dir=run_dir)
-    except (RuntimeError, OSError, ValueError):  # narrow expected failure types
+    except (RuntimeError, OSError, ValueError):
         return set()
     tokens: set[str] = set()
     for m in matches:
@@ -75,7 +71,6 @@ def evaluate(
     def safe_div(n: float, d: float, default: float = 0.0) -> float:
         if d == 0:
             return default
-        # No broad try/except: allow unforeseen errors to surface during tests
         return n / d
 
     labels = load_labels(labels_p)

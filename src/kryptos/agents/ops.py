@@ -290,17 +290,13 @@ class OpsAgent:
                     metadata={"cipher_type": cipher_type, "params": str(key_or_params)[:100]},
                 )
 
-            # Score with SPY agent
             spy = SpyAgent()
             analysis = spy.analyze_candidate(plaintext_candidate)
 
-            # Extract confidence score
-            # SPY returns dict with 'summary' containing 'overall_confidence'
             overall_confidence = 0.0
             if "summary" in analysis and "overall_confidence" in analysis["summary"]:
                 overall_confidence = analysis["summary"]["overall_confidence"]
 
-            # Determine success based on confidence threshold
             success = overall_confidence >= 0.3
 
             execution_time = time.time() - start_time
@@ -319,7 +315,6 @@ class OpsAgent:
             )
 
         except Exception as e:
-            # Handle execution errors gracefully
             execution_time = time.time() - start_time
             return AttackResult(
                 success=False,
@@ -334,30 +329,17 @@ class OpsAgent:
             )
 
     def _execute_vigenere(self, ciphertext: str, params: dict[str, Any]) -> str | None:
-        """Execute Vigenère decryption.
-
-        Args:
-            ciphertext: Ciphertext to decrypt
-            params: Dictionary with 'key_length' and optionally 'key'
-
-        Returns:
-            Decrypted plaintext or None
-        """
-        # If key is provided, use it directly
         if "key" in params and params["key"]:
             try:
                 return vigenere_decrypt(ciphertext, params["key"])
             except Exception:
                 return None
 
-        # If only key_length provided, attempt key recovery
         if "key_length" in params:
             key_length = params["key_length"]
             try:
-                # Attempt frequency-based key recovery
                 candidate_keys = recover_key_by_frequency(ciphertext, key_length, top_n=1)
                 if candidate_keys:
-                    # Try the best candidate
                     return vigenere_decrypt(ciphertext, candidate_keys[0])
             except Exception:
                 pass
@@ -365,15 +347,6 @@ class OpsAgent:
         return None
 
     def _execute_hill(self, ciphertext: str, params: dict[str, Any]) -> str | None:
-        """Execute Hill cipher decryption.
-
-        Args:
-            ciphertext: Ciphertext to decrypt
-            params: Dictionary with 'key_matrix'
-
-        Returns:
-            Decrypted plaintext or None
-        """
         if "key_matrix" not in params:
             return None
 
@@ -383,16 +356,6 @@ class OpsAgent:
             return None
 
     def _execute_transposition(self, ciphertext: str, params: dict[str, Any]) -> str | None:
-        """Execute transposition cipher decryption.
-
-        Args:
-            ciphertext: Ciphertext to decrypt
-            params: Dictionary with 'period' and 'permutation'
-
-        Returns:
-            Decrypted plaintext or None
-        """
-        # Columnar transposition
         if "period" in params and "permutation" in params:
             try:
                 n_cols = params["period"]
@@ -401,19 +364,10 @@ class OpsAgent:
             except Exception:
                 return None
 
-        # Other transposition methods would go here
         return None
 
 
 def ops_report(results: list[JobResult]) -> str:
-    """Generate human-readable report from OPS results.
-
-    Args:
-        results: List of job results
-
-    Returns:
-        Formatted report string
-    """
     lines = ["=" * 80, "OPS AGENT EXECUTION REPORT", "=" * 80, ""]
 
     successful = [r for r in results if r.success]

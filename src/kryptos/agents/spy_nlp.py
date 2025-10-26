@@ -25,7 +25,6 @@ try:
     SPACY_AVAILABLE = True
     WORDNET_AVAILABLE = True
 
-    # Try to load CMU Pronouncing Dictionary for phonetics
     try:
         PRONUNCIATIONS = cmudict.dict()
         PHONETICS_AVAILABLE = True
@@ -41,9 +40,7 @@ except ImportError:
 
 @dataclass
 class NLPInsight:
-    """A linguistic insight discovered through NLP analysis."""
-
-    category: str  # 'ner', 'pos', 'dependency', 'semantic'
+    category: str
     description: str
     evidence: str
     confidence: float
@@ -52,14 +49,7 @@ class NLPInsight:
 
 
 class SpyNLP:
-    """NLP-powered linguistic analysis for SPY agent."""
-
     def __init__(self, model_name: str = "en_core_web_sm"):
-        """Initialize NLP analyzer.
-
-        Args:
-            model_name: spaCy model to use (default: en_core_web_sm)
-        """
         if not SPACY_AVAILABLE:
             raise ImportError(
                 "spaCy not installed. Install with: pip install spacy && python -m spacy download en_core_web_sm",
@@ -69,41 +59,25 @@ class SpyNLP:
         self.wordnet_available = WORDNET_AVAILABLE
 
     def analyze(self, text: str) -> list[NLPInsight]:
-        """Perform comprehensive NLP analysis on text.
-
-        Args:
-            text: Plaintext to analyze
-
-        Returns:
-            List of NLP insights discovered
-        """
         insights = []
 
-        # Process text with spaCy
         doc = self.nlp(text)
 
-        # Named Entity Recognition
         insights.extend(self._extract_entities(doc))
 
-        # POS patterns
         insights.extend(self._analyze_pos_patterns(doc))
 
-        # Dependency structures
         insights.extend(self._analyze_dependencies(doc))
 
-        # Semantic analysis with WordNet
         if self.wordnet_available:
             insights.extend(self._semantic_analysis(doc))
 
-        # === NEW: Fragment & Poetry Analysis ===
-        # These work on shorter texts and don't require complete sentences
         insights.extend(self._analyze_fragments(text, doc))
         insights.extend(self._analyze_phonetic_patterns(text, doc))
 
         return insights
 
     def _extract_entities(self, doc) -> list[NLPInsight]:
-        """Extract named entities (PERSON, GPE, ORG, etc.)."""
         insights = []
 
         for ent in doc.ents:
@@ -128,10 +102,8 @@ class SpyNLP:
         return insights
 
     def _analyze_pos_patterns(self, doc) -> list[NLPInsight]:
-        """Analyze part-of-speech patterns."""
         insights = []
 
-        # Look for noun phrases (potential proper nouns)
         for chunk in doc.noun_chunks:
             if chunk.root.pos_ == "PROPN":
                 insights.append(
@@ -145,7 +117,6 @@ class SpyNLP:
                     ),
                 )
 
-        # Look for verb patterns (action sequences)
         verb_sequences = []
         current_verbs = []
         for token in doc:
@@ -170,15 +141,11 @@ class SpyNLP:
         return insights
 
     def _analyze_dependencies(self, doc) -> list[NLPInsight]:
-        """Analyze dependency parse structures."""
         insights = []
 
-        # Look for subject-verb-object patterns
         for token in doc:
             if token.dep_ == "ROOT" and token.pos_ == "VERB":
-                # Find subject
                 subjects = [child for child in token.children if child.dep_ in ("nsubj", "nsubjpass")]
-                # Find object
                 objects = [child for child in token.children if child.dep_ in ("dobj", "pobj")]
 
                 if subjects and objects:
@@ -200,13 +167,10 @@ class SpyNLP:
         return insights
 
     def _semantic_analysis(self, doc) -> list[NLPInsight]:
-        """Analyze semantic relationships using WordNet."""
         insights = []
 
-        # Extract nouns and verbs for semantic analysis
         content_words = [token for token in doc if token.pos_ in ("NOUN", "VERB", "ADJ")]
 
-        # Check for synonymy/hypernymy relationships
         for i, token1 in enumerate(content_words):
             for token2 in content_words[i + 1 :]:
                 if self._are_semantically_related(token1.lemma_, token2.lemma_):
@@ -228,23 +192,18 @@ class SpyNLP:
         return insights
 
     def _calculate_ner_confidence(self, ent) -> float:
-        """Calculate confidence score for named entity."""
-        # Base confidence on entity label and length
         base_confidence = 0.7
 
-        # Higher confidence for specific entity types
         high_confidence_types = {"PERSON", "GPE", "ORG", "DATE"}
         if ent.label_ in high_confidence_types:
             base_confidence = 0.9
 
-        # Boost for longer entities (more specific)
         if len(ent.text) > 10:
             base_confidence = min(1.0, base_confidence + 0.1)
 
         return base_confidence
 
     def _are_semantically_related(self, word1: str, word2: str, threshold: float = 0.5) -> bool:
-        """Check if two words are semantically related via WordNet."""
         try:
             synsets1 = wn.synsets(word1.lower())
             synsets2 = wn.synsets(word2.lower())
@@ -252,8 +211,7 @@ class SpyNLP:
             if not synsets1 or not synsets2:
                 return False
 
-            # Check path similarity between synsets
-            for s1 in synsets1[:3]:  # Top 3 most common senses
+            for s1 in synsets1[:3]:
                 for s2 in synsets2[:3]:
                     similarity = s1.path_similarity(s2)
                     if similarity and similarity > threshold:
@@ -264,22 +222,16 @@ class SpyNLP:
             return False
 
     def _analyze_fragments(self, text: str, doc) -> list[NLPInsight]:
-        """Analyze text fragments and poetic structures.
-
-        Works on incomplete sentences, phrases, and poetic text.
-        Detects: alliteration, assonance, word shapes, rhythm patterns.
-        """
         insights = []
         words = [token.text.lower() for token in doc if token.is_alpha]
 
         if len(words) < 2:
             return insights
 
-        # Alliteration detection (repeated initial consonants)
         initial_sounds = [word[0] for word in words if word]
         sound_counts = Counter(initial_sounds)
         for sound, count in sound_counts.items():
-            if count >= 3:  # At least 3 words start with same letter
+            if count >= 3:
                 matching_words = [w for w in words if w[0] == sound]
                 insights.append(
                     NLPInsight(
@@ -291,7 +243,6 @@ class SpyNLP:
                     ),
                 )
 
-        # Assonance detection (repeated vowel sounds in middle of words)
         vowel_patterns = []
         for word in words:
             vowels = re.findall(r'[aeiou]+', word)
@@ -313,8 +264,6 @@ class SpyNLP:
                         ),
                     )
 
-        # Word shape patterns (useful for cryptography)
-        # Short words with similar shapes might indicate transposition
         shapes = {}
         for word in words:
             if 3 <= len(word) <= 6:
@@ -335,12 +284,9 @@ class SpyNLP:
                     ),
                 )
 
-        # Phrase coherence (do adjacent words make sense together?)
-        # Use noun-adjective, adjective-noun, noun-verb patterns
         coherent_pairs = 0
         for i in range(len(doc) - 1):
             token1, token2 = doc[i], doc[i + 1]
-            # Common coherent patterns
             if (
                 (token1.pos_ == "ADJ" and token2.pos_ == "NOUN")
                 or (token1.pos_ == "NOUN" and token2.pos_ == "VERB")
@@ -364,11 +310,6 @@ class SpyNLP:
         return insights
 
     def _analyze_phonetic_patterns(self, text: str, doc) -> list[NLPInsight]:
-        """Analyze rhyme, meter, and phonetic patterns.
-
-        Uses CMU Pronouncing Dictionary for accurate phonetic analysis.
-        Useful for detecting poetic structures and sound-based patterns.
-        """
         insights = []
 
         if not PHONETICS_AVAILABLE:
@@ -379,21 +320,17 @@ class SpyNLP:
         if len(words) < 3:
             return insights
 
-        # Get pronunciations
         word_phonemes = {}
         for word in words:
             if word in PRONUNCIATIONS:
-                # Use first pronunciation
                 word_phonemes[word] = PRONUNCIATIONS[word][0]
 
         if len(word_phonemes) < 3:
             return insights
 
-        # Rhyme detection (matching final phonemes)
         rhyme_groups = {}
         for word, phonemes in word_phonemes.items():
             if len(phonemes) >= 2:
-                # Last 2 phonemes define rhyme
                 rhyme_sound = tuple(phonemes[-2:])
                 if rhyme_sound not in rhyme_groups:
                     rhyme_groups[rhyme_sound] = []
@@ -411,10 +348,8 @@ class SpyNLP:
                     ),
                 )
 
-        # Syllable counting for meter detection
         syllable_counts = []
         for _word, phonemes in word_phonemes.items():
-            # Count stressed vowels (numbers in ARPAbet)
             syllables = sum(1 for p in phonemes if p[-1].isdigit())
             syllable_counts.append(syllables)
 
@@ -422,7 +357,6 @@ class SpyNLP:
             avg_syllables = sum(syllable_counts) / len(syllable_counts)
             variance = sum((s - avg_syllables) ** 2 for s in syllable_counts) / len(syllable_counts)
 
-            # Regular meter has low variance
             if variance < 1.0 and 2.0 <= avg_syllables <= 3.0:
                 insights.append(
                     NLPInsight(
@@ -437,30 +371,18 @@ class SpyNLP:
         return insights
 
     def extract_key_phrases(self, text: str, top_n: int = 10) -> list[tuple[str, float]]:
-        """Extract key phrases using NLP heuristics.
-
-        Args:
-            text: Text to analyze
-            top_n: Number of top phrases to return
-
-        Returns:
-            List of (phrase, score) tuples
-        """
         doc = self.nlp(text)
 
         phrases = []
 
-        # Named entities (highest priority)
         for ent in doc.ents:
             score = 1.0 if ent.label_ in {"PERSON", "GPE", "ORG"} else 0.8
             phrases.append((ent.text, score))
 
-        # Noun chunks
         for chunk in doc.noun_chunks:
-            if len(chunk.text.split()) >= 2:  # Multi-word phrases
+            if len(chunk.text.split()) >= 2:
                 phrases.append((chunk.text, 0.6))
 
-        # Deduplicate and sort by score
         unique_phrases = {}
         for phrase, score in phrases:
             phrase_clean = phrase.strip().upper()
@@ -472,14 +394,12 @@ class SpyNLP:
 
 
 def test_spy_nlp():
-    """Quick test of SPY NLP functionality."""
     if not SPACY_AVAILABLE:
         print("spaCy not available - skipping test")
         return
 
     nlp = SpyNLP()
 
-    # Test text (K1 plaintext fragment)
     test_text = "Between subtle shading and the absence of light lies the nuance of iqlusion"
 
     print("Analyzing:", test_text)

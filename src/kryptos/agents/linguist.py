@@ -20,13 +20,11 @@ import numpy as np
 
 @dataclass
 class LinguisticScore:
-    """Neural linguistic validation score."""
-
     text: str
-    perplexity: float  # Lower is better (natural text ~10-100, gibberish >1000)
-    coherence: float  # 0.0-1.0 semantic coherence
-    grammar_score: float  # 0.0-1.0 grammatical correctness
-    confidence: float  # Overall confidence in linguistic validity
+    perplexity: float
+    coherence: float
+    grammar_score: float
+    confidence: float
     model_used: str
     timestamp: datetime
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -34,27 +32,14 @@ class LinguisticScore:
 
 @dataclass
 class SanbornCorpusAnalysis:
-    """Analysis of text against Sanborn's K1-K3 corpus."""
-
-    style_similarity: float  # 0.0-1.0 similarity to Sanborn's style
-    vocabulary_match: float  # Proportion of words in Sanborn vocabulary
-    structure_match: float  # Sentence structure similarity
-    themes_detected: list[str]  # Detected Sanborn themes
+    style_similarity: float
+    vocabulary_match: float
+    structure_match: float
+    themes_detected: list[str]
     confidence: float
 
 
 class LinguistAgent:
-    """Neural NLP specialist for linguistic validation.
-
-    Uses transformer models (BERT/GPT) for:
-    - Perplexity scoring (how "natural" is the text)
-    - Semantic coherence (does it make sense)
-    - Grammar validation (proper English structure)
-    - Sanborn style analysis (matches K1-K3 patterns)
-
-    This complements SPY's rule-based analysis with neural insights.
-    """
-
     def __init__(
         self,
         model_name: str = "distilbert-base-uncased",
@@ -73,14 +58,11 @@ class LinguistAgent:
         self.cache_dir = cache_dir or Path("./data/linguist")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-        # Initialize models (lazy loading)
         self._perplexity_model = None
         self._coherence_model = None
 
-        # Sanborn corpus (K1-K3 vocabulary and patterns)
         self.sanborn_corpus = self._load_sanborn_corpus()
 
-        # Score cache
         self.score_cache: dict[str, LinguisticScore] = {}
 
     def validate_candidate(
@@ -99,30 +81,23 @@ class LinguistAgent:
         Returns:
             Linguistic score with neural validation
         """
-        # Check cache first
         cache_key = f"{text}_{self.model_name}"
         if cache_key in self.score_cache:
             return self.score_cache[cache_key]
 
-        # Calculate perplexity
         perplexity = self._calculate_perplexity(text)
 
-        # Calculate semantic coherence
         coherence = self._calculate_coherence(text)
 
-        # Calculate grammar score
         grammar_score = self._calculate_grammar_score(text)
 
-        # Overall confidence (weighted combination)
         confidence = self._compute_confidence(perplexity, coherence, grammar_score)
 
-        # Sanborn style check
         sanborn_bonus = 0.0
         if use_sanborn and len(text) > 20:
             sanborn_analysis = self.analyze_sanborn_style(text)
-            sanborn_bonus = sanborn_analysis.confidence * 0.2  # Up to 20% bonus
+            sanborn_bonus = sanborn_analysis.confidence * 0.2
 
-        # Final confidence with Sanborn bonus
         final_confidence = min(1.0, confidence + sanborn_bonus)
 
         score = LinguisticScore(
@@ -140,38 +115,25 @@ class LinguistAgent:
             },
         )
 
-        # Cache result
         self.score_cache[cache_key] = score
 
         return score
 
     def analyze_sanborn_style(self, text: str) -> SanbornCorpusAnalysis:
-        """Analyze text against Sanborn's K1-K3 style.
-
-        Args:
-            text: Text to analyze
-
-        Returns:
-            Sanborn corpus analysis
-        """
         text_lower = text.lower()
         words = text_lower.split()
 
-        # Vocabulary match
         sanborn_words = set(self.sanborn_corpus["vocabulary"])
         text_words = set(words)
         vocab_match = len(text_words & sanborn_words) / len(text_words) if text_words else 0.0
 
-        # Theme detection
         themes_detected = []
         for theme, keywords in self.sanborn_corpus["themes"].items():
             if any(keyword in text_lower for keyword in keywords):
                 themes_detected.append(theme)
 
-        # Style similarity (simple heuristic - can be improved with embeddings)
         style_similarity = vocab_match * 0.7 + (len(themes_detected) / 5) * 0.3
 
-        # Structure match (check for Sanborn's quirks)
         structure_score = 0.0
         if "northeast" in text_lower or "berlinclock" in text_lower:
             structure_score += 0.3
@@ -179,7 +141,6 @@ class LinguistAgent:
             structure_score += 0.2
         structure_score = min(1.0, structure_score)
 
-        # Overall confidence
         confidence = style_similarity * 0.5 + vocab_match * 0.3 + structure_score * 0.2
 
         return SanbornCorpusAnalysis(
@@ -212,7 +173,6 @@ class LinguistAgent:
             if score.confidence >= threshold:
                 scored.append((text, score))
 
-        # Sort by confidence (descending)
         scored.sort(key=lambda x: x[1].confidence, reverse=True)
 
         return scored[:top_k]
@@ -235,10 +195,8 @@ class LinguistAgent:
         """
         linguist_score = self.validate_candidate(text)
 
-        # Agreement score
         agreement = 1.0 - abs(spy_score - linguist_score.confidence)
 
-        # Feature correlation
         correlations = {}
         if "rhyme" in spy_features and linguist_score.coherence > 0.7:
             correlations["poetic_structure"] = 0.8
@@ -256,56 +214,30 @@ class LinguistAgent:
         }
 
     def _calculate_perplexity(self, text: str) -> float:
-        """Calculate perplexity using language model.
-
-        Args:
-            text: Text to score
-
-        Returns:
-            Perplexity score (lower is more natural)
-        """
-        # Initialize model if needed
         if self._perplexity_model is None:
             self._perplexity_model = self._init_perplexity_model()
 
         if self._perplexity_model is None:
-            # Fallback: simple heuristic
             return self._heuristic_perplexity(text)
 
         try:
-            # Use actual model
             return self._model_perplexity(text)
         except Exception:
-            # Fallback on error
             return self._heuristic_perplexity(text)
 
     def _calculate_coherence(self, text: str) -> float:
-        """Calculate semantic coherence.
-
-        Args:
-            text: Text to score
-
-        Returns:
-            Coherence score 0.0-1.0
-        """
-        # Simple heuristic for now
-        # In production, use sentence-transformers for embeddings
         words = text.lower().split()
 
         if len(words) < 3:
-            return 0.3  # Too short to be coherent
+            return 0.3
 
-        # Check for repeated words (gibberish often repeats)
         unique_ratio = len(set(words)) / len(words)
-        # Penalize low uniqueness more
         if unique_ratio < 0.5:
-            unique_ratio *= 0.5  # Heavy penalty for lots of repetition
+            unique_ratio *= 0.5
 
-        # Check for reasonable word lengths
         avg_word_len = sum(len(w) for w in words) / len(words)
         length_score = 1.0 if 3 <= avg_word_len <= 8 else 0.5
 
-        # Check for common English patterns
         common_words = {"the", "a", "an", "is", "are", "was", "were", "to", "from", "in", "on", "at"}
         common_ratio = len([w for w in words if w in common_words]) / len(words)
 
@@ -314,29 +246,15 @@ class LinguistAgent:
         return coherence
 
     def _calculate_grammar_score(self, text: str) -> float:
-        """Calculate grammatical correctness.
-
-        Args:
-            text: Text to score
-
-        Returns:
-            Grammar score 0.0-1.0
-        """
-        # Simple heuristic
-        # In production, use grammar checker or fine-tuned model
-
-        # Check capitalization
         sentences = text.split(".")
         cap_score = sum(1 for s in sentences if s.strip() and s.strip()[0].isupper()) / max(len(sentences), 1)
 
-        # Check for balanced punctuation
         punct_score = 1.0
         if text.count("(") != text.count(")"):
             punct_score -= 0.2
         if text.count("[") != text.count("]"):
             punct_score -= 0.2
 
-        # Check for reasonable sentence length
         words = text.split()
         if words:
             avg_sentence_len = len(words) / max(len(sentences), 1)
@@ -364,21 +282,13 @@ class LinguistAgent:
         Returns:
             Overall confidence 0.0-1.0
         """
-        # Convert perplexity to 0-1 scale (lower is better)
-        # Natural text: 10-100, gibberish: 1000+
         perplexity_score = 1.0 / (1.0 + np.log1p(perplexity / 100))
 
-        # Weighted average
         confidence = perplexity_score * 0.4 + coherence * 0.4 + grammar * 0.2
 
         return confidence
 
     def _init_perplexity_model(self) -> Any:
-        """Initialize perplexity model.
-
-        Returns:
-            Model or None if unavailable
-        """
         try:
             from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -396,14 +306,6 @@ class LinguistAgent:
             return None
 
     def _model_perplexity(self, text: str) -> float:
-        """Calculate perplexity using actual model.
-
-        Args:
-            text: Text to score
-
-        Returns:
-            Perplexity score
-        """
         import torch
 
         model = self._perplexity_model["model"]
@@ -433,20 +335,10 @@ class LinguistAgent:
         return ppl.item()
 
     def _heuristic_perplexity(self, text: str) -> float:
-        """Fallback heuristic perplexity.
-
-        Args:
-            text: Text to score
-
-        Returns:
-            Estimated perplexity
-        """
-        # Simple character frequency analysis
         chars = text.lower()
         if not chars:
             return 1000.0
 
-        # English letter frequencies
         expected_freq = {
             "e": 0.127,
             "t": 0.091,
@@ -459,7 +351,6 @@ class LinguistAgent:
             "r": 0.060,
         }
 
-        # Calculate observed frequencies
         char_counts = {}
         for c in chars:
             if c.isalpha():
@@ -469,25 +360,16 @@ class LinguistAgent:
         if total_alpha == 0:
             return 1000.0
 
-        # Compare to expected
         deviation = 0.0
         for char, expected in expected_freq.items():
             observed = char_counts.get(char, 0) / total_alpha
             deviation += abs(observed - expected)
 
-        # Convert to perplexity-like score
-        # Lower deviation = lower perplexity
         perplexity = 50 + (deviation * 500)
 
         return perplexity
 
     def _load_sanborn_corpus(self) -> dict[str, Any]:
-        """Load Sanborn corpus from K1-K3.
-
-        Returns:
-            Sanborn vocabulary and patterns
-        """
-        # K1-K3 plaintexts (known solutions)
         k1_text = """BETWEEN SUBTLE SHADING AND THE ABSENCE OF LIGHT LIES THE NUANCE OF IQLUSION"""
         k2_text = """IT WAS TOTALLY INVISIBLE HOWS THAT POSSIBLE ? THEY USED THE EARTHS MAGNETIC FIELD X
         THE INFORMATION WAS GATHERED AND TRANSMITTED UNDERGRUUND TO AN UNKNOWN LOCATION X
@@ -505,10 +387,8 @@ class LinguistAgent:
         corpus_text = (k1_text + " " + k2_text + " " + k3_text).lower()
         words = [w.strip(".,?!") for w in corpus_text.split()]
 
-        # Extract unique vocabulary
         vocabulary = list(set(words))
 
-        # Sanborn themes
         themes = {
             "location": ["northeast", "degrees", "minutes", "seconds", "north", "south", "east", "west"],
             "mystery": ["invisible", "unknown", "secret", "buried", "hidden"],
@@ -525,19 +405,13 @@ class LinguistAgent:
         }
 
     def save_scores(self, filepath: Path | None = None):
-        """Save score cache to file.
-
-        Args:
-            filepath: Output file path
-        """
         filepath = filepath or (self.cache_dir / "linguist_scores.json")
 
         scores_data = []
         for score in self.score_cache.values():
-            # Convert numpy types to Python types for JSON serialization
             metadata = {}
             for key, value in score.metadata.items():
-                if hasattr(value, "item"):  # numpy scalar
+                if hasattr(value, "item"):
                     metadata[key] = value.item()
                 else:
                     metadata[key] = value
@@ -560,7 +434,6 @@ class LinguistAgent:
 
 
 def demo_linguist():
-    """Demonstrate LINGUIST agent."""
     print("=" * 80)
     print("LINGUIST AGENT DEMO")
     print("=" * 80)
@@ -568,13 +441,12 @@ def demo_linguist():
 
     linguist = LinguistAgent(model_name="distilbert-base-uncased", device="cpu")
 
-    # Test candidates
     candidates = [
-        "BETWEEN SUBTLE SHADING AND THE ABSENCE OF LIGHT",  # Real K1
-        "THE CLOCK IS HIDDEN IN BERLIN NEAR THE WALL",  # Plausible
-        "XQZMWPVUTRSLKJIHGFEDCBA",  # Gibberish
-        "SLOWLY DESPERATELY SLOWLY THE REMAINS",  # Real K3
-        "AAA BBB CCC DDD EEE FFF",  # Repetitive
+        "BETWEEN SUBTLE SHADING AND THE ABSENCE OF LIGHT",
+        "THE CLOCK IS HIDDEN IN BERLIN NEAR THE WALL",
+        "XQZMWPVUTRSLKJIHGFEDCBA",
+        "SLOWLY DESPERATELY SLOWLY THE REMAINS",
+        "AAA BBB CCC DDD EEE FFF",
     ]
 
     print("Validating candidates:\n")
@@ -588,7 +460,6 @@ def demo_linguist():
         print(f"  Passed: {score.metadata['passed']}")
         print()
 
-    # Batch validation
     print("\nTop-3 candidates by confidence:")
     top_candidates = linguist.batch_validate(candidates, threshold=0.5, top_k=3)
     for i, (text, score) in enumerate(top_candidates, 1):

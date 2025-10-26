@@ -21,30 +21,25 @@ from kryptos.paths import get_artifacts_root
 
 @dataclass
 class KeySpaceRegion:
-    """A region of key space (e.g., "Vigenère length 8, keys starting with A")."""
-
     cipher_type: str
     parameters: dict[str, Any]
-    total_size: int  # Total number of possible keys
-    explored_count: int = 0  # How many keys tried
-    successful_count: int = 0  # How many yielded candidates
+    total_size: int
+    explored_count: int = 0
+    successful_count: int = 0
 
     @property
     def coverage_percent(self) -> float:
-        """Calculate coverage percentage."""
         if self.total_size == 0:
             return 0.0
         return (self.explored_count / self.total_size) * 100
 
     @property
     def success_rate(self) -> float:
-        """Calculate success rate within explored keys."""
         if self.explored_count == 0:
             return 0.0
         return (self.successful_count / self.explored_count) * 100
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary."""
         return {
             "cipher_type": self.cipher_type,
             "parameters": self.parameters,
@@ -57,35 +52,16 @@ class KeySpaceRegion:
 
 
 class SearchSpaceTracker:
-    """Track coverage of cryptographic key spaces.
-
-    Provides coverage metrics like:
-    - "Vigenère key length 1-20: 67% explored"
-    - "Hill 2x2 matrices: 23% explored"
-    - "Transposition period 1-30: 89% explored"
-
-    Also tracks exact keys tried across runs to prevent duplicates.
-    """
-
     def __init__(self, cache_dir: Path | None = None):
-        """Initialize search space tracker.
-
-        Args:
-            cache_dir: Directory for caching coverage data
-        """
         self.cache_dir = cache_dir or (get_artifacts_root() / "search_space")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-        # Track regions: cipher_type -> region_key -> KeySpaceRegion
         self.regions: dict[str, dict[str, KeySpaceRegion]] = defaultdict(dict)
 
-        # Track tried keys: cipher_type -> set of tried key strings
         self._tried_keys: dict[str, set[str]] = defaultdict(set)
 
-        # JSONL file for persisting tried keys
         self._tried_keys_file = self.cache_dir / "tried_keys.jsonl"
 
-        # Load existing data
         self._load_cache()
         self._load_tried_keys()
 
@@ -130,53 +106,26 @@ class SearchSpaceTracker:
             keys: Optional list of actual key strings tried
         """
         if region_key not in self.regions[cipher_type]:
-            # Auto-register with unknown size
             self.register_region(cipher_type, region_key, {}, total_size=0)
 
         region = self.regions[cipher_type][region_key]
         region.explored_count += count
         region.successful_count += successful
 
-        # Track specific keys if provided
         if keys:
             self._record_tried_keys(cipher_type, keys)
 
-        # Save cache after updates
         self._save_cache()
 
     def already_tried(self, cipher_type: str, key: str) -> bool:
-        """Check if a key has already been tried.
-
-        Args:
-            cipher_type: Type of cipher (e.g., "vigenere", "transposition")
-            key: Key string to check
-
-        Returns:
-            True if this key was tried in any previous run
-        """
         return key in self._tried_keys[cipher_type]
 
     def mark_tried(self, cipher_type: str, key: str):
-        """Mark a single key as tried (for inline usage).
-
-        Args:
-            cipher_type: Type of cipher
-            key: Key string to mark as tried
-        """
         if key not in self._tried_keys[cipher_type]:
             self._tried_keys[cipher_type].add(key)
             self._append_tried_key(cipher_type, key)
 
     def get_coverage(self, cipher_type: str, region_key: str | None = None) -> float:
-        """Get coverage percentage for a cipher type or specific region.
-
-        Args:
-            cipher_type: Type of cipher
-            region_key: Optional specific region
-
-        Returns:
-            Coverage percentage (0-100)
-        """
         if cipher_type not in self.regions:
             return 0.0
 
@@ -184,7 +133,6 @@ class SearchSpaceTracker:
             region = self.regions[cipher_type].get(region_key)
             return region.coverage_percent if region else 0.0
 
-        # Aggregate across all regions
         total_space = sum(r.total_size for r in self.regions[cipher_type].values())
         total_explored = sum(r.explored_count for r in self.regions[cipher_type].values())
 
@@ -193,14 +141,6 @@ class SearchSpaceTracker:
         return (total_explored / total_space) * 100
 
     def get_coverage_report(self, cipher_type: str | None = None) -> dict[str, Any]:
-        """Generate coverage report.
-
-        Args:
-            cipher_type: Optional filter by cipher type
-
-        Returns:
-            Coverage report dictionary
-        """
         report = {
             "timestamp": datetime.now().isoformat(),
             "cipher_types": {},
@@ -238,15 +178,6 @@ class SearchSpaceTracker:
         return report
 
     def identify_gaps(self, cipher_type: str, min_coverage: float = 50.0) -> list[KeySpaceRegion]:
-        """Identify under-explored regions (gaps in coverage).
-
-        Args:
-            cipher_type: Type of cipher
-            min_coverage: Minimum coverage to not be considered a gap
-
-        Returns:
-            List of under-explored regions
-        """
         if cipher_type not in self.regions:
             return []
 
@@ -255,32 +186,17 @@ class SearchSpaceTracker:
             if region.coverage_percent < min_coverage:
                 gaps.append(region)
 
-        # Sort by coverage (least explored first)
         gaps.sort(key=lambda r: r.coverage_percent)
         return gaps
 
     def get_recommendations(self, top_n: int = 5) -> list[dict[str, Any]]:
-        """Get recommendations for next attack targets.
-
-        Prioritizes:
-        - Under-explored regions
-        - Regions with some success
-        - Cipher types with low overall coverage
-
-        Args:
-            top_n: Number of recommendations
-
-        Returns:
-            List of recommended attack targets
-        """
         recommendations = []
 
         for cipher_type, regions in self.regions.items():
             for region_key, region in regions.items():
-                # Score based on: low coverage + some success + reasonable size
-                coverage_score = 100 - region.coverage_percent  # Higher = less explored
-                success_score = region.success_rate * 0.5  # Bonus for past success
-                size_score = min(region.total_size / 10000, 100)  # Prefer manageable sizes
+                coverage_score = 100 - region.coverage_percent
+                success_score = region.success_rate * 0.5
+                size_score = min(region.total_size / 10000, 100)
 
                 total_score = coverage_score + success_score + size_score
 
@@ -296,19 +212,10 @@ class SearchSpaceTracker:
                     },
                 )
 
-        # Sort by priority score
         recommendations.sort(key=lambda x: x["priority_score"], reverse=True)
         return recommendations[:top_n]
 
     def export_heatmap_data(self, cipher_type: str) -> dict[str, Any]:
-        """Export data for heatmap visualization.
-
-        Args:
-            cipher_type: Type of cipher
-
-        Returns:
-            Data structure for visualization
-        """
         if cipher_type not in self.regions:
             return {}
 
@@ -331,7 +238,6 @@ class SearchSpaceTracker:
         return heatmap
 
     def _coverage_to_color(self, coverage: float) -> str:
-        """Map coverage percentage to color for heatmap."""
         if coverage >= 90:
             return "#2ecc71"  # Green (well explored)
         elif coverage >= 50:
@@ -342,7 +248,6 @@ class SearchSpaceTracker:
             return "#95a5a6"  # Gray (untouched)
 
     def _explain_recommendation(self, region: KeySpaceRegion) -> str:
-        """Generate human-readable explanation for recommendation."""
         if region.coverage_percent < 10:
             return f"Unexplored territory ({region.coverage_percent:.1f}% coverage)"
         elif region.success_rate > 1.0:
@@ -353,7 +258,6 @@ class SearchSpaceTracker:
             return f"Filling gaps ({region.coverage_percent:.1f}% coverage)"
 
     def _load_cache(self):
-        """Load cached coverage data."""
         cache_file = self.cache_dir / "search_space.json"
         if not cache_file.exists():
             return
@@ -366,11 +270,9 @@ class SearchSpaceTracker:
                 for region_key, region_dict in regions_data.items():
                     self.regions[cipher_type][region_key] = KeySpaceRegion(**region_dict)
         except (json.JSONDecodeError, KeyError, TypeError):
-            # Start fresh if cache corrupted
             pass
 
     def _save_cache(self):
-        """Save coverage data to cache."""
         cache_file = self.cache_dir / "search_space.json"
 
         data = {}
@@ -390,7 +292,6 @@ class SearchSpaceTracker:
             json.dump(data, f, indent=2)
 
     def _load_tried_keys(self):
-        """Load tried keys from JSONL file."""
         if not self._tried_keys_file.exists():
             return
 
@@ -405,18 +306,15 @@ class SearchSpaceTracker:
                     key = record["key"]
                     self._tried_keys[cipher_type].add(key)
         except (json.JSONDecodeError, KeyError, TypeError, OSError):
-            # Start fresh if file corrupted
             pass
 
     def _record_tried_keys(self, cipher_type: str, keys: list[str]):
-        """Record multiple tried keys and persist them."""
         new_keys = []
         for key in keys:
             if key not in self._tried_keys[cipher_type]:
                 self._tried_keys[cipher_type].add(key)
                 new_keys.append(key)
 
-        # Append new keys to JSONL file
         if new_keys:
             with open(self._tried_keys_file, "a", encoding="utf-8") as f:
                 for key in new_keys:
@@ -424,14 +322,12 @@ class SearchSpaceTracker:
                     f.write(json.dumps(record) + "\n")
 
     def _append_tried_key(self, cipher_type: str, key: str):
-        """Append a single tried key to the JSONL file."""
         record = {"cipher_type": cipher_type, "key": key}
         with open(self._tried_keys_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(record) + "\n")
 
 
 def demo_search_space_tracker():
-    """Demonstrate search space tracker."""
     print("=" * 80)
     print("SEARCH SPACE TRACKER DEMO")
     print("=" * 80)
@@ -439,10 +335,8 @@ def demo_search_space_tracker():
 
     tracker = SearchSpaceTracker()
 
-    # Register some key space regions
     for length in range(1, 21):
-        # Vigenère key length N has 26^N possible keys
-        total_keys = 26**length if length <= 6 else 10000000  # Cap for demo
+        total_keys = 26**length if length <= 6 else 10000000
         tracker.register_region(
             cipher_type="vigenere",
             region_key=f"length_{length}",
@@ -450,12 +344,10 @@ def demo_search_space_tracker():
             total_size=total_keys,
         )
 
-    # Simulate some exploration
     tracker.record_exploration("vigenere", "length_5", count=1000, successful=15)
     tracker.record_exploration("vigenere", "length_8", count=5000, successful=42)
     tracker.record_exploration("vigenere", "length_14", count=200, successful=1)
 
-    # Get coverage
     print("Coverage Report:")
     report = tracker.get_coverage_report("vigenere")
     print(f"Overall coverage: {report['cipher_types']['vigenere']['overall_coverage']:.4f}%")
@@ -469,7 +361,6 @@ def demo_search_space_tracker():
         )
     print()
 
-    # Get recommendations
     print("Recommendations:")
     recs = tracker.get_recommendations(top_n=5)
     for i, rec in enumerate(recs, 1):

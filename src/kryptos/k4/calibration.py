@@ -26,11 +26,6 @@ DEFAULT_POS_WEIGHTS: Sequence[float] = (10.0, 20.0, 30.0, 40.0)
 
 
 def _spearman(rank_a: list[str], rank_b: list[str]) -> float:
-    """Compute Spearman correlation of two rankings (list of item IDs).
-
-    Assumes both lists contain same items (set equality) and no ties (acceptable for our deterministic ordering).
-    Implements rho = 1 - (6 * sum(d_i^2)) / (n*(n^2 - 1)). Returns 0.0 if n < 2.
-    """
     if not rank_a or set(rank_a) != set(rank_b):
         return 0.0
     n = len(rank_a)
@@ -50,9 +45,6 @@ def _rank_items(score_map: dict[str, float]) -> list[str]:
 
 
 def compute_alignment_frequencies(candidates: Sequence[str], cribs: Sequence[str]) -> dict[str, float]:
-    """Compute simple alignment frequency: fraction of candidates containing each crib.
-    Returns mapping crib->frequency in [0,1]. Cribs are matched case-insensitive alphabetical only.
-    """
     freqs: dict[str, float] = {}
     if not candidates:
         return freqs
@@ -67,19 +59,12 @@ def compute_alignment_frequencies(candidates: Sequence[str], cribs: Sequence[str
 
 
 def rarity_alignment_weighted_bonus(text: str, alignment_freqs: dict[str, float], k: float) -> float:
-    """Compute rarity-alignment-weighted crib bonus variant.
-
-    rarity_weight = 1 / (1 + f * k) where f is alignment frequency across candidate set.
-    Base bonus per crib occurrence = 5 * len(crib) * rarity_weight.
-    Multiple occurrences multiply; overlapping permitted.
-    """
     seq = ''.join(c for c in text.upper() if c.isalpha())
     if not seq or not alignment_freqs:
         return 0.0
     total = 0.0
     for crib, freq in alignment_freqs.items():
         if crib in seq:
-            # Count occurrences
             start = seq.find(crib)
             occs = 0
             while start != -1:
@@ -117,16 +102,13 @@ def calibrate_rarity_weight(
     base_rank = _rank_items(base_scores)
     alignment_freqs = compute_alignment_frequencies(candidates, cribs)
     rows: list[RarityCalibrationRow] = []
-    # precompute simple crib bonuses
     simple_bonus = {c: baseline_stats(c)['crib_bonus'] for c in candidates}
     for k in k_values:
         adj_scores: dict[str, float] = {}
         rarity_weights_sample: list[float] = []
         for c in candidates:
             rarity_bonus = rarity_alignment_weighted_bonus(c, alignment_freqs, k)
-            # Replace simple crib bonus with rarity-adjusted variant
             adj_scores[c] = base_scores[c] - simple_bonus[c] + rarity_bonus
-            # Track mean rarity weight per crib occurrence (approx using first crib matched)
             for crib, freq in alignment_freqs.items():
                 if crib in ''.join(ch for ch in c.upper() if ch.isalpha()):
                     rarity_weights_sample.append(1.0 / (1.0 + freq * k))

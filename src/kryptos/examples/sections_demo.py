@@ -15,11 +15,11 @@ warnings.warn(
 
 try:
     from kryptos.examples import run_sections_demo as _run
-except ImportError:  # pragma: no cover
+except ImportError:
     _run = None
 
 
-def main():  # pragma: no cover
+def main():
     warnings.warn(
         "scripts/demo/sections_demo.py deprecated; use kryptos.examples.sections_demo",
         DeprecationWarning,
@@ -30,5 +30,5 @@ def main():  # pragma: no cover
     _run()
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     main()

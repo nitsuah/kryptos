@@ -15,21 +15,21 @@ from typing import Any, Protocol, runtime_checkable
 
 from . import k1, k2, k3
 
-try:  # optional import (heavy)
+try:
     from .k4 import decrypt_best  # type: ignore
-except ImportError:  # pragma: no cover - fallback if heavy pipeline missing
+except ImportError:
     decrypt_best = None  # type: ignore
 
 
 @runtime_checkable
-class SectionCallable(Protocol):  # pragma: no cover - structural typing helper
+class SectionCallable(Protocol):
     def __call__(self, *args, **kwargs) -> Any: ...  # noqa: D401,E701 (broad for heterogeneous returns)
 
 
-SectionDecrypt = SectionCallable  # backward alias
+SectionDecrypt = SectionCallable
 
 
-def _k4_decrypt_placeholder(*_args, **_kwargs) -> str:  # pragma: no cover
+def _k4_decrypt_placeholder(*_args, **_kwargs) -> str:
     raise NotImplementedError("K4 decrypt pipeline not yet exposed via sections API")
 
 

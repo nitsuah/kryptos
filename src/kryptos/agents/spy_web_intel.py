@@ -35,55 +35,35 @@ except ImportError:
 
 @dataclass
 class IntelSource:
-    """An external intelligence source."""
-
     name: str
     url: str
     source_type: str  # 'news', 'forum', 'academic', 'official'
-    scrape_frequency: str  # 'daily', 'weekly', 'monthly'
+    scrape_frequency: str
     last_scraped: datetime | None = None
     active: bool = True
 
 
 @dataclass
 class CribCandidate:
-    """A potential plaintext word/phrase discovered from external sources."""
-
     text: str
-    confidence: float  # 0.0-1.0
+    confidence: float
     source: str
     context: str
     discovered_date: datetime
-    category: str  # 'location', 'person', 'theme', 'technical', 'confirmed'
+    category: str
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class SpyWebIntel:
-    """Autonomous intelligence gathering for SPY agent.
-
-    This is like having a research assistant who:
-    - Reads every Kryptos forum post
-    - Watches for Sanborn interviews
-    - Tracks academic breakthroughs
-    - Monitors the CIA Kryptos page
-    """
-
     def __init__(self, cache_dir: Path | None = None):
-        """Initialize web intelligence system.
-
-        Args:
-            cache_dir: Directory to cache scraped data (default: artifacts/intel_cache)
-        """
         if not WEB_AVAILABLE:
             raise ImportError("requests and beautifulsoup4 required. Install: pip install requests beautifulsoup4")
 
         self.cache_dir = cache_dir or (get_artifacts_root() / "intel_cache")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-        # Track content we've already processed to avoid redundant work
         self.processed_content_hashes: set[str] = set()
 
-        # Define intelligence sources
         self.sources = [
             IntelSource(
                 name="Elonka Kryptos Page",
@@ -103,21 +83,12 @@ class SpyWebIntel:
                 source_type="forum",
                 scrape_frequency="daily",
             ),
-            # Add more as we discover them
         ]
 
         self.discovered_cribs: list[CribCandidate] = []
         self._load_cache()
 
     def gather_intelligence(self, force_refresh: bool = False) -> dict[str, Any]:
-        """Gather intelligence from all active sources.
-
-        Args:
-            force_refresh: Ignore cache and scrape everything fresh
-
-        Returns:
-            Dict with discovered cribs, updates, and insights
-        """
         results = {
             "new_cribs": [],
             "updates": [],
@@ -128,7 +99,6 @@ class SpyWebIntel:
             if not source.active:
                 continue
 
-            # Check if we need to scrape based on frequency
             if not force_refresh and self._should_skip_scrape(source):
                 continue
 
@@ -146,25 +116,12 @@ class SpyWebIntel:
             except Exception as e:
                 results["updates"].append(f"Failed to scrape {source.name}: {e}")
 
-        # Update our crib database
         self.discovered_cribs.extend(results["new_cribs"])
         self._save_cache()
 
         return results
 
     def search_sanborn_intel(self, query: str = "sanborn kryptos interview") -> list[dict[str, str]]:
-        """Search for Sanborn interviews and statements.
-
-        This is GOLD - Sanborn has dropped hints over the years that became
-        crucial cribs (like NORTHEAST in 2020).
-
-        Args:
-            query: Search query
-
-        Returns:
-            List of search results with URLs and snippets
-        """
-        # Use DuckDuckGo HTML search (no API key needed)
         search_url = f"https://html.duckduckgo.com/html/?q={query.replace(' ', '+')}"
 
         try:
@@ -190,35 +147,18 @@ class SpyWebIntel:
                         },
                     )
 
-            return results[:10]  # Top 10 results
+            return results[:10]
 
         except Exception as e:
             print(f"Search failed: {e}")
             return []
 
     def extract_potential_cribs(self, text: str) -> list[CribCandidate]:
-        """Extract potential cribs from text using heuristics.
-
-        Looks for:
-        - Capitalized words (proper nouns)
-        - Location names
-        - Dates/times
-        - Technical terms
-        - Words Sanborn emphasizes (quotes, italics)
-
-        Args:
-            text: Text to analyze
-
-        Returns:
-            List of potential crib candidates
-        """
-        # Skip if we've already processed this content
         if not self._is_content_new(text):
             return []
 
         candidates = []
 
-        # Pattern 1: Quoted text (Sanborn quotes are often hints)
         quotes = re.findall(r'"([^"]{3,30})"', text)
         for quote in quotes:
             if quote.isupper() or quote[0].isupper():
@@ -233,7 +173,6 @@ class SpyWebIntel:
                     ),
                 )
 
-        # Pattern 2: Capitalized words (proper nouns)
         cap_words = re.findall(r'\b([A-Z][a-z]{2,15})\b', text)
         location_keywords = {'berlin', 'clock', 'layer', 'east', 'north', 'west', 'south'}
 
@@ -243,7 +182,7 @@ class SpyWebIntel:
                 candidates.append(
                     CribCandidate(
                         text=word.upper(),
-                        confidence=0.9,  # High confidence for known location words
+                        confidence=0.9,
                         source="proper_noun",
                         context=f"Capitalized in source: {word}",
                         discovered_date=datetime.now(),
@@ -251,7 +190,6 @@ class SpyWebIntel:
                     ),
                 )
 
-        # Pattern 3: Direction/coordinates mentions (Sanborn loves coordinates)
         coord_patterns = [
             r'(\d+)\s*degrees',
             r'(north|south|east|west|northeast|northwest|southeast|southwest)',
@@ -276,22 +214,12 @@ class SpyWebIntel:
         return candidates
 
     def get_top_cribs(self, min_confidence: float = 0.6, category: str | None = None) -> list[str]:
-        """Get highest confidence cribs for use in attacks.
-
-        Args:
-            min_confidence: Minimum confidence threshold
-            category: Filter by category (location, person, theme, etc.)
-
-        Returns:
-            List of crib strings sorted by confidence
-        """
         filtered = [
             c
             for c in self.discovered_cribs
             if c.confidence >= min_confidence and (category is None or c.category == category)
         ]
 
-        # Sort by confidence, deduplicate
         seen = set()
         unique_cribs = []
         for crib in sorted(filtered, key=lambda x: x.confidence, reverse=True):
@@ -302,7 +230,6 @@ class SpyWebIntel:
         return unique_cribs
 
     def _scrape_official_page(self, source: IntelSource) -> list[CribCandidate]:
-        """Scrape official Kryptos pages for updates."""
         try:
             response = requests.get(
                 source.url,
@@ -311,10 +238,8 @@ class SpyWebIntel:
             )
             soup = BeautifulSoup(response.text, "html.parser")
 
-            # Extract all text
             page_text = soup.get_text()
 
-            # Look for updates about K4
             cribs = self.extract_potential_cribs(page_text)
 
             return cribs
@@ -324,13 +249,9 @@ class SpyWebIntel:
             return []
 
     def _scrape_forum(self, source: IntelSource) -> list[CribCandidate]:
-        """Scrape forum discussions for community insights."""
-        # Forums are trickier - would need specific parsers for each
-        # For now, return empty - we can add specific forum parsers later
         return []
 
     def _should_skip_scrape(self, source: IntelSource) -> bool:
-        """Check if we should skip scraping based on frequency."""
         if source.last_scraped is None:
             return False
 
@@ -346,11 +267,9 @@ class SpyWebIntel:
         return hours_since < threshold
 
     def _content_hash(self, content: str) -> str:
-        """Generate hash for content to detect duplicates."""
         return hashlib.sha256(content.encode("utf-8")).hexdigest()
 
     def _is_content_new(self, content: str) -> bool:
-        """Check if we've already processed this content."""
         content_hash = self._content_hash(content)
         if content_hash in self.processed_content_hashes:
             return False
@@ -358,8 +277,6 @@ class SpyWebIntel:
         return True
 
     def _load_cache(self):
-        """Load cached intelligence and processed content hashes."""
-        # Load cribs
         cache_file = self.cache_dir / "cribs.json"
         if cache_file.exists():
             try:
@@ -380,7 +297,6 @@ class SpyWebIntel:
             except Exception as e:
                 print(f"Failed to load cache: {e}")
 
-        # Load processed content hashes
         hashes_file = self.cache_dir / "processed_hashes.json"
         if hashes_file.exists():
             try:
@@ -390,8 +306,6 @@ class SpyWebIntel:
                 print(f"Failed to load processed hashes: {e}")
 
     def _save_cache(self):
-        """Save intelligence and processed hashes to cache."""
-        # Save cribs
         cache_file = self.cache_dir / "cribs.json"
         try:
             data = [
@@ -413,7 +327,6 @@ class SpyWebIntel:
         except Exception as e:
             print(f"Failed to save cache: {e}")
 
-        # Save processed content hashes
         hashes_file = self.cache_dir / "processed_hashes.json"
         try:
             with open(hashes_file, "w") as f:
@@ -423,7 +336,6 @@ class SpyWebIntel:
 
 
 def demo_web_intel():
-    """Demonstrate web intelligence gathering."""
     if not WEB_AVAILABLE:
         print("Install dependencies: pip install requests beautifulsoup4")
         return
@@ -435,7 +347,6 @@ def demo_web_intel():
 
     intel = SpyWebIntel()
 
-    # Search for Sanborn intel
     print("🔍 Searching for Sanborn interviews...")
     results = intel.search_sanborn_intel("jim sanborn kryptos interview 2020")
 
@@ -446,7 +357,6 @@ def demo_web_intel():
         print(f"   {result['url']}")
         print()
 
-    # Extract cribs from sample text
     print("\n" + "=" * 80)
     print("📝 Testing crib extraction...")
     sample_text = """

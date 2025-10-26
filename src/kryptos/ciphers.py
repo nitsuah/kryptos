@@ -15,10 +15,6 @@ KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
 
 
 def vigenere_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False) -> str:
-    """Decrypt a Vigenère cipher using the Kryptos keyed alphabet.
-
-    Strips non-alpha from key; optionally preserves non-alpha chars from ciphertext.
-    """
     key = ''.join(c for c in key.upper() if c.isalpha())
     if not key:
         raise ValueError("Key must contain at least one alphabetic character")
@@ -31,7 +27,7 @@ def vigenere_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False
                 c_index = KEYED_ALPHABET.index(ch)
                 k_char = key[ki % len(key)]
                 k_index = KEYED_ALPHABET.index(k_char)
-            except ValueError as e:  # invalid character not in keyed alphabet
+            except ValueError as e:
                 raise ValueError(f"Character '{ch}' or key char not in keyed alphabet") from e
             p_index = (c_index - k_index) % klen
             dec = KEYED_ALPHABET[p_index]
@@ -54,7 +50,6 @@ def vigenere_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False
 
 
 def k3_decrypt(ciphertext: str) -> str:
-    """Decrypt Kryptos K3 via documented double rotational transposition (no Vigenère)."""
     clean = ''.join(ciphertext.split())
     if clean.startswith('?'):
         clean = clean[1:]
@@ -62,10 +57,6 @@ def k3_decrypt(ciphertext: str) -> str:
 
 
 def double_rotational_transposition(text: str) -> str:
-    """
-    Apply K3 double rotational transposition:
-    24x14 grid -> rotate -> reshape 8 cols -> rotate.
-    """
     cols1, rows1 = 24, 14
     expected_len = cols1 * rows1
     if len(text) != expected_len:
@@ -89,10 +80,6 @@ def _rotate_right(matrix: list[list[str]]) -> list[list[str]]:
 
 
 def rotate_matrix_right_90(matrix: Sequence[Sequence[str]]) -> list[list[str]]:
-    """Public helper: rotate matrix 90 degrees clockwise.
-
-    Accepts any sequence-of-sequences containing strings; returns a list of lists.
-    """
     rows = len(matrix)
     if rows == 0:
         return []
@@ -105,11 +92,6 @@ def rotate_matrix_right_90(matrix: Sequence[Sequence[str]]) -> list[list[str]]:
 
 
 def transposition_decrypt(ciphertext: str, key: str | None = None) -> str:
-    """Legacy rotational transposition wrapper kept for backward compatibility.
-
-    If key is provided, perform columnar permutation reconstruction; else defer to
-    canonical Kryptos K3 double rotational algorithm.
-    """
     clean = ''.join(ciphertext.split())
     if clean.startswith('?'):
         clean = clean[1:]
@@ -140,10 +122,6 @@ def transposition_decrypt(ciphertext: str, key: str | None = None) -> str:
 
 
 def polybius_decrypt(ciphertext: str, key_square: Sequence[Sequence[str]]) -> str:
-    """Decrypt Polybius pairs using provided 5x5 key square.
-
-    Raises ValueError for malformed key square or invalid ciphertext pairs.
-    """
     if len(key_square) != 5 or any(len(row) != 5 for row in key_square):
         raise ValueError("Key square must be a 5x5 grid.")
     if len(ciphertext) % 2 != 0:
@@ -161,36 +139,12 @@ def polybius_decrypt(ciphertext: str, key_square: Sequence[Sequence[str]]) -> st
 
 
 def beaufort_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False) -> str:
-    """Decrypt Beaufort cipher using Kryptos keyed alphabet.
-
-    Beaufort is a reciprocal Vigenère variant where P = (K - C) mod 26.
-
-    Args:
-        ciphertext: Encrypted text
-        key: Decryption key
-        preserve_non_alpha: If True, keep non-alphabetic characters
-
-    Returns:
-        Decrypted plaintext
-    """
     from kryptos.k4.beaufort import beaufort_decrypt as _beaufort_decrypt
 
     return _beaufort_decrypt(ciphertext, key, preserve_non_alpha)
 
 
 def beaufort_encrypt(plaintext: str, key: str, preserve_non_alpha: bool = False) -> str:
-    """Encrypt with Beaufort cipher using Kryptos keyed alphabet.
-
-    Beaufort is reciprocal: C = (K - P) mod 26, so encryption = decryption.
-
-    Args:
-        plaintext: Text to encrypt
-        key: Encryption key
-        preserve_non_alpha: If True, keep non-alphabetic characters
-
-    Returns:
-        Encrypted ciphertext
-    """
     from kryptos.k4.beaufort import beaufort_encrypt as _beaufort_encrypt
 
     return _beaufort_encrypt(plaintext, key, preserve_non_alpha)

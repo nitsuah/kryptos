@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
-from kryptos.paths import get_repo_root  # use helper instead of manual parents ascent
+from kryptos.paths import get_repo_root
 
 
 @dataclass
@@ -44,7 +44,6 @@ class CondensedRow:
 
 
 def _parse_weight_details(path: Path) -> list[tuple[str, float]]:
-    """Return list of (sample, delta) from a weight detail CSV."""
     rows: list[tuple[str, float]] = []
     if not path.exists():
         return rows
@@ -62,16 +61,11 @@ def _parse_weight_details(path: Path) -> list[tuple[str, float]]:
 
 
 def build_condensed_rows(run_dir: Path) -> list[CondensedRow]:
-    """Build condensed rows from all weight_* detail CSVs in a run directory.
-
-    For each weight_<val>_details.csv file, pick the sample with the maximum delta.
-    """
     condensed: list[CondensedRow] = []
     if not run_dir.exists():
         return condensed
     for child in run_dir.iterdir():
         if child.is_file() and child.name.startswith('weight_') and child.name.endswith('_details.csv'):
-            # extract numeric weight (replace underscores back to dot for floats)
             try:
                 weight_part = child.name[len('weight_') : -len('_details.csv')]
                 weight_val = float(weight_part.replace('_', '.'))
@@ -80,7 +74,6 @@ def build_condensed_rows(run_dir: Path) -> list[CondensedRow]:
             samples = _parse_weight_details(child)
             if not samples:
                 continue
-            # pick top delta sample
             top_sample, top_delta = max(samples, key=lambda r: r[1])
             condensed.append(CondensedRow(weight=weight_val, top_delta=top_delta, sample_snippet=top_sample[:120]))
     condensed.sort(key=lambda r: r.top_delta, reverse=True)
@@ -88,7 +81,6 @@ def build_condensed_rows(run_dir: Path) -> list[CondensedRow]:
 
 
 def write_condensed_report(run_dir: Path, out_path: Path | None = None) -> Path:
-    """Write condensed_report.csv for a run and return its path."""
     rows = build_condensed_rows(run_dir)
     if out_path is None:
         out_path = run_dir / 'condensed_report.csv'
@@ -108,16 +100,11 @@ def _load_learned_lines(repo_root: Path) -> list[str]:
 
 
 def write_top_candidates_markdown(run_dir: Path, out_dir: Path | None = None, top_n: int = 3) -> Path:
-    """Generate a top candidates markdown report from condensed_report.csv.
-
-    Looks for learned lines referencing per-weight detail files and attaches them.
-    """
     if out_dir is None:
         out_dir = run_dir.parent.parent / 'reports'
     out_dir.mkdir(parents=True, exist_ok=True)
     condensed_path = run_dir / 'condensed_report.csv'
     if not condensed_path.exists():
-        # Attempt to build it if missing
         write_condensed_report(run_dir, condensed_path)
     rows: list[CondensedRow] = []
     with condensed_path.open('r', encoding='utf-8') as fh:
@@ -134,7 +121,6 @@ def write_top_candidates_markdown(run_dir: Path, out_dir: Path | None = None, to
     top = rows[:top_n]
     repo_root = get_repo_root()
     learned_lines = _load_learned_lines(repo_root)
-    # map file names to learned lines
     file_to_learned: dict[str, list[str]] = {}
     for ln in learned_lines:
         for f in run_dir.iterdir():

@@ -16,7 +16,7 @@ warnings.warn(
 )
 
 
-def main():  # pragma: no cover
+def main():
     warnings.warn(
         ("scripts/demo/run_autopilot_demo.py deprecated; use " "python -m kryptos.examples.autopilot_demo"),
         DeprecationWarning,
@@ -25,5 +25,5 @@ def main():  # pragma: no cover
     _run()
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     main()

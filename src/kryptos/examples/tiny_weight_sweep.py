@@ -19,7 +19,7 @@ from kryptos.k4.tuning.crib_sweep import WeightSweepRow
 from kryptos.log_setup import setup_logging
 from kryptos.paths import get_artifacts_root
 
-_DEFAULT_WEIGHTS = (0.1, 0.5)  # trimmed for speed
+_DEFAULT_WEIGHTS = (0.1, 0.5)
 
 
 def run_tiny_weight_sweep(
@@ -32,7 +32,6 @@ def run_tiny_weight_sweep(
     Returns the output directory path.
     """
     setup_logging(level=logging.INFO, logger_name="kryptos.demo.tuning")
-    log = logging.getLogger("kryptos.demo.tuning")
     rows: list[WeightSweepRow] = run_crib_weight_sweep(
         samples=samples,
         cribs=cribs,
@@ -55,7 +54,6 @@ def run_tiny_weight_sweep(
                     f"{r.delta:.6f}",
                 ],
             )
-    # group and write detail per-weight
     by_weight: dict[float, list[WeightSweepRow]] = {}
     for r in rows:
         by_weight.setdefault(r.weight, []).append(r)
@@ -73,11 +71,10 @@ def run_tiny_weight_sweep(
                         f"{g.delta:.6f}",
                     ],
                 )
-    log.info("Tiny weight sweep complete. Artifacts: %s", out_dir)
     return out_dir
 
 
-def _main() -> None:  # pragma: no cover
+def _main() -> None:
     import argparse
 
     p = argparse.ArgumentParser(description="Run tiny crib weight sweep example")
@@ -95,5 +92,5 @@ def _main() -> None:  # pragma: no cover
     run_tiny_weight_sweep(weights=weights)
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     _main()

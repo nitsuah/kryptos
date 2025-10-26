@@ -24,8 +24,6 @@ from typing import Any
 
 @dataclass
 class DigraphAnalysis:
-    """Results from digraph frequency analysis."""
-
     digraph_counts: dict[str, int] = field(default_factory=dict)
     total_digraphs: int = 0
     top_digraphs: list[tuple[str, int]] = field(default_factory=list)
@@ -36,8 +34,6 @@ class DigraphAnalysis:
 
 @dataclass
 class PalindromePattern:
-    """Detected palindrome pattern."""
-
     text: str
     position: int
     length: int
@@ -47,8 +43,6 @@ class PalindromePattern:
 
 @dataclass
 class VigenereMetrics:
-    """Metrics for Vigenère cipher analysis."""
-
     key_length_candidates: list[int] = field(default_factory=list)
     ic_values: dict[int, float] = field(default_factory=dict)
     kasiski_distances: list[int] = field(default_factory=list)
@@ -58,24 +52,14 @@ class VigenereMetrics:
 
 @dataclass
 class TranspositionHint:
-    """Hint about possible transposition."""
-
-    method: str  # "columnar", "rail_fence", "route", "etc"
+    method: str
     period: int
     evidence: str
     confidence: float
 
 
 class QResearchAnalyzer:
-    """Advanced cryptanalysis using academic research techniques.
-
-    This analyzer implements patterns and strategies from research papers
-    to enhance attack generation and candidate validation.
-    """
-
     def __init__(self):
-        """Initialize Q-Research analyzer."""
-        # English digraph frequencies (top 20)
         self.english_digraphs = {
             "TH": 3.56,
             "HE": 3.07,
@@ -99,7 +83,6 @@ class QResearchAnalyzer:
             "AR": 1.07,
         }
 
-        # English letter frequencies
         self.english_frequencies = {
             "E": 12.70,
             "T": 9.06,
@@ -130,29 +113,17 @@ class QResearchAnalyzer:
         }
 
     def analyze_digraphs(self, ciphertext: str) -> DigraphAnalysis:
-        """Analyze digraph frequencies in ciphertext.
-
-        Args:
-            ciphertext: Text to analyze
-
-        Returns:
-            Digraph analysis results
-        """
-        # Clean text
         text = re.sub(r"[^A-Z]", "", ciphertext.upper())
 
         if len(text) < 2:
             return DigraphAnalysis()
 
-        # Count digraphs
         digraphs = [text[i : i + 2] for i in range(len(text) - 1)]
         counts = Counter(digraphs)
 
-        # Sort by frequency
         sorted_digraphs = counts.most_common()
         total = len(digraphs)
 
-        # Calculate deviation from English
         deviation = 0.0
         for digraph, count in sorted_digraphs[:20]:
             observed_freq = (count / total) * 100
@@ -169,24 +140,9 @@ class QResearchAnalyzer:
         )
 
     def detect_palindromes(self, text: str, min_length: int = 3) -> list[PalindromePattern]:
-        """Detect palindrome patterns in text.
-
-        Palindromes might indicate:
-        - Key reuse in polyalphabetic ciphers
-        - Symmetric encryption patterns
-        - Message boundaries
-
-        Args:
-            text: Text to search
-            min_length: Minimum palindrome length
-
-        Returns:
-            List of detected palindrome patterns
-        """
         text = re.sub(r"[^A-Z]", "", text.upper())
         palindromes = []
 
-        # Exact palindromes
         for length in range(min_length, len(text) // 2 + 1):
             for i in range(len(text) - length + 1):
                 substr = text[i : i + length]
@@ -201,7 +157,6 @@ class QResearchAnalyzer:
                         ),
                     )
 
-        # Approximate palindromes (allow 1-2 mismatches)
         for length in range(min_length + 2, min(len(text) // 2 + 1, 20)):
             for i in range(len(text) - length + 1):
                 substr = text[i : i + length]
@@ -224,38 +179,20 @@ class QResearchAnalyzer:
         return palindromes
 
     def vigenere_analysis(self, ciphertext: str, max_key_length: int = 20) -> VigenereMetrics:
-        """Analyze text for Vigenère cipher characteristics.
-
-        Uses:
-        - Kasiski examination (repeated sequence distances)
-        - Index of Coincidence (IC) for each key length
-        - Statistical methods
-
-        Args:
-            ciphertext: Ciphertext to analyze
-            max_key_length: Maximum key length to test
-
-        Returns:
-            Vigenère cipher metrics
-        """
         text = re.sub(r"[^A-Z]", "", ciphertext.upper())
 
         if len(text) < 20:
             return VigenereMetrics()
 
-        # Kasiski examination
         kasiski_distances = self._kasiski_examination(text)
 
-        # Index of Coincidence for different key lengths
         ic_values = {}
         for key_len in range(1, min(max_key_length + 1, len(text) // 5)):
             ic_values[key_len] = self._calculate_ic_for_key_length(text, key_len)
 
-        # Find most likely key length
         likely_key_length = 0
         best_ic = 0.0
 
-        # English IC ≈ 0.067, random IC ≈ 0.038
         target_ic = 0.067
 
         for key_len, ic in ic_values.items():
@@ -263,10 +200,8 @@ class QResearchAnalyzer:
                 best_ic = ic
                 likely_key_length = key_len
 
-        # Confidence based on IC proximity to English
         confidence = 1.0 - min(abs(best_ic - target_ic) / target_ic, 1.0)
 
-        # Prefer key lengths that match Kasiski distances
         key_length_candidates = self._rank_key_lengths(ic_values, kasiski_distances)
 
         return VigenereMetrics(
@@ -278,31 +213,16 @@ class QResearchAnalyzer:
         )
 
     def detect_transposition_hints(self, ciphertext: str) -> list[TranspositionHint]:
-        """Detect hints of transposition ciphers.
-
-        Transposition ciphers:
-        - Preserve letter frequencies (IC ≈ 0.067)
-        - Disrupt digraph frequencies
-        - May have periodic patterns
-
-        Args:
-            ciphertext: Ciphertext to analyze
-
-        Returns:
-            List of transposition hints
-        """
         text = re.sub(r"[^A-Z]", "", ciphertext.upper())
         hints = []
 
         if len(text) < 20:
             return hints
 
-        # Check letter frequency preservation
         ic = self._calculate_ic(text)
         letter_freq_score = self._compare_letter_frequencies(text)
 
         if ic > 0.060 and letter_freq_score > 0.7:
-            # High IC + good letter freq = likely transposition
             hints.append(
                 TranspositionHint(
                     method="unknown",
@@ -312,15 +232,13 @@ class QResearchAnalyzer:
                 ),
             )
 
-        # Check for columnar patterns (divisors of text length)
         length = len(text)
         for period in range(2, min(length // 2, 50)):
             if length % period == 0:
-                # Test if columns show patterns
                 columns = [text[i::period] for i in range(period)]
                 column_ic = sum(self._calculate_ic(col) for col in columns) / period
 
-                if column_ic < 0.050:  # Columns are more random = likely columnar
+                if column_ic < 0.050:
                     hints.append(
                         TranspositionHint(
                             method="columnar",
@@ -330,10 +248,7 @@ class QResearchAnalyzer:
                         ),
                     )
 
-        # Rail fence detection (diagonal patterns)
         for rails in range(2, min(length // 3, 10)):
-            # Rail fence creates specific index patterns
-            # This is a heuristic check
             if self._check_rail_fence_pattern(text, rails):
                 hints.append(
                     TranspositionHint(
@@ -347,14 +262,6 @@ class QResearchAnalyzer:
         return hints
 
     def suggest_attack_strategies(self, ciphertext: str) -> dict[str, Any]:
-        """Suggest attack strategies based on analysis.
-
-        Args:
-            ciphertext: Ciphertext to analyze
-
-        Returns:
-            Dictionary of suggested strategies with priorities
-        """
         strategies = {
             "substitution": {"priority": 0.0, "methods": []},
             "transposition": {"priority": 0.0, "methods": []},
@@ -362,40 +269,32 @@ class QResearchAnalyzer:
             "hybrid": {"priority": 0.0, "methods": []},
         }
 
-        # Analyze characteristics
         digraphs = self.analyze_digraphs(ciphertext)
         vigenere = self.vigenere_analysis(ciphertext)
         transposition = self.detect_transposition_hints(ciphertext)
         ic = self._calculate_ic(re.sub(r"[^A-Z]", "", ciphertext.upper()))
 
-        # Simple substitution (IC ≈ 0.067, digraphs preserved)
         if ic > 0.060 and digraphs.deviation_score < 50:
             strategies["substitution"]["priority"] = 0.8
             strategies["substitution"]["methods"] = ["frequency_analysis", "hill_climbing", "genetic"]
 
-        # Polyalphabetic (IC < 0.050, periodic patterns)
         if ic < 0.050 and vigenere.confidence > 0.5:
             strategies["polyalphabetic"]["priority"] = 0.9
             strategies["polyalphabetic"]["methods"] = [f"vigenere_k{k}" for k in vigenere.key_length_candidates[:3]]
 
-        # Transposition (IC ≈ 0.067, disrupted digraphs)
         if ic > 0.060 and digraphs.deviation_score > 50 and transposition:
             strategies["transposition"]["priority"] = 0.7
             strategies["transposition"]["methods"] = [
                 h.method for h in sorted(transposition, key=lambda x: x.confidence, reverse=True)
             ]
 
-        # Hybrid (medium IC, mixed signals)
         if 0.045 < ic < 0.060:
             strategies["hybrid"]["priority"] = 0.6
             strategies["hybrid"]["methods"] = ["vigenere_then_transpose", "transpose_then_substitute"]
 
         return strategies
 
-    # Helper methods
-
     def _kasiski_examination(self, text: str, min_length: int = 3) -> list[int]:
-        """Find repeated sequences and their distances (Kasiski method)."""
         distances = []
 
         for length in range(min_length, min(len(text) // 4, 10)):
@@ -414,7 +313,6 @@ class QResearchAnalyzer:
         return sorted(set(distances))
 
     def _calculate_ic(self, text: str) -> float:
-        """Calculate Index of Coincidence."""
         if len(text) < 2:
             return 0.0
 
@@ -426,7 +324,6 @@ class QResearchAnalyzer:
         return numerator / denominator if denominator > 0 else 0.0
 
     def _calculate_ic_for_key_length(self, text: str, key_length: int) -> float:
-        """Calculate average IC for cosets of a given key length."""
         if key_length > len(text) // 5:
             return 0.0
 
@@ -436,14 +333,12 @@ class QResearchAnalyzer:
         return sum(ic_values) / len(ic_values) if ic_values else 0.0
 
     def _compare_letter_frequencies(self, text: str) -> float:
-        """Compare letter frequencies to English (0.0-1.0)."""
         if not text:
             return 0.0
 
         counts = Counter(text)
         total = len(text)
 
-        # Chi-squared test
         chi_squared = 0.0
         for letter, expected_pct in self.english_frequencies.items():
             observed = counts.get(letter, 0)
@@ -452,43 +347,31 @@ class QResearchAnalyzer:
             if expected > 0:
                 chi_squared += ((observed - expected) ** 2) / expected
 
-        # Convert to 0-1 score (lower chi-squared = better match)
-        # Typical chi-squared for random text ≈ 500-1000
-        # For English text ≈ 20-50
         score = max(0.0, 1.0 - (chi_squared / 500))
 
         return score
 
     def _rank_key_lengths(self, ic_values: dict[int, float], kasiski_distances: list[int]) -> list[int]:
-        """Rank key length candidates by IC and Kasiski evidence."""
         target_ic = 0.067
         scores = {}
 
         for key_len, ic in ic_values.items():
-            # IC score
             ic_score = 1.0 - min(abs(ic - target_ic) / target_ic, 1.0)
 
-            # Kasiski score (does key_len divide common distances?)
             kasiski_score = 0.0
             if kasiski_distances:
                 divisor_count = sum(1 for d in kasiski_distances if d % key_len == 0)
                 kasiski_score = divisor_count / len(kasiski_distances)
 
-            # Combined score
             scores[key_len] = ic_score * 0.7 + kasiski_score * 0.3
 
-        # Sort by score
         ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         return [key_len for key_len, score in ranked[:5]]
 
     def _check_rail_fence_pattern(self, text: str, rails: int) -> bool:
-        """Heuristic check for rail fence pattern."""
-        # Rail fence creates a specific reading order
-        # This is a simplified check
         if len(text) < rails * 3:
             return False
 
-        # Check if there are periodic patterns in IC across positions
         position_ics = []
         for i in range(rails):
             substring = text[i::rails]
@@ -498,15 +381,13 @@ class QResearchAnalyzer:
         if not position_ics:
             return False
 
-        # If position ICs are similar, might be rail fence
         avg_ic = sum(position_ics) / len(position_ics)
         variance = sum((ic - avg_ic) ** 2 for ic in position_ics) / len(position_ics)
 
-        return variance < 0.001  # Low variance = similar ICs
+        return variance < 0.001
 
 
 def demo_q_research():
-    """Demonstrate Q-Research analyzer."""
     print("=" * 80)
     print("Q-RESEARCH ANALYZER DEMO")
     print("=" * 80)
@@ -514,7 +395,6 @@ def demo_q_research():
 
     analyzer = QResearchAnalyzer()
 
-    # Test with K4 (partial for demo)
     k4_sample = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
     print("## DIGRAPH ANALYSIS")

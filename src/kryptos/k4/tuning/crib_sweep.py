@@ -53,10 +53,6 @@ def run_crib_weight_sweep(
 
 
 def summarize_weight_sweep_rows(rows: Iterable[WeightSweepRow]) -> dict[float, dict[str, float]]:
-    """Aggregate mean delta per weight.
-
-    Returns mapping weight -> {mean_delta: float, count: int}.
-    """
     buckets: dict[float, list[float]] = {}
     for r in rows:
         buckets.setdefault(r.weight, []).append(r.delta)
@@ -64,11 +60,9 @@ def summarize_weight_sweep_rows(rows: Iterable[WeightSweepRow]) -> dict[float, d
 
 
 def pick_best_weight_from_rows(rows: Iterable[WeightSweepRow]) -> float:
-    """Pick weight with highest mean delta (ties -> smallest weight for determinism)."""
     summary = summarize_weight_sweep_rows(rows)
     if not summary:
         return 0.0
-    # sorted by (-mean_delta, weight) so we pick highest improvement, then lowest weight
     ranked = sorted(((meta["mean_delta"], w) for w, meta in summary.items()), key=lambda t: (-t[0], t[1]))
     return float(ranked[0][1])
 

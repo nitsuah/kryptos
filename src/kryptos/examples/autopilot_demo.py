@@ -34,18 +34,16 @@ def run_autopilot_demo() -> Path:
         "timestamp": ts,
     }
     (demo_dir / "plan.json").write_text(json.dumps(plan_record, indent=2), encoding="utf-8")
-    # produce an exchange log (jsonl) for realism
     try:
         run_exchange(plan_text=f"{rec}: {just}", autopilot=True)
-    except (RuntimeError, ValueError, OSError) as exc:  # demo resilience
+    except (RuntimeError, ValueError, OSError) as exc:
         log.warning("run_exchange failed (non-fatal for demo): %s", exc)
-    log.info("Autopilot demo complete. Artifacts: %s", demo_dir)
     return demo_dir
 
 
-def _main() -> None:  # pragma: no cover
+def _main() -> None:
     _ = run_autopilot_demo()
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     _main()

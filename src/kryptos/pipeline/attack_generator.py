@@ -26,37 +26,17 @@ from kryptos.research.q_patterns import (
 
 @dataclass
 class AttackSpec:
-    """Specification for a generated attack with metadata."""
-
     parameters: AttackParameters
-    priority: float  # 0.0-1.0, higher = run first
-    source: str  # "q_research", "coverage_gap", "literature"
-    rationale: str  # Why this attack was generated
+    priority: float
+    source: str
+    rationale: str
     tags: list[str]
 
     def fingerprint(self) -> str:
-        """Generate fingerprint for deduplication."""
         return self.parameters.fingerprint()
 
 
 class AttackGenerator:
-    """Generate attack parameters from research insights.
-
-    Integrates with:
-    - QResearchAnalyzer: Convert cryptanalysis hints to parameters
-    - StrategicCoverageAnalyzer: Target uncovered parameter spaces
-    - LiteratureGapAnalyzer: Extract parameters from academic papers
-    - AttackLogger: Deduplicate attacks
-
-    Workflow:
-    1. Analyze ciphertext with Q-Research
-    2. Generate attacks from hints (Vigenère key lengths, transposition periods)
-    3. Check coverage gaps and generate filling attacks
-    4. Deduplicate against AttackLogger
-    5. Prioritize by confidence × coverage gap
-    6. Return sorted attack queue
-    """
-
     def __init__(
         self,
         attack_logger: AttackLogger | None = None,
@@ -75,7 +55,6 @@ class AttackGenerator:
         self.q_analyzer = QResearchAnalyzer()
         self.log = setup_logging(level=log_level, logger_name="kryptos.pipeline.attack_generator")
 
-        # Generation statistics
         self.stats = {
             "generated": 0,
             "duplicates_filtered": 0,
@@ -101,21 +80,17 @@ class AttackGenerator:
 
         attacks = []
 
-        # 1. Vigenère analysis
         vigenere_metrics = self.q_analyzer.vigenere_analysis(ciphertext)
         if vigenere_metrics.confidence > 0.3:
             attacks.extend(self._vigenere_hints_to_attacks(vigenere_metrics, ciphertext))
 
-        # 2. Transposition hints
         transposition_hints = self.q_analyzer.detect_transposition_hints(ciphertext)
         if transposition_hints:
             attacks.extend(self._transposition_hints_to_attacks(transposition_hints, ciphertext))
 
-        # 3. Strategy suggestions
         strategies = self.q_analyzer.suggest_attack_strategies(ciphertext)
         attacks.extend(self._strategies_to_attacks(strategies, ciphertext))
 
-        # Deduplicate and prioritize
         attacks = self._deduplicate_attacks(attacks)
         attacks = sorted(attacks, key=lambda x: x.priority, reverse=True)
 
@@ -145,10 +120,8 @@ class AttackGenerator:
 
         attacks = []
 
-        # Get coverage report
         report = self.coverage_analyzer.tracker.get_coverage_report(cipher_type)
 
-        # Check if we have coverage data
         cipher_data = report.get("cipher_types", {}).get(cipher_type)
 
         if not cipher_data:
@@ -157,11 +130,9 @@ class AttackGenerator:
             self.stats["from_coverage_gaps"] += len(seed_attacks)
             return seed_attacks
 
-        # Find under-covered regions
         regions = cipher_data.get("regions", [])
 
         if not regions:
-            # No regions tracked yet, generate seeds
             self.log.warning(f"No regions tracked for {cipher_type}, generating seed attacks")
             seed_attacks = self._generate_seed_attacks(cipher_type, ciphertext, max_attacks)
             self.stats["from_coverage_gaps"] += len(seed_attacks)
@@ -171,7 +142,6 @@ class AttackGenerator:
             region_key = region_data.get("region", "")
 
             if coverage < target_coverage * 100:
-                # Generate attacks for this gap
                 gap_attacks = self._generate_gap_filling_attacks(
                     cipher_type=cipher_type,
                     region_key=region_key,
@@ -181,7 +151,6 @@ class AttackGenerator:
                 )
                 attacks.extend(gap_attacks)
 
-        # Deduplicate
         attacks = self._deduplicate_attacks(attacks)
         attacks = sorted(attacks, key=lambda x: x.priority, reverse=True)
 
@@ -210,11 +179,9 @@ class AttackGenerator:
         attacks = []
 
         for rec in paper_recommendations:
-            # Extract attack parameters from paper recommendation
             lit_attacks = self._literature_to_attacks(rec, ciphertext)
             attacks.extend(lit_attacks)
 
-        # Deduplicate and prioritize
         attacks = self._deduplicate_attacks(attacks)
         attacks = sorted(attacks, key=lambda x: x.priority, reverse=True)
 
@@ -244,11 +211,9 @@ class AttackGenerator:
 
         all_attacks = []
 
-        # 1. Q-Research hints (highest priority)
         q_attacks = self.generate_from_q_hints(ciphertext, max_attacks=50)
         all_attacks.extend(q_attacks)
 
-        # 2. Coverage gaps
         for cipher_type in cipher_types:
             gap_attacks = self.generate_from_coverage_gaps(
                 cipher_type=cipher_type,
@@ -258,19 +223,12 @@ class AttackGenerator:
             )
             all_attacks.extend(gap_attacks)
 
-        # 3. Literature recommendations (if available)
-        # This would be integrated when LiteratureGapAnalyzer results are available
-        # For now, we'll leave this as a placeholder
-
-        # Final deduplication and prioritization
         all_attacks = self._deduplicate_attacks(all_attacks)
         all_attacks = sorted(all_attacks, key=lambda x: x.priority, reverse=True)
 
         self.stats["generated"] = len(all_attacks)
 
         return all_attacks[:max_total]
-
-    # ===== CONVERSION HELPERS =====
 
     def _vigenere_hints_to_attacks(
         self,
@@ -280,8 +238,7 @@ class AttackGenerator:
         """Convert Vigenère metrics to attack specifications."""
         attacks = []
 
-        for key_length in metrics.key_length_candidates[:5]:  # Top 5 candidates
-            # Priority based on IC and confidence
+        for key_length in metrics.key_length_candidates[:5]:
             ic_value = metrics.ic_values.get(key_length, 0.0)
             priority = metrics.confidence * 0.6 + min(ic_value / 0.067, 1.0) * 0.4
 
@@ -311,7 +268,7 @@ class AttackGenerator:
         """Convert transposition hints to attack specifications."""
         attacks = []
 
-        for hint in hints[:10]:  # Top 10 hints
+        for hint in hints[:10]:
             params = AttackParameters(
                 cipher_type="transposition",
                 key_or_params={"method": hint.method, "period": hint.period},
@@ -321,7 +278,7 @@ class AttackGenerator:
             attacks.append(
                 AttackSpec(
                     parameters=params,
-                    priority=hint.confidence * 0.9,  # Slightly lower than Vigenère
+                    priority=hint.confidence * 0.9,
                     source="q_research",
                     rationale=f"Transposition {hint.method} period {hint.period}: {hint.evidence}",
                     tags=["transposition", "q_hint", hint.method],
@@ -341,17 +298,15 @@ class AttackGenerator:
         for category, details in strategies.items():
             priority = details.get("priority", 0.0)
 
-            if priority < 0.3:  # Skip low-priority strategies
+            if priority < 0.3:
                 continue
 
             methods = details.get("methods", [])
 
-            for method in methods[:3]:  # Top 3 methods per category
-                # Parse method string (e.g., "vigenere_k5" -> key_length=5)
+            for method in methods[:3]:
                 params = self._parse_strategy_method(category, method, ciphertext)
 
                 if params:
-                    # Determine primary cipher tag
                     cipher_tag = params.cipher_type
                     tags = [category, "strategy", method]
                     if cipher_tag not in tags:
@@ -360,7 +315,7 @@ class AttackGenerator:
                     attacks.append(
                         AttackSpec(
                             parameters=params,
-                            priority=priority * 0.8,  # Slightly lower than specific hints
+                            priority=priority * 0.8,
                             source="q_research",
                             rationale=f"Strategy suggestion: {category}/{method}",
                             tags=tags,
@@ -377,7 +332,6 @@ class AttackGenerator:
     ) -> AttackParameters | None:
         """Parse strategy method string into AttackParameters."""
         if category == "polyalphabetic" and method.startswith("vigenere_k"):
-            # Extract key length
             try:
                 key_length = int(method.split("_k")[1])
                 return AttackParameters(
@@ -396,11 +350,10 @@ class AttackGenerator:
         elif category == "transposition":
             return AttackParameters(
                 cipher_type="transposition",
-                key_or_params={"method": method, "period": 0},  # Period will be guessed
+                key_or_params={"method": method, "period": 0},
             )
 
         elif category == "hybrid":
-            # Parse hybrid methods like "vigenere_then_transpose"
             parts = method.split("_then_")
             if len(parts) == 2:
                 return AttackParameters(
@@ -421,19 +374,14 @@ class AttackGenerator:
         """Generate attacks to fill coverage gap in a specific region."""
         attacks = []
 
-        # Parse region key to extract parameter ranges
-        # Region keys are like "key_length_5-10" or "period_8-16"
         params = self._parse_region_key(region_key)
 
         if not params:
             return attacks
 
-        # Generate attacks across the parameter range
-        # Priority inversely proportional to current coverage
         gap_priority = (100.0 - current_coverage) / 100.0
 
         if cipher_type == "vigenere":
-            # Generate Vigenère attacks for key lengths in range
             key_min = params.get("key_min", 2)
             key_max = params.get("key_max", 20)
 
@@ -446,7 +394,7 @@ class AttackGenerator:
                 attacks.append(
                     AttackSpec(
                         parameters=attack_params,
-                        priority=gap_priority * 0.7,  # Lower than Q-hints
+                        priority=gap_priority * 0.7,
                         source="coverage_gap",
                         rationale=f"Fill coverage gap in {region_key} (current: {current_coverage:.1f}%)",
                         tags=["vigenere", "gap_filling", region_key],
@@ -454,7 +402,6 @@ class AttackGenerator:
                 )
 
         elif cipher_type == "transposition":
-            # Generate transposition attacks for periods in range
             period_min = params.get("period_min", 2)
             period_max = params.get("period_max", 50)
 
@@ -477,11 +424,6 @@ class AttackGenerator:
         return attacks
 
     def _parse_region_key(self, region_key: str) -> dict[str, Any]:
-        """Parse region key into parameter dictionary."""
-        # Example region keys:
-        # "key_length_5-10" -> {"key_min": 5, "key_max": 10}
-        # "period_8-16" -> {"period_min": 8, "period_max": 16}
-
         parts = region_key.split("_")
 
         if len(parts) < 2:
@@ -515,7 +457,6 @@ class AttackGenerator:
         attacks = []
 
         if cipher_type == "vigenere":
-            # Standard Vigenère key lengths (2-20)
             for key_length in range(2, min(21, max_attacks + 2)):
                 params = AttackParameters(
                     cipher_type="vigenere",
@@ -525,7 +466,7 @@ class AttackGenerator:
                 attacks.append(
                     AttackSpec(
                         parameters=params,
-                        priority=0.5,  # Medium priority for seeds
+                        priority=0.5,
                         source="coverage_gap",
                         rationale=f"Seed attack: Vigenère key length {key_length}",
                         tags=["vigenere", "seed"],
@@ -533,7 +474,6 @@ class AttackGenerator:
                 )
 
         elif cipher_type == "transposition":
-            # Common transposition periods
             for period in range(2, min(51, max_attacks + 2)):
                 params = AttackParameters(
                     cipher_type="transposition",
@@ -560,10 +500,6 @@ class AttackGenerator:
         """Convert literature recommendation to attack specifications."""
         attacks = []
 
-        # Extract parameters from literature recommendation
-        # This would integrate with LiteratureGapAnalyzer output format
-        # For now, placeholder implementation
-
         cipher_type = recommendation.get("cipher_type", "unknown")
         params_dict = recommendation.get("parameters", {})
         confidence = recommendation.get("confidence", 0.5)
@@ -581,7 +517,7 @@ class AttackGenerator:
         attacks.append(
             AttackSpec(
                 parameters=params,
-                priority=confidence * 0.85,  # High priority for literature
+                priority=confidence * 0.85,
                 source="literature",
                 rationale=f"From paper: {paper_title}",
                 tags=["literature", cipher_type, "paper"],
@@ -590,38 +526,27 @@ class AttackGenerator:
 
         return attacks
 
-    # ===== DEDUPLICATION =====
-
     def _deduplicate_attacks(self, attacks: list[AttackSpec]) -> list[AttackSpec]:
-        """Deduplicate attacks using fingerprints and AttackLogger."""
         unique_attacks = []
         seen_fingerprints = set()
 
         for attack in attacks:
             fingerprint = attack.fingerprint()
 
-            # Check if we've already seen this in the current batch
             if fingerprint in seen_fingerprints:
                 self.stats["duplicates_filtered"] += 1
                 continue
 
-            # Check if it's been executed before (via AttackLogger)
             if self.attack_logger.is_duplicate(attack.parameters):
                 self.stats["duplicates_filtered"] += 1
                 continue
 
-            # New attack
             seen_fingerprints.add(fingerprint)
             unique_attacks.append(attack)
 
         return unique_attacks
 
     def get_statistics(self) -> dict[str, Any]:
-        """Get generation statistics.
-
-        Returns:
-            Dictionary with generation stats
-        """
         return {
             **self.stats,
             "deduplication_rate": (
@@ -632,12 +557,6 @@ class AttackGenerator:
         }
 
     def export_queue(self, attacks: list[AttackSpec], output_path: Path) -> None:
-        """Export attack queue to JSON for review/audit.
-
-        Args:
-            attacks: Attack specifications to export
-            output_path: Path to output file
-        """
         output_data = {
             "generated_at": str(Path(__file__).parent),
             "total_attacks": len(attacks),

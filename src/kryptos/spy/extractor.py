@@ -17,7 +17,6 @@ from pathlib import Path
 
 from kryptos.paths import get_repo_root
 
-# Centralized repo root via paths helper (removes fragile parents[3] ascent)
 REPO = get_repo_root()
 ARTIFACTS_DIR = REPO / 'artifacts'
 LEARNED = ARTIFACTS_DIR / 'spy_extractions' / 'LEARNED.md'
@@ -77,15 +76,12 @@ def scan_run(run_dir: Path, cribs: set[str]) -> list[SpyMatch]:
                 if delta <= 0:
                     continue
                 text = sample.upper()
-                # Extract all uppercase 3+ letter tokens (quoted handling simplified for robustness)
                 tokens_to_check = re.findall(r'[A-Z]{3,}', text)
                 matches = [t for t in tokens_to_check if t in cribs and t not in seen_tokens]
                 if matches:
                     for t in matches:
                         seen_tokens.add(t)
-                    # confidence computed later once we know max delta
                     results.append(SpyMatch(csvf.name, tuple(matches), delta, 0.0))
-    # second pass to assign confidence relative to max delta
     max_delta = max((m.delta for m in results), default=0.0)
     for m in results:
         m.confidence = 0.0 if max_delta <= 0 else float(m.delta) / float(max_delta)
@@ -102,7 +98,6 @@ def append_learned(note: str) -> str:
 
 
 def extract(min_conf: float = 0.0, cribs_path: Path = CRIBS_DEFAULT, run_dir: Path | None = None) -> list[SpyMatch]:
-    """Extract SPY matches for a given run directory (or latest if None)."""
     cribs = load_cribs(cribs_path)
     run = run_dir if run_dir is not None else find_latest_run()
     if run is None:

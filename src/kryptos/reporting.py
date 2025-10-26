@@ -13,26 +13,18 @@ from pathlib import Path
 import matplotlib
 import matplotlib.pyplot as plt
 
-matplotlib.use("Agg")  # non-GUI backend
+matplotlib.use("Agg")
 
 
 def generate_report(results: Mapping[str, dict], cipher_name: str, out_dir: str | os.PathLike[str] = "reports") -> Path:
-    """Generate frequency plot and crib summary.
-
-    results: expects keys 'frequencies' (mapping key->freq mapping) and 'cribs' (mapping key->list of cribs).
-    Returns path to generated PNG.
-    """
     freqs_map: Mapping[str, Mapping[str, float]] = results.get("frequencies", {})  # type: ignore
     cribs_map: Mapping[str, Sequence[str]] = results.get("cribs", {})  # type: ignore
     out_path = Path(out_dir)
     out_path.mkdir(parents=True, exist_ok=True)
     png_path = out_path / f"{cipher_name}_report.png"
 
-    # Aggregate frequencies across keys (simple average if multiple keys)
     if freqs_map:
-        # Flatten character set
         all_chars = sorted({c for fm in freqs_map.values() for c in fm.keys()})
-        # Compute averaged frequencies
         avg_vals: list[float] = []
         for ch in all_chars:
             vals = [fm.get(ch, 0.0) for fm in freqs_map.values()]
@@ -46,7 +38,6 @@ def generate_report(results: Mapping[str, dict], cipher_name: str, out_dir: str 
         plt.savefig(png_path)
         plt.close()
 
-    # Write crib summary
     summary_path = out_path / f"{cipher_name}_summary.txt"
     with summary_path.open("w", encoding="utf-8") as fh:
         for key, cribs in cribs_map.items():

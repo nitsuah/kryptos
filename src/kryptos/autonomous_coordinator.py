@@ -63,34 +63,27 @@ from kryptos.paths import get_artifacts_root, get_logs_dir
 
 
 class MessageType(Enum):
-    """Types of coordination messages."""
+    INSIGHT = "insight"
+    ALERT = "alert"
+    STATUS = "status"
+    REQUEST = "request"
 
-    # Agent → Coordinator
-    INSIGHT = "insight"  # Agent discovered something interesting
-    ALERT = "alert"  # Urgent finding requiring attention
-    STATUS = "status"  # Routine status update
-    REQUEST = "request"  # Agent needs something
-
-    # Coordinator → Agent
-    DIRECTIVE = "directive"  # Coordinator instructs agent
-    QUERY = "query"  # Coordinator asks for information
-    CONFIG = "config"  # Configuration update
+    DIRECTIVE = "directive"
+    QUERY = "query"
+    CONFIG = "config"
 
 
 @dataclass
 class CoordinationMessage:
-    """Message passed between coordinator and agents."""
-
     msg_type: MessageType
-    source: str  # Agent name or 'COORDINATOR'
-    target: str  # Agent name or 'COORDINATOR'
+    source: str
+    target: str
     timestamp: datetime
-    priority: int  # 1-10, 10 = highest
+    priority: int
     content: dict[str, Any]
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        """Serialize message to dictionary."""
         return {
             "msg_type": self.msg_type.value,
             "source": self.source,
@@ -103,7 +96,6 @@ class CoordinationMessage:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> CoordinationMessage:
-        """Deserialize message from dictionary."""
         return cls(
             msg_type=MessageType(data["msg_type"]),
             source=data["source"],
@@ -117,8 +109,6 @@ class CoordinationMessage:
 
 @dataclass
 class AutonomousState:
-    """Persistent state for autonomous operation."""
-
     session_start: datetime
     total_runtime_hours: float
     coordination_cycles: int
@@ -133,7 +123,6 @@ class AutonomousState:
     checkpoints: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
-        """Serialize state to dictionary."""
         return {
             "session_start": self.session_start.isoformat(),
             "total_runtime_hours": self.total_runtime_hours,
@@ -174,7 +163,6 @@ class AutonomousState:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> AutonomousState:
-        """Deserialize state from dictionary."""
         return cls(
             session_start=datetime.fromisoformat(data["session_start"]),
             total_runtime_hours=data["total_runtime_hours"],
@@ -219,21 +207,6 @@ class AutonomousState:
 
 
 class AutonomousCoordinator:
-    """Main coordinator for autonomous K4 cryptanalysis.
-
-    Orchestrates multiple agents, executes strategic decisions, tracks progress,
-    and enables 24/7 operation without human intervention.
-
-    Key Features:
-    - Load K123 patterns to guide attacks
-    - Run OPS strategic analysis periodically
-    - Collect web intelligence for new cribs
-    - Validate candidates with SPY v2.0
-    - Execute autopilot loops for attack execution
-    - Persist state across sessions
-    - Generate progress reports
-    """
-
     def __init__(
         self,
         state_path: Path | None = None,
@@ -252,17 +225,14 @@ class AutonomousCoordinator:
         self.ops_cycle_minutes = ops_cycle_minutes
         self.web_intel_check_hours = web_intel_check_hours
 
-        # Initialize agents
         self.ops_director = OpsStrategicDirector()
         self.spy_nlp = SpyNLP()
         self.web_intel = SpyWebIntel()
         self.k123_analyzer = K123Analyzer()
 
-        # Message queues
         self.inbox: list[CoordinationMessage] = []
         self.outbox: list[CoordinationMessage] = []
 
-        # Load or initialize state
         self.state = self._load_state()
 
         self.logger.info("Autonomous coordinator initialized")
@@ -270,7 +240,6 @@ class AutonomousCoordinator:
         self.logger.info(f"Web intel check: every {web_intel_check_hours} hours")
 
     def _load_state(self) -> AutonomousState:
-        """Load state from disk or create new."""
         if self.state_path.exists():
             try:
                 data = json.loads(self.state_path.read_text(encoding="utf-8"))
@@ -279,7 +248,6 @@ class AutonomousCoordinator:
             except (json.JSONDecodeError, ValueError, KeyError) as exc:
                 self.logger.warning(f"Failed to load state: {exc}, starting fresh")
 
-        # Create new state
         return AutonomousState(
             session_start=datetime.now(),
             total_runtime_hours=0.0,
@@ -295,7 +263,6 @@ class AutonomousCoordinator:
         )
 
     def _save_state(self) -> None:
-        """Persist state to disk."""
         try:
             self.state_path.parent.mkdir(parents=True, exist_ok=True)
             self.state_path.write_text(
@@ -335,14 +302,11 @@ class AutonomousCoordinator:
             "metadata": metadata or {},
         }
 
-        # Add to state checkpoints
         self.state.checkpoints.append(checkpoint)
 
-        # Keep only last 50 checkpoints to prevent bloat
         if len(self.state.checkpoints) > 50:
             self.state.checkpoints = self.state.checkpoints[-50:]
 
-        # Save tested keys to separate file if provided (can be huge)
         if tested_keys:
             self._save_tested_keys(attack_type, tested_keys)
 
@@ -353,35 +317,23 @@ class AutonomousCoordinator:
         )
 
     def _save_tested_keys(self, attack_type: str, tested_keys: list[str]) -> None:
-        """Save tested keys to separate file to keep state file small."""
         keys_dir = self.state_path.parent / "tested_keys"
         keys_dir.mkdir(parents=True, exist_ok=True)
 
         keys_file = keys_dir / f"{attack_type}_tested_keys.json"
         try:
-            # Load existing keys if file exists
             existing_keys = set()
             if keys_file.exists():
                 existing_keys = set(json.loads(keys_file.read_text(encoding="utf-8")))
 
-            # Add new keys
             all_keys = existing_keys.union(set(tested_keys))
 
-            # Save back
             keys_file.write_text(json.dumps(list(all_keys), indent=2), encoding="utf-8")
             self.logger.debug(f"Saved {len(all_keys)} tested keys for {attack_type}")
         except (OSError, ValueError) as exc:
             self.logger.error(f"Failed to save tested keys: {exc}")
 
     def load_tested_keys(self, attack_type: str) -> set[str]:
-        """Load previously tested keys for an attack.
-
-        Args:
-            attack_type: Type of attack
-
-        Returns:
-            Set of tested keys (empty if none found)
-        """
         keys_file = self.state_path.parent / "tested_keys" / f"{attack_type}_tested_keys.json"
         if not keys_file.exists():
             return set()
@@ -395,15 +347,6 @@ class AutonomousCoordinator:
             return set()
 
     def get_latest_checkpoint(self, attack_type: str) -> dict[str, Any] | None:
-        """Get the most recent checkpoint for an attack type.
-
-        Args:
-            attack_type: Type of attack
-
-        Returns:
-            Checkpoint dict or None if no checkpoint found
-        """
-        # Find most recent checkpoint for this attack type
         matching_checkpoints = [cp for cp in reversed(self.state.checkpoints) if cp["attack_type"] == attack_type]
 
         if not matching_checkpoints:
@@ -418,7 +361,6 @@ class AutonomousCoordinator:
         return checkpoint
 
     def _load_k123_patterns(self) -> None:
-        """Load K123 pattern analysis to inform attack strategy."""
         if self.state.k123_patterns_loaded:
             self.logger.debug("K123 patterns already loaded")
             return
@@ -426,15 +368,12 @@ class AutonomousCoordinator:
         self.logger.info("Loading K123 patterns...")
         patterns = self.k123_analyzer.analyze_all()
 
-        # Extract actionable cribs from patterns
         cribs = []
         for pattern in patterns:
             if pattern.category == "THEME" and pattern.confidence >= 0.85:
-                # Extract words from evidence (evidence is list)
                 words = [w.strip() for item in pattern.evidence for w in str(item).split() if w.strip()]
-                cribs.extend(words[:10])  # Top 10 words per theme
+                cribs.extend(words[:10])
 
-        # Send insight to OPS
         insight = AgentInsight(
             agent_name="K123_ANALYZER",
             timestamp=datetime.now(),
@@ -451,7 +390,6 @@ class AutonomousCoordinator:
         self.logger.info(f"K123 patterns loaded: {len(patterns)} patterns, {len(cribs)} cribs")
 
     def _check_web_intelligence(self) -> None:
-        """Check for new web intelligence (cribs, Sanborn interviews, etc)."""
         now = datetime.now()
         if self.state.web_intel_last_check:
             hours_since = (now - self.state.web_intel_last_check).total_seconds() / 3600
@@ -463,7 +401,6 @@ class AutonomousCoordinator:
             intel_items = self.web_intel.gather_intelligence(max_sources=3, max_age_days=30)
 
             if intel_items:
-                # Send insight to OPS
                 top_cribs = self.web_intel.get_top_cribs(n=5)
                 insight = AgentInsight(
                     agent_name="WEB_INTEL",
@@ -485,7 +422,6 @@ class AutonomousCoordinator:
         self.state.web_intel_last_check = now
 
     def _run_ops_strategic_analysis(self) -> None:
-        """Run OPS strategic analysis and execute decisions."""
         now = datetime.now()
         if self.state.last_ops_decision:
             minutes_since = (now - self.state.last_ops_decision).total_seconds() / 60
@@ -494,8 +430,6 @@ class AutonomousCoordinator:
 
         self.logger.info("Running OPS strategic analysis...")
 
-        # Update attack progress (placeholder - would read from actual attack runs)
-        # For now, simulate progress
         if "vigenere_northeast" not in self.state.active_attacks:
             self.state.active_attacks["vigenere_northeast"] = AttackProgress(
                 attack_type="vigenere_northeast",
@@ -511,10 +445,8 @@ class AutonomousCoordinator:
         for _attack_name, progress in self.state.active_attacks.items():
             self.ops_director.update_attack_progress(progress)
 
-        # Get strategic decision
         decision = self.ops_director.analyze_situation()
 
-        # Log decision
         decision_dict = {
             "timestamp": decision.timestamp.isoformat(),
             "action": decision.action.value,
@@ -531,47 +463,32 @@ class AutonomousCoordinator:
         self.logger.info(f"   Reasoning: {decision.reasoning}")
         self.logger.info(f"   Confidence: {decision.confidence:.2f}")
 
-        # Execute decision
         self._execute_strategic_decision(decision.action, decision_dict)
 
     def _execute_strategic_decision(self, action: StrategyAction, decision: dict[str, Any]) -> None:
-        """Execute a strategic decision from OPS.
-
-        Args:
-            action: The strategy action to execute
-            decision: Full decision dictionary with details
-        """
         if action == StrategyAction.CONTINUE:
             self.logger.info("✅ Continuing current approach")
-            # Let autopilot continue running
 
         elif action == StrategyAction.PIVOT:
             self.logger.info("🔄 Pivoting to new approach")
-            # Trigger autopilot with new plan
             plan = f"OPS recommends PIVOT: {decision['reasoning']}"
             run_exchange(plan_text=plan, autopilot=True)
 
         elif action == StrategyAction.BOOST:
             self.logger.info("⚡ Boosting current attack")
-            # Increase resources (placeholder - would adjust CPU allocation)
 
         elif action == StrategyAction.STOP:
             self.logger.info("⛔ Stopping unproductive attack")
-            # Stop attack (placeholder - would kill process)
 
         elif action == StrategyAction.START_NEW:
             self.logger.info("🚀 Starting new attack type")
-            # Start new attack (placeholder - would launch new process)
 
         elif action == StrategyAction.EMERGENCY_STOP:
             self.logger.warning("🚨 EMERGENCY STOP - Human intervention needed")
-            # Alert and pause (placeholder - would send notification)
 
     def _generate_progress_report(self) -> str:
-        """Generate human-readable progress report."""
         report = self.ops_director.generate_daily_report()
 
-        # Add coordination-specific stats
         runtime_hours = (datetime.now() - self.state.session_start).total_seconds() / 3600
         report += "\n## Coordination Statistics\n\n"
         report += f"- Session runtime: {runtime_hours:.2f} hours\n"
@@ -584,32 +501,25 @@ class AutonomousCoordinator:
         return report
 
     def _coordination_cycle(self) -> None:
-        """Run one coordination cycle."""
         cycle_start = datetime.now()
 
-        # 1. Load K123 patterns if not already loaded
         if not self.state.k123_patterns_loaded:
             self._load_k123_patterns()
 
-        # 2. Check web intelligence periodically
         self._check_web_intelligence()
 
-        # 3. Run OPS strategic analysis
         self._run_ops_strategic_analysis()
 
-        # 4. Run autopilot exchange
         self.logger.info("Running autopilot exchange...")
         try:
             run_exchange(autopilot=True)
         except Exception as exc:
             self.logger.error(f"Autopilot exchange failed: {exc}")
 
-        # 5. Update state
         self.state.coordination_cycles += 1
         cycle_duration = (datetime.now() - cycle_start).total_seconds() / 3600
         self.state.total_runtime_hours += cycle_duration
 
-        # 6. Create checkpoint every 10 cycles
         if self.state.coordination_cycles % 10 == 0:
             for attack_name, attack_progress in self.state.active_attacks.items():
                 self.create_checkpoint(
@@ -623,7 +533,6 @@ class AutonomousCoordinator:
                     metadata={"cycle": self.state.coordination_cycles},
                 )
 
-        # 7. Save state
         self._save_state()
 
         self.logger.info(
@@ -652,7 +561,6 @@ class AutonomousCoordinator:
 
         try:
             while True:
-                # Check termination conditions
                 runtime_hours = (datetime.now() - start_time).total_seconds() / 3600
                 if max_hours and runtime_hours >= max_hours:
                     self.logger.info(f"⏰ Max runtime reached ({runtime_hours:.2f} hours)")
@@ -661,16 +569,13 @@ class AutonomousCoordinator:
                     self.logger.info(f"🔄 Max cycles reached ({self.state.coordination_cycles})")
                     break
 
-                # Run coordination cycle
                 self._coordination_cycle()
 
-                # Generate and save progress report
                 report = self._generate_progress_report()
                 report_path = get_logs_dir() / f"progress_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
                 report_path.write_text(report, encoding="utf-8")
                 self.logger.info(f"📊 Progress report: {report_path}")
 
-                # Sleep until next cycle
                 self.logger.info(f"💤 Sleeping {cycle_interval_minutes} minutes until next cycle")
                 time.sleep(cycle_interval_minutes * 60)
 
@@ -679,7 +584,6 @@ class AutonomousCoordinator:
         except Exception as exc:
             self.logger.exception(f"❌ Fatal error in coordination loop: {exc}")
         finally:
-            # Final state save
             self._save_state()
             runtime_hours = (datetime.now() - start_time).total_seconds() / 3600
             self.logger.info(
@@ -689,13 +593,11 @@ class AutonomousCoordinator:
 
 
 def main() -> None:
-    """Demo/test autonomous coordination."""
     coordinator = AutonomousCoordinator(
-        ops_cycle_minutes=15,  # OPS analysis every 15 minutes for demo
-        web_intel_check_hours=1,  # Web intel check every hour for demo
+        ops_cycle_minutes=15,
+        web_intel_check_hours=1,
     )
 
-    # Run for 1 hour with 5-minute cycles (12 cycles total)
     coordinator.run_autonomous_loop(
         max_hours=1.0,
         cycle_interval_minutes=5,

@@ -18,15 +18,7 @@ from kryptos.provenance.attack_log import AttackLogger, AttackParameters, Attack
 
 
 class AttackExecutor:
-    """Executes attacks with automatic provenance logging."""
-
     def __init__(self, logger: AttackLogger | None = None, log_dir: Path | None = None):
-        """Initialize attack executor.
-
-        Args:
-            logger: Existing AttackLogger instance, or None to create new one
-            log_dir: Directory for logs (if creating new logger)
-        """
         self.logger = logger or AttackLogger(log_dir=log_dir)
 
     def vigenere_attack(
@@ -62,18 +54,16 @@ class AttackExecutor:
             plaintext = vigenere_decrypt(ciphertext, key)
             execution_time = time.time() - start_time
 
-            # Basic success check: does it contain the crib?
             success = False
             if crib_text and plaintext:
                 success = crib_text.upper() in plaintext.upper()
             else:
-                # No crib - consider it tentative success if we got output
                 success = bool(plaintext)
 
             result = AttackResult(
                 success=success,
                 plaintext_candidate=plaintext,
-                confidence_scores={},  # Will be filled by validation agents
+                confidence_scores={},
                 execution_time_seconds=execution_time,
                 metadata={"method": "vigenere_decrypt"},
             )
@@ -88,7 +78,6 @@ class AttackExecutor:
             )
             plaintext = ""
 
-        # Log the attack
         attack_id, is_duplicate = self.logger.log_attack(
             ciphertext=ciphertext,
             parameters=params,
@@ -96,7 +85,6 @@ class AttackExecutor:
             tags=tags or [],
         )
 
-        # Get the logged record
         fingerprint = params.fingerprint()
         record = self.logger.attack_index[fingerprint]
 
@@ -147,13 +135,11 @@ class AttackExecutor:
 
             execution_time = time.time() - start_time
 
-            # Decrypt to get plaintext candidate
             from kryptos.k4.transposition_analysis import apply_columnar_permutation_reverse
 
             plaintext = apply_columnar_permutation_reverse(ciphertext, period, permutation)
 
-            # Success check: high score and/or crib match
-            success = score > 0.15  # Reasonable English text threshold
+            success = score > 0.15
             if crib_text and plaintext:
                 if crib_text.upper() in plaintext.upper():
                     success = True
@@ -181,7 +167,6 @@ class AttackExecutor:
             permutation = list(range(period))
             score = 0.0
 
-        # Log the attack
         attack_id, is_duplicate = self.logger.log_attack(
             ciphertext=ciphertext,
             parameters=params,
@@ -189,7 +174,6 @@ class AttackExecutor:
             tags=tags or [],
         )
 
-        # Get the logged record
         fingerprint = params.fingerprint()
         record = self.logger.attack_index[fingerprint]
 
@@ -227,14 +211,12 @@ class AttackExecutor:
         start_time = time.time()
 
         try:
-            # Import Hill cipher function
             from kryptos.k4.hill_cipher import hill_decrypt
 
             plaintext_result = hill_decrypt(ciphertext, key_matrix)
             plaintext = plaintext_result if plaintext_result is not None else ""
             execution_time = time.time() - start_time
 
-            # Success check
             success = False
             if crib_text and plaintext:
                 success = crib_text.upper() in plaintext.upper()
@@ -259,7 +241,6 @@ class AttackExecutor:
             )
             plaintext = ""
 
-        # Log the attack
         attack_id, is_duplicate = self.logger.log_attack(
             ciphertext=ciphertext,
             parameters=params,
@@ -267,29 +248,15 @@ class AttackExecutor:
             tags=tags or [],
         )
 
-        # Get the logged record
         fingerprint = params.fingerprint()
         record = self.logger.attack_index[fingerprint]
 
         return plaintext, record
 
     def get_statistics(self) -> dict[str, Any]:
-        """Get attack statistics from logger.
-
-        Returns:
-            Dictionary with attack counts, success rates, etc.
-        """
         return self.logger.get_statistics()
 
     def query_attacks(self, **kwargs: Any) -> list[AttackRecord]:
-        """Query attack records.
-
-        Args:
-            **kwargs: Filter parameters (cipher_type, success_only, etc.)
-
-        Returns:
-            List of matching attack records
-        """
         return self.logger.query_attacks(**kwargs)
 
 

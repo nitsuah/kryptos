@@ -14,7 +14,6 @@ from typing import Any
 
 from kryptos.paths import get_artifacts_root
 
-# K4 ciphertext
 K4_CIPHERTEXT = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
 
 
@@ -44,7 +43,6 @@ def run_hypothesis_search(
     print(f"Length: {len(ciphertext)} chars")
     print()
 
-    # Run search
     print(f"Running {hypothesis_name} search...")
     start = time.time()
     candidates = hypothesis_instance.generate_candidates(ciphertext, limit=limit)
@@ -53,7 +51,6 @@ def run_hypothesis_search(
     print(f"Generated {len(candidates)} candidates in {elapsed:.3f}s")
     print()
 
-    # Display top 10
     print("Top 10 candidates:")
     print("-" * 80)
     for i, c in enumerate(candidates[:10], 1):
@@ -64,7 +61,6 @@ def run_hypothesis_search(
             print(f"    Key: {key_display}")
         print()
 
-    # Load random baseline for statistical analysis
     baseline_dir = get_artifacts_root() / "baselines"
     baseline_files = sorted(baseline_dir.glob("random_scoring_*.json"))
 
@@ -99,7 +95,6 @@ def run_hypothesis_search(
             print("  Not significantly better than random.")
         print()
 
-    # Save results
     if output_dir:
         artifacts_dir = Path(output_dir)
     else:
@@ -128,7 +123,6 @@ def run_hypothesis_search(
         ],
     }
 
-    # Add hypothesis-specific params if available
     if hasattr(hypothesis_instance, '__dict__'):
         results['parameters'] = {
             k: v
@@ -142,7 +136,6 @@ def run_hypothesis_search(
     print(f"Results saved to: {output_file}")
     print()
 
-    # Summary
     print("=" * 80)
     print("SUMMARY")
     print("=" * 80)

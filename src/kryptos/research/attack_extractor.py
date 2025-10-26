@@ -18,20 +18,17 @@ from .paper_search import Paper
 
 @dataclass
 class ExtractedAttack:
-    """Attack parameters extracted from academic paper."""
-
     cipher_type: str
-    attack_method: str  # "frequency analysis", "crib dragging", etc
+    attack_method: str
     key_parameters: dict[str, Any] = field(default_factory=dict)
     crib_text: str | None = None
     crib_position: int | None = None
-    success_rate: float | None = None  # If reported
-    computational_cost: str | None = None  # e.g., "O(n^2)", "10^6 ops"
-    source_paper: str | None = None  # Paper ID
-    confidence: float = 0.0  # How confident extraction is (0-1)
+    success_rate: float | None = None
+    computational_cost: str | None = None
+    source_paper: str | None = None
+    confidence: float = 0.0
 
     def to_attack_parameters(self) -> dict[str, Any]:
-        """Convert to AttackParameters format for provenance logging."""
         return {
             "cipher_type": self.cipher_type,
             "key_or_params": self.key_parameters,
@@ -45,11 +42,7 @@ class ExtractedAttack:
 
 
 class AttackExtractor:
-    """Extract attack parameters from academic papers."""
-
     def __init__(self):
-        """Initialize attack extractor."""
-        # Patterns for detecting cipher types
         self.cipher_patterns = {
             "vigenere": [
                 r"vigen[èe]re",
@@ -57,7 +50,7 @@ class AttackExtractor:
                 r"periodic\s+key",
             ],
             "hill": [
-                r"\bhill\b",  # Word boundary to match "Hill" standalone
+                r"\bhill\b",
                 r"hill\s+cipher",
                 r"matrix\s+cipher",
                 r"linear\s+transformation",
@@ -75,7 +68,6 @@ class AttackExtractor:
             ],
         }
 
-        # Patterns for attack methods
         self.attack_patterns = {
             "frequency_analysis": [
                 r"frequency\s+analysis",
@@ -104,43 +96,27 @@ class AttackExtractor:
             ],
         }
 
-        # Patterns for key lengths
         self.key_length_pattern = r"key\s+length\s+(?:of\s+)?(\d+)"
         self.key_range_pattern = r"key\s+lengths?\s+(?:from\s+)?(\d+)\s*(?:-|to)\s*(\d+)"
 
     def extract_from_paper(self, paper: Paper) -> list[ExtractedAttack]:
-        """Extract all attacks mentioned in paper.
-
-        Args:
-            paper: Paper to analyze
-
-        Returns:
-            List of extracted attacks
-        """
         attacks = []
         text = f"{paper.title} {paper.abstract}".lower()
 
-        # Detect cipher types
         cipher_types = self._detect_cipher_types(text)
 
-        # If no cipher types detected, skip
         if not cipher_types:
             return attacks
 
-        # Detect attack methods
         attack_methods = self._detect_attack_methods(text)
 
-        # If no methods detected, use generic "cryptanalysis"
         if not attack_methods:
             attack_methods = ["cryptanalysis"]
 
-        # Extract key parameters
         key_params = self._extract_key_parameters(text)
 
-        # Extract cribs
         cribs = self._extract_cribs(text)
 
-        # Generate attacks for each cipher+method combination
         for cipher in cipher_types:
             for method in attack_methods:
                 attack = ExtractedAttack(
@@ -149,21 +125,13 @@ class AttackExtractor:
                     key_parameters=key_params.get(cipher, {}),
                     crib_text=cribs[0] if cribs else None,
                     source_paper=paper.paper_id,
-                    confidence=0.7,  # Medium confidence for automated extraction
+                    confidence=0.7,
                 )
                 attacks.append(attack)
 
         return attacks
 
     def extract_from_papers(self, papers: list[Paper]) -> list[ExtractedAttack]:
-        """Extract attacks from multiple papers.
-
-        Args:
-            papers: List of papers
-
-        Returns:
-            Combined list of extracted attacks
-        """
         all_attacks = []
         for paper in papers:
             attacks = self.extract_from_paper(paper)
@@ -171,7 +139,6 @@ class AttackExtractor:
         return all_attacks
 
     def _detect_cipher_types(self, text: str) -> list[str]:
-        """Detect cipher types mentioned in text."""
         detected = []
         for cipher_type, patterns in self.cipher_patterns.items():
             for pattern in patterns:
@@ -181,7 +148,6 @@ class AttackExtractor:
         return detected
 
     def _detect_attack_methods(self, text: str) -> list[str]:
-        """Detect attack methods mentioned in text."""
         detected = []
         for method, patterns in self.attack_patterns.items():
             for pattern in patterns:
@@ -191,16 +157,13 @@ class AttackExtractor:
         return detected
 
     def _extract_key_parameters(self, text: str) -> dict[str, dict[str, Any]]:
-        """Extract key parameters like lengths."""
         params = {}
 
-        # Extract single key length
         match = re.search(self.key_length_pattern, text, re.IGNORECASE)
         if match:
             length = int(match.group(1))
             params["vigenere"] = {"key_length": length}
 
-        # Extract key range
         match = re.search(self.key_range_pattern, text, re.IGNORECASE)
         if match:
             min_len = int(match.group(1))
@@ -213,15 +176,12 @@ class AttackExtractor:
         return params
 
     def _extract_cribs(self, text: str) -> list[str]:
-        """Extract potential crib words mentioned."""
-        # Common crib patterns
         crib_pattern = r'(?:crib|known\s+(?:word|plaintext))\s+["\']([A-Za-z]+)["\']'
         matches = re.findall(crib_pattern, text, re.IGNORECASE)
         return [m.upper() for m in matches]
 
 
 def demo_attack_extractor():
-    """Demonstrate attack extraction."""
     print("=" * 80)
     print("ATTACK EXTRACTION DEMO")
     print("=" * 80)
@@ -229,7 +189,6 @@ def demo_attack_extractor():
 
     from .paper_search import Paper
 
-    # Mock paper about Vigenère
     paper = Paper(
         paper_id="arxiv:1234.5678",
         title="Breaking Vigenère Ciphers with Frequency Analysis",

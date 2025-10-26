@@ -13,11 +13,6 @@ __all__ = ["load_ngram_data", "score_candidate", "compute_meta_and_score", "comp
 
 
 def load_ngram_data(source: str | None = None) -> dict[str, float]:
-    """Load simple token weights from a file.
-
-    Format: TOKEN [WEIGHT]
-    Missing or unreadable file -> empty dict (caller decides fallback).
-    """
     if not source:
         return {}
     if not os.path.isfile(source):
@@ -33,22 +28,18 @@ def load_ngram_data(source: str | None = None) -> dict[str, float]:
                 token = pieces[0]
                 weight = float(pieces[1]) if len(pieces) > 1 else 1.0
                 data[token] = weight
-    except (OSError, ValueError):  # narrow exception scope
+    except (OSError, ValueError):
         return {}
     return data
 
 
 def _score_ngram(text: str, ngram_map: dict[str, float] | None) -> float:
     if not ngram_map:
-        return len(text) * 0.01  # uniform proxy
+        return len(text) * 0.01
     return sum(ngram_map.get(ch, 0.0) for ch in text)
 
 
 def compute_crib_bonus(text: str, cribs: Iterable[str] | None) -> float:
-    """Naive crib bonus: +1.0 per exact occurrence of each crib.
-
-    TODO: Replace with positional weighting + partial matches.
-    """
     if not cribs:
         return 0.0
     bonus = 0.0
@@ -63,18 +54,10 @@ def compute_crib_bonus(text: str, cribs: Iterable[str] | None) -> float:
 
 
 def compute_clock_valid(text: str) -> float:
-    """Stub Berlin clock structural validation.
-
-    Returns 1.0 if length divisible by 5 else 0.0.
-    """
     return 1.0 if len(text) % 5 == 0 else 0.0
 
 
 def score_candidate(text: str, meta: dict[str, Any], weights: dict[str, float]) -> float:
-    """Aggregate weighted score.
-
-    meta may include precomputed components; missing ones are computed lazily.
-    """
     ngram_score = _score_ngram(text, meta.get("ngrams"))
     crib_score = meta.get("crib_bonus")
     if crib_score is None:

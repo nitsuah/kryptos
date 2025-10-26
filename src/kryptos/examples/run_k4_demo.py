@@ -16,7 +16,7 @@ warnings.warn(
 )
 
 
-def run_demo(limit: int = 10):  # pragma: no cover
+def run_demo(limit: int = 10):
     warnings.warn(
         ("scripts/demo/run_k4_demo.py is deprecated; use " "python -m kryptos.examples.k4_demo"),
         DeprecationWarning,
@@ -25,5 +25,5 @@ def run_demo(limit: int = 10):  # pragma: no cover
     return _run_demo(limit=limit)
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     run_demo()
