@@ -2,18 +2,71 @@
 
 Thank you for your interest in advancing K4 analysis.
 
-## Maintenance & Code Quality
+## 📚 Essential Reading for Contributors
 
-**📖 New contributors should read [`docs/MAINTENANCE_GUIDE.md`](docs/MAINTENANCE_GUIDE.md) first!**
+**Start here:**
 
-This guide covers:
-- How to keep the codebase clean and maintainable
-- When to add tests vs scripts
-- Documentation best practices
-- Code review checklist
-- Audit procedures for quarterly cleanup
+1. **[`docs/MAINTENANCE_GUIDE.md`](docs/MAINTENANCE_GUIDE.md)** — Core maintenance philosophy and practices
+   - When to create/delete tests, scripts, and documentation
+   - Code quality standards and review checklist
+   - Definition of done for contributions
+   - Audit procedures for keeping codebase clean
 
-Understanding our maintenance philosophy will help your contributions align with project standards.
+2. **[`docs/PHASE_6_ROADMAP.md`](docs/PHASE_6_ROADMAP.md)** — Current development roadmap and strategic direction
+   - Phase 6 objectives and sprint structure
+   - Current K1-K3 success rates (measured, validated)
+   - K4 attack strategies and priorities
+   - System readiness assessment (75% K4-ready)
+   - Cross-references: [`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md) for operational checklist
+
+3. **[`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md)** — Operational task breakdown
+   - Prioritized work items with clear success metrics
+   - Sprint-by-sprint deliverables
+   - Technical implementation details
+   - Cross-references roadmap for strategic context
+
+**Architecture & Systems:**
+
+- **[`docs/reference/AUTONOMOUS_SYSTEM.md`](docs/reference/AUTONOMOUS_SYSTEM.md)** — Design of the autonomous solving
+system
+  - Agent triumvirate (SPY, OPS, Q) architecture
+  - Coordination loop and decision-making
+  - 24/7 autonomous operation capabilities
+
+- **[`docs/reference/AGENTS_ARCHITECTURE.md`](docs/reference/AGENTS_ARCHITECTURE.md)** — Intelligence layer design
+  - SPY (pattern recognition), OPS (orchestration), Q (validation) agents
+  - NLP integration, linguistic analysis, strategic direction
+  - Agent communication protocols
+
+- **[`docs/reference/PROVENANCE_SYSTEM_EXPLAINED.md`](docs/reference/PROVENANCE_SYSTEM_EXPLAINED.md)** — Memory and
+tracking system
+  - Search space coverage tracking
+  - Attack attempt deduplication
+  - Provenance logging for academic rigor
+
+**Performance & Validation:**
+
+- **[`docs/analysis/K1_K2_VALIDATION_RESULTS.md`](docs/analysis/K1_K2_VALIDATION_RESULTS.md)** — K1/K2 Monte Carlo
+validation
+  - 100% success rate on both K1 and K2 (50 runs each)
+  - Deterministic recovery algorithms validated
+  - Performance benchmarks
+
+- **[`docs/analysis/K3_VALIDATION_RESULTS.md`](docs/analysis/K3_VALIDATION_RESULTS.md)** — K3 autonomous solving
+validation
+  - 68-95% success rates (period-dependent)
+  - SA solver performance analysis
+  - Probabilistic vs deterministic algorithms
+
+**API & Reference:**
+
+- **[`docs/reference/API_REFERENCE.md`](docs/reference/API_REFERENCE.md)** — Public API documentation
+  - Stable Python entry points
+  - CLI commands and subcommands
+  - Module-level API contracts
+
+**Understanding these docs will help your contributions align with project architecture, standards, and strategic
+direction.**
 
 ---
 
@@ -21,23 +74,23 @@ Understanding our maintenance philosophy will help your contributions align with
 
 1. Install dependencies:
 
-```bash
-git clone https://github.com/nitsuah/kryptos.git
-cd kryptos
-pip install -r requirements.txt
-```
+   ```bash
+   git clone https://github.com/nitsuah/kryptos.git
+   cd kryptos
+   pip install -r requirements.txt
+   ```
 
 2. Run tests:
 
-```bash
-pytest tests/ -v
-```
+   ```bash
+   pytest tests/ -v
+   ```
 
 3. Run linting:
 
-```bash
-pre-commit run --all-files
-```
+   ```bash
+   pre-commit run --all-files
+   ```
 
 ## Quick Start: Hill Constraint Stage
 

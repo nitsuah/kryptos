@@ -19,8 +19,8 @@ from kryptos.paths import get_repo_root
 
 # Centralized repo root via paths helper (removes fragile parents[3] ascent)
 REPO = get_repo_root()
-AGENTS_DIR = REPO / 'agents'
-LEARNED = AGENTS_DIR / 'LEARNED.md'
+ARTIFACTS_DIR = REPO / 'artifacts'
+LEARNED = ARTIFACTS_DIR / 'spy_extractions' / 'LEARNED.md'
 CRIBS_DEFAULT = REPO / 'docs' / 'sources' / 'sanborn_crib_candidates.txt'
 
 

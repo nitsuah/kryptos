@@ -1,4 +1,5 @@
 # K3 Autonomous Solving Validation Results
+
 **Date:** 2025-01-26 **Validation:** Monte Carlo testing of SA solver for columnar transposition
 
 ## Executive Summary
@@ -19,6 +20,7 @@ recovers columnar transpositions with 50k-100k iterations**
 ## Test Details
 
 ### Period 5 (50 runs)
+
 - **Permutation space:** 120 possibilities (5!)
 - **Success threshold:** >90% character match
 - **SA parameters:** 50k iterations, temp=50.0, cooling=0.9995
@@ -26,11 +28,13 @@ recovers columnar transpositions with 50k-100k iterations**
 - **Runtime:** ~61 seconds (1.2s per run)
 
 **Distribution:**
+
 - 34 runs: 100.0% match (perfect recovery)
 - 15 runs: 2.4% match (failed - stuck in local minimum)
 - 1 run: 5.7% match (partial recovery)
 
 ### Period 6 (30 runs)
+
 - **Permutation space:** 720 possibilities (6!)
 - **Success threshold:** >90% character match
 - **SA parameters:** 50k iterations, temp=50.0, cooling=0.9995
@@ -38,6 +42,7 @@ recovers columnar transpositions with 50k-100k iterations**
 - **Runtime:** ~36 seconds (1.2s per run)
 
 **Distribution:**
+
 - 25 runs: 100.0% match (perfect recovery)
 - 2 runs: 2.4% match (complete failure)
 - 1 run: 4.1% match (failed)
@@ -45,6 +50,7 @@ recovers columnar transpositions with 50k-100k iterations**
 - 1 run: 8.1% match (partial)
 
 ### Period 7 (20 runs)
+
 - **Permutation space:** 5,040 possibilities (7!)
 - **Success threshold:** >80% character match (relaxed for harder case)
 - **SA parameters:** 100k iterations, temp=100.0, cooling=0.9995
@@ -52,6 +58,7 @@ recovers columnar transpositions with 50k-100k iterations**
 - **Runtime:** ~26 seconds (1.3s per run)
 
 **Distribution:**
+
 - 19 runs: 100.0% match (perfect recovery)
 - 1 run: 2.5% match (failed)
 
@@ -76,6 +83,7 @@ padding issues), which may create clearer English statistics for the scoring fun
 **Roadmap claimed:** "27.5% success rate on K3-style transposition"
 
 **Measured results:**
+
 - Period 5: 68.0% (2.5x better)
 - Period 6: 83.3% (3.0x better)
 - Period 7: 95.0% (3.5x better)
