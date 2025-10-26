@@ -53,6 +53,9 @@ class PipelineExecutor:  # DEPRECATED: see module docstring
         base_root = self.config.artifact_root
         if self.config.artifact_run_subdir:
             base_root = os.path.join(base_root, self.config.artifact_run_subdir)
+        else:
+            # Default to executor_runs subdirectory to avoid cluttering artifacts root
+            base_root = os.path.join(base_root, "executor_runs")
         path = os.path.join(base_root, f"run_{ts}")
         os.makedirs(path, exist_ok=True)
         return path

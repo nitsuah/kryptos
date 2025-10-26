@@ -63,6 +63,8 @@ class SearchSpaceTracker:
     - "Vigenère key length 1-20: 67% explored"
     - "Hill 2x2 matrices: 23% explored"
     - "Transposition period 1-30: 89% explored"
+
+    Also tracks exact keys tried across runs to prevent duplicates.
     """
 
     def __init__(self, cache_dir: Path | None = None):
@@ -77,8 +79,15 @@ class SearchSpaceTracker:
         # Track regions: cipher_type -> region_key -> KeySpaceRegion
         self.regions: dict[str, dict[str, KeySpaceRegion]] = defaultdict(dict)
 
+        # Track tried keys: cipher_type -> set of tried key strings
+        self._tried_keys: dict[str, set[str]] = defaultdict(set)
+
+        # JSONL file for persisting tried keys
+        self._tried_keys_file = self.cache_dir / "tried_keys.jsonl"
+
         # Load existing data
         self._load_cache()
+        self._load_tried_keys()
 
     def register_region(
         self,
@@ -109,6 +118,7 @@ class SearchSpaceTracker:
         region_key: str,
         count: int = 1,
         successful: int = 0,
+        keys: list[str] | None = None,
     ):
         """Record keys explored in a region.
 
@@ -117,6 +127,7 @@ class SearchSpaceTracker:
             region_key: Region identifier
             count: Number of keys explored
             successful: Number that yielded candidates
+            keys: Optional list of actual key strings tried
         """
         if region_key not in self.regions[cipher_type]:
             # Auto-register with unknown size
@@ -126,8 +137,35 @@ class SearchSpaceTracker:
         region.explored_count += count
         region.successful_count += successful
 
+        # Track specific keys if provided
+        if keys:
+            self._record_tried_keys(cipher_type, keys)
+
         # Save cache after updates
         self._save_cache()
+
+    def already_tried(self, cipher_type: str, key: str) -> bool:
+        """Check if a key has already been tried.
+
+        Args:
+            cipher_type: Type of cipher (e.g., "vigenere", "transposition")
+            key: Key string to check
+
+        Returns:
+            True if this key was tried in any previous run
+        """
+        return key in self._tried_keys[cipher_type]
+
+    def mark_tried(self, cipher_type: str, key: str):
+        """Mark a single key as tried (for inline usage).
+
+        Args:
+            cipher_type: Type of cipher
+            key: Key string to mark as tried
+        """
+        if key not in self._tried_keys[cipher_type]:
+            self._tried_keys[cipher_type].add(key)
+            self._append_tried_key(cipher_type, key)
 
     def get_coverage(self, cipher_type: str, region_key: str | None = None) -> float:
         """Get coverage percentage for a cipher type or specific region.
@@ -350,6 +388,46 @@ class SearchSpaceTracker:
 
         with open(cache_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+
+    def _load_tried_keys(self):
+        """Load tried keys from JSONL file."""
+        if not self._tried_keys_file.exists():
+            return
+
+        try:
+            with open(self._tried_keys_file, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    record = json.loads(line)
+                    cipher_type = record["cipher_type"]
+                    key = record["key"]
+                    self._tried_keys[cipher_type].add(key)
+        except (json.JSONDecodeError, KeyError, TypeError, OSError):
+            # Start fresh if file corrupted
+            pass
+
+    def _record_tried_keys(self, cipher_type: str, keys: list[str]):
+        """Record multiple tried keys and persist them."""
+        new_keys = []
+        for key in keys:
+            if key not in self._tried_keys[cipher_type]:
+                self._tried_keys[cipher_type].add(key)
+                new_keys.append(key)
+
+        # Append new keys to JSONL file
+        if new_keys:
+            with open(self._tried_keys_file, "a", encoding="utf-8") as f:
+                for key in new_keys:
+                    record = {"cipher_type": cipher_type, "key": key}
+                    f.write(json.dumps(record) + "\n")
+
+    def _append_tried_key(self, cipher_type: str, key: str):
+        """Append a single tried key to the JSONL file."""
+        record = {"cipher_type": cipher_type, "key": key}
+        with open(self._tried_keys_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
 
 
 def demo_search_space_tracker():

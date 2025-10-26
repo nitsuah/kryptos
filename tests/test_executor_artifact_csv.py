@@ -47,11 +47,13 @@ class TestExecutorArtifactCSV(unittest.TestCase):
         csv_name_obj = summary.get("artifact_csv")
         self.assertIsInstance(csv_name_obj, str)
         csv_name: str = csv_name_obj  # type: ignore[assignment]
-        # Find single run_* directory under artifact root
-        run_dirs = [d for d in os.listdir(artifact_root) if d.startswith("run_")]
+        # Find single run_* directory under artifact root/executor_runs
+        executor_runs_dir = os.path.join(artifact_root, "executor_runs")
+        self.assertTrue(os.path.exists(executor_runs_dir), "executor_runs subdirectory not created")
+        run_dirs = [d for d in os.listdir(executor_runs_dir) if d.startswith("run_")]
         self.assertTrue(run_dirs, "No run_* artifact directory created")
         run_dir0 = str(run_dirs[0])
-        full_csv_path = os.path.join(artifact_root, run_dir0, csv_name)
+        full_csv_path = os.path.join(executor_runs_dir, run_dir0, csv_name)
         self.assertTrue(os.path.exists(full_csv_path), f"CSV artifact missing at {full_csv_path}")
         with open(full_csv_path, newline="", encoding="utf-8") as fh:
             reader = csv.reader(fh)

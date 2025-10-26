@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from collections import Counter
 
+from kryptos.provenance.search_space import SearchSpaceTracker
+
 KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
 
 # Expected frequencies for English (approximate, based on standard corpus)
@@ -42,16 +44,24 @@ ENGLISH_FREQ = {
 }
 
 
-def recover_key_by_frequency(ciphertext: str, key_length: int, top_n: int = 3) -> list[str]:
+def recover_key_by_frequency(
+    ciphertext: str,
+    key_length: int,
+    top_n: int = 3,
+    skip_tried: bool = False,
+    tracker: SearchSpaceTracker | None = None,
+) -> list[str]:
     """Recover Vigenère key using frequency analysis.
 
     Args:
         ciphertext: Ciphertext to analyze
         key_length: Known or suspected key length
         top_n: Return top N candidate keys
+        skip_tried: If True, filter out keys that were already tried (cross-run memory)
+        tracker: Optional SearchSpaceTracker instance (creates default if None and skip_tried=True)
 
     Returns:
-        List of candidate keys (most likely first)
+        List of candidate keys (most likely first), filtered if skip_tried=True
     """
     # Clean ciphertext
     ct = ''.join(c for c in ciphertext.upper() if c.isalpha())
@@ -97,6 +107,25 @@ def recover_key_by_frequency(ciphertext: str, key_length: int, top_n: int = 3) -
 
     # Generate candidate keys from top choices per position
     candidates = _generate_key_combinations(key_chars, max_keys=top_n)
+
+    # Filter out already-tried keys if cross-run memory enabled
+    if skip_tried:
+        if tracker is None:
+            tracker = SearchSpaceTracker()
+
+        candidates_filtered = [k for k in candidates if not tracker.already_tried("vigenere", k)]
+
+        # Mark new keys as tried and record exploration
+        new_keys = candidates_filtered
+        if new_keys:
+            tracker.record_exploration(
+                cipher_type="vigenere",
+                region_key=f"length_{key_length}",
+                count=len(new_keys),
+                keys=new_keys,
+            )
+
+        candidates = candidates_filtered
 
     return candidates
 
