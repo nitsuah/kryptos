@@ -41,5 +41,5 @@ jobs:
       - name: Verify package installation
         run: |
           python -c "from kryptos.agents import OpsAgent, QAgent, SpyAgent; print('✓ Agents imported successfully')"
-      - name: Run tests
-        run: pytest -q
+      - name: Run fast tests (skip slow Monte Carlo tests)
+        run: pytest -m "not slow" -q

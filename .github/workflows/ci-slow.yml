@@ -23,6 +23,8 @@ jobs:
       - name: Download spaCy model
         run: |
           python -m spacy download en_core_web_sm
+      - name: Run full test suite (including slow Monte Carlo tests)
+        run: pytest -q
       - name: Run K4 demo (smoke)
         run: |
           # run a tiny demo to smoke-test the pipeline; limit keeps runtime small
