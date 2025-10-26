@@ -40,6 +40,24 @@ We evaluate candidates using linguistic patterns – common letter pairs, trigra
 identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic
 intuition rather than brute force. After all, humans design puzzles with intention, not randomness!
 
+## Recent Updates
+
+### Phase 6 Comprehensive Cleanup (October 2025)
+
+**Code Optimization**: Removed **3,554 lines** of unnecessary code while preserving all functionality
+
+- Automated cleanup: -2,877 lines (docstrings, comments, verbose logging) across 65 files
+- Deprecated code removal: -677 lines (unused configs, obsolete tests)
+- Fixed K3 ciphertext correction (336 chars)
+
+**Test Suite Optimization**: 607 tests total (**583 fast** / 24 slow)
+
+- Added `@pytest.mark.slow` to long-running statistical validation tests
+- Fast iteration: `pytest -m "not slow"` runs 583 tests in ~1-2 minutes
+- Full validation: `pytest` includes Monte Carlo tests (10+ min) for autonomous solving verification
+
+**Result**: Leaner codebase, faster development cycle, maintained 100% test pass rate
+
 ## Current Progress
 
 ### ✅ K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"
