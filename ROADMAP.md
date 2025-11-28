@@ -1,6 +1,6 @@
 # 🗺️ KRYPTOS Roadmap
 
-## Q3 2024: Foundation (Completed) 🚀
+## Q3 2025: Foundation (Completed) 🚀
 
 - [x] Project setup and core architecture
 - [x] Vigenère cipher with keyed alphabet
@@ -8,7 +8,7 @@
 - [x] K2 solution with structural padding handling
 - [x] K3 double rotational transposition
 
-## Q4 2024: Advanced Cryptanalysis (Completed) ✅
+## Q4 2025: Advanced Cryptanalysis (Completed) ✅
 
 - [x] Hill cipher (2×2 and 3×3) encryption/decryption
 - [x] Frequency analysis and n-gram scoring utilities
