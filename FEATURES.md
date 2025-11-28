@@ -93,14 +93,18 @@
 
 ## Validation & Quality
 
-### ✅ Proven Success Rates
+### ✅ Proven Success Rates & Test Summary
 
-- **K1 Vigenère**: 100% success rate (deterministic, 50/50 runs)
-- **K2 Vigenère**: 100% success rate (deterministic, 50/50 runs)
-- **K3 Transposition**: 68-95% success rate (probabilistic, period-dependent)
-- **Test Coverage**: 607 tests total (583 fast / 24 slow)
-- **Monte Carlo Validation**: Comprehensive statistical validation framework
-- **Edge Case Coverage**: 119 test files with extensive boundary testing
+- K1 Vigenère: 100% (deterministic)
+- K2 Vigenère: 100% (deterministic)
+- K3 Transposition: 68–95% (period-dependent Monte Carlo)
+Test suite (fast run): 524 passed, 10 skipped; code coverage 62.64% (measured 2025-11-28)
+
+Operational notes:
+
+- Monte Carlo / long-running validation tests are marked `slow` and gated out of the fast CI job to keep
+	feedback fast.
+- Coverage gate currently set to 60% while we add targeted unit tests to raise coverage in critical modules.
 
 ### 🛠️ Development Tools
 
