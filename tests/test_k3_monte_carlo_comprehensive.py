@@ -5,6 +5,8 @@ Validates actual success rates vs. roadmap claims across multiple periods.
 
 import random
 
+import pytest
+
 from kryptos.k4.transposition_analysis import (
     apply_columnar_permutation_encrypt,
     apply_columnar_permutation_reverse,
@@ -12,6 +14,7 @@ from kryptos.k4.transposition_analysis import (
 )
 
 
+@pytest.mark.slow
 def test_k3_monte_carlo_period_5_50runs():
     """50-run Monte Carlo for period 5 to get accurate success rate."""
     plaintext = (
@@ -61,6 +64,7 @@ def test_k3_monte_carlo_period_5_50runs():
     assert success_rate > 0.2, f"Success rate too low: {success_rate:.1%}"
 
 
+@pytest.mark.slow
 def test_k3_monte_carlo_period_6_30runs():
     """30-run Monte Carlo for period 6 (harder)."""
     plaintext = (
@@ -108,6 +112,7 @@ def test_k3_monte_carlo_period_6_30runs():
     assert success_rate >= 0, "Test execution completed"
 
 
+@pytest.mark.slow
 def test_k3_monte_carlo_period_7_20runs():
     """20-run Monte Carlo for period 7 (hardest)."""
     plaintext = (

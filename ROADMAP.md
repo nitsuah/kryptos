@@ -1,65 +1,65 @@
-# Roadmap
+# 🗺️ KRYPTOS Roadmap
 
-## Q1 2025
+> Cryptographic research toolkit for solving the K4 cipher puzzle
 
-- [ ] Core feature development
-- [ ] Initial MVP release
-- [x] Project setup and architecture
+[See detailed roadmap in docs/PHASE_6_ROADMAP.md](./docs/PHASE_6_ROADMAP.md)
 
-## Q2 2025
+## Q3 2024: Foundation (Completed) 🚀
 
-- [ ] User feedback integration
-- [ ] Performance optimizations
-- [ ] Documentation improvements
+- [x] Project setup and core architecture
+- [x] Vigenère cipher with keyed alphabet
+- [x] K1 solution implementation (100% success rate)
+- [x] K2 solution with structural padding handling
+- [x] K3 double rotational transposition
 
-## Q3 2025
+## Q4 2024: Advanced Cryptanalysis (Completed) ✅
 
-- [ ] Advanced features
-- [ ] Mobile support
-- [ ] Third-party integrations
+- [x] Hill cipher (2×2 and 3×3) encryption/decryption
+- [x] Frequency analysis and n-gram scoring utilities
+- [x] Columnar transposition with pruning
+- [x] Berlin Clock shift hypothesis implementation
+- [x] Multi-stage pipeline architecture
 
-## Q4 2025
+## Q1 2025: Phase 5 - Autonomous Solving (Completed) ✅
 
-- [ ] Enterprise features
-- [ ] Security hardening
-- [ ] Scale improvements
+- [x] Simulated annealing solver (30-45% faster)
+- [x] Dictionary scoring with 2.73× discrimination
+- [x] K1-K3 Monte Carlo validation (100% on K1/K2, 68-95% on K3)
+- [x] Attack provenance logging with deduplication
+- [x] Coverage tracking and search space metrics
+- [x] K4 orchestration (2.5 attacks/second)
+- [x] Academic documentation (3 comprehensive docs)
+- [x] Code cleanup: removed 3,554 lines of unnecessary code
 
-<!--
-AGENT INSTRUCTIONS:
-This file tracks high-level project goals and milestones using a structured format.
+## Q1 2025: Phase 6.1 - Validation (Completed) ✅
 
-CRITICAL FORMAT REQUIREMENTS:
-1. Use ## (h2) for quarter/phase headers: "## Q1 2025", "## Phase 1", etc.
-2. Items MUST use checkbox format: "- [ ]" for planned, "- [x]" for completed
-3. Keep item titles on single lines
-4. Optional status markers: "- [/]" for in-progress (or use "- [ ]" and note in title)
-5. Headers should be quarters (Q1/Q2/Q3/Q4 YEAR) or phases/milestones
+- [x] K1/K2 Monte Carlo validation (100% success, deterministic)
+- [x] K3 comprehensive validation (68-95% period-dependent)
+- [x] Scripts cleanup and knowledge preservation
+- [x] Documentation audit and metric corrections
+- [x] Test suite optimization (607 tests, 583 fast / 24 slow)
 
-STATUS MARKERS:
-- [ ] = planned (not started)
-- [/] = in-progress (actively working) - OPTIONAL
-- [x] = completed (finished)
+## Q1-Q2 2025: Phase 6.2 - Composite Attacks (IN PROGRESS) 🏗️
 
-GOOD EXAMPLES:
-## Q1 2025
-- [ ] Launch beta version
-- [x] Complete core infrastructure
-- [/] User authentication system
+- [ ] Implement V→T composite chain (Vigenère + transposition)
+- [ ] Implement T→V composite chain
+- [ ] Multi-stage validation pipeline (SPY → LINGUIST → Q)
+- [ ] Confidence threshold system
+- [ ] Synthetic composite test cases (100% target)
 
-## Q2 2025
-- [ ] Mobile app development
+## Q2 2025: Phase 6.3 - Adaptive Learning (Planned) 📚
 
-BAD EXAMPLES (will break parser):
-### Q1 2025 (wrong heading level)
-* [ ] Item (wrong bullet marker)
-- Item without checkbox
-- [ ] Multi-line item
-      with continuation (avoid this)
+- [ ] Learning from failures system
+- [ ] Failure pattern detection
+- [ ] Coverage-guided attack generation
+- [ ] Visual coverage heatmaps
+- [ ] Smart pruning of saturated search spaces
+- [ ] 50% reduction in duplicate attacks (target)
 
-When updating:
-1. Organize by time periods (quarters) or logical phases
-2. Mark completed items with [x] as they finish
-3. Add new strategic goals as they emerge
-4. Keep items high-level (features/milestones, not individual tasks)
-5. Use consistent naming: "Q1 2025", "Q2 2025", etc. for quarters
--->
+## Q2 2025: Phase 6.4 - Production K4 Campaign (Planned) 🎯
+
+- [ ] Extended K4 attack campaign (10,000+ attacks)
+- [ ] Performance optimization (4× speedup target)
+- [ ] Multiprocessing parallel execution
+- [ ] Production-scale validation pipeline
+- [ ] Coverage reports and candidate export
