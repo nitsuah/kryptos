@@ -1,9 +1,5 @@
 # 🗺️ KRYPTOS Roadmap
 
-> Cryptographic research toolkit for solving the K4 cipher puzzle
-
-[See detailed roadmap in docs/PHASE_6_ROADMAP.md](./docs/PHASE_6_ROADMAP.md)
-
 ## Q3 2024: Foundation (Completed) 🚀
 
 - [x] Project setup and core architecture

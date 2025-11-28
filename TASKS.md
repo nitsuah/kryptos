@@ -1,7 +1,5 @@
 # Tasks
 
-> Task tracking for KRYPTOS project. See [docs/TODO_PHASE_6.md](./docs/TODO_PHASE_6.md) for detailed breakdown.
-
 ## Done
 
 ### Phase 5 Completions (Q1 2025)
