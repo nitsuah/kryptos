@@ -4,11 +4,11 @@
 
 | Metric              | Value   | Notes                                      |
 | ------------------- | ------- | ------------------------------------------ |
+| Code Coverage       | TBD     | Not yet measured - run not-slow            |
 | Source Files        | 86      | Python modules in src/ (excl. tests)       |
 | Test Files          | 126     | Test modules in tests/                     |
 | Test Functions      | 688     | Total test functions defined               |
 | Test Cases          | 607     | Tests passing (583 fast / 24 slow)         |
-| Code Coverage       | TBD     | Not yet measured with coverage tool        |
 | Lines of Code       | ~50K    | Estimated from 86 files (avg ~580/file)    |
 | Documentation Files | 40+     | Comprehensive docs in docs/ directory      |
 | Subdirectories      | 33      | Well-organized module structure            |
