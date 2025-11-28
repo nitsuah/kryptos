@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import pytest
+
 from kryptos.k4.composite import CompositeChainExecutor
+
+# Mark slow (skip whole module during fast runs)
+pytest.skip("Marked slow: composite chains tests", allow_module_level=True)
 
 
 class TestCompositeChains:

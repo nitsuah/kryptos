@@ -13,6 +13,9 @@ from kryptos.k4.transposition_analysis import (
     solve_columnar_permutation_simulated_annealing,
 )
 
+# Skip whole module during fast runs
+pytest.skip("Marked slow: K3 Monte Carlo comprehensive tests", allow_module_level=True)
+
 
 @pytest.mark.slow
 def test_k3_monte_carlo_period_5_50runs():

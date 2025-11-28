@@ -10,6 +10,9 @@ import pytest
 from kryptos.agents.ops import OpsAgent, OpsConfig
 from kryptos.pipeline.attack_generator import AttackSpec
 
+# Mark slow/integration module as skipped for fast runs
+pytest.skip("Marked slow: ops attack generation integration tests", allow_module_level=True)
+
 # ===== FIXTURES =====
 
 

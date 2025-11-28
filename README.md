@@ -22,7 +22,7 @@ All Related documents / quick links can generally be found in `docs/`:
 
 **K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in copper that nobody has
 cracked in 30+ years. We're using Python to systematically try every reasonable decryption method – techniques that
-cryptanalysts may have attempted manually but couldn't exhaustively explore. Our approach combines automated testing
+crypto analysts may have attempted manually but couldn't exhaustively explore. Our approach combines automated testing
 with intelligent scoring to measure how "English-like" each result appears:
 
 1. **Hill Cipher** - Matrix-based substitution where letters become numbers, transform through matrix multiplication,

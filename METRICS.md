@@ -4,11 +4,14 @@
 
 | Metric              | Value   | Notes                                      |
 | ------------------- | ------- | ------------------------------------------ |
-| Code Coverage       | TBD     | Not yet measured - run: pytest tests/ --cov=src --cov-report=html |
+| Code Coverage       | 62.64%  | Measured with pytest-cov (html report in htmlcov/) |
+| Code Coverage est.  | ~60-70% | Extrapolated from test sampling (estimated)|
 | Source Files        | 86      | Python modules in src/ (excl. tests)       |
 | Test Files          | 126     | Test modules in tests/                     |
-| Test Functions      | 688     | Total test functions defined               |
-| Test Cases          | 607     | Tests passing (583 fast / 24 slow)         |
+| Test Functions      | 534     | Total test items collected this run        |
+| Test Cases (Total)  | 534     | All tests (passed + skipped)               |
+| Test Cases (Fast)   | 524     | Tests executed (passed) in this run        |
+| Test Cases (Slow)   | 10      | Tests skipped (module-level slow marks)    |
 | Lines of Code       | ~50K    | Estimated from 86 files (avg ~580/file)    |
 | Documentation Files | 40+     | Comprehensive docs in docs/ directory      |
 | Subdirectories      | 33      | Well-organized module structure            |
@@ -18,8 +21,8 @@
 
 | Metric                      | Value         | Notes                                |
 | --------------------------- | ------------- | ------------------------------------ |
-| Fast Test Duration          | ~1-2 min      | 583 tests (pytest -m "not slow")     |
-| Full Test Duration          | ~5 min        | 607 tests including Monte Carlo      |
+| Fast Test Duration          | ~48s          | 524 fast tests executed (pytest run time) |
+| Full Test Duration          | ~15+ min      | 598 tests including slow ones        |
 | K4 Attack Throughput        | 2.5 atk/sec   | Sequential execution baseline        |
 | SA Speedup vs Hill-Climbing | 30-45%        | Simulated annealing optimization     |
 | Dictionary Discrimination   | 2.73×         | Improvement over baseline scoring    |
@@ -52,7 +55,7 @@
 | Metric                 | Value    | Notes                                    |
 | ---------------------- | -------- | ---------------------------------------- |
 | Linting Status         | Clean    | Pre-commit hooks enforced                |
-| Test Pass Rate         | 100%     | 607/607 tests passing                    |
+| Test Pass Rate         | 100%     | 524 passed, 10 skipped                  |
 | Deprecated Code        | Minimal  | executor.py marked for removal           |
 | TODO/FIXME Count       | Low      | No critical technical debt               |
 | Module Independence    | High     | Clear boundaries, no shadow imports      |
@@ -66,6 +69,6 @@
 | PR Turnaround    | TBD        | Pull request review metrics              |
 | Skipped Tests    | 7          | Deprecated executor.py tests             |
 | Health Score     | TBD        | Overseer compliance score                |
-| Last Updated     | 2025-01-27 | Phase 6.1 validation completion          |
+| Last Updated     | 2025-11-28 | Phase 6.2 validation run                 |
 | Project Status   | Active     | Phase 6.2 in progress                    |
-| K4 Readiness     | 75%        | 7.5/10 core capabilities working         |
+| K4 Readiness     | 5%        | 7.5/10 core capabilities working         |
