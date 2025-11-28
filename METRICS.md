@@ -4,7 +4,7 @@
 
 | Metric              | Value   | Notes                                      |
 | ------------------- | ------- | ------------------------------------------ |
-| Code Coverage       | TBD     | Not yet measured - run not-slow            |
+| Code Coverage       | TBD     | Not yet measured - run: pytest tests/ --cov=src --cov-report=html |
 | Source Files        | 86      | Python modules in src/ (excl. tests)       |
 | Test Files          | 126     | Test modules in tests/                     |
 | Test Functions      | 688     | Total test functions defined               |
