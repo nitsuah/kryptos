@@ -43,6 +43,11 @@
 - [ ] Confidence threshold system
 - [ ] Synthetic composite test cases (100% target)
 
+### Operational notes
+
+- CI: fast pipeline runs with module-level slow tests skipped; full Monte Carlo gated to separate job
+- Coverage gate temporarily set to 60% to keep CI actionable while we add coverage-increasing tests
+
 ## Q2 2025: Phase 6.3 - Adaptive Learning (Planned) 📚
 
 - [ ] Learning from failures system

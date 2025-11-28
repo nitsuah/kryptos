@@ -11,6 +11,7 @@ python -m kryptos.cli.main autonomous --max-hours 24 --cycle-interval 5
 ```
 
 That's it! The system will:
+
 - ✅ Load K123 patterns from solved sections
 - ✅ Check web for new Sanborn intelligence
 - ✅ Run OPS strategic analysis every hour
@@ -87,17 +88,21 @@ python -m kryptos.cli.main autonomous
 ## 📁 Important Files
 
 **System State:**
+
 - `artifacts/autonomous_state.json` - Current state (auto-saved)
 
 **Progress Reports:**
+
 - `artifacts/logs/progress_*.md` - Periodic progress reports
 - `artifacts/logs/kryptos_*.log` - Detailed logs
 
 **Strategic Intelligence:**
+
 - `docs/K123_PATTERN_ANALYSIS.md` - 13 patterns from solved sections
 - `data/ops_strategy/` - OPS decision history
 
 **Web Intelligence:**
+
 - `data/web_intel/` - Cached web scraping results
 
 ## 📖 Full Documentation
@@ -110,7 +115,8 @@ python -m kryptos.cli.main autonomous
 ## 🎯 What Success Looks Like
 
 **Look for in logs:**
-```
+
+```text
 🚀 Starting autonomous coordination loop
 ✅ K123 patterns loaded: 13 patterns, 47 cribs
 🎯 OPS Decision: CONTINUE/PIVOT/BOOST

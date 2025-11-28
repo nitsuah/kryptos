@@ -4,8 +4,8 @@
 
 | Metric              | Value   | Notes                                      |
 | ------------------- | ------- | ------------------------------------------ |
-| Code Coverage       | 62.64%  | Measured with pytest-cov (html report in htmlcov/) |
-| Code Coverage est.  | ~60-70% | Extrapolated from test sampling (estimated)|
+| Code Coverage       | 62.64%  | Measured with pytest-cov (run on 2025-11-28; html report in htmlcov/) |
+| Code Coverage est.  | ~60-70% | Extrapolated from test sampling (estimated) |
 | Source Files        | 86      | Python modules in src/ (excl. tests)       |
 | Test Files          | 126     | Test modules in tests/                     |
 | Test Functions      | 534     | Total test items collected this run        |
@@ -21,8 +21,8 @@
 
 | Metric                      | Value         | Notes                                |
 | --------------------------- | ------------- | ------------------------------------ |
-| Fast Test Duration          | ~48s          | 524 fast tests executed (pytest run time) |
-| Full Test Duration          | ~15+ min      | 598 tests including slow ones        |
+| Fast Test Duration          | 26.35s        | Measured: 524 fast tests (pytest --durations=20) |
+| Full Test Duration          | N/A (slow tests skipped) | Full Monte Carlo runs are gated to separate CI job |
 | K4 Attack Throughput        | 2.5 atk/sec   | Sequential execution baseline        |
 | SA Speedup vs Hill-Climbing | 30-45%        | Simulated annealing optimization     |
 | Dictionary Discrimination   | 2.73×         | Improvement over baseline scoring    |
@@ -55,7 +55,7 @@
 | Metric                 | Value    | Notes                                    |
 | ---------------------- | -------- | ---------------------------------------- |
 | Linting Status         | Clean    | Pre-commit hooks enforced                |
-| Test Pass Rate         | 100%     | 524 passed, 10 skipped                  |
+| Test Pass Rate         | 100%     | 524 passed, 10 skipped (fast run, 2025-11-28) |
 | Deprecated Code        | Minimal  | executor.py marked for removal           |
 | TODO/FIXME Count       | Low      | No critical technical debt               |
 | Module Independence    | High     | Clear boundaries, no shadow imports      |
@@ -67,7 +67,7 @@
 | ---------------- | ---------- | ---------------------------------------- |
 | Open Issues      | TBD        | GitHub issue tracking                    |
 | PR Turnaround    | TBD        | Pull request review metrics              |
-| Skipped Tests    | 7          | Deprecated executor.py tests             |
+| Skipped Tests    | 10         | Module-level slow tests (marked skip)    |
 | Health Score     | TBD        | Overseer compliance score                |
 | Last Updated     | 2025-11-28 | Phase 6.2 validation run                 |
 | Project Status   | Active     | Phase 6.2 in progress                    |
