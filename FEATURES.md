@@ -4,7 +4,7 @@
 
 ## Core Cryptanalysis Capabilities
 
-### � Cipher Implementations
+### 🔐 Cipher Implementations
 
 - **Vigenère Cipher**: Classical polyalphabetic substitution with keyed alphabet support (KRYPTOSABCDEFGHIJLMNQUVWXZ)
 - **Hill Cipher (2×2 & 3×3)**: Matrix-based substitution cipher with encryption/decryption and key solving from cribs
@@ -98,12 +98,8 @@
 - K1 Vigenère: 100% (deterministic)
 - K2 Vigenère: 100% (deterministic)
 - K3 Transposition: 68–95% (period-dependent Monte Carlo)
-Test suite (fast run): 524 passed, 10 skipped; code coverage 62.64% (measured 2025-11-28)
-
-Operational notes:
-
-- Monte Carlo / long-running validation tests are marked `slow` and gated out of the fast CI job to keep
-	feedback fast.
+- Test suite (fast run): 524 passed, 10 skipped; code coverage 62.64% (measured 2025-11-28)
+- Monte Carlo / long-running validation tests are marked `slow` and gated out of the fast CI job to keep feedback fast.
 - Coverage gate currently set to 60% while we add targeted unit tests to raise coverage in critical modules.
 
 ### 🛠️ Development Tools

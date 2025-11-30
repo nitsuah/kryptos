@@ -4,7 +4,7 @@
 
 | Metric              | Value   | Notes                                      |
 | ------------------- | ------- | ------------------------------------------ |
-| Code Coverage       | 62.64%  | Measured with pytest-cov (run on 2025-11-28; html report in htmlcov/) |
+| Code Coverage       | 62.64%  | Measured with pytest-cov (run on 2025-11-28; html report in htmlcov) |
 | Code Coverage est.  | ~60-70% | Extrapolated from test sampling (estimated) |
 | Source Files        | 86      | Python modules in src/ (excl. tests)       |
 | Test Files          | 126     | Test modules in tests/                     |
