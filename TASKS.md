@@ -31,7 +31,7 @@
 
 ## In Progress
 
-### Phase 6.2: Composite Attacks & Integration
+### Phase 6.2.1: Composite Attacks & Integration
 
 - [ ] Implement V→T composite chain (Vigenère + transposition)
 - [ ] Implement T→V composite chain
@@ -42,7 +42,7 @@
 
 ## Todo
 
-### Phase 6.2: Multi-Stage Validation
+### Phase 6.2.2: Multi-Stage Validation
 
 - [ ] Add confidence threshold (Stage 1: 0.3, Stage 2: 0.6, Stage 3: 0.8)
 - [ ] Implement top-K selection (return best 20 candidates)
