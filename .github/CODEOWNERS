@@ -1,0 +1,65 @@
+# CODEOWNERS
+
+> This file defines who owns and should review changes to specific files or directories.
+> Learn more: [CODEOWNERS](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
+
+## Global owners - these users will be requested for review on all PRs
+
+* @nitsuah
+
+## Documentation
+
+# All markdown files are owned by @nitsuah
+*.md @nitsuah
+/docs/ @nitsuah
+
+## Configuration files
+
+# Configuration files (JSON, YAML, TOML) are owned by @nitsuah
+*.json @nitsuah
+*.yaml @nitsuah
+*.yml @nitsuah
+*.toml @nitsuah
+
+## CI/CD workflows
+
+# GitHub Actions workflows are owned by @nitsuah
+/.github/workflows/ @nitsuah
+
+## Python Source code
+
+# Source code in the src directory is owned by @nitsuah
+/src/ @nitsuah
+
+# Source code in the lib directory is owned by @nitsuah
+/lib/ @nitsuah
+
+# Source code in the app directory is owned by @nitsuah
+/app/ @nitsuah
+
+# Source code in the components directory is owned by @nitsuah
+/components/ @nitsuah
+
+# Python files are owned by @nitsuah
+*.py @nitsuah
+
+## Tests
+
+# Tests are owned by @nitsuah
+/tests/ @nitsuah
+/test/ @nitsuah
+*.test.* @nitsuah
+*.spec.* @nitsuah
+
+## Infrastructure & deployment
+
+# Infrastructure and deployment related files are owned by @nitsuah
+/infrastructure/ @nitsuah
+/terraform/ @nitsuah
+Dockerfile @nitsuah
+docker-compose*.yml @nitsuah
+
+## Security-sensitive files
+
+# Security-related files are owned by @nitsuah
+/SECURITY.md @nitsuah
