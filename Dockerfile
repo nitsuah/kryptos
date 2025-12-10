@@ -6,11 +6,13 @@
 FROM python:3.11-slim AS deps
 WORKDIR /app
 
-# Copy dependency files
+# Copy dependency and build files
 COPY requirements.txt ./
+COPY pyproject.toml ./
+COPY src/ ./src/
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install package with dependencies
+RUN pip install --no-cache-dir .
 
 # ================================
 # Stage 2: Builder (Optional - if any build steps are needed)

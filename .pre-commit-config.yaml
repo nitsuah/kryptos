@@ -12,7 +12,7 @@ repos:
 
   # Python-specific hooks
   - repo: https://github.com/psf/black
-    rev: 24.2.0
+    rev: 24.4.2
     hooks:
       - id: black
         language_version: python3
@@ -37,6 +37,5 @@ repos:
       - id: mypy
         name: mypy (python)
         language_version: python3
-        exclude: ^tests/  # Example exclusion; adjust as needed
         # Additional mypy configuration can be added here via args
         # args: ["--ignore-missing-imports", "--follow-imports=silent"]
