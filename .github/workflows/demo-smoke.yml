@@ -34,7 +34,7 @@ jobs:
           ls -la artifacts/demo || true
       - name: Upload demo artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: demo-artifacts
           path: artifacts/demo/**
