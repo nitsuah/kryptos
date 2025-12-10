@@ -1,0 +1,37 @@
+# .pylintrc
+[FORMAT]
+max-line-length=88
+
+[MESSAGES CONTROL]
+disable=
+    missing-module-docstring,
+    missing-function-docstring,
+    missing-class-docstring,
+    too-few-public-methods,
+    too-many-locals,
+    too-many-arguments,
+    too-many-branches,
+    too-many-statements
+
+[BASIC]
+good-names=
+    i,
+    j,
+    k,
+    ex,
+    Run,
+    _,
+    id
+
+[MISCELLANEOUS]
+notes=
+    FIXME,
+    TODO,
+    XXX
+
+ignore=
+    dist,
+    build,
+    node_modules,
+    .venv,
+    venv
