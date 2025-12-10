@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout target branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # fetch the PR ref info but keep working in the target repository context
           repository: ${{ github.event.pull_request.head.repo.full_name }}
