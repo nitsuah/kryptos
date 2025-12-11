@@ -28,7 +28,7 @@ jobs:
       - name: Run K4 demo (smoke)
         run: |
           # run a tiny demo to smoke-test the pipeline; limit keeps runtime small
-          python scripts/demo/run_k4_demo.py --limit 5
+          python -m kryptos.examples.k4_demo --limit 5
       - name: List demo artifacts
         run: |
           echo 'Listing artifacts/demo:'
