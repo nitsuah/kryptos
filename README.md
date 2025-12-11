@@ -2,8 +2,10 @@
 
 [![CI (fast)](https://github.com/nitsuah/kryptos/actions/workflows/ci-fast.yml/badge.svg)]
 (https://github.com/nitsuah/kryptos/actions)
+
 [![CI (smoke)](https://github.com/nitsuah/kryptos/actions/workflows/demo-smoke.yml/badge.svg)]
 (https://github.com/nitsuah/kryptos/actions)
+
 [![CI (slow)](https://github.com/nitsuah/kryptos/actions/workflows/ci-slow.yml/badge.svg)]
 (https://github.com/nitsuah/kryptos/actions)
 
