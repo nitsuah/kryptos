@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: read
-
+  actions: write
 jobs:
   demo-smoke:
     runs-on: ubuntu-latest
