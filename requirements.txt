@@ -1,9 +1,5 @@
 matplotlib
 numpy
-flake8
-pytest
-pytest-cov
-pre-commit
 requests
 beautifulsoup4
 spacy>=3.7.0

@@ -37,6 +37,15 @@ When reporting a vulnerability, please include:
 - **Status Update**: Within 7 days
 - **Fix Timeline**: We will provide an estimated fix timeline after assessing the vulnerability. Critical issues will be prioritized.
 
+## Temporary Dependency Exceptions
+
+- **Pygments ReDoS advisory (affecting versions <= 2.19.2)**
+	- **Status**: Accepted temporarily for development-only toolchain exposure.
+	- **Rationale**: The known path is through test/dev tooling, not production runtime dependencies.
+	- **Mitigation in place**: Production installs use `requirements.txt`; test/lint tooling is isolated in `requirements-dev.txt`.
+	- **Exit criteria**: Upgrade to a patched upstream Pygments release when available, then remove this exception.
+	- **Review cadence**: Weekly dependency review via Dependabot.
+
 ## Security Best Practices
 
 When contributing to this project:

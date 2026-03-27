@@ -1,0 +1,7 @@
+-r requirements.txt
+
+# Development and quality tooling
+flake8
+pytest
+pytest-cov
+pre-commit
