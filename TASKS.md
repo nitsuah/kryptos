@@ -10,7 +10,8 @@
 ## In Progress
 
 - [ ] P0 | Bug | Confidence: High | Fix Docker runtime permission failure for artifact/log output.
-  - Problem: Container fails on startup with `PermissionError` when creating `/usr/local/lib/python3.11/site-packages/artifacts`.
+  - Problem: Container fails on startup with `PermissionError` when creating
+    `/usr/local/lib/python3.11/site-packages/artifacts`.
   - Impact: Containerized execution path is not operational for autonomous runs.
   - Acceptance Criteria: Container starts and writes artifacts/logs to a writable application-owned path.
   - Dependencies: Dockerfile and runtime path config alignment.
