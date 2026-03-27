@@ -1,44 +1,40 @@
 # Tasks
 
+Last Updated: 2026-03-27
+
 ## Done
 
-- [x] Built a modular K4 cryptanalysis toolkit covering Hill, transposition, masking, and scoring workflows.
-- [x] Added extensive test suite coverage and split fast vs slow execution paths.
-- [x] Added provenance logging and candidate artifact generation.
-- [x] Added CI workflows for linting and layered test validation.
+- [x] Build the modular K4 cryptanalysis toolkit.
+- [x] Add extensive test coverage and fast or slow execution splits.
+- [x] Add provenance logging and candidate artifact generation.
+- [x] Add layered CI validation.
 
 ## In Progress
 
-- [ ] P0 | Bug | Confidence: High | Fix Docker runtime permission failure for artifact/log output.
-  - Problem: Container fails on startup with `PermissionError` when creating
-    `/usr/local/lib/python3.11/site-packages/artifacts`.
-  - Impact: Containerized execution path is not operational for autonomous runs.
-  - Acceptance Criteria: Container starts and writes artifacts/logs to a writable application-owned path.
-  - Dependencies: Dockerfile and runtime path config alignment.
+- [ ] Fix the Docker runtime permission failure for artifact and log output.
+  - Priority: P0
+  - Problem: the container still hits a `PermissionError` on the current artifact path.
+  - Acceptance Criteria: the container starts and writes to a writable application-owned location.
 
-- [ ] P1 | Feature | Confidence: Medium | Complete Phase 6.2 composite-chain validation.
-  - Problem: Composite attack orchestration exists but still lacks complete validation thresholds and reporting consistency.
-  - Impact: Candidate ranking confidence is lower than needed for production campaigning.
-  - Acceptance Criteria: V->T and T->V flows run with explicit thresholds and deterministic validation outputs.
-  - Dependencies: Stable runtime artifact path.
+- [ ] Complete Phase 6.2 composite-chain validation.
+  - Priority: P1
+  - Problem: composite validation thresholds and reporting consistency are still incomplete.
+  - Acceptance Criteria: V->T and T->V flows run with explicit thresholds and deterministic outputs.
 
 ## Todo
 
-- [ ] P1 | Reliability | Confidence: Medium | Raise effective coverage gate beyond current baseline.
-  - Problem: Coverage gate is intentionally low (60%) to keep CI moving.
-  - Impact: Critical modules may regress without sufficient guardrails.
-  - Acceptance Criteria: Add targeted tests and raise minimum coverage threshold in CI.
-  - Dependencies: Composite validation work.
+- [ ] Raise the effective coverage gate beyond the current baseline.
+  - Priority: P1
+  - Problem: the current 60 percent gate leaves too much room for regression.
+  - Acceptance Criteria: targeted tests land and the CI minimum rises.
 
-- [ ] P2 | Feature | Confidence: Medium | Add scalable campaign orchestration with bounded parallel workers.
-  - Problem: Current throughput is insufficient for larger K4 search batches.
-  - Impact: Slower exploration and delayed hypothesis validation.
-  - Acceptance Criteria: Parallel execution mode with reproducible seeds, bounded workers, and performance telemetry.
-  - Dependencies: Runtime path and artifact stability.
+- [ ] Add scalable campaign orchestration with bounded parallel workers.
+  - Priority: P2
+  - Problem: larger K4 search batches still run too slowly.
+  - Acceptance Criteria: bounded parallel execution is reproducible and emits useful telemetry.
 
-- [ ] P2 | Docs | Confidence: High | Consolidate roadmap references between root roadmap and docs phase plans.
-  - Problem: Multiple roadmap sources can drift.
-  - Impact: Planning ambiguity during implementation.
-  - Acceptance Criteria: One canonical roadmap flow with clear links from README and docs.
-  - Dependencies: None.
+- [ ] Consolidate roadmap references between the root roadmap and docs phase plans.
+  - Priority: P2
+  - Problem: planning sources can still drift.
+  - Acceptance Criteria: one canonical roadmap flow is linked from README and docs.
 
