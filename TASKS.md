@@ -5,7 +5,7 @@ Last Updated: 2026-03-27
 ## Done
 
 - [x] Build the modular K4 cryptanalysis toolkit.
-- [x] Add extensive test coverage and fast or slow execution splits.
+- [x] Add extensive test coverage and fast/slow execution partitioning.
 - [x] Add provenance logging and candidate artifact generation.
 - [x] Add layered CI validation.
 
