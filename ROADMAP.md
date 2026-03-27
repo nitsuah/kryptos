@@ -1,46 +1,26 @@
-# 🗺️ KRYPTOS Roadmap
+# KRYPTOS Roadmap
 
-## 🏗️ Phase 6.2 - Composite Attacks
+## 2026 Q1 (Completed)
 
-- [ ] Implement V→T composite chain (Vigenère + transposition)
-- [ ] Implement T→V composite chain
-- [ ] Multi-stage validation pipeline (SPY → LINGUIST → Q)
-- [ ] Confidence threshold system
-- [ ] Synthetic composite test cases (100% target)
-- [ ] Optimize CI: fast pipeline runs with module-level slow tests skipped; full Monte Carlo gated to separate job
-- [ ] Improve Coverage: gate temporarily set to 60% to keep CI actionable while we add coverage-increasing tests
+- [x] Delivered modular K4 analysis toolkit and composite scoring pipeline
+- [x] Added broad automated test coverage with fast/slow test partitioning
+- [x] Added attempt logging, provenance, and scoring utilities for repeatable experiments
+- [x] Added CI segmentation for fast and slow validation paths
 
-## 📚 Phase 6.3 - Adaptive Learning
+## 2026 Q2 (In Progress)
 
-- [ ] Learning from failures system
-- [ ] Failure pattern detection
-- [ ] Coverage-guided attack generation
-- [ ] Visual coverage heatmaps
-- [ ] Smart pruning of saturated search spaces
-- [ ] 50% reduction in duplicate attacks (target)
+- [ ] Fix container runtime write-permission path for artifact generation
+- [ ] Complete Phase 6.2 composite validation (V->T, T->V, confidence thresholds)
+- [ ] Improve targeted test coverage in low-coverage modules to raise baseline beyond current 60% gate
 
-## 🎯 Phase 6.4 - Production K4 Campaign
+## 2026 Q3 (Planned)
 
-- [ ] Extended K4 attack campaign (10,000+ attacks)
-- [ ] Performance optimization (4× speedup target)
-- [ ] Multiprocessing parallel execution
-- [ ] Production-scale validation pipeline
-- [ ] Coverage reports and candidate export
+- [ ] Launch extended K4 campaign with controlled parallelization
+- [ ] Improve throughput and reproducibility reporting for long-running search jobs
+- [ ] Add operator-grade result triage dashboards for candidate inspection
 
-### Phase 6.5 - Cross-Run Memory System
+## 2026 Q4 (Exploratory)
 
-- [ ] Extend SearchSpaceTracker to persist tried keys
-- [ ] Integrate with Vigenère key recovery exclusion
-- [ ] Integrate with transposition SA exclusion
-- [ ] Integrate with Hill cipher matrix fingerprinting
-- [ ] Create AdaptiveSolverConfig class
-- [ ] Implement success pattern detection
-- [ ] Implement failure pattern detection
+- [ ] Expand cross-run memory heuristics to reduce duplicate attack paths
+- [ ] Evaluate adaptive strategy selection from historical campaign outcomes
 
-### Phase 7 - Future Enhancements
-
-- [ ] K3 double transposition autonomous solving
-- [ ] Performance optimization (4× speedup target)
-- [ ] Extended logging and diagnostics
-- [ ] Enhanced CLI reporting
-- [ ] Visual coverage dashboards
