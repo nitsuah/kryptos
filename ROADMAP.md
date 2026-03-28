@@ -11,7 +11,7 @@ Last Updated: 2026-03-27
 
 ## 2026 Q2 (In Progress)
 
-- [ ] Fix the container runtime write-permission path.
+- [x] Fix the container runtime write-permission path.
 - [ ] Complete Phase 6.2 composite validation.
 - [ ] Improve targeted coverage in low-coverage modules and raise the CI test coverage gate for these modules accordingly.
 

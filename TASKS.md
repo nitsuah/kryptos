@@ -8,13 +8,14 @@ Last Updated: 2026-03-27
 - [x] Add extensive test coverage and fast/slow execution partitioning.
 - [x] Add provenance logging and candidate artifact generation.
 - [x] Add layered CI validation.
+- [x] Fix the Docker runtime permission failure for artifact and log output.
+  - Completed: 2026-03-27
+  - Evidence: `docker run --rm kryptos-devops-check kryptos k4-attempts --label docker-smoke` now writes under the application working tree instead of `site-packages`.
+- [x] Add Docker smoke CI workflow.
+  - Completed: 2026-03-27
+  - Evidence: `.github/workflows/docker-smoke.yml` now builds the image and validates CLI startup.
 
 ## In Progress
-
-- [ ] Fix the Docker runtime permission failure for artifact and log output.
-  - Priority: P0
-  - Problem: the container still hits a `PermissionError` on the current artifact path.
-  - Acceptance Criteria: the container starts and writes to a writable application-owned location.
 
 - [ ] Complete Phase 6.2 composite-chain validation.
   - Priority: P1
