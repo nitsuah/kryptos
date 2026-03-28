@@ -33,6 +33,25 @@ def test_provenance_hash_stable():
     assert h3 != h1
 
 
+def test_cwd_repo_root_preferred_for_installed_package(tmp_path, monkeypatch):
+    repo_root = tmp_path / 'repo'
+    repo_root.mkdir()
+    (repo_root / 'pyproject.toml').write_text('[project]\nname = "kryptos-test"\nversion = "0.0.0"\n', encoding='utf-8')
+
+    fake_site_packages = tmp_path / 'site-packages' / 'kryptos'
+    fake_site_packages.mkdir(parents=True)
+    fake_module = fake_site_packages / 'paths.py'
+    fake_module.write_text('# placeholder', encoding='utf-8')
+
+    paths.get_repo_root.cache_clear()  # type: ignore[attr-defined]
+    monkeypatch.delenv(paths.ENV_ROOT, raising=False)
+    monkeypatch.chdir(repo_root)
+    monkeypatch.setattr(paths, '__file__', str(fake_module))
+
+    assert paths.get_repo_root() == repo_root
+    assert paths.get_artifacts_root() == repo_root / 'artifacts'
+
+
 def test_containment_and_no_root_level_artifacts(tmp_path):
     # Ensure helper-created artifacts live directly under repo root
     repo_root = paths.get_repo_root()
