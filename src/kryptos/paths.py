@@ -28,6 +28,15 @@ from pathlib import Path
 ENV_ROOT = "KRYPTOS_REPO_ROOT"
 
 
+def _find_repo_root(start: Path) -> Path | None:
+    current = start.resolve()
+    candidates = (current,) + tuple(current.parents)
+    for candidate in candidates:
+        if (candidate / "pyproject.toml").exists():
+            return candidate
+    return None
+
+
 @lru_cache(maxsize=1)
 def get_repo_root() -> Path:
     override = os.environ.get(ENV_ROOT)
@@ -35,10 +44,16 @@ def get_repo_root() -> Path:
         p = Path(override).resolve()
         if p.exists():
             return p
+
+    cwd_root = _find_repo_root(Path.cwd())
+    if cwd_root is not None:
+        return cwd_root
+
+    module_root = _find_repo_root(Path(__file__))
+    if module_root is not None:
+        return module_root
+
     here = Path(__file__).resolve()
-    for parent in here.parents:
-        if (parent / "pyproject.toml").exists():
-            return parent
     return here.parents[1]
 
 

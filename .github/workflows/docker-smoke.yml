@@ -1,0 +1,24 @@
+name: Docker Smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  docker-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Build image
+        run: docker build -t kryptos-docker-smoke .
+
+      - name: Verify CLI starts in container
+        run: docker run --rm kryptos-docker-smoke kryptos sections
