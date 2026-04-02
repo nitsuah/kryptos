@@ -8,7 +8,6 @@ __pycache__
 artifacts
 htmlcov
 reports
-.pytest_cache
 *.pyc
 *.pyo
 *.log

@@ -36,7 +36,9 @@ def test_provenance_hash_stable():
 def test_cwd_repo_root_preferred_for_installed_package(tmp_path, monkeypatch):
     repo_root = tmp_path / 'repo'
     repo_root.mkdir()
-    (repo_root / 'pyproject.toml').write_text('[project]\nname = "kryptos-test"\nversion = "0.0.0"\n', encoding='utf-8')
+    (repo_root / 'pyproject.toml').write_text('[project]\nname = "kryptos"\nversion = "0.0.0"\n', encoding='utf-8')
+    # Create the Kryptos-specific marker so _find_repo_root(kryptos_only=True) matches.
+    (repo_root / 'src' / 'kryptos').mkdir(parents=True)
 
     fake_site_packages = tmp_path / 'site-packages' / 'kryptos'
     fake_site_packages.mkdir(parents=True)

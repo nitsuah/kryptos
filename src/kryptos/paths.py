@@ -28,12 +28,18 @@ from pathlib import Path
 ENV_ROOT = "KRYPTOS_REPO_ROOT"
 
 
-def _find_repo_root(start: Path) -> Path | None:
+def _is_kryptos_root(candidate: Path) -> bool:
+    """Return True only if *candidate* is the Kryptos repo root (contains src/kryptos/)."""
+    return (candidate / "src" / "kryptos").is_dir()
+
+
+def _find_repo_root(start: Path, kryptos_only: bool = False) -> Path | None:
     current = start.resolve()
     candidates = (current,) + tuple(current.parents)
     for candidate in candidates:
         if (candidate / "pyproject.toml").exists():
-            return candidate
+            if not kryptos_only or _is_kryptos_root(candidate):
+                return candidate
     return None
 
 
@@ -45,7 +51,9 @@ def get_repo_root() -> Path:
         if p.exists():
             return p
 
-    cwd_root = _find_repo_root(Path.cwd())
+    # Require the CWD-discovered root to be the Kryptos repo specifically, so
+    # that an unrelated project's pyproject.toml is never mistaken for ours.
+    cwd_root = _find_repo_root(Path.cwd(), kryptos_only=True)
     if cwd_root is not None:
         return cwd_root
 
