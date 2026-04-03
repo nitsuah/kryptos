@@ -14,18 +14,14 @@ Last Updated: 2026-04-03 (pmo/q2-2026-planning)
 - [x] Add Docker smoke CI workflow.
   - Completed: 2026-03-27
   - Evidence: `.github/workflows/docker-smoke.yml` now builds the image and validates CLI startup.
+- [x] Complete Phase 6.2 composite-chain validation.
+  - Completed: 2026-04-03
+  - Evidence: `src/kryptos/k4/composite.py` now enforces explicit score thresholds and deterministic ordering for V->T and T->V chains; validated by `tests/test_composite_chain_thresholds.py`.
+- [x] Wire manifesto checks into planning and PR review cadence.
+  - Completed: 2026-04-03
+  - Evidence: `.github/pull_request_template.md` now requires manifesto alignment notes (signal/reproducibility/pruning), and `.github/workflows/manifesto-pr-check.yml` enforces section presence for non-draft PRs.
 
 ## In Progress
-
-- [ ] Complete Phase 6.2 composite-chain validation.
-  - Priority: P1
-  - Problem: composite validation thresholds and reporting consistency are still incomplete.
-  - Acceptance Criteria: V->T and T->V flows run with explicit thresholds and deterministic outputs.
-
-- [ ] Wire manifesto checks into planning and PR review cadence.
-  - Priority: P1
-  - Problem: governance guidance exists but can drift without recurring enforcement.
-  - Acceptance Criteria: roadmap updates and strategic PRs include manifesto alignment notes (signal, reproducibility, pruning).
 
 ## Todo
 

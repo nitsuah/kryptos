@@ -1,0 +1,34 @@
+name: Manifesto PR Check
+
+permissions:
+  pull-requests: read
+  contents: read
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+jobs:
+  verify-manifesto-section:
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate manifesto alignment checklist in PR body
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const body = (context.payload.pull_request.body || '').toLowerCase();
+            const required = [
+              '## manifesto alignment',
+              '- [ ] signal impact described (measured or expected)',
+              '- [ ] reproducibility evidence included (commands/artifacts)',
+              '- [ ] pruning/retirement note included (or explicit n/a rationale)'
+            ];
+
+            const missing = required.filter(token => !body.includes(token));
+            if (missing.length > 0) {
+              core.setFailed(
+                'PR body is missing required manifesto alignment content. Missing tokens: ' +
+                missing.join(' | ')
+              );
+            }

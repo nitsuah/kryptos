@@ -12,7 +12,8 @@ Last Updated: 2026-04-03 (pmo/q2-2026-planning)
 ## 2026 Q2 (In Progress)
 
 - [x] Fix the container runtime write-permission path.
-- [ ] Complete Phase 6.2 composite validation.
+- [x] Complete Phase 6.2 composite validation.
+- [x] Wire manifesto alignment checks into PR cadence (signal, reproducibility, pruning).
 - [ ] Improve targeted coverage in low-coverage modules and raise the CI test coverage gate for these modules accordingly.
 
 ## 2026 Q3 (Planned)
