@@ -22,6 +22,11 @@ Last Updated: 2026-04-03 (pmo/q2-2026-planning)
   - Problem: composite validation thresholds and reporting consistency are still incomplete.
   - Acceptance Criteria: V->T and T->V flows run with explicit thresholds and deterministic outputs.
 
+- [ ] Wire manifesto checks into planning and PR review cadence.
+  - Priority: P1
+  - Problem: governance guidance exists but can drift without recurring enforcement.
+  - Acceptance Criteria: roadmap updates and strategic PRs include manifesto alignment notes (signal, reproducibility, pruning).
+
 ## Todo
 
 - [ ] Raise the effective coverage gate beyond the current baseline.
@@ -38,4 +43,9 @@ Last Updated: 2026-04-03 (pmo/q2-2026-planning)
   - Priority: P2
   - Problem: planning sources can still drift.
   - Acceptance Criteria: one canonical roadmap flow is linked from README and docs.
+
+- [ ] Add a lightweight monthly governance review note in docs.
+  - Priority: P3
+  - Problem: lessons and retired hypotheses are not yet captured on a regular cadence.
+  - Acceptance Criteria: one recurring section tracks what was promoted, what was retired, and why.
 
