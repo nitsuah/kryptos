@@ -26,5 +26,6 @@ jobs:
           /bin/sh -lc
           'set -e;
           kryptos sections;
+          kryptos k4-decrypt --cipher data/k4_cipher.txt --limit 1 --report;
           kryptos k4-attempts --label docker-smoke;
           test -n "$(find artifacts/reports -maxdepth 2 -type f -name "attempts_*.json" -print -quit)"'
