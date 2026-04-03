@@ -68,7 +68,22 @@ validation
 **Understanding these docs will help your contributions align with project architecture, standards, and strategic
 direction.**
 
+4. **[`docs/MANIFESTO.md`](docs/MANIFESTO.md)** — Project philosophy and decision rubric
+  - Defines how we evaluate progress and avoid false confidence
+  - Clarifies AI's role as a multiplier, not an authority
+  - Establishes non-negotiable standards for strategic changes
+
 ---
+
+## Manifesto Alignment (Required)
+
+Before opening a PR, verify the change aligns with `docs/MANIFESTO.md`:
+
+1. What measurable signal improved?
+2. How can another contributor reproduce the claim?
+3. What weak path was removed, rejected, or de-prioritized?
+
+If a change is exploratory and does not improve validated signal yet, mark it explicitly as exploratory.
 
 ## Getting Started
 
@@ -202,5 +217,7 @@ they will shadow the standard library and cause import errors.
 - [ ] All tests pass locally (`pytest tests/`)
 - [ ] Linting passes (`pre-commit run --all-files`)
 - [ ] README / ROADMAP.md updated if relevant
+- [ ] Manifesto alignment explained (signal, reproducibility, and pruning decision)
+- [ ] Strategic claims include measurable acceptance criteria
 
 Welcome aboard!

@@ -231,12 +231,35 @@ def adaptive_fusion_weights(candidates: list[dict[str, Any]]) -> dict[str, float
 
 
 class CompositeChainExecutor:
+    @staticmethod
+    def _finalize_candidates(
+        candidates: list[dict[str, Any]],
+        top_n: int,
+        min_score_threshold: float | None,
+    ) -> list[dict[str, Any]]:
+        filtered = candidates
+        if min_score_threshold is not None:
+            filtered = [c for c in candidates if c.get('score', 0.0) >= min_score_threshold]
+
+        # Deterministic ordering even when scores tie.
+        filtered.sort(
+            key=lambda x: (
+                -float(x.get('score', 0.0)),
+                str(x.get('plaintext', '')),
+                str(x.get('vigenere_key', '')),
+                int(x.get('transposition_cols', 0)),
+                str(x.get('transposition_perm', '')),
+            )
+        )
+        return filtered[:top_n]
+
     def vigenere_then_transposition(
         self,
         ciphertext: str,
         vigenere_key_length: int,
         transposition_col_range: tuple[int, int] = (5, 8),
         top_n: int = 5,
+        min_score_threshold: float | None = None,
     ) -> list[dict[str, Any]]:
         """V→T chain: Decrypt Vigenère first, then try transposition on result.
 
@@ -245,6 +268,7 @@ class CompositeChainExecutor:
             vigenere_key_length: Expected Vigenère key length
             transposition_col_range: (min_cols, max_cols) for transposition
             top_n: Return top N results
+            min_score_threshold: Optional minimum score filter applied before returning results
 
         Returns:
             List of candidates with keys, scores, and plaintext
@@ -266,11 +290,11 @@ class CompositeChainExecutor:
                         'transposition_cols': t_result['cols'],
                         'transposition_perm': t_result['perm'],
                         'chain': 'V→T',
+                        'threshold_applied': min_score_threshold,
                     },
                 )
 
-        candidates.sort(key=lambda x: x['score'], reverse=True)
-        return candidates[:top_n]
+        return self._finalize_candidates(candidates, top_n, min_score_threshold)
 
     def transposition_then_vigenere(
         self,
@@ -278,6 +302,7 @@ class CompositeChainExecutor:
         transposition_col_range: tuple[int, int] = (5, 8),
         vigenere_key_length: int = 8,
         top_n: int = 5,
+        min_score_threshold: float | None = None,
     ) -> list[dict[str, Any]]:
         """T→V chain: Decrypt transposition first, then Vigenère.
 
@@ -286,6 +311,7 @@ class CompositeChainExecutor:
             transposition_col_range: (min_cols, max_cols) for transposition
             vigenere_key_length: Expected Vigenère key length
             top_n: Return top N results
+            min_score_threshold: Optional minimum score filter applied before returning results
 
         Returns:
             List of candidates with keys, scores, and plaintext
@@ -310,11 +336,11 @@ class CompositeChainExecutor:
                         'transposition_perm': t_result['perm'],
                         'vigenere_key': v_key,
                         'chain': 'T→V',
+                        'threshold_applied': min_score_threshold,
                     },
                 )
 
-        candidates.sort(key=lambda x: x['score'], reverse=True)
-        return candidates[:top_n]
+        return self._finalize_candidates(candidates, top_n, min_score_threshold)
 
 
 __all__ = [
