@@ -15,10 +15,50 @@ decrypt the famous Kryptos sculpture.
 This Kryptos repository is a research toolkit for exploring layered cipher hypotheses (Vigenère, Hill, transposition,
 masking, and related hybrids) with an emphasis on reproducible pipelines and scoring heuristics.
 
+## Kryptos Manifesto
+
+Kryptos is a long-horizon cryptanalysis program, not a promise machine.
+
+### What We Optimize For
+
+1. **Truth over narrative**
+  - We prefer uncomfortable results over comforting stories.
+  - "Did it improve validated signal?" is the first question.
+
+1. **Reproducibility over heroics**
+  - Every claim should be backed by deterministic commands, artifacts, and provenance.
+  - If a result cannot be reproduced, it does not count.
+
+1. **Known-cipher reliability before unknown-cipher ambition**
+  - K1-K3 performance is the quality gate for K4 campaigns.
+  - We do not scale strategies that fail on validated baselines.
+
+1. **AI as amplifier, not oracle**
+  - AI accelerates hypothesis generation, coding, and experiment operations.
+  - AI output is always treated as a proposal that must survive measurement.
+
+1. **Small, compounding iterations**
+  - Prefer narrow changes with clear acceptance criteria.
+  - Ship improvements that make the next experiment faster and cleaner.
+
+1. **Kill weak hypotheses quickly**
+  - Retire approaches that repeatedly underperform controls.
+  - Preserve a decision trail so retired ideas are not re-litigated without new evidence.
+
+### Operating Commitments
+
+- Every significant change includes a validation path (tests, benchmark deltas, or reproducible artifact evidence).
+- Every campaign run writes traceable outputs under `artifacts/`.
+- Every roadmap claim ties to measurable criteria, not adjectives.
+- Every phase includes at least one explicit "stop doing" decision.
+
+For the complete governance policy, see `docs/MANIFESTO.md`.
+
 ## docs
 
 All Related documents / quick links can generally be found in `docs/`:
 
+- Manifesto: `docs/MANIFESTO.md`
 - Phase 6 Roadmap: `docs/PHASE_6_ROADMAP.md`
 - Agents Architecture: `docs/reference/AGENTS_ARCHITECTURE.md`
 - API Reference: `docs/reference/API_REFERENCE.md`
