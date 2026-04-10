@@ -18,17 +18,18 @@ jobs:
         with:
           script: |
             const body = (context.payload.pull_request.body || '').toLowerCase();
+            // Check for section header and item text regardless of checkbox state ([ ] or [x])
             const required = [
               '## manifesto alignment',
-              '- [ ] signal impact described (measured or expected)',
-              '- [ ] reproducibility evidence included (commands/artifacts)',
-              '- [ ] pruning/retirement note included (or explicit n/a rationale)'
+              'signal impact described (measured or expected)',
+              'reproducibility evidence included (commands/artifacts)',
+              'pruning/retirement note included (or explicit n/a rationale)'
             ];
 
             const missing = required.filter(token => !body.includes(token));
             if (missing.length > 0) {
               core.setFailed(
-                'PR body is missing required manifesto alignment content. Missing tokens: ' +
+                'PR body is missing required manifesto alignment content. Add a "## Manifesto Alignment" section with the three checklist items. Missing: ' +
                 missing.join(' | ')
               );
             }
