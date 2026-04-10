@@ -31,4 +31,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           message: |
             Thanks for the PR — automated checks will run (fast smoke + tests).
+            Please complete the **Manifesto Alignment** section in the PR template with signal, reproducibility, and pruning notes.
             If you'd like reviewers requested automatically, set the `REVIEWERS` secret (comma-separated GitHub logins) in the repo settings and this workflow will request them.
