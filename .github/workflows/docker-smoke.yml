@@ -27,4 +27,4 @@ jobs:
           'set -e;
           kryptos sections;
           kryptos k4-attempts --label docker-smoke;
-          test -n "$(find artifacts/reports -maxdepth 2 -type f -name "attempts_*.json" -print -quit)"'
+          test -n "$(find artifacts/reports -maxdepth 3 -type f -name "attempts_*.json" -print -quit)"'
