@@ -1,29 +1,30 @@
-# KRYPTOS Roadmap
 
-Last Updated: 2026-04-03 (pmo/q2-2026-planning)
+# 🗺️ Kryptos Roadmap
 
-## 2026 Q1 (Completed)
+Last Updated: 2026-04-13 (Overseer compliance review)
+Next Review: 2026-05-01
 
-- [x] Deliver the modular K4 analysis toolkit and composite scoring pipeline.
-- [x] Add broad automated test coverage with fast and slow partitions.
-- [x] Add provenance, attempt logging, and repeatable scoring utilities.
-- [x] Add segmented CI validation.
 
-## 2026 Q2 (In Progress)
+## Q1 2026: Foundation (Completed) 🚀
+- [x] Deliver the modular K4 analysis toolkit and composite scoring pipeline
+- [x] Add broad automated test coverage with fast and slow partitions
+- [x] Add provenance, attempt logging, and repeatable scoring utilities
+- [x] Add segmented CI validation
 
-- [x] Fix the container runtime write-permission path.
-- [x] Complete Phase 6.2 composite validation.
-- [x] Wire manifesto alignment checks into PR cadence (signal, reproducibility, pruning).
-- [ ] Improve targeted coverage in low-coverage modules and raise the CI test coverage gate for these modules accordingly.
 
-## 2026 Q3 (Planned)
+## Q2 2026: Coverage & Validation (IN PROGRESS) 🏗️
+- [x] Fix the container runtime write-permission path
+- [x] Complete Phase 6.2 composite validation
+- [x] Wire manifesto alignment checks into PR cadence (signal, reproducibility, pruning)
+- [ ] Improve targeted coverage in low-coverage modules and raise the CI test coverage gate for these modules accordingly
 
-- [ ] Launch the extended K4 campaign with controlled parallelization.
-- [ ] Improve throughput and reproducibility reporting.
-- [ ] Add operator-grade result triage support.
 
-## 2026 Q4 (Exploratory)
+## Q3 2026: Scaling & Triage (Planned) 🤖
+- [ ] Launch the extended K4 campaign with controlled parallelization
+- [ ] Improve throughput and reproducibility reporting
+- [ ] Add operator-grade result triage support
 
-- [ ] Expand cross-run memory heuristics.
-- [ ] Evaluate adaptive strategy selection from historical campaign outcomes.
 
+## Q4 2026: Exploration (Exploratory) 🧪
+- [ ] Expand cross-run memory heuristics
+- [ ] Evaluate adaptive strategy selection from historical campaign outcomes

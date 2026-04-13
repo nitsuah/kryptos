@@ -1,6 +1,6 @@
 # Tasks
 
-Last Updated: 2026-04-03 (pmo/q2-2026-planning)
+Last Updated: 2026-04-13 (Overseer compliance review)
 
 ## Done
 
@@ -21,7 +21,11 @@ Last Updated: 2026-04-03 (pmo/q2-2026-planning)
   - Completed: 2026-04-03
   - Evidence: `.github/pull_request_template.md` now requires manifesto alignment notes (signal/reproducibility/pruning), and `.github/workflows/manifesto-pr-check.yml` enforces section presence for non-draft PRs.
 
+
 ## In Progress
+
+# (No active tasks currently marked as in progress)
+
 
 ## Todo
 
@@ -45,3 +49,8 @@ Last Updated: 2026-04-03 (pmo/q2-2026-planning)
   - Problem: lessons and retired hypotheses are not yet captured on a regular cadence.
   - Acceptance Criteria: one recurring section tracks what was promoted, what was retired, and why.
 
+### Recurring Governance Review
+- [ ] Add/update a section in docs/governance.md each month summarizing:
+  - What was promoted to active research
+  - What hypotheses were retired (and why)
+  - Lessons learned and next steps

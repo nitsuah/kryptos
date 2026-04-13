@@ -204,9 +204,8 @@ kryptos sections
 
 Decrypt K4 ciphertext from a file, limit candidates, enable adaptive fusion, and write artifacts:
 
-```bash
+
 kryptos k4-decrypt --cipher data/k4_cipher.txt --limit 40 --adaptive --report
-```
 
 Outputs JSON containing top plaintext, score, lineage, and artifact paths. Artifacts (candidates, attempts) are written
 under `artifacts/` when `--report` is used.
@@ -231,23 +230,14 @@ kryptos tuning-crib-weight-sweep --weights 0.25,0.5,1.0,1.5 \
 
 Emits JSON rows: each weight with baseline vs with‑crib deltas.
 
-### Tuning: Pick Best Weight
-
 Select best performing weight from a prior sweep CSV:
 
 ```bash
 kryptos tuning-pick-best --csv artifacts/tuning_runs/run_20251023T120000/crib_weight_sweep.csv
-```
-
-Returns `{ "best_weight": <float> }`.
-
-### Tuning: Summarize Run
 
 Clean and summarize a tuning run directory (crib hit counts, aggregates). Writes artifacts unless `--no-write` is
 provided:
-
 ```bash
-kryptos tuning-summarize-run --run-dir artifacts/tuning_runs/run_20251023T120000
 ```
 
 ### Tuning: Tiny Param Sweep
