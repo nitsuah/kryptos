@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Validate manifesto alignment checklist in PR body
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             // Bootstrap guard: if this PR introduces/updates the manifesto governance files,
