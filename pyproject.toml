@@ -17,7 +17,7 @@ extend-ignore = ["E402", "E203"]
 exclude = ["__pycache__", ".git"]
 
 [build-system]
-requires = ["setuptools>=61.0","wheel"]
+requires = ["setuptools>=82.0.1","wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
