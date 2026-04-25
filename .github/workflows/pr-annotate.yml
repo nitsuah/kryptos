@@ -1,3 +1,4 @@
+  # CAVEMAN ADD BLANK LINE. UGH.
 name: PR annotate
 
 # Note: to allow commenting/labeling from workflows triggered by PRs (and when using
@@ -25,8 +26,9 @@ jobs:
             autopilot
             needs-review
 
+
       - name: Comment on PR
-        uses: marocchino/sticky-pull-request-comment@c7e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2 # v3.0.4
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           message: |
