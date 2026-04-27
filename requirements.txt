@@ -9,4 +9,4 @@ openai>=1.0.0  # Optional: for OpenAI LLM integration
 anthropic>=0.18.0  # Optional: for Anthropic LLM integration
 transformers>=4.30.0  # Optional: for LINGUIST neural validation
 torch>=2.0.0  # Optional: for LINGUIST neural models
-sentence-transformers>=2.2.0  # Optional: for semantic embeddings
+sentence-transformers>=5.4.1  # Optional: for semantic embeddings
