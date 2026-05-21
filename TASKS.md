@@ -24,7 +24,7 @@ Last Updated: 2026-04-13 (Overseer compliance review)
 
 ## In Progress
 
-# (No active tasks currently marked as in progress)
+(No active tasks currently marked as in progress)
 
 
 ## Todo

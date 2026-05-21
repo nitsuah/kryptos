@@ -2,7 +2,7 @@
 # 🗺️ Kryptos Roadmap
 
 Last Updated: 2026-04-13 (Overseer compliance review)
-Next Review: 2026-05-01
+Next Review: 2026-06-01
 
 
 ## Q1 2026: Foundation (Completed) 🚀

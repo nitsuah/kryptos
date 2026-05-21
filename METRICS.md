@@ -68,10 +68,10 @@
 
 | Metric           | Value      | Notes                                    |
 | ---------------- | ---------- | ---------------------------------------- |
-| Open Issues      | 0          | GitHub issue tracking (auto-updated)     |
+| Open Issues      | 0          | GitHub issue tracking                     |
 | PR Turnaround    | <1 day     | Typical PR review time                   |
 | Skipped Tests    | 10         | Module-level slow tests (marked skip)    |
-| Health Score     | 95/100     | Overseer compliance score (auto-updated) |
+| Health Score     | 95/100     | Overseer compliance score                 |
 | Last Updated     | 2026-04-13 | Phase 6.2 validation run                 |
 | Project Status   | Active     | Phase 6.2 in progress                    |
 | K4 Readiness     | 5%         | 7.5/10 core capabilities working         |
