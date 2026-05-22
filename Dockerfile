@@ -46,6 +46,9 @@ COPY . .
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app
 
+# Install dev requirements for test execution
+RUN pip install --no-cache-dir -r requirements-dev.txt
+
 # Switch to non-root user
 USER appuser
 
