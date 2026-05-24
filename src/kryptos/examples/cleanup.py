@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
@@ -35,7 +35,7 @@ def purge_demo_artifacts(max_age_hours: int | None = 24, max_keep: int | None = 
     from kryptos import paths as _paths
 
     root = _paths.get_artifacts_root()
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     demo_dirs = list(_iter_demo_dirs(root))
     annotated: list[tuple[Path, float]] = []
     for d in demo_dirs:

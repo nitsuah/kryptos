@@ -10,7 +10,7 @@ import json
 import logging
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from kryptos.autopilot import recommend_next_action, run_exchange
@@ -21,7 +21,7 @@ from kryptos.paths import get_artifacts_root
 def run_autopilot_demo() -> Path:
     setup_logging(level=logging.INFO, logger_name="kryptos.autopilot_demo")
     log = logging.getLogger("kryptos.autopilot_demo")
-    ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     rand = "".join(random.choice(string.ascii_lowercase + string.digits) for _ in range(4))
     demo_dir = get_artifacts_root() / "demo" / f"run_{ts}_{rand}"
     demo_dir.mkdir(parents=True, exist_ok=True)

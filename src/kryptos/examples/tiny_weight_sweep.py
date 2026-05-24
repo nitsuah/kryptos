@@ -11,7 +11,7 @@ from __future__ import annotations
 import csv
 import logging
 from collections.abc import Iterable, Sequence
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from kryptos.k4.tuning import run_crib_weight_sweep
@@ -37,7 +37,7 @@ def run_tiny_weight_sweep(
         cribs=cribs,
         weights=weights or _DEFAULT_WEIGHTS,
     )
-    ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out_dir = get_artifacts_root() / "demo" / f"tiny_weight_sweep_{ts}"
     out_dir.mkdir(parents=True, exist_ok=True)
     summary = out_dir / "crib_weight_sweep.csv"

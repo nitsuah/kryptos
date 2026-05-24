@@ -46,7 +46,9 @@ def test_spy_v2_on_k1_fragment():
         print(f"    Confidence: {insight.confidence:.2f}")
         print()
 
-    return results
+    assert isinstance(results, dict)
+    assert 'insight_count' in results
+    assert 'pattern_score' in results
 
 
 def test_spy_v1_vs_v2_comparison():

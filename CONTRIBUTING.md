@@ -193,6 +193,18 @@ they will shadow the standard library and cause import errors.
 - Provide unit tests for each new cipher operation or scoring metric.
 - Use deterministic seeds for any randomized sampling.
 - Skip placeholder hypothesis tests with `@unittest.skip` until logic is implemented.
+- For reproducible fast coverage in Docker, run:
+
+  ```bash
+  docker run --rm -v "${PWD}:/app" -w /app python:3.13-slim sh -lc \
+    "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml && \
+     python -m spacy download en_core_web_sm && \
+     pip install --no-cache-dir -e . --no-deps && \
+     pytest tests/ -m 'not slow' --cov=src --cov-report=term"
+  ```
+
+  The micro-benchmark in `tests/test_k4_performance.py` auto-skips in container runtimes to prevent false
+  performance regressions.
 
 ## Performance
 

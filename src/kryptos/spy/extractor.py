@@ -12,7 +12,7 @@ from __future__ import annotations
 import csv
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from kryptos.paths import get_repo_root
@@ -90,7 +90,7 @@ def scan_run(run_dir: Path, cribs: set[str]) -> list[SpyMatch]:
 
 def append_learned(note: str) -> str:
     LEARNED.parent.mkdir(parents=True, exist_ok=True)
-    ts = datetime.utcnow().isoformat()
+    ts = datetime.now(timezone.utc).isoformat()
     line = f"- {ts} SPY: {note}\n"
     with LEARNED.open('a', encoding='utf-8') as fh:
         fh.write(line)

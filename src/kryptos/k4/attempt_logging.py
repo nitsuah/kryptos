@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from ..paths import ensure_reports_dir
@@ -37,7 +37,7 @@ def persist_attempt_logs(
     trans = get_transposition_attempt_log(clear=False)
     payload: dict[str, Any] = {
         'label': label,
-        'generated_at': datetime.utcnow().isoformat() + 'Z',
+        'generated_at': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
         'counts': {
             'hill': len(hill),
             'clock': len(clock),
@@ -50,7 +50,7 @@ def persist_attempt_logs(
     if out_dir is None:
         out_dir = str(ensure_reports_dir())
     _ensure_dir(out_dir)
-    ts = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
+    ts = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     path = os.path.join(out_dir, f'attempts_{label.lower()}_{ts}.json')
     with open(path, 'w', encoding='utf-8') as fh:
         json.dump(payload, fh, indent=2)

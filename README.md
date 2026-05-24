@@ -305,6 +305,21 @@ using the evaluation harness; it falls back to `0.25` when no labeled runs are a
 
 Contribution guidelines moved to `CONTRIBUTING.md` → [Contributing Guide](./CONTRIBUTING.md).
 
+## Docker Fast Coverage
+
+Run the fast test suite with coverage in a lightweight Docker container:
+
+```bash
+docker run --rm -v "${PWD}:/app" -w /app python:3.13-slim sh -lc \
+  "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml && \
+   python -m spacy download en_core_web_sm && \
+   pip install --no-cache-dir -e . --no-deps && \
+   pytest tests/ -m 'not slow' --cov=src --cov-report=term"
+```
+
+Note: `tests/test_k4_performance.py` contains a micro-benchmark guard that is automatically skipped in container
+environments to avoid false regressions from container scheduling variance.
+
 ## Scoring Metrics Snapshot
 
 Use `baseline_stats(text)` to inspect metrics including advanced linguistic features.
