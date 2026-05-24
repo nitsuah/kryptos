@@ -82,9 +82,7 @@ then convert back.
 
 1. **Combo Attacks** - Chaining multiple methods together (K4 likely uses 2-3 techniques layered in sequence)
 
-We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real word detection – to
-identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic
-intuition rather than brute force. After all, humans design puzzles with intention, not randomness!
+  - We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real word detection – to identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic intuition rather than brute force. After all, humans design puzzles with intention, not randomness!
 
 ## Recent Updates
 
@@ -109,31 +107,23 @@ intuition rather than brute force. After all, humans design puzzles with intenti
 ### ✅ K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"
 
 - **Status**: Solved.
-- **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional
-
-misspelling preserved: `IQLUSION`.
+- **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional misspelling preserved: `IQLUSION`.
 
 ### ✅ K2: "It was totally invisible. How's that possible?"
 
 - **Status**: Solved.
-- **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for
-
-historical alignment. Contains geospatial coordinates and narrative text.
+- **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for historical alignment. Contains geospatial coordinates and narrative text.
 
 ### ✅ K3: "Slowly, desperately slowly, the remains of passage debris..."
 
 - **Status**: Solved (double rotational transposition method).
-- **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid →
-
-second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling `DESPARATLY` (analogous
+- **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid → second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling `DESPARATLY` (analogous
 to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
 - **Status**: Unsolved.
-- **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint
-
-pipeline, multi-stage fusion).
+- **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint pipeline, multi-stage fusion).
 
 - **Latest Additions**: Multi-crib positional transposition stage, attempt logging & persistence,
 

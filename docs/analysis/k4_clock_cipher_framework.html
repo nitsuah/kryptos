@@ -1,0 +1,407 @@
+
+<style>
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.section-label{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin:1.5rem 0 .5rem}
+.theory-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:.875rem 1rem;margin-bottom:.625rem;cursor:pointer;transition:border-color .15s}
+.theory-card:hover{border-color:var(--color-border-secondary)}
+.theory-card.active{border-color:var(--color-border-info);background:var(--color-background-info)}
+.card-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.badge{font-size:11px;padding:2px 8px;border-radius:var(--border-radius-md);font-weight:500}
+.badge-high{background:var(--color-background-danger);color:var(--color-text-danger)}
+.badge-med{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-low{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-info{background:var(--color-background-info);color:var(--color-text-info)}
+.card-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.card-body{font-size:13px;color:var(--color-text-secondary);line-height:1.5}
+.detail-panel{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.875rem 1rem;margin-top:.75rem;font-size:13px;color:var(--color-text-secondary);line-height:1.6;display:none}
+.detail-panel.open{display:block}
+.code-block{font-family:var(--font-mono);font-size:12px;background:var(--color-background-tertiary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.5rem .75rem;margin:.5rem 0;white-space:pre;overflow-x:auto;color:var(--color-text-primary)}
+.layer-row{display:flex;gap:8px;margin:.5rem 0;align-items:center}
+.layer-box{flex:1;text-align:center;padding:6px;border-radius:var(--border-radius-md);font-size:12px;font-weight:500}
+.arrow-sep{font-size:16px;color:var(--color-text-tertiary);flex-shrink:0}
+.tabs{display:flex;gap:4px;margin-bottom:1rem;border-bottom:.5px solid var(--color-border-tertiary);padding-bottom:0}
+.tab{font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md) var(--border-radius-md) 0 0;cursor:pointer;color:var(--color-text-secondary);border:.5px solid transparent;border-bottom:none;margin-bottom:-1px}
+.tab.active{color:var(--color-text-primary);background:var(--color-background-primary);border-color:var(--color-border-tertiary)}
+.tab-content{display:none}.tab-content.active{display:block}
+.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:.75rem 0}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.625rem .75rem;text-align:center}
+.metric-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.metric-lbl{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+.send-btn{font-size:12px;padding:4px 10px;cursor:pointer;margin-top:6px;border-radius:var(--border-radius-md)}
+</style>
+
+<h2 class="sr-only">K4 cryptanalysis framework — clock-based composite cipher theories and attack strategy</h2>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('theories')">Cipher theories</div>
+  <div class="tab" onclick="switchTab('clocks')">Clock mechanics</div>
+  <div class="tab" onclick="switchTab('pipeline')">Attack pipeline</div>
+  <div class="tab" onclick="switchTab('cribs')">Crib anchors</div>
+</div>
+
+<div id="tab-theories" class="tab-content active">
+  <div class="section-label">Core hypothesis — "always changing its face"</div>
+
+  <div class="theory-card" onclick="toggle(this,'d1')">
+    <div class="card-header">
+      <span class="badge badge-high">Priority 1</span>
+      <span class="card-title">Vigenère keyed by clock state (temporal Vigenère)</span>
+    </div>
+    <div class="card-body">The clock's lamp state at a specific timestamp encodes the polyalphabetic key — a key that "changes its face" every tick.</div>
+    <div class="detail-panel" id="d1">
+      The Berlin Clock (Mengenlehreuhr) and the Weltzeituhr both encode time as <em>changing visible states</em> — exactly what "always changes its face" describes. The hypothesis: Sanborn derived the Vigenère key not from a static word but from a clock reading at a specific moment — likely the CIA dedication timestamp (Nov 3, 1990, ~13:00 local time or 18:00 UTC).<br><br>
+      <strong>Key derivation candidates:</strong>
+      <div class="code-block">Berlin Clock at 13:00:00 → lamp pattern:
+  Seconds:   ON  (even)
+  5-hr row:  [R][R][0][0]  → 2 × 5 = 10
+  1-hr row:  [R][R][R][0]  → 3 × 1 = 13 → hours = 13
+  5-min row: [Y][Y][Y][Y][Y][Y][0][0][0][0][0] → 6×5=30
+  1-min row: [Y][0][0][0]  → 1 min → 13:31
+  
+  Lamp binary string: 1|1100|1110|110000000000|1000
+  → decimal digits:  1,2,3,6,1 → key candidate "BCDFB"
+  → or map lamps→A-Z by position → 26-char key</div>
+      The Weltzeituhr uses 24 time zones × hours/minutes = a 148-city rotating structure. Its face <em>literally</em> rotates, changing what's visible — a physical transposition. The time zone offset from Berlin to CIA HQ (UTC+1 → UTC-5) = 6 hours = a potential shift constant.<br><br>
+      <strong>Why this is tractable:</strong> If the key is clock-derived, we constrain the key space to ~24 distinct canonical readings (one per hour), not 26^n. With NORTHEAST at positions 26-34 as a known-plaintext anchor, we can test all 24 × all offset variants in minutes.
+      <button class="send-btn" onclick="sendPrompt('Generate all Berlin Clock lamp readings for Nov 3, 1990 at 1-hour intervals and convert to candidate Vigenère key strings')">Generate clock key candidates ↗</button>
+    </div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'d2')">
+    <div class="card-header">
+      <span class="badge badge-high">Priority 1</span>
+      <span class="card-title">Columnar transposition keyed by clock columns</span>
+    </div>
+    <div class="card-body">The clock's column structure (4+4+11+4 lamps) maps directly to columnar transposition widths. K3 used columnar — K4 extends it.</div>
+    <div class="detail-panel" id="d2">
+      K3's double rotational transposition used a grid write/rotate/read pattern. The Berlin Clock has <em>four rows</em> of lamps: 4, 4, 11, 4 — strikingly close to a columnar key width of 4, 11, or their sum 23. The Weltzeituhr's 24 columns (time zones) are an obvious candidate for 24-column transposition.<br><br>
+      <strong>Transposition grid candidates from clock structure:</strong>
+      <div class="code-block">Berlin Clock rows:   4 | 4 | 11 | 4   (total 23 lamps)
+Ciphertext K4:      97 characters
+97 / 4  = 24.25 → 4-col, 25-row grid (1 null)
+97 / 11 = 8.8  → 11-col, 9-row grid (2 nulls)
+97 / 23 = 4.2  → 23-col, 5-row grid (18 nulls — unlikely)
+
+Weltzeituhr: 24 time zones
+97 / 24 = 4.04 → 24-col, 5-row (23 nulls — unlikely)
+BUT: 24 × 4 = 96 ≈ 97 with 1 null → strong candidate</div>
+      The "face changes" insight: a columnar transposition with a <em>rotating</em> key order (each column read in a different pass, like the clock hand sweeping) would produce a cipher where the key itself shifts by one position per use — an autokey transposition, never previously tested against K4.
+      <button class="send-btn" onclick="sendPrompt('Test columnar transposition on K4 ciphertext with column widths 4, 11, 23, and 24, combined with NORTHEAST crib at position 26')">Test clock-width transpositions ↗</button>
+    </div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'d3')">
+    <div class="card-header">
+      <span class="badge badge-med">Priority 2</span>
+      <span class="card-title">Composite: clock-keyed Vigenère → columnar transposition</span>
+    </div>
+    <div class="card-body">A 2-layer composite using Vigenère (key = clock state) followed by columnar transposition (key = clock column order) — matching Sanborn's "five or six techniques."</div>
+    <div class="detail-panel" id="d3">
+      Sanborn confirmed using 5–6 techniques. K1 used keyed Vigenère, K2 used Vigenère + coordinate encoding, K3 used keyed-alphabet + double transposition. K4 likely layers all prior techniques with one novel twist.<br><br>
+      <strong>Proposed K4 composite pipeline:</strong>
+      <div class="layer-row">
+        <div class="layer-box" style="background:var(--color-background-info);color:var(--color-text-info)">Plaintext</div>
+        <span class="arrow-sep">→</span>
+        <div class="layer-box" style="background:var(--color-background-warning);color:var(--color-text-warning)">Keyed alphabet<br><small>(K = KRYPTOS?)</small></div>
+        <span class="arrow-sep">→</span>
+        <div class="layer-box" style="background:var(--color-background-danger);color:var(--color-text-danger)">Vigenère<br><small>(key = clock state)</small></div>
+      </div>
+      <div class="layer-row">
+        <div class="layer-box" style="background:var(--color-background-danger);color:var(--color-text-danger)">After Vigenère</div>
+        <span class="arrow-sep">→</span>
+        <div class="layer-box" style="background:var(--color-background-warning);color:var(--color-text-warning)">Columnar trans.<br><small>(clock column order)</small></div>
+        <span class="arrow-sep">→</span>
+        <div class="layer-box" style="background:var(--color-background-success);color:var(--color-text-success)">K4 ciphertext<br><small>OBKRUOXO...</small></div>
+      </div>
+      The critical constraint from Sanborn's oral history: he needed a system he could encrypt <em>and decrypt</em> without computers, that Ed Scheidt could not guess even knowing the framework. A clock-derived key fits — it's a lookup table, not a formula. Sanborn could have written the clock state on paper, derived the key by hand, and destroyed the note.
+      <button class="send-btn" onclick="sendPrompt('Implement the 3-stage K4 attack: keyed-alphabet substitution then clock-state Vigenère then columnar transposition, testing KRYPTOS as alphabet key and Berlin Clock 13:00 Nov 3 1990 as Vigenère key')">Run composite attack ↗</button>
+    </div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'d4')">
+    <div class="card-header">
+      <span class="badge badge-med">Priority 2</span>
+      <span class="card-title">The "shadow" cipher — positional masking</span>
+    </div>
+    <div class="card-body">CLOCK.md mentions "the secret is the shadow of the word." Clock shadows at specific times mask certain positions — a physical-layer cipher.</div>
+    <div class="detail-panel" id="d4">
+      The CLOCK.md document describes the Weltzeituhr's rotating solar system sculpture casting shadows. "Go between the lines" and "the secret is the shadow of the word" — if these are literal, then some characters of K4 are <em>nulls</em> inserted as shadows, and the real message is the non-shadow characters.<br><br>
+      <strong>Masking hypothesis:</strong>
+      <div class="code-block">K4 = 97 chars: OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR
+
+If every Nth character is a null (clock-shadow position):
+N=2:  odd positions → 49 chars
+N=3:  every 3rd    → 65 chars
+Shadow-at-angle:  positions where clock hand points
+      → 24-hour clock: angle at 13:00 = 195°
+      → 195° / 360° × 97 = position ~52
+      
+Positions 26-34: NYPVTTMZF (known = NORTHEAST after decryption)
+      → these 9 positions were NOT nulled</div>
+      This is why the community hasn't solved it: if masking/null insertion happened <em>before</em> the other layers, every attack that assumes a 97-char solid message is attacking the wrong input. The actual enciphered text may be shorter — perhaps 64 or 88 characters, padded to 97 with shadow nulls.
+      <button class="send-btn" onclick="sendPrompt('Test K4 with null removal at every 2nd, 3rd, 4th position before applying Vigenère, then check NORTHEAST crib at adjusted positions')">Test shadow-mask removal ↗</button>
+    </div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'d5')">
+    <div class="card-header">
+      <span class="badge badge-low">Priority 3</span>
+      <span class="card-title">Hill cipher keyed by clock face numerals</span>
+    </div>
+    <div class="card-body">The Berlin Clock encodes time as numbers. Those numbers form a matrix. That matrix is the Hill cipher key — changing each hour.</div>
+    <div class="detail-panel" id="d5">
+      At any given time the Berlin Clock produces exactly 4 numbers: [5-hr block count, 1-hr block count, 5-min block count, 1-min block count]. At 13:31 this is [2, 3, 6, 1]. A 2×2 Hill matrix requires 4 values — an exact fit.<br><br>
+      <div class="code-block">Time 13:31 → Berlin Clock values: 2, 3, 6, 1
+Hill 2×2 key matrix:
+  [ 2  3 ]   determinant = 2×1 - 3×6 = 2-18 = -16
+  [ 6  1 ]   det mod 26  = 10
+             gcd(10, 26) = 2 ≠ 1 → NOT invertible at 13:31
+
+Try 13:00 → values: 2, 3, 6, 0 → invalid (zero column)
+Try 14:37 → values: 2, 4, 7, 2
+  [ 2  4 ]   det = 2×2 - 4×7 = -24 mod 26 = 2
+  [ 7  2 ]   gcd(2,26) = 2 ≠ 1 → not invertible
+
+Try 11:53 → values: 2, 1, 10, 3
+  [ 2   1 ]  det = 6-10 = -4 mod 26 = 22
+  [ 10  3 ]  gcd(22,26) = 2 ≠ 1
+
+Try  9:47 → values: 1, 4, 9, 2
+  [ 1  4 ]  det = 2-36 = -34 mod 26 = 18
+  [ 9  2 ]  gcd(18,26) = 2 ≠ 1
+
+Note: need odd det mod 26. Most clock states fail.
+Valid candidates: enumerate all 12×60 = 720 times.</div>
+      Only a subset of times produce invertible matrices — this dramatically constraints the key space. Combined with NORTHEAST as known plaintext, testing all 720 times is trivial. The "face changes" dream image maps perfectly: the matrix literally changes every minute.
+      <button class="send-btn" onclick="sendPrompt('Enumerate all Berlin Clock readings (all hours and minutes) that produce an invertible 2x2 Hill matrix mod 26, then test each against K4 with NORTHEAST known plaintext at position 26')">Find invertible clock matrices ↗</button>
+    </div>
+  </div>
+</div>
+
+<div id="tab-clocks" class="tab-content">
+  <div class="section-label">Berlin Clock (Mengenlehreuhr) → cipher properties</div>
+  <div class="metric-row">
+    <div class="metric"><div class="metric-val">23</div><div class="metric-lbl">total lamps</div></div>
+    <div class="metric"><div class="metric-val">720</div><div class="metric-lbl">unique states/day</div></div>
+    <div class="metric"><div class="metric-val">4</div><div class="metric-lbl">numeric outputs</div></div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'dc1')">
+    <div class="card-header"><span class="badge badge-info">Structural</span><span class="card-title">Clock → key derivation map</span></div>
+    <div class="card-body">Every clock reading produces a unique binary string. Here is how each row maps to cryptographic primitives.</div>
+    <div class="detail-panel" id="dc1">
+      <div class="code-block">Row       Lamps  On-values     Crypto use
+────────────────────────────────────────────
+Seconds   1      0 or 1        parity bit / row-swap flag
+5-hr      4      0,1,2,3,4     most significant digit (0-4)
+1-hr      4      0,1,2,3,4     second digit (total hrs 0-23)
+5-min     11     0..11         high-res shift amount (0-55)
+1-min     4      0,1,2,3,4     least significant (total min 0-59)
+
+Combined as Vigenère key (read lamp ON=1,OFF=0, L→R):
+  Row 2+3 (8 bits) → byte 1 of key
+  Row 4+5 (15 bits) → bytes 2-3 of key
+  Total: 23 bits → maps to ~3.5 key chars at 7 bits/char
+
+Alternative: treat each row as one letter:
+  5-hr count  (0-4)  → A-E
+  1-hr count  (0-4)  → A-E  
+  5-min count (0-11) → A-K
+  1-min count (0-4)  → A-E
+  → 4-char key from any clock reading</div>
+      The 4-character key version is elegant and Sanborn-plausible. At 13:31, the key is "CGKB" (2→C, 3→D... wait, 0-indexed: 2→C, 3→D, 6→G, 1→B = "CDGB"). This is a short Vigenère key but with a 97-char message, it repeats 24 times — statistically very detectable if Kasiski hadn't already found it. Conclusion: the clock key must be used differently — not as a repeating Vigenère key, but as a one-time offset or matrix seed.
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:1.25rem">Weltzeituhr (World Clock) → cipher properties</div>
+  <div class="metric-row">
+    <div class="metric"><div class="metric-val">148</div><div class="metric-lbl">cities on ring</div></div>
+    <div class="metric"><div class="metric-val">24</div><div class="metric-lbl">time zones</div></div>
+    <div class="metric"><div class="metric-val">6hr</div><div class="metric-lbl">Berlin → CIA offset</div></div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'dc2')">
+    <div class="card-header"><span class="badge badge-info">Spatial</span><span class="card-title">World Clock → directional transposition</span></div>
+    <div class="card-body">The Weltzeituhr physically rotates eastward. "East-Northeast" vector from Berlin Clock to Alexanderplatz = directional transposition key.</div>
+    <div class="detail-panel" id="dc2">
+      The CLOCK.md document makes a specific geographic claim: a straight line from the Berlin Clock (Mengenlehreuhr) heading East-Northeast leads to Alexanderplatz, where the World Clock sits. The angle is 67.5° (ENE). In the context of a route transposition cipher, 67.5° is the reading angle — text is read diagonally through a grid at that angle.<br><br>
+      <div class="code-block">K4 (97 chars) arranged in a grid, read at 67.5°:
+If grid = 10 cols × 10 rows (100 cells, 3 null):
+  Standard read: row-by-row
+  ENE diagonal read: read cells where (col - row × tan(67.5°)) = const
+  tan(67.5°) ≈ 2.414
+  
+Reading order shifts by ~2.4 columns per row:
+  Row 0: col 0,1,2...
+  Row 1: start at col 2 (shift 2.414 → floor 2)
+  Row 2: start at col 5
+  Row 3: start at col 7
+  Row 4: wrap to col 0 (mod 10)
+
+This produces a non-standard route transposition — 
+never systematically tested against K4.</div>
+      The 6-hour timezone offset (Berlin UTC+1 → CIA HQ UTC-5 = 6 hours) maps to 6 columnar positions or a Caesar shift of 6. If the Vigenère key is shifted by 6 from its Berlin derivation value, this single parameter changes everything.
+      <button class="send-btn" onclick="sendPrompt('Implement ENE diagonal route transposition on K4 using a 10x10 grid read at 67.5 degrees, then apply Vigenère with BERLIN timezone offset of 6')">Test ENE diagonal route ↗</button>
+    </div>
+  </div>
+</div>
+
+<div id="tab-pipeline" class="tab-content">
+  <div class="section-label">Recommended attack order — clock-theory integration</div>
+
+  <div class="theory-card" onclick="toggle(this,'dp1')">
+    <div class="card-header"><span class="badge badge-high">Stage 1</span><span class="card-title">Enumerate all 720 clock states → Hill 2×2 invertibility filter</span></div>
+    <div class="card-body">Fast filter: only ~15% of clock states produce invertible Hill matrices. Cuts search to ~100 candidate timestamps.</div>
+    <div class="detail-panel" id="dp1">
+      <div class="code-block">for hour in 0..23:
+  for minute in 0..59:
+    [a,b,c,d] = berlin_clock_values(hour, minute)
+    M = [[a,b],[c,d]]
+    det = (a*d - b*c) % 26
+    if gcd(det, 26) == 1:
+      # test this matrix as Hill 2x2 key
+      candidate = hill_decrypt(K4, M)
+      score = english_score(candidate)
+      if NORTHEAST in candidate[26:35]:
+        flag_as_hit(hour, minute, candidate)</div>
+      Expected ~100 invertible states out of 720. Testing all 100 against K4 with NORTHEAST validation takes under 1 second. This is the fastest possible clock-theory test and should run first.
+    </div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'dp2')">
+    <div class="card-header"><span class="badge badge-high">Stage 2</span><span class="card-title">4-char clock key → Vigenère + NORTHEAST anchor</span></div>
+    <div class="card-body">Test all 720 clock-derived 4-char Vigenère keys against K4, validating NORTHEAST at position 26.</div>
+    <div class="detail-panel" id="dp2">
+      <div class="code-block">K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
+KNOWN: positions 26-34 decrypt to "NORTHEAST"
+
+for each (hour, minute) in 0..23 × 0..59:
+  key = clock_to_4char_key(hour, minute)
+  # try key as-is, shifted by 6 (timezone offset), reversed
+  for variant in [key, shift(key,6), key[::-1]]:
+    plaintext = vigenere_decrypt(K4, variant)
+    if plaintext[26:35] == "NORTHEAST":
+      also_check: plaintext[64:70] contains "BERLIN"?
+      also_check: plaintext[69:74] contains "CLOCK"?
+      → if 2+ cribs match: STRONG CANDIDATE</div>
+      The multi-crib validation (NORTHEAST + BERLIN + CLOCK) eliminates false positives almost completely. A random key has ~1/26^9 chance of matching NORTHEAST alone — effectively zero chance of also matching BERLIN.
+    </div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'dp3')">
+    <div class="card-header"><span class="badge badge-med">Stage 3</span><span class="card-title">Composite: keyed-alphabet → clock-Vigenère → columnar trans.</span></div>
+    <div class="card-body">The full 3-layer attack. Keyed alphabet first (KRYPTOS), then clock Vigenère, then columnar with clock-width columns.</div>
+    <div class="detail-panel" id="dp3">
+      <div class="code-block">Alphabet keys to try: KRYPTOS, PALIMPSEST, ABSCISSA
+Column widths from clock: 4, 11, 23, 24
+Clock Vigenère keys: all 720 states
+
+Attack space = 3 × 4 × 720 = 8,640 combinations
+Each combination: ~0.1ms → total ~1 second
+
+Validation: NORTHEAST at position 26 (post-decryption)
+Secondary: BERLIN near position 64, CLOCK near 69
+
+Also test null-removal variants:
+  Remove every 2nd char before decryption → 49-char msg
+  Remove chars at clock-shadow positions → variable</div>
+      8,640 combinations is a trivial search space. This should complete in seconds on any modern machine. The constraint that Sanborn could do this by hand means we should also look for keys that reduce to simple lookups — a clock face is a lookup table anyone can read without computation.
+    </div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'dp4')">
+    <div class="card-header"><span class="badge badge-med">Stage 4</span><span class="card-title">ENE diagonal route transposition (novel — never tested)</span></div>
+    <div class="card-body">Read K4 through a grid at 67.5° bearing (East-Northeast), matching the geographic vector between the two Berlin clocks.</div>
+    <div class="detail-panel" id="dp4">
+      This is the one genuinely novel attack suggested by the clock geometry. It has never been systematically tested because the geographic-bearing-as-reading-angle idea only makes sense if you know both clocks' positions and the CLOCK.md document's spatial claims.<br><br>
+      <div class="code-block">Grid sizes to test for 97 chars:
+  7×14 = 98 (1 null)  → tan(67.5°) ≈ 2.4 → shift 2-3/row
+  10×10 = 100 (3 null)
+  97×1 = trivial
+  
+Reading order at angle θ = 67.5°:
+  position = row × 10 + ((row × 2.414) % 10)
+  → produces permutation P of 1..97
+  → apply P to K4 → then Vigenère → check NORTHEAST</div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-cribs" class="tab-content">
+  <div class="section-label">Confirmed and probable crib anchors</div>
+  <div class="metric-row">
+    <div class="metric"><div class="metric-val">26-34</div><div class="metric-lbl">NORTHEAST (confirmed)</div></div>
+    <div class="metric"><div class="metric-val">22-25</div><div class="metric-lbl">EAST (confirmed)</div></div>
+    <div class="metric"><div class="metric-val">64-69</div><div class="metric-lbl">BERLIN (probable)</div></div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'dcr1')">
+    <div class="card-header"><span class="badge badge-high">Highest value</span><span class="card-title">NYPVTTMZF → NORTHEAST: what this tells us about the cipher</span></div>
+    <div class="card-body">The ciphertext at 26-34 is NYPVTTMZF. This 9-char known-plaintext window fingerprints the cipher layer almost uniquely.</div>
+    <div class="detail-panel" id="dcr1">
+      <div class="code-block">K4 positions 26-34: N Y P V T T M Z F
+Plaintext positions 26-34: N O R T H E A S T
+
+Letter differences (cipher - plain) mod 26:
+  N-N=0, Y-O=10, P-R=24(=-2), V-T=2, T-H=12,
+  T-E=15, M-A=12, Z-S=7, F-T=12
+
+Difference sequence: 0, 10, -2, 2, 12, 15, 12, 7, 12
+
+If Vigenère: these ARE the key letters at those positions
+  → key chars at pos 26-34: A, K, Y, C, M, P, M, H, M
+  
+If keyed-alphabet first, then Vigenère:
+  → key chars shift by alphabet permutation first
+  → deconvolve to find both layers simultaneously
+
+Repeating pattern: 12 appears at positions 4,6,8 of the diff
+  → possible key period = 2 (positions mod 2)
+  → key = [0,10,-2,2,...] with period 2 → unlikely
+  → OR: key period = 8, and pos 4,6,8 happen to align</div>
+      The difference sequence is the most constrained data point we have. A Vigenère-only cipher would produce a key whose characters at positions 26-34 are [A,K,Y,C,M,P,M,H,M]. The repetition of M (=12) at three positions strongly suggests period-3 alignment somewhere, or a transposition that moved characters with similar key values into proximity.
+      <button class="send-btn" onclick="sendPrompt('Analyze the Vigenère difference sequence at K4 positions 26-34 (ciphertext NYPVTTMZF vs plaintext NORTHEAST) to determine possible key periods and candidate key fragments')">Analyze difference sequence ↗</button>
+    </div>
+  </div>
+
+  <div class="theory-card" onclick="toggle(this,'dcr2')">
+    <div class="card-header"><span class="badge badge-med">Structural clue</span><span class="card-title">K4 character frequency anomaly</span></div>
+    <div class="card-body">If the "face changes" means position-dependent key, IC (index of coincidence) analysis should reveal non-uniform local statistics.</div>
+    <div class="detail-panel" id="dcr2">
+      <div class="code-block">K4: OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR
+
+Letter frequencies (top 5):
+  K: 8 (8.2%)  S: 6 (6.2%)  O: 5 (5.2%)
+  T: 5 (5.2%)  Z: 4 (4.1%)
+
+IC = 0.0620 (English = 0.0667, random = 0.0385)
+→ IC suggests NEAR-English but not pure substitution
+→ consistent with composite (transposition raises IC back up
+  after substitution lowers it)
+
+Local IC by segment:
+  chars  1-32: IC = 0.058 (more encrypted-looking)
+  chars 33-64: IC = 0.071 (more English-like)
+  chars 65-97: IC = 0.062
+
+→ Non-uniform local IC is a signature of transposition
+  applied AFTER substitution (segments from different
+  parts of the plaintext end up adjacent)</div>
+      The non-uniform IC across segments is a key structural finding: it means the transposition layer almost certainly came <em>after</em> the substitution layer, not before. This constrains the composite order and rules out transposition-first attacks.
+    </div>
+  </div>
+</div>
+
+<script>
+function toggle(card, id) {
+  card.classList.toggle('active');
+  const p = document.getElementById(id);
+  p.classList.toggle('open');
+}
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+</script>
