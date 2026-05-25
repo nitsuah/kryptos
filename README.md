@@ -60,7 +60,7 @@ All Related documents / quick links can generally be found in `docs/`:
 
 - Docs index: `docs/INDEX.md`
 - Manifesto: `docs/MANIFESTO.md`
-- Phase 6 Roadmap: `docs/archive/PHASE_6_ROADMAP.md`
+- Roadmap: `ROADMAP.md`
 - Agents Architecture: `docs/reference/AGENTS_ARCHITECTURE.md`
 - API Reference: `docs/reference/API_REFERENCE.md`
 - Autonomous System: `docs/reference/AUTONOMOUS_SYSTEM.md`
@@ -175,7 +175,7 @@ See `docs/reference/API_REFERENCE.md` for code-level API documentation.
 
 ## Roadmap
 
-See `docs/archive/PHASE_6_ROADMAP.md` for the current archived Phase 6 status and next phase objectives.
+See `ROADMAP.md` for the current roadmap and milestones.
 
 ## CLI Usage Examples
 
@@ -335,11 +335,11 @@ See `LICENSE`.
 
 ## Other Documentation
 
-- `docs/PHASE_6_ROADMAP.md` — Current phase status and objectives
+- `ROADMAP.md` — Current roadmap and phase objectives
 - `docs/reference/AGENTS_ARCHITECTURE.md` — SPY/OPS/Q agent design and implementation
 - `docs/reference/API_REFERENCE.md` — Python API and CLI command reference
 - `docs/reference/AUTONOMOUS_SYSTEM.md` — Autonomous coordination system
-- `docs/CHANGELOG.md` — Change history and version tracking
+- `CHANGELOG.md` — Change history and version tracking
 
 ## Code Examples
 

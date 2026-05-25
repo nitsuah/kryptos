@@ -15,12 +15,11 @@ Thank you for your interest in advancing K4 analysis.
   - Definition of done for contributions
   - Audit procedures for keeping codebase clean
 
-3. **[`docs/archive/PHASE_6_ROADMAP.md`](docs/archive/PHASE_6_ROADMAP.md)** — Archived Phase 6 roadmap snapshot
-   - Phase 6 objectives and sprint structure
-   - Current K1-K3 success rates (measured, validated)
-   - K4 attack strategies and priorities
-   - System readiness assessment (75% K4-ready)
-   - Cross-references: [`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md) for operational checklist
+3. **[`ROADMAP.md`](ROADMAP.md)** — Canonical roadmap and milestone flow
+  - Current quarter priorities and completion status
+  - High-level strategic direction
+  - Cross-references: [`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md) for operational checklist
+  - Historical snapshot: [`docs/archive/PHASE_6_ROADMAP.md`](docs/archive/PHASE_6_ROADMAP.md)
 
 4. **[`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md)** — Operational task breakdown
    - Prioritized work items with clear success metrics
@@ -71,7 +70,7 @@ validation
 **Understanding these docs will help your contributions align with project architecture, standards, and strategic
 direction.**
 
-4. **[`docs/MANIFESTO.md`](docs/MANIFESTO.md)** — Project philosophy and decision rubric
+5. **[`docs/MANIFESTO.md`](docs/MANIFESTO.md)** — Project philosophy and decision rubric
   - Defines how we evaluate progress and avoid false confidence
   - Clarifies AI's role as a multiplier, not an authority
   - Establishes non-negotiable standards for strategic changes
@@ -113,7 +112,7 @@ If a change is exploratory and does not improve validated signal yet, mark it ex
 ## Quick Start: Hill Constraint Stage
 
 ```python
-from src.k4 import Pipeline, make_hill_constraint_stage
+from kryptos.k4.pipeline import Pipeline, make_hill_constraint_stage
 cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
 pipe = Pipeline([make_hill_constraint_stage()])
 result = pipe.run(cipher_k4)[0]
@@ -124,14 +123,15 @@ for cand in result.metadata['candidates'][:5]:
 ## Quick Start: Composite Multi-Stage Run
 
 ```python
-from src.k4 import (
+from kryptos.k4.pipeline import (
     make_hill_constraint_stage,
     make_transposition_adaptive_stage,
     make_transposition_multi_crib_stage,
     make_route_transposition_stage,
     make_masking_stage,
     make_berlin_clock_stage,
-    run_composite_pipeline
+)
+from kryptos.k4.composite import run_composite_pipeline
 )
 
 cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
@@ -173,11 +173,13 @@ print("Attempt log written:", path)
 
 ## Workflow
 
-1. Fork and branch from `main`. 2. Implement a focused enhancement (small, testable functions). 3. Add or update tests
-under `tests/` (avoid large exhaustive brute-force loops; cap iterations). 4. Update exports in `src/k4/__init__.py` if
-you introduce new public symbols. 5. Update `roadmap.md` only if you add or refine planned analytical directions. 6. Run
-`python -m unittest discover -s tests` and ensure all tests pass. 7. Submit a PR with a concise description of rationale
-and methodology.
+1. Fork and branch from `main`.
+2. Implement a focused enhancement (small, testable functions).
+3. Add or update tests under `tests/` (avoid large exhaustive brute-force loops; cap iterations).
+4. Update exports in `src/kryptos/k4/__init__.py` if you introduce new public symbols.
+5. Update `ROADMAP.md` only if you add or refine planned analytical directions.
+6. Run `pytest tests/ -v` and ensure relevant suites pass.
+7. Submit a PR with a concise description of rationale and methodology.
 
 ## Code Guidelines
 
@@ -217,7 +219,7 @@ they will shadow the standard library and cause import errors.
 ## Documentation
 
 - README: High-level overview only.
-- `ROADMAP.md`: Detailed upcoming modules and hypotheses.
+- `ROADMAP.md`: Current milestones and priorities.
 - Inline comments: Clarify non-obvious math (e.g., matrix inversion steps).
 
 ## Data

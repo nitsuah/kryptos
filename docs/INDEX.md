@@ -23,6 +23,8 @@ This is the traversal map for humans and AI agents.
 - [docs/analysis/K123_PATTERN_ANALYSIS.md](analysis/K123_PATTERN_ANALYSIS.md) - K1-K3 pattern extraction used to guide K4
 - [docs/analysis/K1_K2_VALIDATION_RESULTS.md](analysis/K1_K2_VALIDATION_RESULTS.md) - K1/K2 validation results
 - [docs/analysis/K3_VALIDATION_RESULTS.md](analysis/K3_VALIDATION_RESULTS.md) - K3 validation results and variance notes
+- [docs/analysis/K4-theories.md](analysis/K4-theories.md) - Live speculative K4 theory document
+- [docs/analysis/k4_clock_cipher_framework.html](analysis/k4_clock_cipher_framework.html) - Interactive K4 clock-framework theory artifact
 
 ## Planning
 
@@ -35,7 +37,6 @@ This is the traversal map for humans and AI agents.
 ## Historical / Archived
 
 - [docs/CHANGELOG.md](CHANGELOG.md) - Archived docs-local changelog pointer
-- [docs/analysis/K4-theories.md](analysis/K4-theories.md) - Archived K4 theory pointer
 - [docs/archive/COMPREHENSIVE_STRUCTURE_AUDIT_2025-10-26.md](archive/COMPREHENSIVE_STRUCTURE_AUDIT_2025-10-26.md)
 - [docs/archive/DOCS_AUDIT_2025-01-27.md](archive/DOCS_AUDIT_2025-01-27.md)
 - [docs/archive/HANDOFF-manifesto-pr-cadence-20260403.md](archive/HANDOFF-manifesto-pr-cadence-20260403.md)

@@ -227,7 +227,7 @@ coordinator.handle_message(message)
 
 ## Known Issues & Workarounds
 
-### Phase 6 Critical Gaps (from PHASE_6_ROADMAP.md)
+### Phase 6 Critical Gaps (from ROADMAP/TODO tracking)
 
 1. **K3 Transposition:** Only 27.5% success on known solution (should be >95%)
    - **Workaround:** Increase SA iterations to 100k-200k, tune cooling schedule
@@ -262,7 +262,7 @@ coordinator.handle_message(message)
 | `src/kryptos/autonomous_coordinator.py` | 24/7 autonomous orchestration loop |
 | `src/kryptos/agents/spy_nlp.py` | Pattern recognition with NLP |
 | `src/kryptos/agents/ops_director.py` | Strategic attack orchestration |
-| `docs/PHASE_6_ROADMAP.md` | Current status, critical gaps, sprint plan |
+| `ROADMAP.md` | Current status and milestone plan |
 
 ### Data Flow
 
@@ -289,7 +289,7 @@ state persists:** Coordinator saves state to JSON - delete `artifacts/autonomous
 
 - **Architecture:** Read `docs/reference/AGENTS_ARCHITECTURE.md`
 - **API reference:** `docs/reference/API_REFERENCE.md`
-- **Phase status:** `docs/PHASE_6_ROADMAP.md`
+- **Phase status:** `ROADMAP.md`
 - **K1-K3 patterns:** `docs/analysis/K123_PATTERN_ANALYSIS.md`
 - **Contributing:** `CONTRIBUTING.md` (includes code guidelines)
 
@@ -297,7 +297,7 @@ state persists:** Coordinator saves state to JSON - delete `artifacts/autonomous
 
 ## Phase 6 Priority Todo List
 
-See comprehensive breakdown in root `TODO_PHASE_6.md` - focuses on: 1. **Learning & Memory** - Cross-run search space
+See comprehensive breakdown in `docs/TODO_PHASE_6.md` - focuses on: 1. **Learning & Memory** - Cross-run search space
 exclusion, adaptive solver tuning 2. **K2/K3 Reliability** - Fix alphabet variants (3.8%→100%), transposition SA
 (27.5%→95%) 3. **Composite Attacks** - V→T and T→V chaining with provenance tracking 4. **Test Coverage** - Add
 autonomous solve tests, integration tests, edge cases (65%→90%) 5. **Production Ready** - Remove placeholders, wire OPS

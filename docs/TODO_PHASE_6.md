@@ -5,7 +5,7 @@
 **Philosophy:** Stop trying random keys. Start learning from failures, tracking what works, and adapting strategy based
 on evidence.
 
-**For strategic context:** See [PHASE_6_ROADMAP.md](PHASE_6_ROADMAP.md) (phase overview and objectives)
+**For strategic context:** See [ROADMAP.md](../ROADMAP.md) for the canonical roadmap and [docs/archive/PHASE_6_ROADMAP.md](archive/PHASE_6_ROADMAP.md) for the archived Phase 6 snapshot.
 
 ---
 

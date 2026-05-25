@@ -8,4 +8,4 @@ The current traversal path for K4 work is:
 - [docs/reference/AUTONOMOUS_SYSTEM.md](../reference/AUTONOMOUS_SYSTEM.md)
 - [docs/reference/API_REFERENCE.md](../reference/API_REFERENCE.md)
 
-The detailed theory text was intentionally moved out of the analysis layer because it was a speculative brainstorming document rather than a stable reference.
+The active speculative theory work now remains in [docs/analysis/K4-theories.md](../analysis/K4-theories.md). This archive file is retained only as historical context.
