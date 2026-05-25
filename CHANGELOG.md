@@ -11,18 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Overseer-compliant documentation (ROADMAP.md, TASKS.md, FEATURES.md, METRICS.md, CHANGELOG.md)
 - K1/K2/K3 runtime smoke verification command path in maintenance workflow (exact plaintext checks on production entrypoints)
+- Phase 6/7 implementation audit tracker (`AUDIT.md`) with code/test evidence matrix and pending gap ledger
 
 ### Changed
 
 - Documentation structure reorganized for better compliance tracking
 - Fast-suite validation baseline updated to 631 passed / 10 skipped / 2 deselected with 95% coverage (2026-05-24)
 - Coverage and task planning docs updated to reflect `fail_under = 80` and completed targeted coverage push
+- Core planning docs now reflect verified implementation status for composite chains and cross-run key-memory paths
 
 ### Fixed
 
 - Deprecated UTC timestamp usage migrated from `datetime.utcnow()` to timezone-aware UTC calls in runtime/reporting/example modules
 - `runpy` module re-execution warnings reduced in tests by clearing cached module entries before `run_module`
 - `PytestReturnNotNoneWarning` removed from `tests/test_spy_v2.py`
+- Stale docs links corrected (`K123_PATTERN_ANALYSIS` path drift, archive index entries, and quickstart intel cache paths)
 
 ## [Phase 6.2] - 2025-11-27 (In Progress)
 
@@ -47,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Test suite: fast CI runs execute ~524 tests; 10 slow Monte Carlo tests are gated behind `KRYPTOS_RUN_SLOW_MONTE_CARLO`
 - Coverage gate adjusted to 60% temporarily to keep CI actionable while we add unit tests
-- Updated PHASE_6_ROADMAP.md with measured success rates
+- Updated historical Phase 6 planning docs with measured success rates
 - K3 ciphertext corrected to 336 characters
 
 ### Fixed
@@ -136,5 +139,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 For detailed phase planning and technical documentation, see:
 
 - [ROADMAP.md](./ROADMAP.md) - Current roadmap and phase objectives
-- [TODO_PHASE_6.md](./docs/TODO_PHASE_6.md) - Operational task breakdown
-- [MAINTENANCE_GUIDE.md](./docs/MAINTENANCE_GUIDE.md) - Development guidelines
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Active workflow, standards, and quickstart guidance

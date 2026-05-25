@@ -1,6 +1,6 @@
 # Tasks
 
-Last Updated: 2026-05-24 (validation + coverage refresh)
+Last Updated: 2026-05-24 (phase 6/7 implementation audit)
 
 ## Done
 
@@ -15,6 +15,18 @@ Last Updated: 2026-05-24 (validation + coverage refresh)
 - [x] Create repository-wide docs audit tracker.
   - Completed: 2026-05-24
   - Evidence: `AUDIT.md` maps active/reference/archive/speculative docs and cleanup decisions.
+
+- [x] Implement composite-chain execution for layered K4 hypotheses.
+  - Completed: 2026-05-24 (verified in code/tests)
+  - Evidence: `src/kryptos/k4/composite.py` (`CompositeChainExecutor`) and chain hypothesis coverage in `tests/test_composite_chains.py`, `tests/test_k4_hypotheses.py`.
+
+- [x] Add cross-run key-memory primitives for Vigenere key recovery.
+  - Completed: 2026-05-24 (verified in code/tests)
+  - Evidence: `src/kryptos/provenance/search_space.py` (`tried_keys.jsonl` tracking) and `recover_key_by_frequency(..., skip_tried=True)` coverage in `tests/test_cross_run_memory.py`.
+
+- [x] Consolidate roadmap references to canonical planning sources.
+  - Completed: 2026-05-24
+  - Evidence: `ROADMAP.md` and `TASKS.md` are canonical active planning docs, and legacy phase-planning docs were removed from active navigation.
 
 
 ## In Progress
@@ -32,10 +44,45 @@ Last Updated: 2026-05-24 (validation + coverage refresh)
   - Problem: larger K4 search batches still run too slowly.
   - Acceptance Criteria: bounded parallel execution is reproducible and emits useful telemetry.
 
-- [ ] Consolidate roadmap references between the root roadmap and docs phase plans.
+- [ ] Add `sections-decrypt` CLI command for K1/K2/K3 tire-kicks.
+  - Priority: P1
+  - Problem: proving K1/K2/K3 currently requires custom Python snippets instead of a first-class command.
+  - Acceptance Criteria: supports `--section`, `--from-config`/`--cipher`, optional `--key`, and prints deterministic output.
+
+- [ ] Add JSON output mode for section verification commands.
+  - Priority: P1
+  - Problem: current section-oriented validation is hard to automate in CI and scripted checks.
+  - Acceptance Criteria: machine-readable output includes section, input source, plaintext markers, and status fields.
+
+- [ ] Add section API end-to-end tests.
+  - Priority: P1
+  - Problem: wrappers in `kryptos.sections` can drift from cipher core behavior.
+  - Acceptance Criteria: new tests verify K1/K2/K3 outputs via `SECTIONS` using config fixtures.
+
+- [ ] Add optional explainability mode for section decryptions.
   - Priority: P2
-  - Problem: planning sources can still drift.
-  - Acceptance Criteria: one canonical roadmap flow is linked from README and docs.
+  - Problem: debugging decryption behavior currently requires code inspection.
+  - Acceptance Criteria: `--explain` can emit bounded transformation diagnostics for Vigenere and K3 pipeline steps.
+
+- [ ] Wire alphabet auto-selection into runtime orchestrators.
+  - Priority: P2
+  - Problem: `try_all_alphabets` support exists in `vigenere_key_recovery.py` but is not the default path in `ops.py`/`k4_campaign.py`.
+  - Acceptance Criteria: orchestrators exercise keyed + standard alphabets where appropriate, with deterministic tests.
+
+- [ ] Fix transposition plaintext extraction in campaign orchestrator.
+  - Priority: P2
+  - Problem: `execute_transposition_attack` currently computes permutation/score but returns ciphertext as plaintext.
+  - Acceptance Criteria: plaintext output reflects the recovered permutation, with regression tests.
+
+- [ ] Stabilize autonomous test/runtime NLP dependency.
+  - Priority: P2
+  - Problem: autonomous coordinator tests fail in environments missing spaCy model `en_core_web_sm`.
+  - Acceptance Criteria: CI/dev path is deterministic (model bootstrap or fallback strategy) and autonomous tests pass consistently.
+
+- [ ] Resolve `python -m kryptos.cli.main` runpy warning path.
+  - Priority: P2
+  - Problem: module execution emits `runpy` cache warning in current environment.
+  - Acceptance Criteria: warning is removed or documented with a tested invocation path that avoids it.
 
 - [ ] Resolve `config/llm_config.yaml` ownership.
   - Priority: P3

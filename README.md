@@ -15,6 +15,16 @@ decrypt the famous Kryptos sculpture.
 This Kryptos repository is a research toolkit for exploring layered cipher hypotheses (Vigenère, Hill, transposition,
 masking, and related hybrids) with an emphasis on reproducible pipelines and scoring heuristics.
 
+## Autonomous Quickstart
+
+Run a standard autonomous cycle:
+
+```bash
+python -m kryptos.cli.main autonomous --max-hours 24 --cycle-interval 5
+```
+
+Contributor operating standards and workflow expectations are consolidated in `CONTRIBUTING.md`.
+
 ## Kryptos Manifesto
 
 Kryptos is a long-horizon cryptanalysis program, not a promise machine.
@@ -52,15 +62,15 @@ Kryptos is a long-horizon cryptanalysis program, not a promise machine.
 - Every roadmap claim ties to measurable criteria, not adjectives.
 - Every phase includes at least one explicit "stop doing" decision.
 
-For the complete governance policy, see `docs/MANIFESTO.md`.
+For governance and maintenance policy, see `CONTRIBUTING.md` (with historical references in `docs/archive/`).
 
 ## docs
 
 All Related documents / quick links can generally be found in `docs/`:
 
 - Docs index: `docs/INDEX.md`
-- Manifesto: `docs/MANIFESTO.md`
 - Roadmap: `ROADMAP.md`
+- Active standards and contribution workflow: `CONTRIBUTING.md`
 - Agents Architecture: `docs/reference/AGENTS_ARCHITECTURE.md`
 - API Reference: `docs/reference/API_REFERENCE.md`
 - Autonomous System: `docs/reference/AUTONOMOUS_SYSTEM.md`

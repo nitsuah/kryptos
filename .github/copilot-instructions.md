@@ -13,7 +13,7 @@ Use this file as a concise operating guide. For changing status, priorities, and
 - Project status and milestones: `ROADMAP.md`
 - Active work queue and completed decisions: `TASKS.md`
 - Documentation inventory and cleanup ledger: `AUDIT.md`
-- Contributor process and testing expectations: `CONTRIBUTING.md`
+- Contributor process, operating standards, and quickstart: `CONTRIBUTING.md`
 - Canonical docs navigation: `docs/INDEX.md`
 
 ## Architecture Constraints

@@ -34,6 +34,7 @@ Add before/after screenshots only when UI or visual outputs changed.
 
 - [ ] Tests added or updated
 - [ ] Documentation updated (if needed)
+- [ ] Roadmap/tasks updated when strategic scope changed
 - [ ] Related issues/tasks linked
 - [ ] Follows project conventions and style guidelines
 - [ ] Passes all automated checks (linting, tests, etc.)

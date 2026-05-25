@@ -9,23 +9,23 @@ Thank you for your interest in advancing K4 analysis.
 1. **[`docs/INDEX.md`](docs/INDEX.md)** — Canonical docs traversal map
   - Use this as the first stop for navigation across docs, references, analysis, and archive material
 
-2. **[`docs/MAINTENANCE_GUIDE.md`](docs/MAINTENANCE_GUIDE.md)** — Core maintenance philosophy and practices
-  - When to create/delete tests, scripts, and documentation
-  - Code quality standards and review checklist
-  - Definition of done for contributions
-  - Audit procedures for keeping codebase clean
+2. **This file (`CONTRIBUTING.md`)** — Canonical contributor workflow, operating standards, and autonomous quickstart
+  - Consolidated manifesto + maintenance expectations
+  - Definition-of-done style checks and review expectations
+  - Quick operational command set for autonomous runs
 
 3. **[`ROADMAP.md`](ROADMAP.md)** — Canonical roadmap and milestone flow
   - Current quarter priorities and completion status
   - High-level strategic direction
-  - Cross-references: [`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md) for operational checklist
-  - Historical snapshot: [`docs/archive/PHASE_6_ROADMAP.md`](docs/archive/PHASE_6_ROADMAP.md)
 
-4. **[`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md)** — Operational task breakdown
-   - Prioritized work items with clear success metrics
-   - Sprint-by-sprint deliverables
-   - Technical implementation details
-   - Cross-references roadmap for strategic context
+4. **[`TASKS.md`](TASKS.md)** — Canonical execution backlog
+   - Prioritized active work items with acceptance criteria
+   - Evidence-driven completion tracking
+   - Operational queue used by humans and agents
+
+5. **[`README.md`](README.md)** — Project overview and CLI usage examples
+  - Primary orientation for runtime usage
+  - Baseline K1-K3/K4 context and entry points
 
 **Architecture & Systems:**
 
@@ -70,22 +70,56 @@ validation
 **Understanding these docs will help your contributions align with project architecture, standards, and strategic
 direction.**
 
-5. **[`docs/MANIFESTO.md`](docs/MANIFESTO.md)** — Project philosophy and decision rubric
-  - Defines how we evaluate progress and avoid false confidence
-  - Clarifies AI's role as a multiplier, not an authority
-  - Establishes non-negotiable standards for strategic changes
-
 ---
 
 ## Manifesto Alignment (Required)
 
-Before opening a PR, verify the change aligns with `docs/MANIFESTO.md`:
+Before opening a PR, verify the change aligns with the standards in this file:
 
 1. What measurable signal improved?
 2. How can another contributor reproduce the claim?
 3. What weak path was removed, rejected, or de-prioritized?
 
 If a change is exploratory and does not improve validated signal yet, mark it explicitly as exploratory.
+
+## Operating Standards (Consolidated)
+
+These standards consolidate prior manifesto + maintenance guidance into one active location.
+
+1. Truth over narrative
+- Prefer measured outcomes over optimistic interpretation.
+- Treat negative results as valid outputs.
+
+2. Reproducibility over heroics
+- Any substantial claim must be reproducible from committed code, pinned data, and deterministic commands.
+- Campaign-relevant runs must produce traceable artifacts/provenance.
+
+3. Baseline rigor before frontier claims
+- K1-K3 controls are quality gates for K4 strategy promotion.
+- Do not scale strategies that fail known-cipher controls.
+
+4. AI as multiplier, not authority
+- Treat AI output as proposals requiring engineering and statistical validation.
+
+5. Maintenance discipline
+- Tests are preserved unless redundancy is proven.
+- Working scripts graduate into tests or `src/` APIs.
+- Outdated docs are consolidated or archived; active queues stay in `ROADMAP.md` and `TASKS.md`.
+
+## Autonomous Quickstart (Consolidated)
+
+Use this for operational autonomous runs:
+
+```bash
+python -m kryptos.cli.main autonomous --max-hours 24 --cycle-interval 5
+```
+
+Useful monitoring commands:
+
+```bash
+python -m kryptos.cli.main autonomous --help
+python -m kryptos.cli.main sections
+```
 
 ## Getting Started
 

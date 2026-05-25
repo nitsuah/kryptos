@@ -42,6 +42,5 @@ pytest tests/ -m "not slow" -v
 
 ## References
 
-- `docs/MAINTENANCE_GUIDE.md`
-- `docs/INDEX.md`
 - `CONTRIBUTING.md`
+- `docs/INDEX.md`
