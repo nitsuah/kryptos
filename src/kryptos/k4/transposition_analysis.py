@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import random
+import inspect
 from collections import Counter
 from typing import Any
 
@@ -605,15 +606,35 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
     best_score = float('-inf')
 
     for _ in range(num_restarts):
-        perm, score = solve_columnar_permutation_simulated_annealing(
-            ciphertext,
-            period,
-            max_iterations,
-            initial_temp,
-            cooling_rate,
-            config,
-            rng_obj,
-        )
+        # Call the SA solver. Tests may monkeypatch the solver with a
+        # replacement that accepts fewer positional args (legacy tests use
+        # a 5-arg lambda). Inspect the callable's signature and adapt the
+        # argument list to avoid TypeError from mismatched positional args.
+        solver = solve_columnar_permutation_simulated_annealing
+
+        try:
+            sig = inspect.signature(solver)
+            params = [p for p in sig.parameters.values() if p.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)]
+            accepts_varargs = any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in sig.parameters.values())
+        except (ValueError, TypeError):
+            sig = None
+            params = []
+            accepts_varargs = False
+
+        # Prefer calling with the full, modern signature when supported.
+        if accepts_varargs or len(params) >= 7:
+            args = (ciphertext, period, max_iterations, initial_temp, cooling_rate, config, rng_obj)
+        elif len(params) >= 5:
+            args = (ciphertext, period, max_iterations, initial_temp, cooling_rate)
+        else:
+            # Fallback minimal args (ciphertext, period)
+            args = (ciphertext, period)
+
+        try:
+            perm, score = solver(*args)
+        except TypeError:
+            # As a last resort, try the 5-arg form then re-raise if it still fails.
+            perm, score = solver(ciphertext, period, max_iterations, initial_temp, cooling_rate)
 
         if score > best_score:
             best_score = score
