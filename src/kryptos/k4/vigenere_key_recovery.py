@@ -15,6 +15,92 @@ from kryptos.provenance.search_space import SearchSpaceTracker
 KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
 STANDARD_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+
+def build_keyed_alphabet(keyword: str, base: str = STANDARD_ALPHABET) -> str:
+    """Build a keyed alphabet from keyword: deduplicated keyword chars first, then remaining base chars."""
+    keyword = keyword.upper()
+    seen: set[str] = set()
+    result: list[str] = []
+    for ch in keyword:
+        if ch in base and ch not in seen:
+            result.append(ch)
+            seen.add(ch)
+    for ch in base:
+        if ch not in seen:
+            result.append(ch)
+            seen.add(ch)
+    return "".join(result)
+
+
+# Pre-built keyed alphabets for the three candidate K4 substitution alphabets
+PALIMPSEST_ALPHABET = build_keyed_alphabet("PALIMPSEST")
+ABSCISSA_ALPHABET   = build_keyed_alphabet("ABSCISSA")
+
+KNOWN_KEYED_ALPHABETS: dict[str, str] = {
+    "KRYPTOS":    KEYED_ALPHABET,
+    "PALIMPSEST": PALIMPSEST_ALPHABET,
+    "ABSCISSA":   ABSCISSA_ALPHABET,
+    "STANDARD":   STANDARD_ALPHABET,
+}
+
+
+def derive_keystream_under_alphabet(
+    ciphertext: str,
+    cribs: dict[str, tuple[str, int]],
+    alphabet: str,
+) -> dict[str, list[int]]:
+    """Compute Vigenère-equivalent shift keystream at crib positions under a keyed alphabet.
+
+    Unlike the standard A-Z computation, the shift is the index difference
+    in the given keyed alphabet rather than A-Z position. This lets us test
+    whether KRYPTOS/PALIMPSEST/ABSCISSA alphabets produce a structured keystream
+    at the confirmed K4 crib positions.
+
+    Args:
+        ciphertext: Full K4 ciphertext (non-alpha stripped automatically).
+        cribs: label -> (plaintext_word, start_0indexed). Same format as K4_CRIBS.
+        alphabet: 26-char keyed alphabet string.
+
+    Returns:
+        Dict of label -> list of shift ints (mod 26 in the given alphabet).
+    """
+    ct = "".join(c for c in ciphertext.upper() if c.isalpha())
+    n = len(alphabet)
+    result: dict[str, list[int]] = {}
+    for label, (plaintext, start) in cribs.items():
+        plain = plaintext.upper()
+        shifts: list[int] = []
+        for i, p_char in enumerate(plain):
+            ct_pos = start + i
+            if ct_pos >= len(ct):
+                break
+            c_char = ct[ct_pos]
+            if c_char not in alphabet or p_char not in alphabet:
+                continue
+            shift = (alphabet.index(c_char) - alphabet.index(p_char)) % n
+            shifts.append(shift)
+        result[label] = shifts
+    return result
+
+
+def check_keyed_alphabet_realignment(
+    ciphertext: str,
+    cribs: dict[str, tuple[str, int]],
+    alphabets: dict[str, str] | None = None,
+) -> dict[str, dict[str, list[int]]]:
+    """Test all candidate keyed alphabets against confirmed crib positions.
+
+    Returns a nested dict: alphabet_name -> {crib_label -> shifts}.
+    The caller can inspect whether any alphabet produces a structured
+    (repeating/short-period) keystream across EAST + NORTHEAST positions.
+    """
+    if alphabets is None:
+        alphabets = KNOWN_KEYED_ALPHABETS
+    return {
+        name: derive_keystream_under_alphabet(ciphertext, cribs, alpha)
+        for name, alpha in alphabets.items()
+    }
+
 _spy_agent = None
 
 

@@ -1,6 +1,6 @@
 # Tasks
 
-Last Updated: 2026-05-24 (phase 6/7 implementation audit)
+Last Updated: 2026-05-25 (K4 structural attack planning; keystream analysis complete)
 
 ## Done
 
@@ -31,13 +31,55 @@ Last Updated: 2026-05-24 (phase 6/7 implementation audit)
 
 ## In Progress
 
-- [ ] Execute conservative docs cleanup plan from `AUDIT.md`.
-  - Priority: P2
-  - Constraint: no speculative information or theory removals or archival moves without explicit approval or concrete evidence to support action.
-  - Acceptance Criteria: docs index and planning links are consistent with active versus historical intent.
+- [ ] K4 structural attack implementation (Phase 1 of 2026 K4 push).
+  - Priority: P1
+  - Context: `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` + `docs/analysis/K4_ACTIVE_RESEARCH.md`
+  - Sub-tasks tracked as K4-ATTACK-1 through K4-ATTACK-7 in ROADMAP.md.
+  - Acceptance Criteria: all 7 attack tasks implemented with passing tests; composite sweep run with null-result artifact or breakthrough snapshot.
 
 
 ## Todo
+
+### K4 Structural Attack Tasks (P1 — code next)
+
+- [ ] **K4-ATTACK-1**: Implement `kryptos.k4.keystream_validator` utility.
+  - Priority: P1
+  - Problem: No dedicated utility exists to validate whether a candidate key/transposition is consistent with the confirmed EAST+NORTHEAST cribs.
+  - Acceptance Criteria: function accepts (ciphertext, key_or_permutation) and returns whether positions 22–25 decrypt to EAST and positions 26–34 decrypt to NORTHEAST; unit tests with confirmed values pass.
+
+- [ ] **K4-ATTACK-2**: Implement inverse transposition sweep for ENE diagonal grids.
+  - Priority: P1
+  - Problem: The ENE diagonal reading path at 67.5° has never been systematically implemented and tested against K4 with the EASTNORTHEAST crib.
+  - Details: Grid geometries 10×10, 7×14, 8×13; ENE reading at tan(67.5°)≈2.414; for each permutation P, apply P⁻¹ to K4 and validate EAST+NORTHEAST at source positions.
+  - Acceptance Criteria: sweep runs all three grid sizes; results (match/no-match + keystream at source positions) written to provenance artifact; tests cover the permutation generation logic.
+
+- [ ] **K4-ATTACK-3**: Implement keyed alphabet realignment test.
+  - Priority: P1
+  - Problem: Per-position shifts were computed assuming A=0,B=1,…,Z=25; if a keyed alphabet is the substitution layer, the effective shift changes entirely.
+  - Alphabets: `KRYPTOSABCDEFGHIJLMNQUVWXZ`, `PALIMPSESTABCDFGHJKNOQRUVWXYZ`, `ABSCISSADEFGHJKLMNOPQRTUVWXYZ`
+  - Acceptance Criteria: for each alphabet, re-derive keystream at positions 22–34 and report whether it matches any Berlin Clock state, keyword, or structured sequence; results written to provenance log.
+
+- [ ] **K4-ATTACK-4**: Implement full composite parameter sweep (~2,700 combinations).
+  - Priority: P1
+  - Problem: The combined (alphabet × grid × angle × clock state) search space is tractable but has not been exhaustively enumerated.
+  - Acceptance Criteria: sweep completes in <60s; any simultaneous 4-crib match (EAST+NORTHEAST+BERLIN+CLOCK) triggers Eureka capture; null-result artifact written with run parameters.
+
+- [ ] **K4-ATTACK-5**: Implement `InstructionalScorer`.
+  - Priority: P1
+  - Problem: Standard quadgram scoring actively penalizes geographic/imperative K4 plaintext candidates (coordinates, directions, action verbs), causing the correct plaintext to rank low if it reads as instructions.
+  - Acceptance Criteria: scorer adds weighted bonus for INSTRUCTIONAL_VECTORS (cardinal, spatial, measurement, imperative); Levenshtein ≤1 fuzzy match for Sanborn misspellings; integrates as optional component with existing scoring; unit tests verify scoring improvement for known examples like "EASTNORTHEAST".
+
+- [ ] **K4-ATTACK-6**: Implement Eureka capture protocol.
+  - Priority: P1
+  - Problem: No mechanism exists to halt execution and preserve full state on a breakthrough match.
+  - Acceptance Criteria: on simultaneous match of EAST+NORTHEAST (and optionally BERLIN+CLOCK), emit ANSI alert banner, write `K4_BREAKTHROUGH_SNAPSHOT.md` with full parameter trace (cipher config, grid, alphabet, clock state, plaintext, scores), halt campaign cleanly.
+
+- [ ] **K4-ATTACK-7**: Fix position index bugs in CONTRIBUTING.md quick-start code.
+  - Priority: P1
+  - Problem: `positional_cribs` in CONTRIBUTING.md has `'NORTHEAST': [25]` (should be [26]) and `'BERLIN': [64]` (should be [63]) based on confirmed keystream analysis.
+  - Acceptance Criteria: CONTRIBUTING.md updated; any code files that use these hardcoded positions verified and corrected; tests updated if needed.
+
+### Infrastructure Tasks (P1)
 
 - [ ] Build objective-to-evidence scorecard.
   - Priority: P1
