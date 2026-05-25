@@ -251,7 +251,7 @@ For each document in `docs/`:
 
 ```
 docs/
-├── DOCUMENTATION_INDEX.md      # Map of all docs with descriptions
+├── INDEX.md                    # Map of all docs with descriptions
 ├── MAINTENANCE_GUIDE.md        # This file
 ├── CONTRIBUTING.md             # How to contribute (links to MAINTENANCE_GUIDE)
 ├── TECHDEBT_PLAN.md           # Current technical debt backlog
@@ -621,7 +621,7 @@ Follow this process every 3 months (or after major changes):
 - Review every file in `docs/`
 - Create `docs/audits/DOCS_AUDIT_YYYY-MM-DD.md`
 - Categorize docs: Keep / Update / Consolidate / Delete
-- Update or create `docs/DOCUMENTATION_INDEX.md`
+- Update or create `docs/INDEX.md`
 
 **Day 3-4: Scripts Audit**
 - Review every file in `scripts/`
@@ -667,7 +667,7 @@ tests 7. Delete redundant tests (carefully!)
 **Deliverables:**
 - All audit documents in `docs/audits/`
 - Updated `TECHDEBT_PLAN.md`
-- Updated `DOCUMENTATION_INDEX.md`
+- Updated `INDEX.md`
 - Updated `scripts/README.md`
 - Summary report in project communication channel
 
@@ -692,7 +692,7 @@ Create docs/audits/DOCS_AUDIT_YYYY-MM-DD.md with findings:
 - Consolidate (with what other doc)
 - Delete (reason)
 
-Then create/update docs/DOCUMENTATION_INDEX.md as an organized map of all docs.
+Then create/update docs/INDEX.md as an organized map of all docs.
 ```
 
 ### For Scripts Audit

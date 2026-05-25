@@ -1,6 +1,6 @@
 # K1/K2 Autonomous Recovery Validation Results
 
-**Date:** January 27, 2025 **Validation:** Monte Carlo testing (50 runs each)
+**Date:** May 24, 2026 **Validation:** Monte Carlo testing (50 runs each)
 
 ## Executive Summary
 
@@ -11,6 +11,8 @@ K1 and K2 autonomous key recovery performance **dramatically exceeds roadmap cla
 
 Both algorithms are **deterministic** (same input always produces same output) and achieve **perfect recovery** on known
 ciphertexts.
+
+**2026-05-24 revalidation note:** A fresh 50-run harness re-run against production entrypoints again produced K1 rank-1 recovery 50/50 and K2 rank-1 recovery 50/50 with matching expected plaintext checks.
 
 ---
 

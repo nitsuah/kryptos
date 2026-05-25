@@ -58,13 +58,13 @@ For the complete governance policy, see `docs/MANIFESTO.md`.
 
 All Related documents / quick links can generally be found in `docs/`:
 
+- Docs index: `docs/INDEX.md`
 - Manifesto: `docs/MANIFESTO.md`
-- Phase 6 Roadmap: `docs/PHASE_6_ROADMAP.md`
+- Phase 6 Roadmap: `docs/archive/PHASE_6_ROADMAP.md`
 - Agents Architecture: `docs/reference/AGENTS_ARCHITECTURE.md`
 - API Reference: `docs/reference/API_REFERENCE.md`
 - Autonomous System: `docs/reference/AUTONOMOUS_SYSTEM.md`
-- API Reference: `docs/reference/API_REFERENCE.md`
-- Changelog: `docs/CHANGELOG.md`
+- Changelog: `CHANGELOG.md`
 
 **K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in copper that nobody has
 cracked in 30+ years. We're using Python to systematically try every reasonable decryption method – techniques that
@@ -94,11 +94,11 @@ then convert back.
 - Deprecated code removal: -677 lines (unused configs, obsolete tests)
 - Fixed K3 ciphertext correction (336 chars)
 
-**Test Suite Optimization**: 607 tests total (**583 fast** / 24 slow)
+**Test Suite Optimization**: 633 collected (**631 fast-selected** / 10 slow tests gated by `KRYPTOS_RUN_SLOW_MONTE_CARLO` / 2 deselected in fast run mode)
 
 - Added `@pytest.mark.slow` to long-running statistical validation tests
-- Fast iteration: `pytest -m "not slow"` runs 583 tests in ~1-2 minutes
-- Full validation: `pytest` includes Monte Carlo tests (10+ min) for autonomous solving verification
+- Fast iteration: `pytest -m "not slow"` currently runs 631 tests in ~45-60s on a typical dev machine
+- Slow Monte Carlo modules are opt-in via `KRYPTOS_RUN_SLOW_MONTE_CARLO=1` and can be run directly in CI or locally when needed
 
 **Result**: Leaner codebase, faster development cycle, maintained 100% test pass rate
 
@@ -175,7 +175,7 @@ See `docs/reference/API_REFERENCE.md` for code-level API documentation.
 
 ## Roadmap
 
-See `docs/PHASE_6_ROADMAP.md` for current status and next phase objectives.
+See `docs/archive/PHASE_6_ROADMAP.md` for the current archived Phase 6 status and next phase objectives.
 
 ## CLI Usage Examples
 

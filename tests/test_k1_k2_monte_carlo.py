@@ -4,15 +4,15 @@ Validates actual success rates with confidence intervals instead of single-case 
 Measures: success rate, variance, failure modes, performance.
 """
 
-import pytest
+import os
 
-# Mark slow (Monte Carlo) - skip module by default in fast runs
-import pytest as _pytest
+import pytest
 
 from kryptos.ciphers import vigenere_decrypt
 from kryptos.k4.vigenere_key_recovery import recover_key_by_frequency
 
-_pytest.skip("Marked slow: K1/K2 Monte Carlo tests", allow_module_level=True)
+if os.getenv("KRYPTOS_RUN_SLOW_MONTE_CARLO") != "1":
+    pytest.skip("Set KRYPTOS_RUN_SLOW_MONTE_CARLO=1 to run this slow module", allow_module_level=True)
 
 # Known K1 and K2 values
 K1_CIPHERTEXT = "EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ" "YQTQUXQBQVYUVLLTREVJYQTMKYRDMFD"

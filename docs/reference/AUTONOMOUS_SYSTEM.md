@@ -5,6 +5,8 @@
 The Kryptos autonomous system is a self-sustaining, 24/7 cryptanalysis framework that combines multiple specialized
 agents to continuously work toward solving K4 with minimal human intervention.
 
+For navigation across the docs tree, start at [docs/INDEX.md](../INDEX.md).
+
 **Philosophy:** *"Human expertise to build the system, machine endurance to run it."*
 
 ## Architecture

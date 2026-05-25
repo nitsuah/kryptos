@@ -7,7 +7,9 @@ the Kryptos keyed alphabet.
 from __future__ import annotations
 
 from collections import Counter
+import random
 
+from kryptos.k4.solver_config import SolverConfig
 from kryptos.provenance.search_space import SearchSpaceTracker
 
 KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
@@ -64,6 +66,8 @@ def recover_key_by_frequency(
     alphabet: str | None = None,
     try_all_alphabets: bool = False,
     use_spy_scoring: bool = False,
+    config: SolverConfig | None = None,
+    rng: random.Random | None = None,
 ) -> list[str]:
     """Recover Vigenère key using frequency analysis.
 
@@ -79,6 +83,8 @@ def recover_key_by_frequency(
         alphabet: Alphabet to use (default: KEYED_ALPHABET). Can also be STANDARD_ALPHABET.
         try_all_alphabets: If True, try both KEYED and STANDARD alphabets and return best results
         use_spy_scoring: If True, re-rank candidates using SPY agent scoring (slow, often unhelpful)
+        config: Optional shared solver config
+        rng: Optional RNG for API consistency with stochastic solvers (unused for deterministic path)
 
     Returns:
         List of candidate keys (most likely first), filtered if skip_tried=True
@@ -91,6 +97,8 @@ def recover_key_by_frequency(
             skip_tried=skip_tried,
             tracker=tracker,
             alphabet=KEYED_ALPHABET,
+            config=config,
+            rng=rng,
         )
         standard_results = recover_key_by_frequency(
             ciphertext,
@@ -99,6 +107,8 @@ def recover_key_by_frequency(
             skip_tried=skip_tried,
             tracker=tracker,
             alphabet=STANDARD_ALPHABET,
+            config=config,
+            rng=rng,
         )
         seen = set()
         merged = []
@@ -150,6 +160,9 @@ def recover_key_by_frequency(
         max_candidates = min(100, 5 ** min(len(key_chars), 4))
     else:
         max_candidates = 500_000
+
+    if config is not None and config.vigenere_max_candidates is not None:
+        max_candidates = config.vigenere_max_candidates
 
     candidates = _generate_key_combinations(key_chars, max_keys=max_candidates)
 

@@ -98,7 +98,7 @@ python -m kryptos.cli.main autonomous
 
 **Strategic Intelligence:**
 
-- `docs/K123_PATTERN_ANALYSIS.md` - 13 patterns from solved sections
+- `docs/analysis/K123_PATTERN_ANALYSIS.md` - 13 patterns from solved sections
 - `data/ops_strategy/` - OPS decision history
 
 **Web Intelligence:**
@@ -107,10 +107,12 @@ python -m kryptos.cli.main autonomous
 
 ## 📖 Full Documentation
 
-- `docs/AUTONOMOUS_SYSTEM.md` - Complete system documentation
-- `docs/SESSION_PROGRESS.md` - What we built and why
-- `docs/AGENT_EVOLUTION_ROADMAP.md` - Future enhancements
-- `docs/OPS_V2_STRATEGIC_DIRECTOR.md` - OPS design
+- `docs/INDEX.md` - Canonical docs traversal map
+- `docs/reference/AUTONOMOUS_SYSTEM.md` - Complete system documentation
+- `docs/reference/API_REFERENCE.md` - Python API and CLI reference
+- `docs/analysis/K123_PATTERN_ANALYSIS.md` - K1-K3 pattern guide for K4 work
+- `docs/analysis/K1_K2_VALIDATION_RESULTS.md` - K1/K2 validation results
+- `docs/analysis/K3_VALIDATION_RESULTS.md` - K3 validation results
 
 ## 🎯 What Success Looks Like
 

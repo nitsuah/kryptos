@@ -3,6 +3,7 @@
 Validates actual success rates vs. roadmap claims across multiple periods.
 """
 
+import os
 import random
 
 import pytest
@@ -12,9 +13,10 @@ from kryptos.k4.transposition_analysis import (
     apply_columnar_permutation_reverse,
     solve_columnar_permutation_simulated_annealing,
 )
+from kryptos.k4.solver_config import make_ci_solver_config
 
-# Skip whole module during fast runs
-pytest.skip("Marked slow: K3 Monte Carlo comprehensive tests", allow_module_level=True)
+if os.getenv("KRYPTOS_RUN_SLOW_MONTE_CARLO") != "1":
+    pytest.skip("Set KRYPTOS_RUN_SLOW_MONTE_CARLO=1 to run this slow module", allow_module_level=True)
 
 
 @pytest.mark.slow
@@ -35,8 +37,9 @@ def test_k3_monte_carlo_period_5_50runs():
 
     for run in range(runs):
         # Random permutation each run
+        perm_rng = random.Random(1000 + run)
         true_permutation = list(range(period))
-        random.shuffle(true_permutation)
+        perm_rng.shuffle(true_permutation)
 
         ciphertext = apply_columnar_permutation_encrypt(plaintext, period, true_permutation)
 
@@ -44,6 +47,7 @@ def test_k3_monte_carlo_period_5_50runs():
             ciphertext,
             period,
             max_iterations=50000,
+            config=make_ci_solver_config(seed=2000 + run),
         )
 
         recovered_text = apply_columnar_permutation_reverse(ciphertext, period, recovered_perm)
@@ -84,8 +88,9 @@ def test_k3_monte_carlo_period_6_30runs():
     print(f"{'='*70}")
 
     for run in range(runs):
+        perm_rng = random.Random(3000 + run)
         true_permutation = list(range(period))
-        random.shuffle(true_permutation)
+        perm_rng.shuffle(true_permutation)
 
         ciphertext = apply_columnar_permutation_encrypt(plaintext, period, true_permutation)
 
@@ -93,6 +98,7 @@ def test_k3_monte_carlo_period_6_30runs():
             ciphertext,
             period,
             max_iterations=50000,
+            config=make_ci_solver_config(seed=4000 + run),
         )
 
         recovered_text = apply_columnar_permutation_reverse(ciphertext, period, recovered_perm)
@@ -111,8 +117,8 @@ def test_k3_monte_carlo_period_6_30runs():
     print("Note: Period 6 is harder (720 possible permutations vs 120 for period 5)")
     print(f"{'='*70}")
 
-    # Document actual capability even if lower
-    assert success_rate >= 0, "Test execution completed"
+    # Period 6 should maintain non-trivial autonomous recovery capability.
+    assert success_rate >= 0.2, f"Period-6 success rate too low: {success_rate:.1%}"
 
 
 @pytest.mark.slow
@@ -132,8 +138,9 @@ def test_k3_monte_carlo_period_7_20runs():
     print(f"{'='*70}")
 
     for run in range(runs):
+        perm_rng = random.Random(5000 + run)
         true_permutation = list(range(period))
-        random.shuffle(true_permutation)
+        perm_rng.shuffle(true_permutation)
 
         ciphertext = apply_columnar_permutation_encrypt(plaintext, period, true_permutation)
 
@@ -142,6 +149,7 @@ def test_k3_monte_carlo_period_7_20runs():
             period,
             max_iterations=100000,  # More iterations for period 7
             initial_temp=100.0,
+            config=make_ci_solver_config(seed=6000 + run),
         )
 
         recovered_text = apply_columnar_permutation_reverse(ciphertext, period, recovered_perm)
@@ -161,5 +169,5 @@ def test_k3_monte_carlo_period_7_20runs():
     print("Note: Using >80% match threshold for period 7")
     print(f"{'='*70}")
 
-    # Document actual capability
-    assert success_rate >= 0, "Test execution completed"
+    # Period 7 is harder but should still exceed a minimal useful hit-rate.
+    assert success_rate >= 0.1, f"Period-7 success rate too low: {success_rate:.1%}"

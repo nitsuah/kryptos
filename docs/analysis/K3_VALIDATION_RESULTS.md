@@ -1,6 +1,6 @@
 # K3 Autonomous Solving Validation Results
 
-**Date:** 2025-01-26 **Validation:** Monte Carlo testing of SA solver for columnar transposition
+**Date:** May 24, 2026 **Validation:** Monte Carlo testing of SA solver for columnar transposition
 
 ## Executive Summary
 
@@ -10,6 +10,18 @@ success rate". Measured performance across 100 total test runs:
 - **Period 5:** 68.0% success rate (50 runs) - **2.5x better than claimed**
 - **Period 6:** 83.3% success rate (30 runs) - **3.0x better than claimed**
 - **Period 7:** 95.0% success rate (20 runs) - **3.5x better than claimed**
+
+### 2026 Revalidation Note (Stochastic Variance)
+
+A seeded rerun on 2026-05-24 produced:
+
+- **Period 5:** 62.0% (31/50)
+- **Period 6:** 83.3% (25/30)
+- **Period 7:** 60.0% (12/20)
+
+Interpretation: K3 SA recovery remains clearly functional but is probabilistic and sensitive to random trajectory,
+text sample, and annealing schedule. Treat historical 68-95% as achievable bands under specific conditions, not hard
+deterministic guarantees.
 
 ### Key Findings
 

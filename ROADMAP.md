@@ -1,7 +1,7 @@
 
 # 🗺️ Kryptos Roadmap
 
-Last Updated: 2026-04-13 (Overseer compliance review)
+Last Updated: 2026-05-24 (Coverage + validation refresh)
 Next Review: 2026-06-01
 
 
@@ -16,7 +16,7 @@ Next Review: 2026-06-01
 - [x] Fix the container runtime write-permission path
 - [x] Complete Phase 6.2 composite validation
 - [x] Wire manifesto alignment checks into PR cadence (signal, reproducibility, pruning)
-- [ ] Improve targeted coverage in low-coverage modules and raise the CI test coverage gate for these modules accordingly
+- [x] Improve targeted coverage in low-coverage modules and raise the CI test coverage gate for these modules accordingly
 
 
 ## Q3 2026: Scaling & Triage (Planned) 🤖

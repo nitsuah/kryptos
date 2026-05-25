@@ -6,20 +6,23 @@ Thank you for your interest in advancing K4 analysis.
 
 **Start here:**
 
-1. **[`docs/MAINTENANCE_GUIDE.md`](docs/MAINTENANCE_GUIDE.md)** — Core maintenance philosophy and practices
-   - When to create/delete tests, scripts, and documentation
-   - Code quality standards and review checklist
-   - Definition of done for contributions
-   - Audit procedures for keeping codebase clean
+1. **[`docs/INDEX.md`](docs/INDEX.md)** — Canonical docs traversal map
+  - Use this as the first stop for navigation across docs, references, analysis, and archive material
 
-2. **[`docs/PHASE_6_ROADMAP.md`](docs/PHASE_6_ROADMAP.md)** — Current development roadmap and strategic direction
+2. **[`docs/MAINTENANCE_GUIDE.md`](docs/MAINTENANCE_GUIDE.md)** — Core maintenance philosophy and practices
+  - When to create/delete tests, scripts, and documentation
+  - Code quality standards and review checklist
+  - Definition of done for contributions
+  - Audit procedures for keeping codebase clean
+
+3. **[`docs/archive/PHASE_6_ROADMAP.md`](docs/archive/PHASE_6_ROADMAP.md)** — Archived Phase 6 roadmap snapshot
    - Phase 6 objectives and sprint structure
    - Current K1-K3 success rates (measured, validated)
    - K4 attack strategies and priorities
    - System readiness assessment (75% K4-ready)
    - Cross-references: [`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md) for operational checklist
 
-3. **[`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md)** — Operational task breakdown
+4. **[`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md)** — Operational task breakdown
    - Prioritized work items with clear success metrics
    - Sprint-by-sprint deliverables
    - Technical implementation details
@@ -48,13 +51,13 @@ tracking system
 
 - **[`docs/analysis/K1_K2_VALIDATION_RESULTS.md`](docs/analysis/K1_K2_VALIDATION_RESULTS.md)** — K1/K2 Monte Carlo
 validation
-  - 100% success rate on both K1 and K2 (50 runs each)
+  - 100% success rate on both K1 and K2 (50 runs each, revalidated 2026-05-24)
   - Deterministic recovery algorithms validated
   - Performance benchmarks
 
 - **[`docs/analysis/K3_VALIDATION_RESULTS.md`](docs/analysis/K3_VALIDATION_RESULTS.md)** — K3 autonomous solving
 validation
-  - 68-95% success rates (period-dependent)
+  - 60-95% observed success rates (period/seed-dependent)
   - SA solver performance analysis
   - Probabilistic vs deterministic algorithms
 

@@ -4,7 +4,7 @@
 > Cryptographic research toolkit for solving the K4 cipher puzzle
 
 ---
-**Last Updated:** 2026-04-13
+**Last Updated:** 2026-05-24
 ---
 
 ## Core Cryptanalysis Capabilities
@@ -102,7 +102,7 @@
 
 - K1 Vigenère: 100% (deterministic)
 - K2 Vigenère: 100% (deterministic)
-- K3 Transposition: 68–95% (period-dependent Monte Carlo)
+- K3 Transposition: 60–95% (period/seed/parameter-dependent Monte Carlo)
 
 ---
 
@@ -118,9 +118,9 @@
 - **Adaptive Campaign Orchestration**: Bounded parallel workers for scalable search
 - **Cross-Run Memory Heuristics**: Smarter avoidance of redundant attempts
 - **Operator-Grade Triage Tools**: Enhanced result review and artifact annotation
-- Test suite (fast run): 524 passed, 10 skipped; code coverage 62.64% (measured 2025-11-28)
+- Test suite (fast run): 631 passed, 10 skipped, 2 deselected; code coverage 95% (measured 2026-05-24)
 - Monte Carlo / long-running validation tests are marked `slow` and gated out of the fast CI job to keep feedback fast.
-- Coverage gate currently set to 60% while we add targeted unit tests to raise coverage in critical modules.
+- Coverage gate is currently enforced at 80% (`[coverage:report] fail_under = 80` in `pytest.ini`).
 
 ### 🛠️ Development Tools
 

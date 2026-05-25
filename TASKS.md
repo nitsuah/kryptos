@@ -1,6 +1,6 @@
 # Tasks
 
-Last Updated: 2026-04-13 (Overseer compliance review)
+Last Updated: 2026-05-24 (validation + coverage refresh)
 
 ## Done
 
@@ -20,6 +20,9 @@ Last Updated: 2026-04-13 (Overseer compliance review)
 - [x] Wire manifesto checks into planning and PR review cadence.
   - Completed: 2026-04-03
   - Evidence: `.github/pull_request_template.md` now requires manifesto alignment notes (signal/reproducibility/pruning), and `.github/workflows/manifesto-pr-check.yml` enforces section presence for non-draft PRs.
+- [x] Raise the effective coverage gate beyond the prior baseline.
+  - Completed: 2026-05-24
+  - Evidence: `pytest.ini` now enforces `fail_under = 80`; fast suite currently validates at 95% total coverage.
 
 
 ## In Progress
@@ -28,11 +31,6 @@ Last Updated: 2026-04-13 (Overseer compliance review)
 
 
 ## Todo
-
-- [ ] Raise the effective coverage gate beyond the current baseline.
-  - Priority: P1
-  - Problem: the current 60 percent gate leaves too much room for regression.
-  - Acceptance Criteria: targeted tests land and the CI minimum rises.
 
 - [ ] Add scalable campaign orchestration with bounded parallel workers.
   - Priority: P2
