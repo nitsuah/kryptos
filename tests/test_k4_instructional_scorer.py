@@ -24,8 +24,8 @@ class TestLevenshtein:
         assert levenshtein("EAST", "AST") == 1
 
     def test_iqlusion(self):
-        # Sanborn-style misspelling pattern
-        assert levenshtein("ILLUSION", "IQLUSION") == 2
+        # IQLUSION vs ILLUSION: one substitution (L→Q at position 1)
+        assert levenshtein("ILLUSION", "IQLUSION") == 1
 
     def test_desparatly(self):
         assert levenshtein("DESPERATELY", "DESPARATLY") <= 3

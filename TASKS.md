@@ -1,6 +1,75 @@
 # Tasks
 
-Last Updated: 2026-05-25 (K4 structural attack planning; keystream analysis complete)
+Last Updated: 2026-05-25 (All K4-ATTACK-1 through K4-ATTACK-7 complete, including K4-ATTACK-4 composite sweep)
+
+## Done
+
+- [x] Wire manifesto alignment checks into PR cadence.
+  - Completed: 2026-04-03
+  - Evidence: `.github/pull_request_template.md` includes Manifesto Alignment requirements and `.github/workflows/manifesto-pr-check.yml` enforces them.
+
+- [x] Consolidate scripts policy around pytest-owned validation.
+  - Completed: 2025-01-27 (documented), reaffirmed 2026-05-24
+  - Evidence: `scripts/README.md` and `scripts/testing/README.md` now point to canonical validation in `tests/` and metrics/analysis docs.
+
+- [x] Create repository-wide docs audit tracker.
+  - Completed: 2026-05-24
+  - Evidence: `AUDIT.md` maps active/reference/archive/speculative docs and cleanup decisions.
+
+- [x] Implement composite-chain execution for layered K4 hypotheses.
+  - Completed: 2026-05-24 (verified in code/tests)
+  - Evidence: `src/kryptos/k4/composite.py` (`CompositeChainExecutor`) and chain hypothesis coverage in `tests/test_composite_chains.py`, `tests/test_k4_hypotheses.py`.
+
+- [x] Add cross-run key-memory primitives for Vigenere key recovery.
+  - Completed: 2026-05-24 (verified in code/tests)
+  - Evidence: `src/kryptos/provenance/search_space.py` (`tried_keys.jsonl` tracking) and `recover_key_by_frequency(..., skip_tried=True)` coverage in `tests/test_cross_run_memory.py`.
+
+- [x] Consolidate roadmap references to canonical planning sources.
+  - Completed: 2026-05-24
+  - Evidence: `ROADMAP.md` and `TASKS.md` are canonical active planning docs, and legacy phase-planning docs were removed from active navigation.
+
+- [x] **K4-ATTACK-7**: Fix position index bugs in CONTRIBUTING.md quick-start code.
+  - Completed: 2026-05-25
+  - Evidence: `CONTRIBUTING.md` updated — `'NORTHEAST': [26]`, `'BERLIN': [63]`.
+
+- [x] **K4-ATTACK-1**: Implement `kryptos.k4.keystream_validator` utility.
+  - Completed: 2026-05-25
+  - Evidence: `src/kryptos/k4/keystream_validator.py`; 14 tests in `tests/test_k4_keystream_validator.py` all pass.
+  - Exports: `compute_shifts_at_cribs`, `validate_k4_cribs`, `crib_hit_count`, `keystream_summary`.
+
+- [x] **K4-ATTACK-3**: Implement keyed alphabet realignment test.
+  - Completed: 2026-05-25
+  - Evidence: `build_keyed_alphabet`, `derive_keystream_under_alphabet`, `check_keyed_alphabet_realignment` added to `vigenere_key_recovery.py`; 14 tests in `tests/test_k4_keyed_alphabet_realignment.py` all pass.
+  - Result: None of KRYPTOS/PALIMPSEST/ABSCISSA alphabets simplify the keystream vs. standard — confirms transposition-first architecture.
+
+- [x] **K4-ATTACK-2**: Implement inverse transposition sweep + ENE diagonal reader.
+  - Completed: 2026-05-25
+  - Evidence: `src/kryptos/k4/inverse_transposition_sweep.py` + `read_ene_diagonal`/`to_grid` in `transposition_routes.py`; 19 tests in `tests/test_k4_inverse_transposition_sweep.py` all pass.
+  - Exports: `sweep_grid`, `full_sweep`, `invert_permutation`; reads at tan(67.5°)≈2.414.
+
+- [x] **K4-ATTACK-5**: Implement `InstructionalScorer`.
+  - Completed: 2026-05-25
+  - Evidence: `src/kryptos/k4/scoring_instructional.py`; 23 tests in `tests/test_k4_instructional_scorer.py` all pass.
+  - Exports: `instructional_score`, `combined_instructional_score`, `levenshtein`, `entropy_gate`, `INSTRUCTIONAL_VECTORS`.
+
+- [x] **K4-ATTACK-6**: Implement Eureka capture protocol.
+  - Completed: 2026-05-25
+  - Evidence: `src/kryptos/k4/eureka.py`; 16 tests in `tests/test_k4_eureka.py` all pass.
+  - Exports: `check_eureka`, `write_breakthrough_snapshot`, `eureka_check_and_capture`, `EurekaSignal`.
+
+- [x] **K4-ATTACK-4**: Implement full composite parameter sweep.
+  - Completed: 2026-05-25
+  - Evidence: `src/kryptos/k4/composite_sweep.py`; 21 tests in `tests/test_k4_composite_sweep.py` all pass.
+  - Exports: `run_composite_sweep`.
+  - Covers: KNOWN_KEYED_ALPHABETS × K4_GRID_GEOMETRIES × Berlin Clock states × reading routes.
+  - On 4-keyword hit: raises `EurekaSignal` + writes breakthrough snapshot.
+  - On null result: writes provenance artifact with full run parameters.
+
+
+## In Progress
+
+(none — all K4-ATTACK tasks complete)
+
 
 ## Done
 
@@ -40,44 +109,11 @@ Last Updated: 2026-05-25 (K4 structural attack planning; keystream analysis comp
 
 ## Todo
 
-### K4 Structural Attack Tasks (P1 — code next)
-
-- [ ] **K4-ATTACK-1**: Implement `kryptos.k4.keystream_validator` utility.
-  - Priority: P1
-  - Problem: No dedicated utility exists to validate whether a candidate key/transposition is consistent with the confirmed EAST+NORTHEAST cribs.
-  - Acceptance Criteria: function accepts (ciphertext, key_or_permutation) and returns whether positions 22–25 decrypt to EAST and positions 26–34 decrypt to NORTHEAST; unit tests with confirmed values pass.
-
-- [ ] **K4-ATTACK-2**: Implement inverse transposition sweep for ENE diagonal grids.
-  - Priority: P1
-  - Problem: The ENE diagonal reading path at 67.5° has never been systematically implemented and tested against K4 with the EASTNORTHEAST crib.
-  - Details: Grid geometries 10×10, 7×14, 8×13; ENE reading at tan(67.5°)≈2.414; for each permutation P, apply P⁻¹ to K4 and validate EAST+NORTHEAST at source positions.
-  - Acceptance Criteria: sweep runs all three grid sizes; results (match/no-match + keystream at source positions) written to provenance artifact; tests cover the permutation generation logic.
-
-- [ ] **K4-ATTACK-3**: Implement keyed alphabet realignment test.
-  - Priority: P1
-  - Problem: Per-position shifts were computed assuming A=0,B=1,…,Z=25; if a keyed alphabet is the substitution layer, the effective shift changes entirely.
-  - Alphabets: `KRYPTOSABCDEFGHIJLMNQUVWXZ`, `PALIMPSESTABCDFGHJKNOQRUVWXYZ`, `ABSCISSADEFGHJKLMNOPQRTUVWXYZ`
-  - Acceptance Criteria: for each alphabet, re-derive keystream at positions 22–34 and report whether it matches any Berlin Clock state, keyword, or structured sequence; results written to provenance log.
-
 - [ ] **K4-ATTACK-4**: Implement full composite parameter sweep (~2,700 combinations).
   - Priority: P1
   - Problem: The combined (alphabet × grid × angle × clock state) search space is tractable but has not been exhaustively enumerated.
-  - Acceptance Criteria: sweep completes in <60s; any simultaneous 4-crib match (EAST+NORTHEAST+BERLIN+CLOCK) triggers Eureka capture; null-result artifact written with run parameters.
-
-- [ ] **K4-ATTACK-5**: Implement `InstructionalScorer`.
-  - Priority: P1
-  - Problem: Standard quadgram scoring actively penalizes geographic/imperative K4 plaintext candidates (coordinates, directions, action verbs), causing the correct plaintext to rank low if it reads as instructions.
-  - Acceptance Criteria: scorer adds weighted bonus for INSTRUCTIONAL_VECTORS (cardinal, spatial, measurement, imperative); Levenshtein ≤1 fuzzy match for Sanborn misspellings; integrates as optional component with existing scoring; unit tests verify scoring improvement for known examples like "EASTNORTHEAST".
-
-- [ ] **K4-ATTACK-6**: Implement Eureka capture protocol.
-  - Priority: P1
-  - Problem: No mechanism exists to halt execution and preserve full state on a breakthrough match.
-  - Acceptance Criteria: on simultaneous match of EAST+NORTHEAST (and optionally BERLIN+CLOCK), emit ANSI alert banner, write `K4_BREAKTHROUGH_SNAPSHOT.md` with full parameter trace (cipher config, grid, alphabet, clock state, plaintext, scores), halt campaign cleanly.
-
-- [ ] **K4-ATTACK-7**: Fix position index bugs in CONTRIBUTING.md quick-start code.
-  - Priority: P1
-  - Problem: `positional_cribs` in CONTRIBUTING.md has `'NORTHEAST': [25]` (should be [26]) and `'BERLIN': [64]` (should be [63]) based on confirmed keystream analysis.
-  - Acceptance Criteria: CONTRIBUTING.md updated; any code files that use these hardcoded positions verified and corrected; tests updated if needed.
+  - Details: Wire `check_keyed_alphabet_realignment` + `sweep_grid` + `eureka_check_and_capture` into a single campaign runner. 3 alphabets × 3 grids × ~100 clock states × 2 angles.
+  - Acceptance Criteria: sweep completes in <60s on K4; any simultaneous 4-crib match triggers Eureka capture; null-result artifact written with run parameters.
 
 ### Infrastructure Tasks (P1)
 
