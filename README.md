@@ -15,6 +15,16 @@ decrypt the famous Kryptos sculpture.
 This Kryptos repository is a research toolkit for exploring layered cipher hypotheses (Vigenère, Hill, transposition,
 masking, and related hybrids) with an emphasis on reproducible pipelines and scoring heuristics.
 
+## Autonomous Quickstart
+
+Run a standard autonomous cycle:
+
+```bash
+python -m kryptos.cli.main autonomous --max-hours 24 --cycle-interval 5
+```
+
+Contributor operating standards and workflow expectations are consolidated in `CONTRIBUTING.md`.
+
 ## Kryptos Manifesto
 
 Kryptos is a long-horizon cryptanalysis program, not a promise machine.
@@ -52,19 +62,19 @@ Kryptos is a long-horizon cryptanalysis program, not a promise machine.
 - Every roadmap claim ties to measurable criteria, not adjectives.
 - Every phase includes at least one explicit "stop doing" decision.
 
-For the complete governance policy, see `docs/MANIFESTO.md`.
+For governance and maintenance policy, see `CONTRIBUTING.md` (with historical references in `docs/archive/`).
 
 ## docs
 
 All Related documents / quick links can generally be found in `docs/`:
 
-- Manifesto: `docs/MANIFESTO.md`
-- Phase 6 Roadmap: `docs/PHASE_6_ROADMAP.md`
+- Docs index: `docs/INDEX.md`
+- Roadmap: `ROADMAP.md`
+- Active standards and contribution workflow: `CONTRIBUTING.md`
 - Agents Architecture: `docs/reference/AGENTS_ARCHITECTURE.md`
 - API Reference: `docs/reference/API_REFERENCE.md`
 - Autonomous System: `docs/reference/AUTONOMOUS_SYSTEM.md`
-- API Reference: `docs/reference/API_REFERENCE.md`
-- Changelog: `docs/CHANGELOG.md`
+- Changelog: `CHANGELOG.md`
 
 **K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in copper that nobody has
 cracked in 30+ years. We're using Python to systematically try every reasonable decryption method – techniques that
@@ -82,9 +92,7 @@ then convert back.
 
 1. **Combo Attacks** - Chaining multiple methods together (K4 likely uses 2-3 techniques layered in sequence)
 
-We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real word detection – to
-identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic
-intuition rather than brute force. After all, humans design puzzles with intention, not randomness!
+  - We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real word detection – to identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic intuition rather than brute force. After all, humans design puzzles with intention, not randomness!
 
 ## Recent Updates
 
@@ -96,11 +104,11 @@ intuition rather than brute force. After all, humans design puzzles with intenti
 - Deprecated code removal: -677 lines (unused configs, obsolete tests)
 - Fixed K3 ciphertext correction (336 chars)
 
-**Test Suite Optimization**: 607 tests total (**583 fast** / 24 slow)
+**Test Suite Optimization**: 633 collected (**631 fast-selected** / 10 slow tests gated by `KRYPTOS_RUN_SLOW_MONTE_CARLO` / 2 deselected in fast run mode)
 
 - Added `@pytest.mark.slow` to long-running statistical validation tests
-- Fast iteration: `pytest -m "not slow"` runs 583 tests in ~1-2 minutes
-- Full validation: `pytest` includes Monte Carlo tests (10+ min) for autonomous solving verification
+- Fast iteration: `pytest -m "not slow"` currently runs 631 tests in ~45-60s on a typical dev machine
+- Slow Monte Carlo modules are opt-in via `KRYPTOS_RUN_SLOW_MONTE_CARLO=1` and can be run directly in CI or locally when needed
 
 **Result**: Leaner codebase, faster development cycle, maintained 100% test pass rate
 
@@ -109,31 +117,23 @@ intuition rather than brute force. After all, humans design puzzles with intenti
 ### ✅ K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"
 
 - **Status**: Solved.
-- **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional
-
-misspelling preserved: `IQLUSION`.
+- **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional misspelling preserved: `IQLUSION`.
 
 ### ✅ K2: "It was totally invisible. How's that possible?"
 
 - **Status**: Solved.
-- **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for
-
-historical alignment. Contains geospatial coordinates and narrative text.
+- **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for historical alignment. Contains geospatial coordinates and narrative text.
 
 ### ✅ K3: "Slowly, desperately slowly, the remains of passage debris..."
 
 - **Status**: Solved (double rotational transposition method).
-- **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid →
-
-second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling `DESPARATLY` (analogous
+- **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid → second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling `DESPARATLY` (analogous
 to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
 - **Status**: Unsolved.
-- **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint
-
-pipeline, multi-stage fusion).
+- **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint pipeline, multi-stage fusion).
 
 - **Latest Additions**: Multi-crib positional transposition stage, attempt logging & persistence,
 
@@ -185,7 +185,7 @@ See `docs/reference/API_REFERENCE.md` for code-level API documentation.
 
 ## Roadmap
 
-See `docs/PHASE_6_ROADMAP.md` for current status and next phase objectives.
+See `ROADMAP.md` for the current roadmap and milestones.
 
 ## CLI Usage Examples
 
@@ -315,6 +315,21 @@ using the evaluation harness; it falls back to `0.25` when no labeled runs are a
 
 Contribution guidelines moved to `CONTRIBUTING.md` → [Contributing Guide](./CONTRIBUTING.md).
 
+## Docker Fast Coverage
+
+Run the fast test suite with coverage in a lightweight Docker container:
+
+```bash
+docker run --rm -v "${PWD}:/app" -w /app python:3.13-slim sh -lc \
+  "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml && \
+   python -m spacy download en_core_web_sm && \
+   pip install --no-cache-dir -e . --no-deps && \
+   pytest tests/ -m 'not slow' --cov=src --cov-report=term"
+```
+
+Note: `tests/test_k4_performance.py` contains a micro-benchmark guard that is automatically skipped in container
+environments to avoid false regressions from container scheduling variance.
+
 ## Scoring Metrics Snapshot
 
 Use `baseline_stats(text)` to inspect metrics including advanced linguistic features.
@@ -330,11 +345,11 @@ See `LICENSE`.
 
 ## Other Documentation
 
-- `docs/PHASE_6_ROADMAP.md` — Current phase status and objectives
+- `ROADMAP.md` — Current roadmap and phase objectives
 - `docs/reference/AGENTS_ARCHITECTURE.md` — SPY/OPS/Q agent design and implementation
 - `docs/reference/API_REFERENCE.md` — Python API and CLI command reference
 - `docs/reference/AUTONOMOUS_SYSTEM.md` — Autonomous coordination system
-- `docs/CHANGELOG.md` — Change history and version tracking
+- `CHANGELOG.md` — Change history and version tracking
 
 ## Code Examples
 

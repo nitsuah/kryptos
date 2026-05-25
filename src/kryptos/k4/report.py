@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import csv
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from kryptos.paths import get_repo_root
@@ -127,7 +127,7 @@ def write_top_candidates_markdown(run_dir: Path, out_dir: Path | None = None, to
             if f.is_file() and f.name in ln:
                 file_to_learned.setdefault(f.name, []).append(ln)
 
-    ts = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
+    ts = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     out_md = out_dir / f'top_candidates_{ts}.md'
     with out_md.open('w', encoding='utf-8') as of:
         of.write('# Top K4 Candidates Report\n\n')

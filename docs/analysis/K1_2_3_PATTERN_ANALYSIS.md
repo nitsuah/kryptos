@@ -16,9 +16,7 @@ Analyzed 13 patterns across K1, K2, and K3. These patterns inform our K4 attack 
 
 - Sanborn confirmed 'NORTHEAST' appears in K4
 
-**K4 Hypothesis:** Known plaintext: chars 26-34 = 'NORTHEAST'. This gives us a known-plaintext attack anchor point.
-Combined with 'BERLIN' theme from K3, suggests Cold War espionage angle. Try ciphers where we can lock in NORTHEAST and
-work outward.
+**K4 Hypothesis:** Known plaintext: chars 26-34 = 'NORTHEAST'. This gives us a known-plaintext attack anchor point. Combined with 'BERLIN' theme from K3, suggests Cold War espionage angle. Try ciphers where we can lock in NORTHEAST and work outward.
 
 ### Increasing cipher complexity across sections
 
@@ -31,9 +29,7 @@ work outward.
 - K3: Keyed-alphabet transposition
 - K4: ???
 
-**K4 Hypothesis:** K4 is likely MOST complex. Expect: 1. Combination of previous techniques (polyalphabetic +
-transposition) 2. Novel twist we haven't seen 3. Possible 'supercipher' using K1-K3 as keys/tables 4. Layered encryption
-(decode once, then again)
+**K4 Hypothesis:** K4 is likely MOST complex. Expect: 1. Combination of previous techniques (polyalphabetic + transposition) 2. Novel twist we haven't seen 3. Possible 'supercipher' using K1-K3 as keys/tables 4. Layered encryption (decode once, then again)
 
 ## SPELLING PATTERNS
 
@@ -47,8 +43,7 @@ transposition) 2. Novel twist we haven't seen 3. Possible 'supercipher' using K1
 - 'undergruund' instead of underground (O→U substitution)
 - 'desparatly' instead of desperately (E missing)
 
-**K4 Hypothesis:** K4 likely contains similar spelling quirks. Q↔I, U↔O substitutions may be intentional. Look for words
-that are 'almost' English.
+**K4 Hypothesis:** K4 likely contains similar spelling quirks. Q↔I, U↔O substitutions may be intentional. Look for words that are 'almost' English.
 
 ## THEME PATTERNS
 
@@ -130,8 +125,7 @@ that are 'almost' English.
 - X marks section breaks
 - Separates distinct ideas
 
-**K4 Hypothesis:** K4 might use X or other symbols as delimiters. Don't treat X as normal letter - it could mark
-boundaries, layers, or metadata.
+**K4 Hypothesis:** K4 might use X or other symbols as delimiters. Don't treat X as normal letter - it could mark boundaries, layers, or metadata.
 
 ### Geographic coordinates embedded in plaintext
 
@@ -141,8 +135,7 @@ boundaries, layers, or metadata.
 
 - 38°57'6.5"N, 77°8'44"W - CIA headquarters location
 
-**K4 Hypothesis:** K4 might contain coordinates, dates, or other numeric encodings. Look for number patterns, especially
-related to Kryptos location or key dates. Or an X,Y,Z coordinate system.
+**K4 Hypothesis:** K4 might contain coordinates, dates, or other numeric encodings. Look for number patterns, especially related to Kryptos location or key dates. Or an X,Y,Z coordinate system.
 
 ### Preferred word lengths: 3, 4, 7, 6, 5
 
@@ -156,8 +149,7 @@ related to Kryptos location or key dates. Or an X,Y,Z coordinate system.
 - 6-letter words: 15 times
 - 5-letter words: 13 times
 
-**K4 Hypothesis:** K4 likely has similar word length distribution. When testing transpositions, favor plaintext with 3-4
-letter words.
+**K4 Hypothesis:** K4 likely has similar word length distribution. When testing transpositions, favor plaintext with 3-4 letter words.
 
 ## ARTISTIC PATTERNS
 
@@ -174,8 +166,7 @@ letter words.
 - nuance
 - iqlusion
 
-**K4 Hypothesis:** K4 may be poetic or philosophical. Sanborn is an artist - expect metaphor, symbolism, beauty. SPY's
-poetry detection (rhyme, meter, alliteration) will be crucial.
+**K4 Hypothesis:** K4 may be poetic or philosophical. Sanborn is an artist - expect metaphor, symbolism, beauty. SPY's poetry detection (rhyme, meter, alliteration) will be crucial.
 
 ### K3 quotes historical event (King Tut discovery, 1922)
 
@@ -189,15 +180,15 @@ poetry detection (rhyme, meter, alliteration) will be crucial.
 - mist
 - can you see anything
 
-**K4 Hypothesis:** K4 might quote another historical event, literary work, or famous text. Check cryptography history,
-CIA history, Cold War events. The 'WW' in K2 might be Wolfgang Weber or another real person.
+**K4 Hypothesis:** K4 might quote another historical event, literary work, or famous text. Check cryptography history, CIA history, Cold War events. The 'WW' in K2 might be Wolfgang Weber or another real person.
 
 ## STRATEGIC RECOMMENDATIONS FOR K4
 
 Based on K1-K3 analysis, prioritize:
 
-1. **Known-plaintext attacks** using 'NORTHEAST' (chars 26-34) 2. **Spelling-aware search** - expect Q↔I, U↔O
-
-substitutions 3. **Thematic cribs** - Try 'BERLIN', 'CLOCK', Cold War terms 4. **Poetry/artistic validation** - SPY NLP
-to detect Sanborn's style 5. **Supercipher hypothesis** - K4 might use K1-K3 as keys 6. **Historical quotes** - K3 is
-King Tut, K4 might quote something similar
+1. **Known-plaintext attacks** using 'NORTHEAST' (chars 26-34)
+2. **Spelling-aware search** - expect Q↔I, U↔O substitutions
+3. **Thematic cribs** - Try 'BERLIN', 'CLOCK', Cold War terms
+4. **Poetry/artistic validation** - SPY NLP to detect Sanborn's style
+5. **Supercipher hypothesis** - K4 might use K1-K3 as keys
+6. **Historical quotes** - K3 is King Tut, K4 might quote something similar

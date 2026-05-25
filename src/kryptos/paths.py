@@ -21,7 +21,7 @@ import os
 import platform
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 
@@ -92,11 +92,11 @@ def get_tuning_runs_root() -> Path:
 
 def ensure_reports_dir(ts: str | None = None) -> Path:
     root = get_artifacts_root()
-    date_seg = datetime.utcnow().strftime("%Y%m%d")
+    date_seg = datetime.now(timezone.utc).strftime("%Y%m%d")
     base = root / "reports" / date_seg
     base.mkdir(parents=True, exist_ok=True)
     if ts is None:
-        ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+        ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     final = base / ts
     final.mkdir(parents=True, exist_ok=True)
     return final
@@ -115,7 +115,7 @@ def provenance_hash(text: str, meta: dict) -> str:
 
 def get_provenance_info(include_params: dict | None = None) -> dict:
     info = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "python_version": sys.version,
         "python_version_info": {
             "major": sys.version_info.major,

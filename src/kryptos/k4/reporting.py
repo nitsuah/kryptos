@@ -10,7 +10,7 @@ import hashlib
 import json
 import os
 from collections.abc import Sequence
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..paths import ensure_reports_dir
 from .scoring import baseline_stats
@@ -62,7 +62,7 @@ def write_candidates_json(
     payload = {
         'cipher': cipher_label,
         'stage': stage,
-        'generated_at': datetime.utcnow().isoformat() + 'Z',
+        'generated_at': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
         'ciphertext_prefix': ciphertext[:50],
         'candidate_count': len(enriched),
         'lineage': lineage,

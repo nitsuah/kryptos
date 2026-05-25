@@ -30,7 +30,7 @@ from __future__ import annotations
 import json
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from kryptos.log_setup import setup_logging
@@ -153,26 +153,26 @@ def run_exchange(plan_text: str | None = None, autopilot: bool = True) -> Path:
             "action": plan.get("action"),
             "recommendation": rec,
             "justification": just,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         print(json.dumps(structured))
     if plan_text and "Q" in personas:
         personas["Q"] += f"\n\n# PLAN_CHECK: {plan_text}\n"
         personas["OPS"] += f"\n\n# PLAN_CHECK: {plan_text}\n"
-    ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out_path = LOG_DIR / f"run_{ts}.jsonl"
     state = _load_state()
     with out_path.open("w", encoding="utf-8") as fh:
         for r in range(1, 2):
             for name, prompt in personas.items():
                 act = _simulate_action(name, prompt)
-                entry = {"round": r, "persona": name, "action": act, "time": datetime.utcnow().isoformat()}
+                entry = {"round": r, "persona": name, "action": act, "time": datetime.now(timezone.utc).isoformat()}
                 fh.write(json.dumps(entry) + "\n")
                 print(entry)
                 if "LEARN:" in act:
                     learn_text = act.split("LEARN:", 1)[1].strip()
                     state.setdefault("learned", []).append(
-                        {"persona": name, "note": learn_text, "time": datetime.utcnow().isoformat()},
+                        {"persona": name, "note": learn_text, "time": datetime.now(timezone.utc).isoformat()},
                     )
     try:
         crib_update = _update_cribs_from_spy(run_id=ts)

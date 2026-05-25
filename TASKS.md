@@ -1,48 +1,113 @@
 # Tasks
 
-Last Updated: 2026-04-13 (Overseer compliance review)
+Last Updated: 2026-05-24 (phase 6/7 implementation audit)
 
 ## Done
 
-- [x] Build the modular K4 cryptanalysis toolkit.
-- [x] Add extensive test coverage and fast/slow execution partitioning.
-- [x] Add provenance logging and candidate artifact generation.
-- [x] Add layered CI validation.
-- [x] Fix the Docker runtime permission failure for artifact and log output.
-  - Completed: 2026-03-27
-  - Evidence: `docker run --rm kryptos-devops-check kryptos k4-attempts --label docker-smoke` now writes under the application working tree instead of `site-packages`.
-- [x] Add Docker smoke CI workflow.
-  - Completed: 2026-03-27
-  - Evidence: `.github/workflows/docker-smoke.yml` now builds the image and validates CLI startup.
-- [x] Complete Phase 6.2 composite-chain validation.
+- [x] Wire manifesto alignment checks into PR cadence.
   - Completed: 2026-04-03
-  - Evidence: `src/kryptos/k4/composite.py` now enforces explicit score thresholds and deterministic ordering for V->T and T->V chains; validated by `tests/test_composite_chain_thresholds.py`.
-- [x] Wire manifesto checks into planning and PR review cadence.
-  - Completed: 2026-04-03
-  - Evidence: `.github/pull_request_template.md` now requires manifesto alignment notes (signal/reproducibility/pruning), and `.github/workflows/manifesto-pr-check.yml` enforces section presence for non-draft PRs.
+  - Evidence: `.github/pull_request_template.md` includes Manifesto Alignment requirements and `.github/workflows/manifesto-pr-check.yml` enforces them.
+
+- [x] Consolidate scripts policy around pytest-owned validation.
+  - Completed: 2025-01-27 (documented), reaffirmed 2026-05-24
+  - Evidence: `scripts/README.md` and `scripts/testing/README.md` now point to canonical validation in `tests/` and metrics/analysis docs.
+
+- [x] Create repository-wide docs audit tracker.
+  - Completed: 2026-05-24
+  - Evidence: `AUDIT.md` maps active/reference/archive/speculative docs and cleanup decisions.
+
+- [x] Implement composite-chain execution for layered K4 hypotheses.
+  - Completed: 2026-05-24 (verified in code/tests)
+  - Evidence: `src/kryptos/k4/composite.py` (`CompositeChainExecutor`) and chain hypothesis coverage in `tests/test_composite_chains.py`, `tests/test_k4_hypotheses.py`.
+
+- [x] Add cross-run key-memory primitives for Vigenere key recovery.
+  - Completed: 2026-05-24 (verified in code/tests)
+  - Evidence: `src/kryptos/provenance/search_space.py` (`tried_keys.jsonl` tracking) and `recover_key_by_frequency(..., skip_tried=True)` coverage in `tests/test_cross_run_memory.py`.
+
+- [x] Consolidate roadmap references to canonical planning sources.
+  - Completed: 2026-05-24
+  - Evidence: `ROADMAP.md` and `TASKS.md` are canonical active planning docs, and legacy phase-planning docs were removed from active navigation.
 
 
 ## In Progress
 
-(No active tasks currently marked as in progress)
+- [ ] Execute conservative docs cleanup plan from `AUDIT.md`.
+  - Priority: P2
+  - Constraint: no speculative information or theory removals or archival moves without explicit approval or concrete evidence to support action.
+  - Acceptance Criteria: docs index and planning links are consistent with active versus historical intent.
 
 
 ## Todo
 
-- [ ] Raise the effective coverage gate beyond the current baseline.
+- [ ] Build objective-to-evidence scorecard.
   - Priority: P1
-  - Problem: the current 60 percent gate leaves too much room for regression.
-  - Acceptance Criteria: targeted tests land and the CI minimum rises.
+  - Problem: roadmap goals are clear, but proof of attainment is not yet centralized in one measurable view.
+  - Acceptance Criteria: one maintained scorecard maps each strategic goal to KPI target, current value, evidence command, and artifact/doc link.
+
+- [ ] Enforce strategic-claim evidence gate in workflow.
+  - Priority: P1
+  - Problem: features can be marked complete without a uniform proof bundle.
+  - Acceptance Criteria: PR/process checks require tests, reproducible runtime command(s), and artifact/document evidence before strategic-completion claims are accepted.
+
+- [ ] Add fresh-environment autonomous smoke test.
+  - Priority: P1
+  - Problem: autonomous behavior can fail in clean environments due to dependency/bootstrap drift.
+  - Acceptance Criteria: deterministic smoke path runs in a fresh environment in CI and validates core autonomous startup behavior.
 
 - [ ] Add scalable campaign orchestration with bounded parallel workers.
   - Priority: P2
   - Problem: larger K4 search batches still run too slowly.
   - Acceptance Criteria: bounded parallel execution is reproducible and emits useful telemetry.
 
-- [ ] Consolidate roadmap references between the root roadmap and docs phase plans.
+- [ ] Add `sections-decrypt` CLI command for K1/K2/K3 tire-kicks.
+  - Priority: P1
+  - Problem: proving K1/K2/K3 currently requires custom Python snippets instead of a first-class command.
+  - Acceptance Criteria: supports `--section`, `--from-config`/`--cipher`, optional `--key`, and prints deterministic output.
+
+- [ ] Add JSON output mode for section verification commands.
+  - Priority: P1
+  - Problem: current section-oriented validation is hard to automate in CI and scripted checks.
+  - Acceptance Criteria: machine-readable output includes section, input source, plaintext markers, and status fields.
+
+- [ ] Add section API end-to-end tests.
+  - Priority: P1
+  - Problem: wrappers in `kryptos.sections` can drift from cipher core behavior.
+  - Acceptance Criteria: new tests verify K1/K2/K3 outputs via `SECTIONS` using config fixtures.
+
+- [ ] Add optional explainability mode for section decryptions.
   - Priority: P2
-  - Problem: planning sources can still drift.
-  - Acceptance Criteria: one canonical roadmap flow is linked from README and docs.
+  - Problem: debugging decryption behavior currently requires code inspection.
+  - Acceptance Criteria: `--explain` can emit bounded transformation diagnostics for Vigenere and K3 pipeline steps.
+
+- [ ] Wire alphabet auto-selection into runtime orchestrators.
+  - Priority: P2
+  - Problem: `try_all_alphabets` support exists in `vigenere_key_recovery.py` but is not the default path in `ops.py`/`k4_campaign.py`.
+  - Acceptance Criteria: orchestrators exercise keyed + standard alphabets where appropriate, with deterministic tests.
+
+- [ ] Fix transposition plaintext extraction in campaign orchestrator.
+  - Priority: P2
+  - Problem: `execute_transposition_attack` currently computes permutation/score but returns ciphertext as plaintext.
+  - Acceptance Criteria: plaintext output reflects the recovered permutation, with regression tests.
+
+- [ ] Stabilize autonomous test/runtime NLP dependency.
+  - Priority: P2
+  - Problem: autonomous coordinator tests fail in environments missing spaCy model `en_core_web_sm`.
+  - Acceptance Criteria: CI/dev path is deterministic (model bootstrap or fallback strategy) and autonomous tests pass consistently.
+
+- [ ] Resolve `python -m kryptos.cli.main` runpy warning path.
+  - Priority: P2
+  - Problem: module execution emits `runpy` cache warning in current environment.
+  - Acceptance Criteria: warning is removed or documented with a tested invocation path that avoids it.
+
+- [ ] Resolve `config/llm_config.yaml` ownership.
+  - Priority: P3
+  - Problem: config file exists without a clearly documented/runtime-owned integration path.
+  - Acceptance Criteria: either wire it to runtime behavior or remove it with a documented rationale.
+
+- [ ] Retire legacy executor/wrapper surfaces after migration confirmation.
+  - Priority: P3
+  - Problem: historical notes track deprecated execution paths and wrappers that may no longer be needed.
+  - Acceptance Criteria: verify usage and remove deprecated surfaces or formally document retention reason.
 
 - [ ] Add a lightweight monthly governance review note in docs.
   - Priority: P3

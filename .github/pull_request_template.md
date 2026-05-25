@@ -2,19 +2,19 @@
 
 ## Summary
 
-Explain the motivation and context for this change.  Why is this PR important?
+What changed and why it matters.
 
 ## Changes
 
-- List the key changes introduced in bullet points. Be specific.
+- List the key changes in concise bullets.
 
 ## Testing
 
-Describe how you tested the changes. Include commands, scripts, or specific steps to reproduce.  Focus on areas most affected by these changes.
+Describe validation steps and outcomes. Include exact commands or reproducible steps for affected areas.
 
 ## Manifesto Alignment
 
-Explain how this PR aligns with core manifesto commitments:
+Explain alignment with core manifesto commitments:
 
 - Signal improvement or risk reduction delivered by this change.
 - Reproducibility path (deterministic commands, artifacts, provenance).
@@ -28,12 +28,13 @@ Checklist:
 
 ## Screenshots (optional)
 
-Add before/after screenshots if UI or output visualizations were changed.
+Add before/after screenshots only when UI or visual outputs changed.
 
 ## Checklist
 
 - [ ] Tests added or updated
 - [ ] Documentation updated (if needed)
-- [ ] Linked to related issues / tasks
+- [ ] Roadmap/tasks updated when strategic scope changed
+- [ ] Related issues/tasks linked
 - [ ] Follows project conventions and style guidelines
 - [ ] Passes all automated checks (linting, tests, etc.)

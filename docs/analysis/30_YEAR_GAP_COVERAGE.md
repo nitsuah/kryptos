@@ -19,8 +19,7 @@
 | **Fractionating Ciphers** | 30% | LOW | HIGH |
 | **Composite Ciphers (3+ layers)** | 0% | N/A | MEDIUM |
 
-**Bottom Line:** If K4 uses standard cryptographic techniques from Sanborn's era, we have excellent coverage. Main gap
-is obscure WWI/WWII ciphers (ADFGVX, Nihilist, etc.) which are less likely given K1-K3 progression.
+**Bottom Line:** If K4 uses standard cryptographic techniques from Sanborn's era, we have excellent coverage. Main gap is obscure WWI/WWII ciphers (ADFGVX, Nihilist, etc.) which are less likely given K1-K3 progression.
 
 ---
 
@@ -68,11 +67,9 @@ intelligent search methods.
 | **Porta** | ❌ Missing | ~13 alphabets (reciprocal) | 1563 cipher, less common |
 | **Gronsfeld** | ❌ Missing | Numeric key | Vigenère with digits |
 
-**Why Strong:** Vigenère (1553) and variants were standard in 1990. Autokey (1586) less common but documented.
-Beaufort/Porta are textbook but rarely used in practice.
+**Why Strong:** Vigenère (1553) and variants were standard in 1990. Autokey (1586) less common but documented. Beaufort/Porta are textbook but rarely used in practice.
 
-**Gap Impact:** LOW - Beaufort/Porta/Gronsfeld are mentioned in crypto textbooks but not commonly used. If Sanborn used
-them, we'd need 1-2 days to implement.
+**Gap Impact:** LOW - Beaufort/Porta/Gronsfeld are mentioned in crypto textbooks but not commonly used. If Sanborn used them, we'd need 1-2 days to implement.
 
 #### Transposition Ciphers
 
@@ -125,11 +122,9 @@ it as special case).
 | **Vigenère → Substitution** | ❌ | Not implemented | Low utility (both are substitution) |
 | **Fractionating → Transposition** | ❌ | Missing ADFGVX, Nihilist | WWI-era combos |
 
-**Why Moderate:** We have all logical 2-layer combinations EXCEPT fractionating ciphers (see next section). Sanborn
-confirmed "five or six techniques" which suggests multi-layer.
+**Why Moderate:** We have all logical 2-layer combinations EXCEPT fractionating ciphers (see next section). Sanborn confirmed "five or six techniques" which suggests multi-layer.
 
-**Gap Impact:** MEDIUM - If K4 uses 3+ layers, combinatorial explosion makes exhaustive testing infeasible. Need
-strategic sampling.
+**Gap Impact:** MEDIUM - If K4 uses 3+ layers, combinatorial explosion makes exhaustive testing infeasible. Need strategic sampling.
 
 ---
 
@@ -145,19 +140,20 @@ strategic sampling.
 | **Straddle Checkerboard** | ❌ Missing | WWII (Soviet) | High (Variable-length encoding) | MEDIUM - Russian spies used this |
 | **Bazeries** | ❌ Missing | 1890s | Medium (Transposition + substitution) | LOW - Obscure |
 
-**Why Gap Exists:** These are specialized military ciphers, more complex to implement (multi-stage fractionation). Not
-part of K1-K3 progression.
+**Why Gap Exists:** These are specialized military ciphers, more complex to implement (multi-stage fractionation). Not part of K1-K3 progression.
 
-**Gap Impact:** MEDIUM-HIGH - If Sanborn researched WWI/WWII cryptography (plausible - Cold War theme), these could
-appear. BUT:
+**Gap Impact:** MEDIUM-HIGH - If Sanborn researched WWI/WWII cryptography (plausible - Cold War theme), these could appear. BUT:
 
 - Not used in K1-K3 (no pattern precedent)
 - Complex for 97-character message (overkill)
 - Would require multi-week manual implementation
 
-**Mitigation Strategy:** 1. **Phase 5.1 (Attack Generator):** LiteratureGapAnalyzer searches papers for "ADFGVX K4",
-"Nihilist Kryptos" 2. If found in multiple papers → flag as high-priority implementation 3. Phase 6.2 (Dynamic Cipher
-Loading) enables rapid plugin development
+**Mitigation Strategy:**
+
+1. **Phase 5.1 (Attack Generator):** LiteratureGapAnalyzer searches papers for "ADFGVX K4",
+"Nihilist Kryptos"
+2. If found in multiple papers → flag as high-priority implementation
+3. Phase 6.2 (Dynamic Cipher Loading) enables rapid plugin development
 
 #### Composite Ciphers (3+ Layers)
 

@@ -6,24 +6,26 @@ Thank you for your interest in advancing K4 analysis.
 
 **Start here:**
 
-1. **[`docs/MAINTENANCE_GUIDE.md`](docs/MAINTENANCE_GUIDE.md)** — Core maintenance philosophy and practices
-   - When to create/delete tests, scripts, and documentation
-   - Code quality standards and review checklist
-   - Definition of done for contributions
-   - Audit procedures for keeping codebase clean
+1. **[`docs/INDEX.md`](docs/INDEX.md)** — Canonical docs traversal map
+  - Use this as the first stop for navigation across docs, references, analysis, and archive material
 
-2. **[`docs/PHASE_6_ROADMAP.md`](docs/PHASE_6_ROADMAP.md)** — Current development roadmap and strategic direction
-   - Phase 6 objectives and sprint structure
-   - Current K1-K3 success rates (measured, validated)
-   - K4 attack strategies and priorities
-   - System readiness assessment (75% K4-ready)
-   - Cross-references: [`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md) for operational checklist
+2. **This file (`CONTRIBUTING.md`)** — Canonical contributor workflow, operating standards, and autonomous quickstart
+  - Consolidated manifesto + maintenance expectations
+  - Definition-of-done style checks and review expectations
+  - Quick operational command set for autonomous runs
 
-3. **[`docs/TODO_PHASE_6.md`](docs/TODO_PHASE_6.md)** — Operational task breakdown
-   - Prioritized work items with clear success metrics
-   - Sprint-by-sprint deliverables
-   - Technical implementation details
-   - Cross-references roadmap for strategic context
+3. **[`ROADMAP.md`](ROADMAP.md)** — Canonical roadmap and milestone flow
+  - Current quarter priorities and completion status
+  - High-level strategic direction
+
+4. **[`TASKS.md`](TASKS.md)** — Canonical execution backlog
+   - Prioritized active work items with acceptance criteria
+   - Evidence-driven completion tracking
+   - Operational queue used by humans and agents
+
+5. **[`README.md`](README.md)** — Project overview and CLI usage examples
+  - Primary orientation for runtime usage
+  - Baseline K1-K3/K4 context and entry points
 
 **Architecture & Systems:**
 
@@ -48,13 +50,13 @@ tracking system
 
 - **[`docs/analysis/K1_K2_VALIDATION_RESULTS.md`](docs/analysis/K1_K2_VALIDATION_RESULTS.md)** — K1/K2 Monte Carlo
 validation
-  - 100% success rate on both K1 and K2 (50 runs each)
+  - 100% success rate on both K1 and K2 (50 runs each, revalidated 2026-05-24)
   - Deterministic recovery algorithms validated
   - Performance benchmarks
 
 - **[`docs/analysis/K3_VALIDATION_RESULTS.md`](docs/analysis/K3_VALIDATION_RESULTS.md)** — K3 autonomous solving
 validation
-  - 68-95% success rates (period-dependent)
+  - 60-95% observed success rates (period/seed-dependent)
   - SA solver performance analysis
   - Probabilistic vs deterministic algorithms
 
@@ -68,22 +70,56 @@ validation
 **Understanding these docs will help your contributions align with project architecture, standards, and strategic
 direction.**
 
-4. **[`docs/MANIFESTO.md`](docs/MANIFESTO.md)** — Project philosophy and decision rubric
-  - Defines how we evaluate progress and avoid false confidence
-  - Clarifies AI's role as a multiplier, not an authority
-  - Establishes non-negotiable standards for strategic changes
-
 ---
 
 ## Manifesto Alignment (Required)
 
-Before opening a PR, verify the change aligns with `docs/MANIFESTO.md`:
+Before opening a PR, verify the change aligns with the standards in this file:
 
 1. What measurable signal improved?
 2. How can another contributor reproduce the claim?
 3. What weak path was removed, rejected, or de-prioritized?
 
 If a change is exploratory and does not improve validated signal yet, mark it explicitly as exploratory.
+
+## Operating Standards (Consolidated)
+
+These standards consolidate prior manifesto + maintenance guidance into one active location.
+
+1. Truth over narrative
+- Prefer measured outcomes over optimistic interpretation.
+- Treat negative results as valid outputs.
+
+2. Reproducibility over heroics
+- Any substantial claim must be reproducible from committed code, pinned data, and deterministic commands.
+- Campaign-relevant runs must produce traceable artifacts/provenance.
+
+3. Baseline rigor before frontier claims
+- K1-K3 controls are quality gates for K4 strategy promotion.
+- Do not scale strategies that fail known-cipher controls.
+
+4. AI as multiplier, not authority
+- Treat AI output as proposals requiring engineering and statistical validation.
+
+5. Maintenance discipline
+- Tests are preserved unless redundancy is proven.
+- Working scripts graduate into tests or `src/` APIs.
+- Outdated docs are consolidated or archived; active queues stay in `ROADMAP.md` and `TASKS.md`.
+
+## Autonomous Quickstart (Consolidated)
+
+Use this for operational autonomous runs:
+
+```bash
+python -m kryptos.cli.main autonomous --max-hours 24 --cycle-interval 5
+```
+
+Useful monitoring commands:
+
+```bash
+python -m kryptos.cli.main autonomous --help
+python -m kryptos.cli.main sections
+```
 
 ## Getting Started
 
@@ -110,7 +146,7 @@ If a change is exploratory and does not improve validated signal yet, mark it ex
 ## Quick Start: Hill Constraint Stage
 
 ```python
-from src.k4 import Pipeline, make_hill_constraint_stage
+from kryptos.k4.pipeline import Pipeline, make_hill_constraint_stage
 cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
 pipe = Pipeline([make_hill_constraint_stage()])
 result = pipe.run(cipher_k4)[0]
@@ -121,15 +157,15 @@ for cand in result.metadata['candidates'][:5]:
 ## Quick Start: Composite Multi-Stage Run
 
 ```python
-from src.k4 import (
+from kryptos.k4.pipeline import (
     make_hill_constraint_stage,
     make_transposition_adaptive_stage,
     make_transposition_multi_crib_stage,
     make_route_transposition_stage,
     make_masking_stage,
     make_berlin_clock_stage,
-    run_composite_pipeline
 )
+from kryptos.k4.composite import run_composite_pipeline
 
 cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
 positional_cribs = {
@@ -163,18 +199,20 @@ for c in res.get('fused', [])[:5]:
 ## Attempt Logs Persistence
 
 ```python
-from src.k4.attempt_logging import persist_attempt_logs
+from kryptos.k4.attempt_logging import persist_attempt_logs
 path = persist_attempt_logs(out_dir='reports', label='K4', clear=True)
 print("Attempt log written:", path)
 ```
 
 ## Workflow
 
-1. Fork and branch from `main`. 2. Implement a focused enhancement (small, testable functions). 3. Add or update tests
-under `tests/` (avoid large exhaustive brute-force loops; cap iterations). 4. Update exports in `src/k4/__init__.py` if
-you introduce new public symbols. 5. Update `roadmap.md` only if you add or refine planned analytical directions. 6. Run
-`python -m unittest discover -s tests` and ensure all tests pass. 7. Submit a PR with a concise description of rationale
-and methodology.
+1. Fork and branch from `main`.
+2. Implement a focused enhancement (small, testable functions).
+3. Add or update tests under `tests/` (avoid large exhaustive brute-force loops; cap iterations).
+4. Update exports in `src/kryptos/k4/__init__.py` if you introduce new public symbols.
+5. Update `ROADMAP.md` only if you add or refine planned analytical directions.
+6. Run `pytest tests/ -v` and ensure relevant suites pass.
+7. Submit a PR with a concise description of rationale and methodology.
 
 ## Code Guidelines
 
@@ -193,6 +231,18 @@ they will shadow the standard library and cause import errors.
 - Provide unit tests for each new cipher operation or scoring metric.
 - Use deterministic seeds for any randomized sampling.
 - Skip placeholder hypothesis tests with `@unittest.skip` until logic is implemented.
+- For reproducible fast coverage in Docker, run:
+
+  ```bash
+  docker run --rm -v "${PWD}:/app" -w /app python:3.13-slim sh -lc \
+    "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml && \
+     python -m spacy download en_core_web_sm && \
+     pip install --no-cache-dir -e . --no-deps && \
+     pytest tests/ -m 'not slow' --cov=src --cov-report=term"
+  ```
+
+  The micro-benchmark in `tests/test_k4_performance.py` auto-skips in container runtimes to prevent false
+  performance regressions.
 
 ## Performance
 
@@ -202,7 +252,7 @@ they will shadow the standard library and cause import errors.
 ## Documentation
 
 - README: High-level overview only.
-- `ROADMAP.md`: Detailed upcoming modules and hypotheses.
+- `ROADMAP.md`: Current milestones and priorities.
 - Inline comments: Clarify non-obvious math (e.g., matrix inversion steps).
 
 ## Data

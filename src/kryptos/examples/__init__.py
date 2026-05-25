@@ -35,7 +35,7 @@ def run_composite_demo(limit: int = 12):  # pragma: no cover
         Path to the created artifact directory as a string.
     """
     import logging
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     from kryptos.k4.attempt_logging import persist_attempt_logs
     from kryptos.k4.composite import run_composite_pipeline
@@ -60,7 +60,7 @@ def run_composite_demo(limit: int = 12):  # pragma: no cover
         adaptive=False,
         limit=limit,
     )
-    ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out_dir = get_artifacts_root() / "demo" / f"composite_run_{ts}"
     out_dir.mkdir(parents=True, exist_ok=True)
     persist_attempt_logs(out_dir=str(out_dir), label="K4-COMPOSITE", clear=False)

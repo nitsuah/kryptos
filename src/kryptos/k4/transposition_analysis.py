@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import logging
 import random
+import inspect
 from collections import Counter
 from typing import Any
+
+from kryptos.k4.solver_config import SolverConfig
 
 logger = logging.getLogger(__name__)
 
@@ -324,6 +327,8 @@ def solve_columnar_permutation_multi_start(
     period: int,
     num_restarts: int = 10,
     max_iterations: int = 5000,
+    config: SolverConfig | None = None,
+    rng: random.Random | None = None,
 ) -> tuple[list[int], float]:
     """Solve columnar permutation with multiple random restarts.
 
@@ -336,13 +341,21 @@ def solve_columnar_permutation_multi_start(
     Returns:
         (best_permutation, best_score) tuple
     """
+    if config is not None:
+        if config.sa_num_restarts is not None:
+            num_restarts = config.sa_num_restarts
+        if config.hc_max_iterations is not None:
+            max_iterations = config.hc_max_iterations
+
+    rng_obj = _resolve_rng(rng, config)
+
     text = ''.join(c for c in ciphertext.upper() if c.isalpha())
     global_best_perm = list(range(period))
     global_best_score = float('-inf')
 
     for _restart in range(num_restarts):
         current_perm = list(range(period))
-        random.shuffle(current_perm)
+        rng_obj.shuffle(current_perm)
         current_text = apply_columnar_permutation_reverse(text, period, current_perm)
         current_score = score_combined(current_text)
 
@@ -351,7 +364,7 @@ def solve_columnar_permutation_multi_start(
         no_improvement = 0
 
         for _ in range(max_iterations):
-            i, j = random.sample(range(period), 2)
+            i, j = rng_obj.sample(range(period), 2)
             new_perm = current_perm[:]
             new_perm[i], new_perm[j] = new_perm[j], new_perm[i]
 
@@ -479,6 +492,8 @@ def solve_columnar_permutation_simulated_annealing(
     max_iterations: int = 150000,
     initial_temp: float = 50.0,
     cooling_rate: float = 0.9995,
+    config: SolverConfig | None = None,
+    rng: random.Random | None = None,
 ) -> tuple[list[int], float]:
     """Solve columnar transposition using simulated annealing.
 
@@ -497,10 +512,20 @@ def solve_columnar_permutation_simulated_annealing(
     """
     import math
 
+    if config is not None:
+        if config.sa_max_iterations is not None:
+            max_iterations = config.sa_max_iterations
+        if config.sa_initial_temp is not None:
+            initial_temp = config.sa_initial_temp
+        if config.sa_cooling_rate is not None:
+            cooling_rate = config.sa_cooling_rate
+
+    rng_obj = _resolve_rng(rng, config)
+
     text = ''.join(c for c in ciphertext.upper() if c.isalpha())
 
     current_perm = list(range(period))
-    random.shuffle(current_perm)
+    rng_obj.shuffle(current_perm)
 
     current_text = apply_columnar_permutation_reverse(text, period, current_perm)
     current_score = score_combined(current_text)
@@ -512,7 +537,7 @@ def solve_columnar_permutation_simulated_annealing(
 
     for _ in range(max_iterations):
         neighbor_perm = current_perm[:]
-        i, j = random.sample(range(period), 2)
+        i, j = rng_obj.sample(range(period), 2)
         neighbor_perm[i], neighbor_perm[j] = neighbor_perm[j], neighbor_perm[i]
 
         neighbor_text = apply_columnar_permutation_reverse(text, period, neighbor_perm)
@@ -530,7 +555,7 @@ def solve_columnar_permutation_simulated_annealing(
         else:
             acceptance_prob = math.exp(delta / temperature) if temperature > 0 else 0
 
-            if random.random() < acceptance_prob:
+            if rng_obj.random() < acceptance_prob:
                 current_perm = neighbor_perm
                 current_score = neighbor_score
 
@@ -549,6 +574,8 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
     max_iterations: int = 100000,
     initial_temp: float = 50.0,
     cooling_rate: float = 0.9995,
+    config: SolverConfig | None = None,
+    rng: random.Random | None = None,
 ) -> tuple[list[int], float]:
     """Solve columnar transposition with multiple simulated annealing runs.
 
@@ -563,17 +590,51 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
     Returns:
         (best_permutation, best_score) tuple across all runs
     """
+    if config is not None:
+        if config.sa_num_restarts is not None:
+            num_restarts = config.sa_num_restarts
+        if config.sa_max_iterations is not None:
+            max_iterations = config.sa_max_iterations
+        if config.sa_initial_temp is not None:
+            initial_temp = config.sa_initial_temp
+        if config.sa_cooling_rate is not None:
+            cooling_rate = config.sa_cooling_rate
+
+    rng_obj = _resolve_rng(rng, config)
+
     best_perm: list[int] = list(range(period))
     best_score = float('-inf')
 
     for _ in range(num_restarts):
-        perm, score = solve_columnar_permutation_simulated_annealing(
-            ciphertext,
-            period,
-            max_iterations,
-            initial_temp,
-            cooling_rate,
-        )
+        # Call the SA solver. Tests may monkeypatch the solver with a
+        # replacement that accepts fewer positional args (legacy tests use
+        # a 5-arg lambda). Inspect the callable's signature and adapt the
+        # argument list to avoid TypeError from mismatched positional args.
+        solver = solve_columnar_permutation_simulated_annealing
+
+        try:
+            sig = inspect.signature(solver)
+            params = [p for p in sig.parameters.values() if p.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)]
+            accepts_varargs = any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in sig.parameters.values())
+        except (ValueError, TypeError):
+            sig = None
+            params = []
+            accepts_varargs = False
+
+        # Prefer calling with the full, modern signature when supported.
+        if accepts_varargs or len(params) >= 7:
+            args = (ciphertext, period, max_iterations, initial_temp, cooling_rate, config, rng_obj)
+        elif len(params) >= 5:
+            args = (ciphertext, period, max_iterations, initial_temp, cooling_rate)
+        else:
+            # Fallback minimal args (ciphertext, period)
+            args = (ciphertext, period)
+
+        try:
+            perm, score = solver(*args)
+        except TypeError:
+            # As a last resort, try the 5-arg form then re-raise if it still fails.
+            perm, score = solver(ciphertext, period, max_iterations, initial_temp, cooling_rate)
 
         if score > best_score:
             best_score = score
@@ -634,10 +695,11 @@ def solve_columnar_permutation_exhaustive(
 
 
 def solve_columnar_permutation(ciphertext: str, period: int, max_iterations: int = 10000) -> tuple[list[int], float]:
+    rng_obj = random
     text = ''.join(c for c in ciphertext.upper() if c.isalpha())
 
     current_perm = list(range(period))
-    random.shuffle(current_perm)
+    rng_obj.shuffle(current_perm)
 
     current_text = apply_columnar_permutation_reverse(text, period, current_perm)
     current_score = score_bigrams(current_text)
@@ -650,7 +712,7 @@ def solve_columnar_permutation(ciphertext: str, period: int, max_iterations: int
 
     for iteration in range(max_iterations):
         neighbor_perm = current_perm[:]
-        i, j = random.sample(range(period), 2)
+        i, j = rng_obj.sample(range(period), 2)
         neighbor_perm[i], neighbor_perm[j] = neighbor_perm[j], neighbor_perm[i]
 
         neighbor_text = apply_columnar_permutation_reverse(text, period, neighbor_perm)
@@ -670,7 +732,7 @@ def solve_columnar_permutation(ciphertext: str, period: int, max_iterations: int
 
         if no_improvement_count >= 1000:
             current_perm = list(range(period))
-            random.shuffle(current_perm)
+            rng_obj.shuffle(current_perm)
             current_text = apply_columnar_permutation_reverse(text, period, current_perm)
             current_score = score_bigrams(current_text)
             no_improvement_count = 0
@@ -686,6 +748,14 @@ def solve_columnar_permutation(ciphertext: str, period: int, max_iterations: int
     )
 
     return best_perm, best_score
+
+
+def _resolve_rng(rng: random.Random | None, config: SolverConfig | None) -> random.Random:
+    if rng is not None:
+        return rng
+    if config is not None and config.rng_seed is not None:
+        return random.Random(config.rng_seed)
+    return random
 
 
 def test_period_detection():

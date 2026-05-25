@@ -8,7 +8,7 @@ using the centralized path helpers.
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from kryptos.k4.attempt_logging import persist_attempt_logs
 from kryptos.k4.composite import run_composite_pipeline
@@ -36,7 +36,7 @@ def run_demo(limit: int = 10) -> str:
         limit=limit,
     )
 
-    ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out_dir = get_artifacts_root() / "demo" / f"run_{ts}"
     out_dir.mkdir(parents=True, exist_ok=True)
     persist_attempt_logs(out_dir=str(out_dir), label="K4-DEMO", clear=False)

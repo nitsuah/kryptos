@@ -4,7 +4,7 @@
 > Cryptographic research toolkit for solving the K4 cipher puzzle
 
 ---
-**Last Updated:** 2026-04-13
+**Last Updated:** 2026-05-24
 ---
 
 ## Core Cryptanalysis Capabilities
@@ -62,27 +62,26 @@
 
 ### 🤖 Intelligence Agents
 
-- **SPY Agent**: Pattern recognition and linguistic analysis (464 lines + 474 NLP lines)
-- **LINGUIST Agent**: Advanced language detection and validation (562 lines)
-- **OPS Agent**: Orchestration and attack execution (603 lines + 609 director lines)
-- **Q Agent**: Research validation and confidence scoring (359 lines)
-- **K123 Analyzer**: Historical cipher analysis (333 lines)
+- **SPY Agent**: Pattern recognition and linguistic analysis (rule-based + NLP paths)
+- **LINGUIST Agent**: Language validation utilities
+- **OPS Agent**: Orchestration and attack execution (+ strategic director)
+- **Q Agent**: Research validation and confidence scoring
+- **K123 Analyzer**: Historical cipher-pattern analysis
 - **Web Intelligence**: External research integration
 
 ### 🔄 Autonomous Coordination
 
-- **Attack Generation**: 46 attacks from Q-hints with gap analysis
-- **K4 Campaign**: Production orchestration achieving 2.5 attacks/second throughput
-- **4-Stage Validation Pipeline**: SPY → LINGUIST → Q → Human review with 96% confidence
-- **Autonomous Solving**: 24/7 operation with cross-run memory and learning
+- **Attack Generation**: Coverage/prioritization driven queue generation paths
+- **K4 Campaign Orchestration**: Campaign runner with provenance + coverage hooks
+- **Autonomous Solving**: Long-running coordination loop with persisted state
 - **Triumvirate Decision Loop**: Coordinated intelligence across SPY/OPS/Q agents
 
 ## Provenance & Tracking
 
 ### 📝 Research Integrity
 
-- **Attack Provenance Logging**: Complete history with deduplication (435 lines)
-- **Search Space Coverage**: Metrics and visualization for exploration tracking (401 lines)
+- **Attack Provenance Logging**: Complete history with deduplication and replay-friendly metadata
+- **Search Space Coverage**: Coverage tracking plus tried-key persistence across runs
 - **Attempt Persistence**: Timestamped JSON logs for all Hill, Clock, and Transposition attempts
 - **Transformation Trace**: Each candidate records full stage + operation chain
 - **Cross-Run Memory**: Prevent duplicate attempts across sessions
@@ -102,7 +101,10 @@
 
 - K1 Vigenère: 100% (deterministic)
 - K2 Vigenère: 100% (deterministic)
-- K3 Transposition: 68–95% (period-dependent Monte Carlo)
+- K3 Transposition: 60–95% (period/seed/parameter-dependent Monte Carlo)
+
+Operational note:
+- Autonomous coordinator paths currently depend on spaCy model `en_core_web_sm` in this environment.
 
 ---
 
@@ -118,9 +120,9 @@
 - **Adaptive Campaign Orchestration**: Bounded parallel workers for scalable search
 - **Cross-Run Memory Heuristics**: Smarter avoidance of redundant attempts
 - **Operator-Grade Triage Tools**: Enhanced result review and artifact annotation
-- Test suite (fast run): 524 passed, 10 skipped; code coverage 62.64% (measured 2025-11-28)
+- Test suite (fast run): 631 passed, 10 skipped, 2 deselected; code coverage 95% (measured 2026-05-24)
 - Monte Carlo / long-running validation tests are marked `slow` and gated out of the fast CI job to keep feedback fast.
-- Coverage gate currently set to 60% while we add targeted unit tests to raise coverage in critical modules.
+- Coverage gate is currently enforced at 80% (`[coverage:report] fail_under = 80` in `pytest.ini`).
 
 ### 🛠️ Development Tools
 
