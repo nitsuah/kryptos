@@ -2,6 +2,6 @@
 
 The canonical project changelog lives at [CHANGELOG.md](../CHANGELOG.md).
 
-Historical docs-local changelog content has been moved to [docs/archive/DOCS_CHANGELOG_HISTORY.md](archive/DOCS_CHANGELOG_HISTORY.md).
+Historical docs-local changelog details were consolidated into the canonical root changelog and repository git history.
 
 Use [docs/INDEX.md](INDEX.md) to navigate current documentation.

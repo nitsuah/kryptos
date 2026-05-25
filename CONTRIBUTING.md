@@ -132,7 +132,6 @@ from kryptos.k4.pipeline import (
     make_berlin_clock_stage,
 )
 from kryptos.k4.composite import run_composite_pipeline
-)
 
 cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
 positional_cribs = {
@@ -166,7 +165,7 @@ for c in res.get('fused', [])[:5]:
 ## Attempt Logs Persistence
 
 ```python
-from src.k4.attempt_logging import persist_attempt_logs
+from kryptos.k4.attempt_logging import persist_attempt_logs
 path = persist_attempt_logs(out_dir='reports', label='K4', clear=True)
 print("Attempt log written:", path)
 ```

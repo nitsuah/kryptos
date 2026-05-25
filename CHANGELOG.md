@@ -40,8 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - K3 comprehensive validation test suite (68-95% period-dependent success)
 - `docs/analysis/K1_K2_VALIDATION_RESULTS.md` - Validation results documentation
 - `docs/analysis/K3_VALIDATION_RESULTS.md` - K3 validation analysis
-- `docs/audits/SCRIPTS_CLEANUP_2025-01-27.md` - Script cleanup documentation
-- `docs/audits/DOCS_AUDIT_2025-01-27.md` - Documentation audit report
+- `scripts/README.md` - Script policy and cleanup consolidation
+- `AUDIT.md` - Repository-wide documentation audit tracker
 
 ### Changed
 
@@ -135,6 +135,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 For detailed phase planning and technical documentation, see:
 
-- [PHASE_6_ROADMAP.md](./docs/PHASE_6_ROADMAP.md) - Current phase status and objectives
+- [ROADMAP.md](./ROADMAP.md) - Current roadmap and phase objectives
 - [TODO_PHASE_6.md](./docs/TODO_PHASE_6.md) - Operational task breakdown
 - [MAINTENANCE_GUIDE.md](./docs/MAINTENANCE_GUIDE.md) - Development guidelines

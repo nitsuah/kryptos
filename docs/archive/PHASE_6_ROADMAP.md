@@ -253,7 +253,7 @@ work far better than expected
 **Work Completed:**
 
 - [x] Audited 6 K1/K2 debugging scripts
-- [x] Documented insights in `docs/audits/SCRIPTS_CLEANUP_2025-01-27.md`
+- [x] Documented script-policy insights (now reflected in `scripts/README.md`)
 - [x] Verified all functionality in proper tests (Monte Carlo coverage)
 - [x] Deleted 7 redundant scripts confidently
 - [x] Updated `scripts/README.md` with measured results
@@ -266,7 +266,7 @@ work far better than expected
 
 - [x] Audited 40+ markdown docs in `docs/`
 - [x] Identified outdated metrics in PHASE_6_ROADMAP.md
-- [x] Created `docs/audits/DOCS_AUDIT_2025-01-27.md`
+- [x] Created documentation audit record (now superseded by root `AUDIT.md`)
 - [x] Updated roadmap with measured metrics (this update)
 
 **Key Finding:** Documentation generally excellent, needed metric corrections only.

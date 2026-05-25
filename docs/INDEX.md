@@ -38,11 +38,8 @@ This is the traversal map for humans and AI agents.
 
 - [docs/CHANGELOG.md](CHANGELOG.md) - Archived docs-local changelog pointer
 - [docs/archive/COMPREHENSIVE_STRUCTURE_AUDIT_2025-10-26.md](archive/COMPREHENSIVE_STRUCTURE_AUDIT_2025-10-26.md)
-- [docs/archive/DOCS_AUDIT_2025-01-27.md](archive/DOCS_AUDIT_2025-01-27.md)
-- [docs/archive/HANDOFF-manifesto-pr-cadence-20260403.md](archive/HANDOFF-manifesto-pr-cadence-20260403.md)
-- [docs/archive/SCRIPTS_CLEANUP_2025-01-27.md](archive/SCRIPTS_CLEANUP_2025-01-27.md)
-- [docs/archive/DOCS_CHANGELOG_HISTORY.md](archive/DOCS_CHANGELOG_HISTORY.md)
-- [docs/archive/K4_THEORIES_HISTORY.md](archive/K4_THEORIES_HISTORY.md)
+- [docs/archive/PHASE_6_ROADMAP.md](archive/PHASE_6_ROADMAP.md)
+- [docs/archive/PHASE_7_PLAN.md](archive/PHASE_7_PLAN.md)
 
 ## Sources
 

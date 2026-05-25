@@ -18,6 +18,11 @@ Status: active and intentionally small.
 - Verification belongs in `tests/` and should run via `pytest`.
 - Keep scripts focused, documented, and low-risk.
 
+## Historical Note
+
+In January 2025, one-off K1/K2 debugging scripts were removed after their behavior was covered by maintained pytest suites.
+This policy remains in effect: debugging scripts are temporary; durable validation belongs in `tests/`.
+
 ## Common Commands
 
 ```bash
