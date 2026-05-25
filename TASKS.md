@@ -39,6 +39,21 @@ Last Updated: 2026-05-24 (phase 6/7 implementation audit)
 
 ## Todo
 
+- [ ] Build objective-to-evidence scorecard.
+  - Priority: P1
+  - Problem: roadmap goals are clear, but proof of attainment is not yet centralized in one measurable view.
+  - Acceptance Criteria: one maintained scorecard maps each strategic goal to KPI target, current value, evidence command, and artifact/doc link.
+
+- [ ] Enforce strategic-claim evidence gate in workflow.
+  - Priority: P1
+  - Problem: features can be marked complete without a uniform proof bundle.
+  - Acceptance Criteria: PR/process checks require tests, reproducible runtime command(s), and artifact/document evidence before strategic-completion claims are accepted.
+
+- [ ] Add fresh-environment autonomous smoke test.
+  - Priority: P1
+  - Problem: autonomous behavior can fail in clean environments due to dependency/bootstrap drift.
+  - Acceptance Criteria: deterministic smoke path runs in a fresh environment in CI and validates core autonomous startup behavior.
+
 - [ ] Add scalable campaign orchestration with bounded parallel workers.
   - Priority: P2
   - Problem: larger K4 search batches still run too slowly.

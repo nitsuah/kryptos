@@ -31,12 +31,16 @@ Next Review: 2026-06-01
 - [ ] Wire alphabet auto-selection (`try_all_alphabets`) into runtime orchestrators (`ops`, `k4_campaign`) with deterministic tests
 - [ ] Fix transposition plaintext extraction in `pipeline/k4_campaign.py` (currently score/permutation computed but plaintext passthrough remains)
 - [ ] Make autonomous NLP dependency robust in CI/dev (bootstrap `en_core_web_sm` or provide tested fallback path)
+- [ ] Establish objective-to-evidence scorecard for strategic goals (K1-K3 controls, K4 campaign throughput, reproducibility, autonomous stability)
+- [ ] Gate strategic claim promotion with reproducible evidence (tests + runtime command + artifact path required before marking roadmap items complete)
+- [ ] Add fresh-environment autonomous smoke validation gate to ensure new environments can run core workflows without manual fixups
 
 ## Q4 2026: Exploration (Exploratory) 🧪
 - [ ] Expand cross-run memory heuristics
 - [ ] Evaluate adaptive strategy selection from historical campaign outcomes
 - [ ] Introduce adaptive solver configuration layer (historical Phase 6 objective, not yet implemented)
 - [ ] Add coverage-guided visualization/workflow for oversaturated vs unexplored regions
+- [ ] Run quarterly objective-pruning review using measured KPI deltas (promote winners, retire low-yield tracks)
 - [ ] Phase 6 Remaining Workstreams (Consolidated)
     - [ ] Learning and adaptation loop hardening: adaptive solver config, failure-pattern suppression, and strategy re-weighting from observed outcomes
     - [ ] Search-space intelligence: transposition and Hill dedupe integration plus coverage-guided unexplored-region prioritization
