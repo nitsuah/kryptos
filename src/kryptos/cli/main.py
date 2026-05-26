@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import argparse
@@ -50,7 +51,15 @@ def cmd_k4_decrypt(args: argparse.Namespace) -> int:
     logger = setup_logging(logger_name='kryptos.cli')
     with open(args.cipher, encoding='utf-8') as fh:
         ciphertext = fh.read().strip()
-    res = decrypt_best(ciphertext, limit=args.limit, adaptive=args.adaptive, report=args.report)
+    # Enable alphabet auto-selection by default unless explicitly disabled
+    try_all_alphabets = getattr(args, 'try_all_alphabets', True)
+    res = decrypt_best(
+        ciphertext,
+        limit=args.limit,
+        adaptive=args.adaptive,
+        report=args.report,
+        try_all_alphabets=try_all_alphabets,
+    )
     logger.info('k4-decrypt score=%.3f lineage=%s', res.score, res.lineage)
     print(
         json.dumps(
@@ -68,7 +77,233 @@ def cmd_k4_attempts(args: argparse.Namespace) -> int:
     return 0
 
 
+
+def cmd_sections_decrypt(args: argparse.Namespace) -> int:
+    from kryptos.sections import SECTIONS
+    logger = setup_logging(logger_name='kryptos.cli')
+    section = args.section.upper()
+    if section not in SECTIONS:
+        print(json.dumps({'error': 'invalid_section', 'section': section}))
+        return 2
+    with open(args.cipher, encoding='utf-8') as fh:
+        ciphertext = fh.read().strip()
+    decrypt_fn = SECTIONS[section]
+    try:
+        if section in ('K1', 'K2'):
+            if not args.key:
+                print(json.dumps({'error': 'missing_key', 'section': section}))
+                return 2
+            plaintext = decrypt_fn(ciphertext, args.key)
+        elif section == 'K3':
+            plaintext = decrypt_fn(ciphertext)
+        elif section == 'K4':
+            plaintext = decrypt_fn(ciphertext)
+        else:
+            print(json.dumps({'error': 'unsupported_section', 'section': section}))
+            return 2
+        print(json.dumps({'section': section, 'plaintext': plaintext}, indent=2))
+        return 0
+    except Exception as exc:
+        logger.error('sections-decrypt failed: %s', exc)
+        print(json.dumps({'error': 'decrypt_failed', 'section': section, 'detail': str(exc)}))
+        return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description='Kryptos CLI')
+    sub = parser.add_subparsers(dest='command', required=True)
+
+    # Other subcommands...
+    sp_sections = sub.add_parser('sections', help='List available sections')
+    sp_sections.set_defaults(func=cmd_sections)
+
+    sp_k4_decrypt = sub.add_parser('k4-decrypt', help='Decrypt K4 ciphertext')
+    sp_k4_decrypt.add_argument('--cipher', type=Path, required=True, help='Path to ciphertext file (raw)')
+    sp_k4_decrypt.add_argument('--limit', type=int, default=100, help='Candidate limit')
+    sp_k4_decrypt.add_argument('--adaptive', action='store_true', help='Enable adaptive mode')
+    sp_k4_decrypt.add_argument('--report', action='store_true', help='Emit report')
+    sp_k4_decrypt.add_argument('--no-auto-alphabet', dest='try_all_alphabets', action='store_false', help='Disable alphabet auto-selection (default: enabled)')
+    sp_k4_decrypt.set_defaults(func=cmd_k4_decrypt)
+
+    sp_sections_decrypt = sub.add_parser('sections-decrypt', help='Decrypt a section (K1, K2, K3, K4)')
+    sp_sections_decrypt.add_argument('--section', type=str, required=True, choices=['K1', 'K2', 'K3', 'K4'], help='Section to decrypt')
+    sp_sections_decrypt.add_argument('--cipher', type=Path, required=True, help='Path to ciphertext file (raw)')
+    sp_sections_decrypt.add_argument('--key', type=str, default=None, help='Key for K1/K2 (ignored for K3/K4)')
+    sp_sections_decrypt.add_argument('--json', action='store_true', help='Emit output as JSON (single line, no extra text)')
+    sp_sections_decrypt.add_argument('--explain', action='store_true', help='Show explainability metadata for the decryption (if available)')
+    sp_sections_decrypt.set_defaults(func=cmd_sections_decrypt)
+
+    # Add other subcommands as needed...
+    return parser
+
+# Remove all duplicate and nested definitions of cmd_sections_decrypt
+def cmd_sections_decrypt(args: argparse.Namespace) -> int:
+    from kryptos.sections import SECTIONS
+    logger = setup_logging(logger_name='kryptos.cli')
+    section = args.section.upper()
+    if section not in SECTIONS:
+        out = {'error': 'invalid_section', 'section': section}
+        if getattr(args, 'json', False):
+            print(json.dumps(out))
+        else:
+            print(json.dumps(out, indent=2))
+        return 2
+    with open(args.cipher, encoding='utf-8') as fh:
+        ciphertext = fh.read().strip()
+    decrypt_fn = SECTIONS[section]
+    try:
+        explain = getattr(args, 'explain', False)
+        if section in ('K1', 'K2'):
+            if not args.key:
+                out = {'error': 'missing_key', 'section': section}
+                if getattr(args, 'json', False):
+                    print(json.dumps(out))
+                else:
+                    print(json.dumps(out, indent=2))
+                return 2
+            plaintext = decrypt_fn(ciphertext, args.key)
+            out = {'section': section, 'plaintext': plaintext}
+            if explain:
+                from kryptos.ciphers import KEYED_ALPHABET
+                out['explain'] = {
+                    'keyed_alphabet': KEYED_ALPHABET,
+                    'key': args.key,
+                    'note': 'K1/K2 use keyed Vigenère with this alphabet and provided key.'
+                }
+        elif section == 'K3':
+            plaintext = decrypt_fn(ciphertext)
+            out = {'section': section, 'plaintext': plaintext}
+            if explain:
+                out['explain'] = {
+                    'matrix_1': {'cols': 24, 'rows': 14},
+                    'matrix_2': {'cols': 8, 'rows': 42},
+                    'note': 'K3 uses double rotational transposition with these matrix dimensions.'
+                }
+        elif section == 'K4':
+            res = decrypt_fn(ciphertext)
+            if hasattr(res, 'plaintext'):
+                out = {'section': section, 'plaintext': res.plaintext}
+                if explain:
+                    meta = getattr(res, 'metadata', None)
+                    out['explain'] = meta if meta else {'note': 'No explainability metadata available for K4.'}
+            else:
+                out = {'section': section, 'plaintext': res}
+                if explain:
+                    out['explain'] = {'note': 'No explainability metadata available for K4.'}
+        else:
+            out = {'error': 'unsupported_section', 'section': section}
+            if getattr(args, 'json', False):
+                print(json.dumps(out))
+            else:
+                print(json.dumps(out, indent=2))
+            return 2
+        if getattr(args, 'json', False):
+            print(json.dumps(out))
+        else:
+            print(json.dumps(out, indent=2))
+        return 0
+    except Exception as exc:
+        logger.error('sections-decrypt failed: %s', exc)
+        out = {'error': 'decrypt_failed', 'section': section, 'detail': str(exc)}
+        if getattr(args, 'json', False):
+            print(json.dumps(out))
+        else:
+            print(json.dumps(out, indent=2))
+        return 1
+
+    def cmd_sections_decrypt(args: argparse.Namespace) -> int:
+        import sys
+        from kryptos.sections import SECTIONS
+        logger = setup_logging(logger_name='kryptos.cli')
+        section = args.section.upper()
+        if section not in SECTIONS:
+            print(json.dumps({'error': 'invalid_section', 'section': section}))
+            return 2
+        with open(args.cipher, encoding='utf-8') as fh:
+            ciphertext = fh.read().strip()
+        decrypt_fn = SECTIONS[section]
+        try:
+            if section in ('K1', 'K2'):
+                if not args.key:
+                    print(json.dumps({'error': 'missing_key', 'section': section}))
+                    return 2
+                plaintext = decrypt_fn(ciphertext, args.key)
+            elif section == 'K3':
+                plaintext = decrypt_fn(ciphertext)
+            elif section == 'K4':
+                # K4 may require additional args in future; for now, just call
+                plaintext = decrypt_fn(ciphertext)
+            else:
+                print(json.dumps({'error': 'unsupported_section', 'section': section}))
+                return 2
+            print(json.dumps({'section': section, 'plaintext': plaintext}, indent=2))
+            return 0
+        except Exception as exc:
+            logger.error('sections-decrypt failed: %s', exc)
+            print(json.dumps({'error': 'decrypt_failed', 'section': section, 'detail': str(exc)}))
+            return 1
+    def cmd_sections_decrypt(args: argparse.Namespace) -> int:
+        import sys
+        from kryptos.sections import SECTIONS
+        logger = setup_logging(logger_name='kryptos.cli')
+        section = args.section.upper()
+        if section not in SECTIONS:
+            print(json.dumps({'error': 'invalid_section', 'section': section}))
+            return 2
+        with open(args.cipher, encoding='utf-8') as fh:
+            ciphertext = fh.read().strip()
+        decrypt_fn = SECTIONS[section]
+        try:
+            if section in ('K1', 'K2'):
+                if not args.key:
+                    print(json.dumps({'error': 'missing_key', 'section': section}))
+                    return 2
+                plaintext = decrypt_fn(ciphertext, args.key)
+            elif section == 'K3':
+                plaintext = decrypt_fn(ciphertext)
+            elif section == 'K4':
+                # K4 may require additional args in future; for now, just call
+                plaintext = decrypt_fn(ciphertext)
+            else:
+                print(json.dumps({'error': 'unsupported_section', 'section': section}))
+                return 2
+            print(json.dumps({'section': section, 'plaintext': plaintext}, indent=2))
+            return 0
+        except Exception as exc:
+            logger.error('sections-decrypt failed: %s', exc)
+            print(json.dumps({'error': 'decrypt_failed', 'section': section, 'detail': str(exc)}))
+            return 1
+    def cmd_sections_decrypt(args: argparse.Namespace) -> int:
+        import sys
+        from kryptos.sections import SECTIONS
+        logger = setup_logging(logger_name='kryptos.cli')
+        section = args.section.upper()
+        if section not in SECTIONS:
+            print(json.dumps({'error': 'invalid_section', 'section': section}))
+            return 2
+        with open(args.cipher, encoding='utf-8') as fh:
+            ciphertext = fh.read().strip()
+        decrypt_fn = SECTIONS[section]
+        try:
+            if section in ('K1', 'K2'):
+                if not args.key:
+                    print(json.dumps({'error': 'missing_key', 'section': section}))
+                    return 2
+                plaintext = decrypt_fn(ciphertext, args.key)
+            elif section == 'K3':
+                plaintext = decrypt_fn(ciphertext)
+            elif section == 'K4':
+                # K4 may require additional args in future; for now, just call
+                plaintext = decrypt_fn(ciphertext)
+            else:
+                print(json.dumps({'error': 'unsupported_section', 'section': section}))
+                return 2
+            print(json.dumps({'section': section, 'plaintext': plaintext}, indent=2))
+            return 0
+        except Exception as exc:
+            logger.error('sections-decrypt failed: %s', exc)
+            print(json.dumps({'error': 'decrypt_failed', 'section': section, 'detail': str(exc)}))
+            return 1
     p = argparse.ArgumentParser(prog='kryptos', description='Kryptos research CLI')
     p.add_argument('--log-level', type=str, default='INFO', help='Logging level (DEBUG, INFO, WARNING, ERROR)')
     p.add_argument('--quiet', action='store_true', help='Suppress non-error logging (JSON output only)')
@@ -209,10 +444,11 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    level = getattr(logging, args.log_level.upper(), logging.INFO)
+    # Only set log level if present
+    level = getattr(logging, getattr(args, 'log_level', 'INFO').upper(), logging.INFO)
     logger = setup_logging(logger_name='kryptos.cli')
     logger.setLevel(level)
-    if args.quiet:
+    if hasattr(args, 'quiet') and args.quiet:
         logger.setLevel(logging.ERROR)
     return args.func(args)
 

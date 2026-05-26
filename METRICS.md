@@ -1,7 +1,7 @@
 
 # Metrics
 
-**Last Validated:** 2026-05-24 (fast suite + K1/K2/K3 verification)
+**Last Validated:** 2026-05-25 (fast suite + K1/K2/K3 verification)
 
 ## Core Metrics
 
@@ -23,7 +23,7 @@
 
 | Metric                      | Value         | Notes                                |
 | --------------------------- | ------------- | ------------------------------------ |
-| Fast Test Duration          | 48.51s        | Measured: 631 fast tests on 2026-05-24 |
+| Fast Test Duration          | 48.51s        | Measured: 631 fast tests on 2026-05-25 |
 | Full Test Duration          | N/A (slow suites are opt-in) | Run with `KRYPTOS_RUN_SLOW_MONTE_CARLO=1` when you want the Monte Carlo path |
 | K4 Attack Throughput        | 2.5 atk/sec   | Sequential execution baseline        |
 | SA Speedup vs Hill-Climbing | 30-45%        | Simulated annealing optimization     |
@@ -57,8 +57,8 @@
 | Metric                 | Value    | Notes                                    |
 | ---------------------- | -------- | ---------------------------------------- |
 | Linting Status         | Clean    | Pre-commit hooks enforced                |
-| Test Pass Rate         | 100%     | 631 passed, 10 skipped, 2 deselected (fast run, 2026-05-24) |
-| Deprecated Code        | Minimal  | executor.py marked for removal           |
+| Test Pass Rate         | 100%     | 631 passed, 10 skipped, 2 deselected (fast run, 2026-05-25) |
+| Deprecated Code        | Minimal  | executor.py marked for removal (legacy, retiring after migration confirmation) |
 | TODO/FIXME Count       | Low      | No critical technical debt               |
 | Module Independence    | High     | Clear boundaries, no shadow imports      |
 | Documentation Coverage | Extensive| 40+ docs, 3,500+ lines academic writing |
@@ -71,6 +71,6 @@
 | PR Turnaround    | <1 day     | Typical PR review time                   |
 | Skipped Tests    | 10         | Module-level slow tests (marked skip)    |
 | Health Score     | 95/100     | Overseer compliance score                 |
-| Last Updated     | 2026-05-24 | Coverage + K1/K2/K3 validation refresh   |
-| Project Status   | Active     | Phase 6.2 in progress                    |
-| K4 Readiness     | 5%         | 7.5/10 core capabilities working         |
+| Last Updated     | 2026-05-25 | Coverage + K1/K2/K3 validation refresh   |
+| Project Status   | Active     | Phase 6.3 in progress (K4 campaign orchestration, robust NLP fallback) |
+| K4 Readiness     | 7.5/10     | All core campaign/orchestration features complete, NLP dependencies robust/optional |

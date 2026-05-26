@@ -40,6 +40,7 @@ class DecryptResult:
     metadata: dict[str, Any] | None = None
 
 
+
 def decrypt_best(
     ciphertext: str,
     *,
@@ -49,6 +50,7 @@ def decrypt_best(
     adaptive: bool = False,
     report: bool = False,
     report_dir: str = "reports",
+    try_all_alphabets: bool = False,
 ) -> DecryptResult:
     """Run a composite multi-stage search and return the best plaintext candidate.
 
@@ -62,6 +64,7 @@ def decrypt_best(
     adaptive: If True, derive weights heuristically from candidate linguistic metrics.
     report: If True, generate artifact bundle (PNG, JSON summaries) under report_dir.
     report_dir: Directory root for artifacts.
+    try_all_alphabets: If True, auto-select among all candidate alphabets for K4 Vigenère key recovery.
 
     Returns
     -------
@@ -99,6 +102,7 @@ def decrypt_best(
         limit=limit,
         weights=weights,
         adaptive=adaptive,
+        try_all_alphabets=try_all_alphabets,
     )
 
     fused = pipeline_out.get("fused") or []

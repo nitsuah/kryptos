@@ -5,13 +5,24 @@ All notable changes to the KRYPTOS project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+
+## [Phase 6.3] - 2026-05-25
 
 ### Added
 
 - Overseer-compliant documentation (ROADMAP.md, TASKS.md, FEATURES.md, METRICS.md, CHANGELOG.md)
 - K1/K2/K3 runtime smoke verification command path in maintenance workflow (exact plaintext checks on production entrypoints)
 - Phase 6/7 implementation audit tracker (`AUDIT.md`) with code/test evidence matrix and pending gap ledger
+- Objective-to-evidence scorecard for strategic goals
+- Fresh-environment autonomous smoke test (CI and demo workflows)
+- Scalable campaign orchestration with bounded parallel workers
+- Sections-decrypt CLI command for K1/K2/K3 with config-backed inputs
+- JSON output mode for section verification commands
+- Section API end-to-end tests
+- Optional explainability mode for section decryptions
+- Alphabet auto-selection wired into runtime orchestrators (default enabled)
+- Transposition plaintext extraction fix in campaign orchestrator
+- Robust autonomous test/runtime NLP dependency handling (spaCy/NLTK/transformers optional)
 
 ### Changed
 
@@ -19,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fast-suite validation baseline updated to 631 passed / 10 skipped / 2 deselected with 95% coverage (2026-05-24)
 - Coverage and task planning docs updated to reflect `fail_under = 80` and completed targeted coverage push
 - Core planning docs now reflect verified implementation status for composite chains and cross-run key-memory paths
+- CLI and orchestrator now default to alphabet auto-selection, with opt-out flag
+- All K4-ATTACK-1 through K4-ATTACK-7 completed and documented
 
 ### Fixed
 
@@ -26,6 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `runpy` module re-execution warnings reduced in tests by clearing cached module entries before `run_module`
 - `PytestReturnNotNoneWarning` removed from `tests/test_spy_v2.py`
 - Stale docs links corrected (`K123_PATTERN_ANALYSIS` path drift, archive index entries, and quickstart intel cache paths)
+- Transposition plaintext extraction in campaign orchestrator now outputs correct plaintext for all candidate routes
+- Autonomous runtime/test no longer fails if NLP dependencies are missing
+- CLI runpy warning path clarified and tested (SystemExit expected)
+
+### Removed
+
+- No longer required: config/llm_config.yaml (no such file used or referenced)
 
 ## [Phase 6.2] - 2025-11-27 (In Progress)
 

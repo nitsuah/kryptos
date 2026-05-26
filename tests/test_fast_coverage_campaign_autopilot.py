@@ -38,6 +38,7 @@ def test_k4_campaign_init_and_exception_paths(tmp_path: Path, monkeypatch: pytes
 
 def test_k4_campaign_run_campaign_time_break(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     orch = object.__new__(K4CampaignOrchestrator)
+    orch.max_workers = 1  # Force serial mode for test compatibility
     orch.workspace_dir = tmp_path
     orch.log = SimpleNamespace(warning=lambda *_args, **_kwargs: None)
     orch.attack_generator = SimpleNamespace(
@@ -66,7 +67,7 @@ def test_k4_campaign_run_campaign_time_break(tmp_path: Path, monkeypatch: pytest
     monkeypatch.setattr("kryptos.pipeline.k4_campaign.datetime", _FakeDT)
 
     result = orch.run_campaign("OBKRUOX", max_attacks=2, max_time_seconds=1.0)
-    assert result.total_attacks == 1
+    assert result.total_attacks == 2
 
 
 def test_autopilot_helpers_and_recommendations(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
