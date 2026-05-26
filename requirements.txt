@@ -7,6 +7,6 @@ nltk>=3.9.4
 pyyaml>=6.0.3
 openai>=2.37.0  # Optional: for OpenAI LLM integration
 anthropic>=0.102.0  # Optional: for Anthropic LLM integration
-transformers>=4.30.0  # Optional: for LINGUIST neural validation
+transformers>=5.9.0  # Optional: for LINGUIST neural validation
 torch>=2.12.0  # Optional: for LINGUIST neural models
 sentence-transformers>=5.5.1  # Optional: for semantic embeddings
