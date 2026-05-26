@@ -2,7 +2,7 @@
 # 🗺️ Kryptos Roadmap
 
 Last Updated: 2026-05-25
-Next Review: 2026-06-08
+Next Review: 2026-06-25
 
 
 ## Q1 2026: Foundation (Completed) 🚀
@@ -42,24 +42,43 @@ Next Review: 2026-06-08
 - [x] The composite sweep and all attack modules are validated by tests and CI. No simultaneous 4-crib match has been found as of this release; null results are documented with full provenance.
 
 ### Q3 Definition of Done
-- [ ] All K4-ATTACK-1 through K4-ATTACK-7 and infrastructure/CLI items implemented and passing tests
-- [ ] The composite sweep has run on at least one full 720-state clock enumeration × 3 grids × 3 alphabets
-- [ ] No simultaneous 4-crib match found → documented with artifact evidence
-- [ ] If a match IS found → `K4_BREAKTHROUGH_SNAPSHOT.md` exists with full parameter trace
+- [x] All K4-ATTACK-1 through K4-ATTACK-7 and infrastructure/CLI items implemented and passing tests
+- [x] The composite sweep has run on at least one full 720-state clock enumeration × 3 grids × 3 alphabets
+- [x] No simultaneous 4-crib match found → documented with artifact evidence
+- [x] If a match IS found → `K4_BREAKTHROUGH_SNAPSHOT.md` exists with full parameter trace
 
 
 ## Q4 2026: Extended Search & Adaptive Strategy 🧪
+
+### 1. 3-Layer Composite Attacks
 - [ ] Expand to 3-layer composite attacks (substitution → transposition → second substitution layer)
+    - [ ] Design and implement pipeline support for 3-stage attack chains
+    - [ ] Validate on K1/K2/K3 before K4 application
+
+### 2. Fractionating Ciphers
 - [ ] Implement fractionating ciphers (ADFGVX, Nihilist) as identified gap from 30-year coverage analysis
-- [ ] Expand cross-run memory heuristics
+    - [ ] Integrate ADFGVX and Nihilist modules into pipeline
+    - [ ] Add test vectors and validation harness
+
+### 3. Adaptive/ML-Driven Strategies
 - [ ] Evaluate adaptive strategy selection from historical campaign outcomes
 - [ ] Introduce adaptive solver configuration layer
+    - [ ] Prototype ML-driven prioritization of attack patterns
+    - [ ] Use campaign logs to inform next-run parameter selection
+
+### 4. Visualization & Coverage Intelligence
 - [ ] Add coverage-guided visualization for oversaturated vs unexplored regions
+    - [ ] Build dashboard or CLI tool for campaign/keyspace visualization
+
+### 5. Cross-Run Memory & Reliability Gates
+- [ ] Expand cross-run memory heuristics
+- [ ] K2/K3 reliability gates under deterministic harnesses
+
+### 6. Ongoing
 - [ ] Run quarterly objective-pruning review using measured KPI deltas
 - [ ] Phase 6 Remaining Workstreams
     - [ ] Learning and adaptation loop hardening: adaptive solver config, failure-pattern suppression, strategy re-weighting
     - [ ] Search-space intelligence: transposition and Hill dedupe integration plus coverage-guided prioritization
-    - [ ] K2/K3 reliability gates under deterministic harnesses
     - [ ] Composite chain strategy quality: chain ordering priorities, early-stop rules, replayable provenance
     - [ ] Validation expansion: autonomous K1/K2/K3 controls, edge/adversarial coverage improvements
     - [ ] Production hardening: remove residual deprecated execution paths
@@ -77,6 +96,6 @@ Next Review: 2026-06-08
 
 
 ## Working Notes
-- Active planning is tracked in `ROADMAP.md` and `TASKS.md` only.
+- Active planning is tracked in `ROADMAP.md`, `TASKS.md`, and monthly governance notes in `docs/governance.md`.
 - K4 attack context and findings: `docs/analysis/K4_ACTIVE_RESEARCH.md`
 - Confirmed keystream analysis: `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`

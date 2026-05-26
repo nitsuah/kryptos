@@ -8,7 +8,7 @@ def test_vigenere_then_transposition_applies_threshold_and_is_deterministic(monk
 
     monkeypatch.setattr(
         'kryptos.k4.composite.recover_key_by_frequency',
-        lambda ciphertext, key_len, top_n=10: ['KEYA'],
+        lambda ciphertext, key_len, top_n=10, **kwargs: ['KEYA'],
     )
     monkeypatch.setattr(
         'kryptos.k4.composite.vigenere_decrypt',
@@ -49,7 +49,7 @@ def test_transposition_then_vigenere_applies_threshold(monkeypatch):
     )
     monkeypatch.setattr(
         'kryptos.k4.composite.recover_key_by_frequency',
-        lambda text, key_len, top_n=3: ['KEY1', 'KEY2'],
+        lambda text, key_len, top_n=3, **kwargs: ['KEY1', 'KEY2'],
     )
     score_map = {
         'T1|KEY1': 11.5,
