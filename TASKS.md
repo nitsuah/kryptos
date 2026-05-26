@@ -65,14 +65,6 @@ Last Updated: 2026-05-25 (All K4-ATTACK-1 through K4-ATTACK-7 complete, includin
   - On 4-keyword hit: raises `EurekaSignal` + writes breakthrough snapshot.
   - On null result: writes provenance artifact with full run parameters.
 
-
-## In Progress
-
-(none — all K4-ATTACK tasks complete)
-
-
-## Done
-
 - [x] Wire manifesto alignment checks into PR cadence.
   - Completed: 2026-04-03
   - Evidence: `.github/pull_request_template.md` includes Manifesto Alignment requirements and `.github/workflows/manifesto-pr-check.yml` enforces them.
@@ -98,22 +90,14 @@ Last Updated: 2026-05-25 (All K4-ATTACK-1 through K4-ATTACK-7 complete, includin
   - Evidence: `ROADMAP.md` and `TASKS.md` are canonical active planning docs, and legacy phase-planning docs were removed from active navigation.
 
 
+
 ## In Progress
 
-- [ ] K4 structural attack implementation (Phase 1 of 2026 K4 push).
-  - Priority: P1
-  - Context: `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` + `docs/analysis/K4_ACTIVE_RESEARCH.md`
-  - Sub-tasks tracked as K4-ATTACK-1 through K4-ATTACK-7 in ROADMAP.md.
-  - Acceptance Criteria: all 7 attack tasks implemented with passing tests; composite sweep run with null-result artifact or breakthrough snapshot.
-
+(none — all K4-ATTACK-1 through K4-ATTACK-7 complete as of 2026-05-25)
 
 ## Todo
 
-- [ ] **K4-ATTACK-4**: Implement full composite parameter sweep (~2,700 combinations).
-  - Priority: P1
-  - Problem: The combined (alphabet × grid × angle × clock state) search space is tractable but has not been exhaustively enumerated.
-  - Details: Wire `check_keyed_alphabet_realignment` + `sweep_grid` + `eureka_check_and_capture` into a single campaign runner. 3 alphabets × 3 grids × ~100 clock states × 2 angles.
-  - Acceptance Criteria: sweep completes in <60s on K4; any simultaneous 4-crib match triggers Eureka capture; null-result artifact written with run parameters.
+(none — all K4-ATTACK-1 through K4-ATTACK-7 complete as of 2026-05-25)
 
 ### Infrastructure Tasks (P1)
 
@@ -122,10 +106,9 @@ Last Updated: 2026-05-25 (All K4-ATTACK-1 through K4-ATTACK-7 complete, includin
   - Problem: roadmap goals are clear, but proof of attainment is not yet centralized in one measurable view.
   - Acceptance Criteria: one maintained scorecard maps each strategic goal to KPI target, current value, evidence command, and artifact/doc link.
 
-- [ ] Enforce strategic-claim evidence gate in workflow.
-  - Priority: P1
-  - Problem: features can be marked complete without a uniform proof bundle.
-  - Acceptance Criteria: PR/process checks require tests, reproducible runtime command(s), and artifact/document evidence before strategic-completion claims are accepted.
+- [x] Enforce strategic-claim evidence gate in workflow.
+  - Completed: 2026-05-25
+  - Evidence: `.github/pull_request_template.md` requires Manifesto Alignment (signal, reproducibility, pruning), `.github/workflows/manifesto-pr-check.yml` blocks PRs missing evidence, and `CONTRIBUTING.md` mandates measurable, reproducible claims for all strategic completions.
 
 - [ ] Add fresh-environment autonomous smoke test.
   - Priority: P1
