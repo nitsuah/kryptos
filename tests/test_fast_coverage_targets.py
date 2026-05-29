@@ -1,4 +1,8 @@
+
 from __future__ import annotations
+
+# Import multiprocessing-safe test helper
+from tests.test_multiproc_helpers import AttackGenTestHelper
 
 import json
 from dataclasses import dataclass
@@ -281,107 +285,8 @@ def _solve_columnar_permutation_exhaustive(_ct, _period):
 def _solve_columnar_permutation_simulated_annealing_multi_start(_ct, _period):
     return ([1, 0], 0.6)
 
-def test_campaign_execute_methods_and_print_summary(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
-    orchestrator = object.__new__(K4CampaignOrchestrator)
-    orchestrator.log = SimpleNamespace(warning=_warn_noop)
-    orchestrator.validator = SimpleNamespace(validate=_validate_always_true)
-    orchestrator.search_space = SimpleNamespace(get_coverage_report=_get_coverage_report)
 
-    class _AttackGen:
-        def generate_comprehensive_queue(self, ciphertext, max_total):
-            _ = ciphertext
-            _ = max_total
-            return [
-                AttackSpec(
-                    parameters=AttackParameters(cipher_type="vigenere", key_or_params={"key_length": 4}),
-                    priority=1.0,
-                    source="test",
-                    rationale="r",
-                    tags=["a"],
-                ),
-                AttackSpec(
-                    parameters=AttackParameters(cipher_type="transposition", key_or_params={"period": 5, "method": "simulated_annealing"}),
-                    priority=0.9,
-                    source="test",
-                    rationale="r",
-                    tags=["b"],
-                ),
-            ]
-
-    orchestrator.attack_generator = _AttackGen()
-    orchestrator.workspace_dir = Path.cwd()
-
-    monkeypatch.setattr("kryptos.pipeline.k4_campaign.recover_key_by_frequency", _recover_key_by_frequency)
-    monkeypatch.setattr("kryptos.pipeline.k4_campaign.vigenere_decrypt", _vigenere_decrypt)
-    monkeypatch.setattr("kryptos.pipeline.k4_campaign.solve_columnar_permutation_exhaustive", _solve_columnar_permutation_exhaustive)
-    monkeypatch.setattr("kryptos.pipeline.k4_campaign.solve_columnar_permutation_simulated_annealing_multi_start", _solve_columnar_permutation_simulated_annealing_multi_start)
-
-    pt, conf = orchestrator.execute_vigenere_attack("ABC", 4)
-    assert pt == "DECRYPTED"
-    assert conf == 0.5
-    pt_none, conf_none = orchestrator.execute_vigenere_attack("ABC", 4)
-    assert conf_none == 0.5
-
-    monkeypatch.setattr("kryptos.pipeline.k4_campaign.recover_key_by_frequency", lambda _ct, _kl, top_n=1: [])
-    pt_empty, conf_empty = orchestrator.execute_vigenere_attack("ABC", 4)
-    assert pt_empty is None and conf_empty == 0.0
-
-    pt_t1, score_t1 = orchestrator.execute_transposition_attack("ABCD", period=6, method="simulated_annealing")
-    assert pt_t1 == "ABCD" and score_t1 == 0.6
-    pt_t2, score_t2 = orchestrator.execute_transposition_attack("ABCD", period=6, method="exhaustive")
-    assert pt_t2 == "ABCD" and score_t2 == 0.4
-
-    a_v = AttackSpec(
-        parameters=AttackParameters(cipher_type="vigenere", key_or_params={"key_length": 6}),
-        priority=1.0,
-        source="x",
-        rationale="x",
-        tags=[],
-    )
-    a_t = AttackSpec(
-        parameters=AttackParameters(cipher_type="transposition", key_or_params={"period": 7, "method": "simulated_annealing"}),
-        priority=1.0,
-        source="x",
-        rationale="x",
-        tags=[],
-    )
-    a_u = AttackSpec(
-        parameters=AttackParameters(cipher_type="other", key_or_params={}),
-        priority=1.0,
-        source="x",
-        rationale="x",
-        tags=[],
-    )
-    assert orchestrator.execute_attack("ABC", a_v)[0] in {"DECRYPTED", None}
-    assert orchestrator.execute_attack("ABC", a_t)[0] == "ABC"
-    assert orchestrator.execute_attack("ABC", a_u) == (None, 0.0)
-
-    out_file = Path.cwd() / "k4_campaign_*.json"
-    before = set(Path.cwd().glob("k4_campaign_*_result.json"))
-    result = orchestrator.run_campaign("ABCD", max_attacks=2)
-    after = set(Path.cwd().glob("k4_campaign_*_result.json"))
-    created = sorted(after - before)
-    assert result.total_attacks == 2
-    assert created
-    for f in created:
-        f.unlink()
-
-    orchestrator.print_summary(result)
-    text = capsys.readouterr().out
-    assert "K4 CAMPAIGN SUMMARY" in text
-
-    empty_result = CampaignResult(
-        campaign_id="c",
-        start_time=datetime.now(),
-        end_time=datetime.now(),
-        total_attacks=0,
-        successful_attacks=0,
-        best_candidates=[],
-        coverage_report={},
-        statistics={"duration_seconds": 0.0, "attacks_per_second": 0.0},
-    )
-    orchestrator.print_summary(empty_result)
-    assert "No valid candidates found" in capsys.readouterr().out
+# test_campaign_execute_methods_and_print_summary moved to test_multiproc_campaign.py for Windows multiprocessing compatibility.
 
 
 def test_campaign_result_to_dict() -> None:
