@@ -167,9 +167,6 @@ _LAZY_MAP = {
     'run_composite_pipeline': ('kryptos.k4.composite', 'run_composite_pipeline'),
     # Attempt logs
     'persist_attempt_logs': ('kryptos.k4.attempt_logging', 'persist_attempt_logs'),
-    # Legacy executor (to be deprecated after full Pipeline adoption)
-    'PipelineConfig': ('kryptos.k4.executor', 'PipelineConfig'),
-    'PipelineExecutor': ('kryptos.k4.executor', 'PipelineExecutor'),
     # Composite extras
     'fuse_scores_weighted': ('kryptos.k4.composite', 'fuse_scores_weighted'),
     'normalize_scores': ('kryptos.k4.composite', 'normalize_scores'),
