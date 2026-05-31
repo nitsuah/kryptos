@@ -1,4 +1,3 @@
-
 # 🗺️ Kryptos Roadmap
 
 Last Updated: 2026-06-01
@@ -47,6 +46,18 @@ Next Review: 2026-07-01
 ### Phase 5 — Post-solution
 - [ ] **Solution documentation** — once K4 is solved: full attack path, key insights, solution narrative
 - [ ] **README and docs update** — reflect the solution and its cryptanalytic implications
+
+---
+
+## Agent Module Review (Post-K4, Pre-GUI)
+
+- [ ] Review, refactor, or remove optional/partial agent modules in `src/kryptos/agents/`:
+    - `spy_nlp.py`
+    - `spy_web_intel.py`
+    - `linguist.py`
+    - `ops_director.py`
+- [ ] Decide if these modules are needed, should be modernized, or can be dropped entirely.
+- [ ] Document outcome and update architecture docs as needed.
 
 ---
 
