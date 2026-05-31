@@ -2,7 +2,10 @@
 
 Thank you for your interest in advancing K4 analysis.
 
-## 📚 Essential Reading for Contributors
+
+## 📁 File Locations and Migration
+
+Some configuration, test, and lint files (e.g., .pre-commit-config.yaml, .pylintrc, pytest.ini) may be moved from the root to the config/ folder if tool support allows. Check config/ for updated locations and update references in your tools or scripts as needed.
 
 **Start here:**
 

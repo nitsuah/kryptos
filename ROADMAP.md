@@ -91,7 +91,11 @@ Next Review: 2026-06-30
     - [ ] K1–K3 Decoder: input ciphertext + key → plaintext with marker annotations and instructions on how it was encoded and how we hack it
     - [ ] K4 Attack Dashboard: real-time view of campaign progress, scoring breakdowns, and evidence artifacts
     - [ ] Vault - a basic encrypt/decrypt interface for demonstrating different stored concepts of encryption and decryption (e.g. transposition, Vigenère shifts, fractionating ciphers). showing how each tool in our toolbox works.
-- [ ] Add Database and interaction API for storing data about keys, plaintexts, attempts, and provenances in a structured way for easier querying and analysis.
+- [ ] Add Database (neon) and interaction API for storing data about keys, plaintexts, attempts, and provenances in a structured way for easier querying and analysis.
+    - [ ] Define schema for keys, plaintexts, attempts, and provenances
+    - [ ] Implement CRUD operations for each entity
+    - [ ] Integrate with existing CLI and GUI components
+    - [ ] Migrate existing file-based data to the database ex: `data/` & `docs/` (anything except "artifacts", which will remain file-based for now)
 - [ ] Post-solution analysis and documentation: once the solution is found, conduct a thorough analysis of the attack path, key insights, and lessons learned; document these in a comprehensive report and update the README and other docs to reflect the solution narrative and its implications for cryptanalysis and later publishing.
 - [ ] See `docs/analysis/K4-FRONTEND.md`
 

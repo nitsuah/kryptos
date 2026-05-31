@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 # Import multiprocessing-safe test helper
-from tests.test_multiproc_helpers import AttackGenTestHelper
+from tests.functional.test_multiproc_helpers import AttackGenTestHelper
 
 import json
 from dataclasses import dataclass

@@ -16,6 +16,31 @@ max-line-length = 120
 extend-ignore = ["E402", "E203"]
 exclude = ["__pycache__", ".git"]
 
+[tool.pytest.ini_options]
+markers = [
+    "slow: long-running or resource intensive tests (skip with: pytest -m 'not slow')",
+    "integration: integration tests that test multiple components together",
+]
+addopts = "-ra --cov=kryptos --cov-report term-missing"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.coverage.run]
+source = ["src/kryptos"]
+omit = [
+    "*/__init__.py",
+    ".venv/*",
+    "dist/*",
+    "build/*",
+    "*/setup.py",
+]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+
 [build-system]
 requires = ["setuptools>=82.0.1","wheel"]
 build-backend = "setuptools.build_meta"

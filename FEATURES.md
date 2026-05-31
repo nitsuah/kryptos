@@ -7,146 +7,126 @@
 **Last Updated:** 2026-05-25
 ---
 
+
 ## Core Cryptanalysis Capabilities
 
 ### 🔐 Cipher Implementations
 
-- **Vigenère Cipher**: Classical polyalphabetic substitution with keyed alphabet support (KRYPTOSABCDEFGHIJLMNQUVWXZ)
-- **Hill Cipher (2×2 & 3×3)**: Matrix-based substitution cipher with encryption/decryption and key solving from cribs
-- **Columnar Transposition**: Permutation cipher with partial-score pruning and crib-constrained inversion
-- **Route Transposition**: Geometric transposition patterns with multiple route types
-- **Double Rotational Transposition**: K3 solution method using 24×14 grid rotations
-- **Beaufort Cipher**: Reciprocal cipher variant for additional analysis
+- **Vigenère Cipher**: Polyalphabetic substitution with keyed alphabet (KRYPTOS set)
+- **Hill Cipher (2×2, 3×3)**: Matrix-based, supports crib-constrained key solving
+- **Columnar & Route Transposition**: Permutation ciphers with geometric and partial-score/crib pruning
+- **Double Rotational Transposition**: 24×14 grid K3 solution
+- **Beaufort Cipher**: Reciprocal variant
+- **ADFGVX & Nihilist**: Fractionating ciphers (Polybius + transposition/nihilist key)
+- **Keyed Alphabet Realignment**: Auto-selection and realignment (KRYPTOS, PALIMPSEST, ABSCISSA)
+
 
 ### 📊 Scoring & Analysis
 
-- **Frequency Analysis**: Letter frequency comparison with English baseline
-- **N-gram Scoring**: Unigram, bigram, trigram, and high-quality quadgram tables for linguistic scoring
-- **Chi-Squared Statistics**: Statistical goodness-of-fit testing for decryption candidates
-- **Dictionary Scoring**: Word detection with 2.73× discrimination ratio improvement
-- **Advanced Linguistic Metrics**: Wordlist hit rate, trigram entropy, bigram gap variance, repeating bigram fraction
-- **Crib-Based Scoring**: Known plaintext pattern matching and validation
-- **Index of Coincidence**: Polyalphabetic cipher detection and period estimation
+- **Frequency & N-gram Analysis**: Unigram–quadgram scoring, letter frequency, chi-squared, index of coincidence
+- **Dictionary & Linguistic Metrics**: Wordlist hit rate, trigram entropy, bigram gap variance, repeating bigram fraction
+- **Crib-Based & Pattern Scoring**: Known plaintext/crib validation, pattern matching
+- **Composite & Multi-Stage Scoring**: Weighted fusion, adaptive weights, and pipeline profiling
+
 
 ### 🎯 Search & Optimization
 
-- **Simulated Annealing**: 30-45% faster than hill-climbing for transposition solving
-- **Genetic Algorithms**: Population-based Hill cipher key optimization
-- **Exhaustive Search**: Guaranteed optimal solutions for small key spaces (periods ≤8)
-- **Adaptive Search**: Sampling prefix caching heuristics for efficient exploration
-- **Constraint-Based Search**: Crib-constrained Hill key derivation with single & pairwise combinations
-- **Multi-Start Optimization**: Multiple random restarts for probabilistic solvers
-- **Partial Score Pruning**: Early candidate elimination to reduce search space
+- **Simulated Annealing & Genetic Algorithms**: Fast probabilistic solvers for transposition/Hill ciphers
+- **Exhaustive & Adaptive Search**: Optimal solutions for small spaces, sampling heuristics for large
+- **Constraint & Multi-Start Optimization**: Crib-constrained, multi-restart, and partial-score pruning
+- **Composite Chain Execution**: Chained hypothesis classes (e.g., S→T→S)
+
 
 ## K4 Analysis Toolkit
 
 ### 🔬 Specialized K4 Modules
 
-- **Hill Constraint Stage**: BERLIN/CLOCK crib-constrained 3×3 Hill cipher with partial length pruning
-- **Transposition Adaptive Stage**: Dynamic column range exploration with sampling heuristics
-- **Multi-Crib Positional Stage**: Anchor multiple cribs simultaneously in transposition search
-- **Masking/Null-Removal**: Structural padding elimination with multiple removal patterns
-- **Berlin Clock Hypothesis**: Full lamp state enumeration with dual-direction shift application
-- **3×3 Hill Assembly**: Row/column/diagonal constructions with combinatorial search
+- **Hill Constraint & Assembly**: BERLIN/CLOCK crib-constrained 3×3 Hill, row/col/diag combinatorics
+- **Transposition Adaptive & Multi-Crib**: Dynamic column range, multi-crib anchoring
+- **Masking/Null-Removal**: Structural padding elimination, multiple patterns
+- **Berlin Clock Hypothesis**: Lamp state enumeration, dual-direction shifts
+- **Composite Parameter Sweep**: Full grid/alphabet/clock/angle sweeps
 
 ### ⚙️ Pipeline Architecture
 
-- **Modular Stage System**: Factory pattern for hypothesis families (Hill, transposition, masking, etc.)
-- **Multi-Stage Fusion**: Weighted score aggregation across different cipher hypotheses
-- **Adaptive Fusion Weighting**: Dynamic weight adjustment based on wordlist hits and entropy
-- **Pipeline Profiling**: Per-stage duration tracking and performance metrics
-- **Transformation Lineage**: Complete audit trail of cipher operations applied to each candidate
-- **Memoized Scoring**: LRU cache for repeated candidate evaluation
+- **Modular Stage System**: Factory pattern for hypothesis families
+- **Composite & Multi-Stage Fusion**: Weighted aggregation, adaptive weights
+- **Profiling & Provenance**: Per-stage timing, operation lineage, memoized scoring
+
 
 ## Autonomous Solving System
 
-### 🤖 Intelligence Agents
+### 🤖 Intelligence Agents & Coordination
 
-- **SPY Agent**: Pattern recognition and linguistic analysis (rule-based + NLP paths)
-- **LINGUIST Agent**: Language validation utilities
-- **OPS Agent**: Orchestration and attack execution (+ strategic director)
-- **Q Agent**: Research validation and confidence scoring
-- **K123 Analyzer**: Historical cipher-pattern analysis
-- **Web Intelligence**: External research integration
+- **SPY, LINGUIST, OPS, Q Agents**: Pattern recognition, language validation, orchestration, research validation
+- **K123 Analyzer & Web Intelligence**: Historical pattern analysis, external research
+- **Attack Generation & Campaign Orchestration**: Coverage-driven queue, provenance, and hooks
+- **Autonomous Solving Loop**: Persisted, long-running coordination (tri-agent decision loop)
 
-### 🔄 Autonomous Coordination
 
-- **Attack Generation**: Coverage/prioritization driven queue generation paths
-- **K4 Campaign Orchestration**: Campaign runner with provenance + coverage hooks
-- **Autonomous Solving**: Long-running coordination loop with persisted state
-- **Triumvirate Decision Loop**: Coordinated intelligence across SPY/OPS/Q agents
+## Provenance, Tracking & Reporting
 
-## Provenance & Tracking
+### 📝 Research Integrity & Coverage
 
-### 📝 Research Integrity
-
-- **Attack Provenance Logging**: Complete history with deduplication and replay-friendly metadata
-- **Search Space Coverage**: Coverage tracking plus tried-key persistence across runs
-- **Attempt Persistence**: Timestamped JSON logs for all Hill, Clock, and Transposition attempts
-- **Transformation Trace**: Each candidate records full stage + operation chain
-- **Cross-Run Memory**: Prevent duplicate attempts across sessions
-- **Coverage Tracking**: Identify explored, unexplored, and oversaturated key spaces
+- **Attack Provenance Logging**: Deduplicated, replay-friendly metadata
+- **Search Space & Attempt Persistence**: Tried-key tracking, timestamped logs, cross-run memory
+- **Transformation Trace**: Full operation chain per candidate
+- **Coverage Tracking**: Explored/unexplored/oversaturated key spaces
 
 ### 📊 Reporting & Artifacts
 
-- **Candidate Reports**: JSON summaries with optional CSV exports
-- **Coverage Heatmaps**: Visual exploration status by key space
-- **Performance Profiling**: Per-stage timing and throughput metrics
-- **Validation Reports**: Monte Carlo test results with statistical confidence
-- **Academic Documentation**: Comprehensive methodology and results (3,500+ lines)
+- **Candidate Reports & Heatmaps**: JSON/CSV summaries, ASCII bar heatmaps
+- **Performance Profiling**: Per-stage timing, throughput, and reliability gates
+- **Validation Reports**: Monte Carlo/statistical confidence, academic documentation
+
+
+
+## Development Tools
+
+- **CLI Interface**: Comprehensive command-line tools for all workflows
+- **Example Demos**: Runnable analysis patterns and usage examples
+- **Config System**: JSON-driven ciphertext and parameter management
+- **Pre-commit Hooks**: Automated linting and formatting
+- **Performance Benchmarks**: Throughput and optimization tracking
 
 ## Validation & Quality
 
-### ✅ Proven Success Rates & Test Summary
+### ✅ Test Coverage & Reliability
 
-- K1 Vigenère: 100% (deterministic)
-- K2 Vigenère: 100% (deterministic)
-- K3 Transposition: 60–95% (period/seed/parameter-dependent Monte Carlo)
+- **K1/K2 Vigenère**: 100% deterministic
+- **K3 Transposition**: 60–95% (Monte Carlo, parameter-dependent)
+- **Test Suite**: 800+ tests, 95% coverage, fast/slow partitions, reliability gates
 
-### ⚠️ Operational note:
-- Autonomous coordinator and all NLP-dependent features are robust to missing spaCy/NLTK/transformers; all NLP dependencies are optional and fallback logic is in place.
+### ⚠️ Operational Note
+- NLP dependencies (spaCy/NLTK/transformers) are optional; robust fallback logic
 
 ---
+
+
 
 ## 🚀 Planned & Upcoming
 
 ### 🧠 AI/ML & Community
-
-- **LLM-Driven Hypothesis Generation**: Integrate large language models to propose new attack strategies and scoring heuristics
-- **Community Leaderboard**: Track and display top contributors and most successful attack runs
-- **Experiment Diary**: Public log of ongoing research, findings, and lessons learned
-- **How to Contribute a New Attack**: Step-by-step guide for community submissions
+- **LLM-Driven Hypothesis Generation**: Use LLMs to propose new attacks/scoring
+- **Community Leaderboard**: Track top contributors and attack runs
+- **Experiment Diary**: Public log of research and findings
+- **How to Contribute a New Attack**: Step-by-step guide
 
 ### 🔬 Research & Pipeline
-
-- **Adaptive Campaign Orchestration**: Bounded parallel workers for scalable search (completed)
-- **Cross-Run Memory Heuristics**: Smarter avoidance of redundant attempts
-- **Operator-Grade Triage Tools**: Enhanced result review and artifact annotation
-- Test suite (fast run): 631 passed, 10 skipped, 2 deselected; code coverage 95% (measured 2026-05-25)
-- Monte Carlo / long-running validation tests are marked `slow` and gated out of the fast CI job to keep feedback fast.
-- Coverage gate is currently enforced at 80% (`[coverage:report] fail_under = 80` in `pytest.ini`).
-
-### 🛠️ Development Tools
-
-- **CLI Interface**: Comprehensive command-line tools for all workflows
-- **Example Demos**: Runnable examples for common analysis patterns
-- **Configuration System**: JSON-driven ciphertext and parameter management
-- **Pre-commit Hooks**: Automated linting and formatting
-- **Performance Benchmarks**: Measured throughput and optimization tracking
+- **Operator-Grade Triage Tools**: Enhanced result review and artifact annotation (in progress)
+- **Post-Solution Analysis**: Document attack path, insights, and solution narrative (planned)
 
 ## Data & Resources
 
 ### 📚 Linguistic Data
-
-- **High-Quality Quadgrams**: Auto-loaded TSV tables for optimal scoring
-- **N-gram Frequency Tables**: Unigram, bigram, trigram distributions
-- **English Dictionary**: Word validation with frequency rankings
-- **Fallback Distributions**: Graceful degradation when data files missing
+- **High-Quality Quadgrams**: Auto-loaded TSV for scoring
+- **N-gram Tables**: Unigram, bigram, trigram
+- **English Dictionary**: Word validation with frequency
+- **Fallback Distributions**: Graceful degradation if missing
 
 ### 🔧 Configuration & Setup
-
-- **Config-Driven**: Centralized JSON configuration (config/config.json)
-- **Artifact Management**: Organized output directory structure (artifacts/)
-- **Virtual Environment**: Isolated dependency management (.venv)
-- **Requirements Management**: Pinned dependencies (requirements.txt)
-- **Project Packaging**: PyPI-compatible setup (pyproject.toml)
+- **Centralized Config**: JSON-driven (config/config.json)
+- **Artifact Management**: Structured outputs (artifacts/)
+- **Virtual Environment**: Isolated deps (.venv)
+- **Requirements Management**: Pinned deps (requirements.txt)
+- **PyPI Packaging**: pyproject.toml
