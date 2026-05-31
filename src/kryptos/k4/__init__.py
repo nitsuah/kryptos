@@ -11,7 +11,19 @@ from dataclasses import dataclass
 from importlib import import_module as _imp
 from typing import Any
 
-__all__ = ["decrypt_best", "DecryptResult"]
+from .adfgvx import adfgvx_decrypt, adfgvx_encrypt, build_polybius_square
+from .nihilist import nihilist_decrypt, nihilist_encrypt
+
+__all__ = [
+    "decrypt_best",
+    "DecryptResult",
+    # Fractionating cipher modules (ADFGVX, Nihilist)
+    "adfgvx_encrypt",
+    "adfgvx_decrypt",
+    "build_polybius_square",
+    "nihilist_encrypt",
+    "nihilist_decrypt",
+]
 
 
 @dataclass(slots=True)
@@ -40,6 +52,7 @@ class DecryptResult:
     metadata: dict[str, Any] | None = None
 
 
+
 def decrypt_best(
     ciphertext: str,
     *,
@@ -49,6 +62,7 @@ def decrypt_best(
     adaptive: bool = False,
     report: bool = False,
     report_dir: str = "reports",
+    try_all_alphabets: bool = False,
 ) -> DecryptResult:
     """Run a composite multi-stage search and return the best plaintext candidate.
 
@@ -62,6 +76,7 @@ def decrypt_best(
     adaptive: If True, derive weights heuristically from candidate linguistic metrics.
     report: If True, generate artifact bundle (PNG, JSON summaries) under report_dir.
     report_dir: Directory root for artifacts.
+    try_all_alphabets: If True, auto-select among all candidate alphabets for K4 Vigenère key recovery.
 
     Returns
     -------
@@ -99,6 +114,7 @@ def decrypt_best(
         limit=limit,
         weights=weights,
         adaptive=adaptive,
+        try_all_alphabets=try_all_alphabets,
     )
 
     fused = pipeline_out.get("fused") or []
@@ -163,9 +179,6 @@ _LAZY_MAP = {
     'run_composite_pipeline': ('kryptos.k4.composite', 'run_composite_pipeline'),
     # Attempt logs
     'persist_attempt_logs': ('kryptos.k4.attempt_logging', 'persist_attempt_logs'),
-    # Legacy executor (to be deprecated after full Pipeline adoption)
-    'PipelineConfig': ('kryptos.k4.executor', 'PipelineConfig'),
-    'PipelineExecutor': ('kryptos.k4.executor', 'PipelineExecutor'),
     # Composite extras
     'fuse_scores_weighted': ('kryptos.k4.composite', 'fuse_scores_weighted'),
     'normalize_scores': ('kryptos.k4.composite', 'normalize_scores'),

@@ -74,10 +74,35 @@ def _read_diagonal(grid: list[list[str]]) -> str:
     return ''.join(out)
 
 
+def _read_ene_diagonal(grid: list[list[str]], angle_tan: float = 2.414) -> str:
+    """Read grid along an ENE diagonal at the given angle (default tan(67.5°) ≈ 2.414).
+
+    For each starting column, the column pointer advances by `angle_tan` per row.
+    Fractional positions are rounded to the nearest integer and wrapped mod cols.
+    This implements the reading pattern proposed in the K4 physical-geometric
+    pipeline hypothesis (docs/analysis/K4-T1.md).
+    """
+    if not grid:
+        return ""
+    rows = len(grid)
+    cols = len(grid[0])
+    out: list[str] = []
+    visited: set[tuple[int, int]] = set()
+    for start_col in range(cols):
+        for r in range(rows):
+            c = round(start_col + r * angle_tan) % cols
+            if (r, c) not in visited:
+                visited.add((r, c))
+                if grid[r][c]:
+                    out.append(grid[r][c])
+    return "".join(out)
+
+
 _ROUTE_FUNCS: dict[str, Callable[[list[list[str]]], str]] = {
     'spiral': _read_spiral,
     'boustrophedon': _read_boustrophedon,
     'diagonal': _read_diagonal,
+    'ene_diagonal': _read_ene_diagonal,
 }
 
 
@@ -129,4 +154,18 @@ def generate_route_variants(
     return results
 
 
-__all__ = ['generate_route_variants']
+__all__ = [
+    'generate_route_variants',
+    'read_ene_diagonal',
+    'to_grid',
+]
+
+
+def to_grid(text: str, cols: int) -> list[list[str]]:
+    """Public wrapper around _to_grid for use by the inverse transposition sweep."""
+    return _to_grid(text, cols)
+
+
+def read_ene_diagonal(text: str, cols: int, angle_tan: float = 2.414) -> str:
+    """Fill a cols-wide grid with text then read via ENE diagonal at given angle."""
+    return _read_ene_diagonal(_to_grid(text, cols), angle_tan=angle_tan)

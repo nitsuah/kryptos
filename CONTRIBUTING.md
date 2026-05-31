@@ -170,8 +170,8 @@ from kryptos.k4.composite import run_composite_pipeline
 cipher_k4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQ"
 positional_cribs = {
     'EAST': [22],
-    'NORTHEAST': [25],  # corrected index
-    'BERLIN': [64],
+    'NORTHEAST': [26],
+    'BERLIN': [63],
     'CLOCK': [69],      # corrected index
 }
 stages = [

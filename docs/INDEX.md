@@ -22,8 +22,10 @@ This is the traversal map for humans and AI agents.
 - [docs/analysis/K1_2_3_PATTERN_ANALYSIS.md](analysis/K1_2_3_PATTERN_ANALYSIS.md) - K1-K3 pattern extraction used to guide K4
 - [docs/analysis/K1_K2_VALIDATION_RESULTS.md](analysis/K1_K2_VALIDATION_RESULTS.md) - K1/K2 validation results
 - [docs/analysis/K3_VALIDATION_RESULTS.md](analysis/K3_VALIDATION_RESULTS.md) - K3 validation results and variance notes
-- [docs/analysis/K4-theories.md](analysis/K4-theories.md) - Live speculative K4 theory document
-- [docs/analysis/k4_clock_cipher_framework.html](analysis/k4_clock_cipher_framework.html) - Interactive K4 clock-framework theory artifact
+- [docs/analysis/K4_KEYSTREAM_ANALYSIS.md](analysis/K4_KEYSTREAM_ANALYSIS.md) - **Confirmed period-13 keystream derivation from EAST+NORTHEAST cribs; what it rules out and the next attack vectors**
+- [docs/analysis/K4_ACTIVE_RESEARCH.md](analysis/K4_ACTIVE_RESEARCH.md) - **Living document: confirmed facts, ruled-out hypotheses, active attack queue**
+- [docs/analysis/K4-T1.md](analysis/K4-T1.md) - Physical-geometric composite pipeline specification with toggle matrix
+- [docs/analysis/K4-CLOCKS.html](analysis/K4-CLOCKS.html) - Interactive K4 clock-framework theory artifact (note: position labels for NORTHEAST are incorrect; see K4_KEYSTREAM_ANALYSIS.md)
 
 ## Planning
 

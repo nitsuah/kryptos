@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import argparse
@@ -50,7 +51,15 @@ def cmd_k4_decrypt(args: argparse.Namespace) -> int:
     logger = setup_logging(logger_name='kryptos.cli')
     with open(args.cipher, encoding='utf-8') as fh:
         ciphertext = fh.read().strip()
-    res = decrypt_best(ciphertext, limit=args.limit, adaptive=args.adaptive, report=args.report)
+    # Enable alphabet auto-selection by default unless explicitly disabled
+    try_all_alphabets = getattr(args, 'try_all_alphabets', True)
+    res = decrypt_best(
+        ciphertext,
+        limit=args.limit,
+        adaptive=args.adaptive,
+        report=args.report,
+        try_all_alphabets=try_all_alphabets,
+    )
     logger.info('k4-decrypt score=%.3f lineage=%s', res.score, res.lineage)
     print(
         json.dumps(
@@ -68,7 +77,187 @@ def cmd_k4_attempts(args: argparse.Namespace) -> int:
     return 0
 
 
+
+def cmd_sections_decrypt(args: argparse.Namespace) -> int:
+    from kryptos.sections import SECTIONS
+    logger = setup_logging(logger_name='kryptos.cli')
+    section = args.section.upper()
+    if section not in SECTIONS:
+        print(json.dumps({'error': 'invalid_section', 'section': section}))
+        return 2
+    with open(args.cipher, encoding='utf-8') as fh:
+        ciphertext = fh.read().strip()
+    decrypt_fn = SECTIONS[section]
+    try:
+        explain = getattr(args, 'explain', False)
+        out = {'section': section}
+        if section in ('K1', 'K2'):
+            if not args.key:
+                print(json.dumps({'error': 'missing_key', 'section': section}))
+                return 2
+            plaintext = decrypt_fn(ciphertext, args.key)
+            out['plaintext'] = plaintext
+            if explain:
+                from kryptos.ciphers import KEYED_ALPHABET
+                out['explain'] = {
+                    'keyed_alphabet': KEYED_ALPHABET,
+                    'key': args.key,
+                    'note': 'K1/K2 use keyed Vigenère with this alphabet and provided key.'
+                }
+        elif section == 'K3':
+            plaintext = decrypt_fn(ciphertext)
+            out['plaintext'] = plaintext
+            if explain:
+                out['explain'] = {
+                    'matrix_1': {'cols': 24, 'rows': 14},
+                    'matrix_2': {'cols': 8, 'rows': 42},
+                    'note': 'K3 uses double rotational transposition with these matrix dimensions.'
+                }
+        elif section == 'K4':
+            res = decrypt_fn(ciphertext)
+            if hasattr(res, 'plaintext'):
+                out['plaintext'] = res.plaintext
+                if explain:
+                    meta = getattr(res, 'metadata', None)
+                    out['explain'] = meta if meta else {'note': 'No explainability metadata available for K4.'}
+            else:
+                out['plaintext'] = res
+                if explain:
+                    out['explain'] = {'note': 'No explainability metadata available for K4.'}
+        else:
+            print(json.dumps({'error': 'unsupported_section', 'section': section}))
+            return 2
+        if getattr(args, 'json', False):
+            print(json.dumps(out))
+        else:
+            print(json.dumps(out, indent=2))
+        return 0
+    except Exception as exc:
+        logger.error('sections-decrypt failed: %s', exc)
+        out = {'error': 'decrypt_failed', 'section': section, 'detail': str(exc)}
+        if getattr(args, 'json', False):
+            print(json.dumps(out))
+        else:
+            print(json.dumps(out, indent=2))
+        return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description='Kryptos CLI')
+    parser.add_argument('--quiet', action='store_true', help='Suppress non-essential output (for CI/scripts)')
+    parser.add_argument('--log-level', type=str, default='INFO', help='Set log level (DEBUG, INFO, WARNING, ERROR)')
+    sub = parser.add_subparsers(dest='command', required=True)
+
+    # Other subcommands...
+    sp_sections = sub.add_parser('sections', help='List available sections')
+    sp_sections.set_defaults(func=cmd_sections)
+
+    sp_k4_decrypt = sub.add_parser('k4-decrypt', help='Decrypt K4 ciphertext')
+    sp_k4_decrypt.add_argument('--cipher', type=Path, required=True, help='Path to ciphertext file (raw)')
+    sp_k4_decrypt.add_argument('--limit', type=int, default=100, help='Candidate limit')
+    sp_k4_decrypt.add_argument('--adaptive', action='store_true', help='Enable adaptive mode')
+    sp_k4_decrypt.add_argument('--report', action='store_true', help='Emit report')
+    sp_k4_decrypt.add_argument('--no-auto-alphabet', dest='try_all_alphabets', action='store_false', help='Disable alphabet auto-selection (default: enabled)')
+    sp_k4_decrypt.set_defaults(func=cmd_k4_decrypt)
+
+    sp_sections_decrypt = sub.add_parser('sections-decrypt', help='Decrypt a section (K1, K2, K3, K4)')
+    sp_sections_decrypt.add_argument('--section', type=str, required=True, choices=['K1', 'K2', 'K3', 'K4'], help='Section to decrypt')
+    sp_sections_decrypt.add_argument('--cipher', type=Path, required=True, help='Path to ciphertext file (raw)')
+    sp_sections_decrypt.add_argument('--key', type=str, default=None, help='Key for K1/K2 (ignored for K3/K4)')
+    sp_sections_decrypt.add_argument('--json', action='store_true', help='Emit output as JSON (single line, no extra text)')
+    sp_sections_decrypt.add_argument('--explain', action='store_true', help='Show explainability metadata for the decryption (if available)')
+    sp_sections_decrypt.set_defaults(func=cmd_sections_decrypt)
+
+
+    sp_k4_attempts = sub.add_parser('k4-attempts', help='Persist current in-memory attempt logs')
+    sp_k4_attempts.add_argument('--label', type=str, default='k4', help='Label for attempt log file prefix')
+    sp_k4_attempts.set_defaults(func=cmd_k4_attempts)
+
+    sp_tuning_sweep = sub.add_parser('tuning-crib-weight-sweep', help='Run crib weight sweep over provided weights')
+    sp_tuning_sweep.add_argument('--weights', type=str, default='0.5,1.0,1.5', help='Comma-separated weights')
+    sp_tuning_sweep.add_argument('--cribs', type=str, default='', help='Comma-separated crib tokens')
+    sp_tuning_sweep.add_argument('--samples', type=str, default='', help='Optional path to newline-delimited samples file')
+    sp_tuning_sweep.add_argument('--json', action='store_true', help='Emit JSON rows to stdout')
+    sp_tuning_sweep.set_defaults(func=cmd_tuning_crib_weight_sweep)
+
+    sp_tuning_pick = sub.add_parser('tuning-pick-best', help='Pick best weight from a sweep CSV file')
+    sp_tuning_pick.add_argument('--csv', type=Path, required=True, help='Path to crib_weight_sweep.csv')
+    sp_tuning_pick.set_defaults(func=cmd_tuning_pick_best)
+
+    sp_tuning_summary = sub.add_parser('tuning-summarize-run', help='Clean, summarize, and count crib hits for a run dir')
+    sp_tuning_summary.add_argument('--run-dir', type=Path, required=True, help='Path to tuning run directory')
+    sp_tuning_summary.add_argument('--no-write', action='store_true', help='Do not write summary artifacts, just print JSON')
+    sp_tuning_summary.set_defaults(func=cmd_tuning_summarize_run)
+
+    sp_tuning_tiny = sub.add_parser('tuning-tiny-param-sweep', help='Run tiny deterministic param sweep')
+    sp_tuning_tiny.set_defaults(func=cmd_tuning_tiny_param_sweep)
+
+    sp_tuning_holdout = sub.add_parser('tuning-holdout-score', help='Compute holdout scoring deltas for a crib weight')
+    sp_tuning_holdout.add_argument('--weight', type=float, required=True, help='Crib weight to score')
+    sp_tuning_holdout.add_argument('--out', type=Path, default=Path('artifacts/reports/holdout.csv'), help='Output CSV path')
+    sp_tuning_holdout.add_argument('--no-write', action='store_true', help='Do not write CSV, just print JSON summary')
+    sp_tuning_holdout.set_defaults(func=cmd_tuning_holdout_score)
+
+    sp_spy_eval = sub.add_parser('spy-eval', help='Evaluate SPY thresholds and print metrics')
+    sp_spy_eval.add_argument('--labels', type=Path, default=Path('data/spy_eval_labels.csv'), help='Labels CSV path')
+    sp_spy_eval.add_argument('--runs', type=Path, default=Path('artifacts/tuning_runs'), help='Root runs directory')
+    sp_spy_eval.add_argument('--thresholds', type=str, default='0.0,0.25,0.5,0.75', help='Comma-separated thresholds')
+    sp_spy_eval.set_defaults(func=cmd_spy_eval)
+
+    sp_spy_extract = sub.add_parser('spy-extract', help='Extract SPY tokens from runs at min confidence')
+    sp_spy_extract.add_argument('--runs', type=Path, default=Path('artifacts/tuning_runs'), help='Root runs directory')
+    sp_spy_extract.add_argument('--min-conf', type=float, default=0.25, help='Minimum confidence threshold')
+    sp_spy_extract.set_defaults(func=cmd_spy_extract)
+
+    sp_tuning_report = sub.add_parser('tuning-report', help='Generate condensed CSV and top candidates markdown for a run')
+    sp_tuning_report.add_argument('--run-dir', type=Path, required=True, help='Path to tuning run directory')
+    sp_tuning_report.add_argument('--top-n', dest='top_n', type=int, default=10, help='Top candidates markdown limit')
+    sp_tuning_report.add_argument('--no-markdown', action='store_true', help='Skip markdown generation')
+    sp_tuning_report.set_defaults(func=cmd_tuning_report)
+
+    sp_autopilot = sub.add_parser('autopilot', help='Run a single exchange or loop until safe decision')
+    sp_autopilot.add_argument('--plan', type=str, default=None, help='Optional plan text appended to Q prompt')
+    sp_autopilot.add_argument('--dry-run', action='store_true', help='Dry-run (no destructive actions)')
+    sp_autopilot.add_argument('--loop', action='store_true', help='Loop until safe decision or iterations cap')
+    sp_autopilot.add_argument('--iterations', type=int, default=0, help='Loop iteration cap (0=infinite)')
+    sp_autopilot.add_argument('--interval', type=int, default=300, help='Seconds between loop iterations')
+    sp_autopilot.add_argument('--force', action='store_true', help='Override dry-run inside loop')
+    sp_autopilot.set_defaults(func=cmd_autopilot)
+
+    sp_autonomous = sub.add_parser('autonomous', help='Run autonomous coordination loop (24/7 cryptanalysis)')
+    sp_autonomous.add_argument('--max-hours', type=float, default=None, help='Maximum runtime in hours (None=infinite)')
+    sp_autonomous.add_argument('--max-cycles', type=int, default=None, help='Maximum coordination cycles (None=infinite)')
+    sp_autonomous.add_argument('--cycle-interval', type=float, default=0.25, help='Minutes between cycles (default: 15 sec)')
+    sp_autonomous.add_argument('--ops-cycle', type=float, default=0.5, help='Minutes between OPS strategic analyses (default: 30 sec)')
+    sp_autonomous.add_argument('--web-intel-hours', type=float, default=0.5, help='Hours between web intelligence checks (default: 30 min)')
+    sp_autonomous.set_defaults(func=cmd_autonomous)
+
+    sp_examples_smoke = sub.add_parser('examples-smoke', help='Run fast example demos (sections, tiny sweep, composite) for CI smoke validation')
+    sp_examples_smoke.add_argument('--limit', type=int, default=5, help='Composite demo candidate limit')
+    sp_examples_smoke.add_argument('--keep', type=int, default=4, help='Max number of recent demo dirs to keep after run (purge older)')
+    sp_examples_smoke.set_defaults(func=cmd_examples_smoke)
+
+    sp_keyspace_stats = sub.add_parser(
+        'keyspace-stats',
+        help='Show keyspace coverage heatmap and attack prioritisation recommendations',
+    )
+    sp_keyspace_stats.add_argument(
+        '--cipher', type=str, default=None,
+        help='Cipher type to report on (e.g. "vigenere"). Omit for all types.',
+    )
+    sp_keyspace_stats.add_argument(
+        '--top-n', dest='top_n', type=int, default=5,
+        help='Number of priority recommendations to display (default: 5)',
+    )
+    sp_keyspace_stats.add_argument(
+        '--json', action='store_true',
+        help='Emit machine-readable JSON instead of human-readable table',
+    )
+    sp_keyspace_stats.set_defaults(func=cmd_keyspace_stats)
+
+    return parser
+
+
     p = argparse.ArgumentParser(prog='kryptos', description='Kryptos research CLI')
     p.add_argument('--log-level', type=str, default='INFO', help='Logging level (DEBUG, INFO, WARNING, ERROR)')
     p.add_argument('--quiet', action='store_true', help='Suppress non-error logging (JSON output only)')
@@ -206,13 +395,52 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def cmd_keyspace_stats(args: argparse.Namespace) -> int:
+    """Print a keyspace coverage heatmap and attack prioritisation table."""
+    import json as _json
+    from kryptos.provenance.search_space import SearchSpaceTracker
+
+    tracker = SearchSpaceTracker()
+    report = tracker.get_coverage_report(args.cipher)
+    recs = tracker.get_priority_recommendations(top_n=args.top_n)
+
+    if args.json:
+        print(_json.dumps({"coverage": report, "recommendations": recs}, indent=2, default=str))
+        return 0
+
+    # Human-readable output
+    print("\n=== Keyspace Coverage ===")
+    for ct, data in report.get("cipher_types", {}).items():
+        print(f"\n{ct}  (overall {data['overall_coverage']:.1f}%  |  "
+              f"{data['total_explored']:,}/{data['total_size']:,} explored)")
+        for r in data.get("regions", []):
+            bar_fill = int(r["coverage_percent"] / 5)
+            bar = "#" * bar_fill + "." * (20 - bar_fill)
+            print(f"  {r['region']:20s} [{bar}] {r['coverage_percent']:5.1f}%  "
+                  f"({r['explored_count']:,}/{r['total_size']:,})")
+
+    if not report.get("cipher_types"):
+        print("  (no regions registered yet — run a campaign to populate)")
+
+    print("\n=== Priority Recommendations ===")
+    if not recs:
+        print("  (no data yet)")
+    for i, rec in enumerate(recs, 1):
+        print(f"  {i}. [{rec['cipher_type']} / {rec['region']}]  score={rec['adjusted_score']:.1f}  "
+              f"coverage={rec['coverage']:.1f}%")
+        print(f"     {rec['reason']}  |  tried_keys={rec['tried_key_count']}")
+    print()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    level = getattr(logging, args.log_level.upper(), logging.INFO)
+    # Only set log level if present
+    level = getattr(logging, getattr(args, 'log_level', 'INFO').upper(), logging.INFO)
     logger = setup_logging(logger_name='kryptos.cli')
     logger.setLevel(level)
-    if args.quiet:
+    if hasattr(args, 'quiet') and args.quiet:
         logger.setLevel(logging.ERROR)
     return args.func(args)
 
@@ -316,7 +544,7 @@ def cmd_tuning_holdout_score(args: argparse.Namespace) -> int:
         for r in rows:
             w.writerow(r)
     print(json.dumps(out, indent=2))
-    if not args.quiet:
+    if not getattr(args, 'quiet', False):
         print(str(args.out))
     return 0
 

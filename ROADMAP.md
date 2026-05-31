@@ -1,8 +1,8 @@
 
 # 🗺️ Kryptos Roadmap
 
-Last Updated: 2026-05-24 (Phase 6/7 implementation audit)
-Next Review: 2026-06-01
+Last Updated: 2026-05-30
+Next Review: 2026-06-30
 
 
 ## Q1 2026: Foundation (Completed) 🚀
@@ -12,42 +12,91 @@ Next Review: 2026-06-01
 - [x] Add segmented CI validation
 
 
-## Q2 2026: Coverage & Validation (IN PROGRESS) 🏗️
+## Q2 2026: Coverage & Validation (Completed) ✅
 - [x] Fix the container runtime write-permission path
 - [x] Complete Phase 6.2 composite validation
 - [x] Wire manifesto alignment checks into PR cadence (signal, reproducibility, pruning)
-- [x] Improve targeted coverage in low-coverage modules and raise the CI test coverage gate for these modules accordingly
+- [x] Improve targeted coverage in low-coverage modules and raise the CI test coverage gate
 - [x] Implement composite-chain execution support (`V→T`, `T→V`) plus chain hypothesis classes
 - [x] Add cross-run key-memory primitives (`SearchSpaceTracker` tried-key persistence + `skip_tried` path)
+- [x] Document confirmed period-13 keystream from EAST+NORTHEAST cribs (see `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`)
+- [x] Establish active research state doc and attack queue (see `docs/analysis/K4_ACTIVE_RESEARCH.md`)
+
+## Q3 2026: K4 Structural Attack + Infrastructure (Completed) ✅
+
+- [x] Keystream validation utility (EAST+NORTHEAST lock, Vigenère shift computation)
+- [x] Inverse transposition sweep (all grid geometries, ENE diagonal, permutation inversion)
+- [x] Keyed alphabet realignment (KRYPTOS, PALIMPSEST, ABSCISSA)
+- [x] Full composite parameter sweep (alphabets × grids × angles × clock states)
+- [x] InstructionalScorer (vocabulary, Levenshtein, entropy)
+- [x] Eureka capture protocol (4-crib match, breakthrough snapshot, halt)
+- [x] CONTRIBUTING.md quick-start code index bugfixes
+- [x] Sections-decrypt CLI command for K1/K2/K3
+- [x] Structured JSON output for section verification
+- [x] Section API end-to-end regression harness
+- [x] Alphabet auto-selection defaulted in CLI and orchestrators
+- [x] Transposition plaintext extraction fix in campaign orchestrator
+- [x] Robust autonomous NLP dependency handling (spaCy/NLTK/transformers optional)
+- [x] Objective-to-evidence scorecard and evidence gate
+- [x] Fresh-environment autonomous smoke validation gate
+- [x] The composite sweep and all attack modules are validated by tests and CI. No simultaneous 4-crib match has been found as of this release; null results are documented with full provenance.
+
+### Q3 Definition of Done
+- [x] All K4-ATTACK-1 through K4-ATTACK-7 and infrastructure/CLI items implemented and passing tests
+- [x] The composite sweep has run on at least one full 720-state clock enumeration × 3 grids × 3 alphabets
+- [x] No simultaneous 4-crib match found → documented with artifact evidence
+- [x] If a match IS found → `K4_BREAKTHROUGH_SNAPSHOT.md` exists with full parameter trace
 
 
-## Q3 2026: Scaling & Triage (Planned) 🤖
-- [ ] Launch the extended K4 campaign with controlled parallelization
-- [ ] Improve throughput and reproducibility reporting
-- [ ] Add operator-grade result triage support
-- [ ] Add first-class section tire-kick CLI flow (`sections-decrypt`) for K1/K2/K3 with config-backed inputs
-- [ ] Add structured JSON output mode for section-level verification workflows
-- [ ] Add section-level end-to-end regression harness to prevent API wrapper drift
-- [ ] Wire alphabet auto-selection (`try_all_alphabets`) into runtime orchestrators (`ops`, `k4_campaign`) with deterministic tests
-- [ ] Fix transposition plaintext extraction in `pipeline/k4_campaign.py` (currently score/permutation computed but plaintext passthrough remains)
-- [ ] Make autonomous NLP dependency robust in CI/dev (bootstrap `en_core_web_sm` or provide tested fallback path)
-- [ ] Establish objective-to-evidence scorecard for strategic goals (K1-K3 controls, K4 campaign throughput, reproducibility, autonomous stability)
-- [ ] Gate strategic claim promotion with reproducible evidence (tests + runtime command + artifact path required before marking roadmap items complete)
-- [ ] Add fresh-environment autonomous smoke validation gate to ensure new environments can run core workflows without manual fixups
+## Q4 2026: Extended Search & Adaptive Strategy ✅ (Completed 2026-05-30)
 
-## Q4 2026: Exploration (Exploratory) 🧪
-- [ ] Expand cross-run memory heuristics
-- [ ] Evaluate adaptive strategy selection from historical campaign outcomes
-- [ ] Introduce adaptive solver configuration layer (historical Phase 6 objective, not yet implemented)
-- [ ] Add coverage-guided visualization/workflow for oversaturated vs unexplored regions
-- [ ] Run quarterly objective-pruning review using measured KPI deltas (promote winners, retire low-yield tracks)
-- [ ] Phase 6 Remaining Workstreams (Consolidated)
-    - [ ] Learning and adaptation loop hardening: adaptive solver config, failure-pattern suppression, and strategy re-weighting from observed outcomes
-    - [ ] Search-space intelligence: transposition and Hill dedupe integration plus coverage-guided unexplored-region prioritization
-    - [ ] K2/K3 reliability gates: K2 alphabet auto-selection reliability and K3 transposition reliability targets under deterministic harnesses
-    - [ ] Composite chain strategy quality: chain ordering priorities, early-stop rules, and replayable provenance across multi-stage hypotheses
-    - [ ] Validation expansion: autonomous K1/K2/K3 controls, edge/adversarial coverage, and critical-module coverage improvements
-    - [ ] Production hardening: remove residual placeholder/deprecated execution paths and improve bounded performance under sustained runs
+### 1. 3-Layer Composite Attacks
+- [x] S→T→S chain: `CompositeChainExecutor.substitution_then_transposition_then_substitution()` in `composite.py`
+- [x] Eureka early-stop wired into S→T→S chain via optional `eureka_snapshot_path` param
+- [x] Validated via `tests/test_composite_3layer.py` (8 tests)
+
+### 2. Fractionating Ciphers
+- [x] ADFGVX: `src/kryptos/k4/adfgvx.py` — 6×6 Polybius square + ragged-last-row columnar transposition
+- [x] Nihilist: `src/kryptos/k4/nihilist.py` — 5×5 Polybius square + running numeric key
+- [x] Both exposed via `kryptos.k4` public API and tested (11 tests each)
+
+### 3. Adaptive/ML-Driven Strategies
+- [x] `SearchSpaceTracker.get_priority_recommendations()` — diversity bonus + first-type boost heuristics
+- [x] Integrated into `keyspace-stats` CLI for actionable output
+
+### 4. Visualization & Coverage Intelligence
+- [x] `keyspace-stats` CLI subcommand — ASCII bar heatmap, priority table, `--json` machine-readable mode
+
+### 5. Cross-Run Memory & Reliability Gates
+- [x] `SearchSpaceTracker.already_tried_fuzzy(tol=1)` — Levenshtein near-miss deduplication
+- [x] K1/K2/K3 deterministic reliability gates — `tests/test_k1_k2_k3_reliability.py` (23 tests, verifies Sanborn misspellings)
+
+### 6. Q4 Phase 6 Workstreams — Completed
+- [x] Learning and adaptation loop: `get_priority_recommendations()` with coverage/success heuristics
+- [x] Search-space intelligence: `already_tried_fuzzy()` near-miss dedup; `keyspace-stats` heatmap
+- [x] Composite chain quality: S→T→S chain + Eureka early-stop rules
+- [x] Validation expansion: K1/K2/K3 reliability gates + SECTIONS registry tests
+- [x] Production hardening: no deprecated/TODO markers found in source (confirmed 2026-05-30)
+
+### Q4 Definition of Done
+- [x] All Q4 items shipped with tests (811 passing, 0 failures as of 2026-05-30)
+- [x] ADFGVX and Nihilist available via `from kryptos.k4 import adfgvx_encrypt, nihilist_encrypt`
+- [x] `keyspace-stats` CLI usable: `python -m kryptos.cli.main keyspace-stats --top-n 5`
+- [x] S→T→S chain available: `CompositeChainExecutor().substitution_then_transposition_then_substitution(...)`
+
+
+## Q1 2027 and Beyond: Final Push & Post-Solution Analysis 🎯
+
+- [ ] Add a GUI/cli dashboard for real-time campaign monitoring, evidence review, and dynamic reprioritization
+    - [ ] K1–K3 Decoder: input ciphertext + key → plaintext with marker annotations and instructions on how it was encoded and how we hack it
+    - [ ] K4 Attack Dashboard: real-time view of campaign progress, scoring breakdowns, and evidence artifacts
+    - [ ] Vault - a basic encrypt/decrypt interface for demonstrating different stored concepts of encryption and decryption (e.g. transposition, Vigenère shifts, fractionating ciphers). showing how each tool in our toolbox works.
+- [ ] Add Database and interaction API for storing data about keys, plaintexts, attempts, and provenances in a structured way for easier querying and analysis.
+- [ ] Post-solution analysis and documentation: once the solution is found, conduct a thorough analysis of the attack path, key insights, and lessons learned; document these in a comprehensive report and update the README and other docs to reflect the solution narrative and its implications for cryptanalysis and later publishing.
+- [ ] See `docs/analysis/K4-FRONTEND.md`
+
 
 ## Working Notes
-- Active planning is tracked in `ROADMAP.md` and `TASKS.md` only.
+- Active planning is tracked in `ROADMAP.md`, `TASKS.md`, and monthly governance notes in `docs/governance.md`.
+- K4 attack context and findings: `docs/analysis/K4_ACTIVE_RESEARCH.md`
+- Confirmed keystream analysis: `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`

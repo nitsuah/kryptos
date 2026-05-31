@@ -91,6 +91,7 @@ def run_composite_pipeline(
     weights: dict[str, float] | None = None,
     normalize: bool = True,
     adaptive: bool = False,
+    try_all_alphabets: bool = False,
 ) -> dict[str, Any]:
     """Run multiple stages, aggregate candidates, optionally write artifacts and apply
     weighted fusion.
@@ -98,6 +99,16 @@ def run_composite_pipeline(
     normalize: apply per-stage min-max before fusion (balances different scoring scales).
     Returns dict with 'results', 'aggregated', optional 'fused', and optional 'artifacts'.
     """
+    # If any stage is a composite chain executor, pass try_all_alphabets if supported
+    # (This is a minimal patch; for full support, propagate to all relevant custom stages.)
+    for stage in stages:
+        if hasattr(stage.func, '__self__') and hasattr(stage.func.__self__, 'vigenere_then_transposition'):
+            # Patch the method to use try_all_alphabets if present
+            orig_func = stage.func
+            def patched_func(ct, orig_func=orig_func):
+                return orig_func(ct, try_all_alphabets=try_all_alphabets)
+            stage.func = patched_func
+
     pipe = Pipeline(stages)
     stage_results = pipe.run(ciphertext)
     aggregated = aggregate_stage_candidates(stage_results)[:limit]
@@ -253,13 +264,15 @@ class CompositeChainExecutor:
         )
         return filtered[:top_n]
 
+
     def vigenere_then_transposition(
         self,
         ciphertext: str,
-        vigenere_key_length: int,
+        vigenere_key_length: int = 8,
         transposition_col_range: tuple[int, int] = (5, 8),
         top_n: int = 5,
         min_score_threshold: float | None = None,
+        try_all_alphabets: bool = False,
     ) -> list[dict[str, Any]]:
         """V→T chain: Decrypt Vigenère first, then try transposition on result.
 
@@ -269,11 +282,17 @@ class CompositeChainExecutor:
             transposition_col_range: (min_cols, max_cols) for transposition
             top_n: Return top N results
             min_score_threshold: Optional minimum score filter applied before returning results
+            try_all_alphabets: If True, try all candidate alphabets for Vigenère key recovery
 
         Returns:
             List of candidates with keys, scores, and plaintext
         """
-        v_keys = recover_key_by_frequency(ciphertext, vigenere_key_length, top_n=top_n * 2)
+        v_keys = recover_key_by_frequency(
+            ciphertext,
+            vigenere_key_length,
+            top_n=top_n * 2,
+            try_all_alphabets=try_all_alphabets,
+        )
 
         candidates = []
         for v_key in v_keys[:top_n]:
@@ -303,6 +322,7 @@ class CompositeChainExecutor:
         vigenere_key_length: int = 8,
         top_n: int = 5,
         min_score_threshold: float | None = None,
+        try_all_alphabets: bool = False,
     ) -> list[dict[str, Any]]:
         """T→V chain: Decrypt transposition first, then Vigenère.
 
@@ -312,6 +332,7 @@ class CompositeChainExecutor:
             vigenere_key_length: Expected Vigenère key length
             top_n: Return top N results
             min_score_threshold: Optional minimum score filter applied before returning results
+            try_all_alphabets: If True, try all candidate alphabets for Vigenère key recovery
 
         Returns:
             List of candidates with keys, scores, and plaintext
@@ -324,7 +345,12 @@ class CompositeChainExecutor:
         for t_result in t_results[: top_n * 2]:
             t_plaintext = t_result['text']
 
-            v_keys = recover_key_by_frequency(t_plaintext, vigenere_key_length, top_n=3)
+            v_keys = recover_key_by_frequency(
+                t_plaintext,
+                vigenere_key_length,
+                top_n=3,
+                try_all_alphabets=try_all_alphabets,
+            )
             for v_key in v_keys:
                 v_plaintext = vigenere_decrypt(t_plaintext, v_key)
                 score = combined_plaintext_score(v_plaintext)
@@ -339,6 +365,112 @@ class CompositeChainExecutor:
                         'threshold_applied': min_score_threshold,
                     },
                 )
+
+        return self._finalize_candidates(candidates, top_n, min_score_threshold)
+
+    def substitution_then_transposition_then_substitution(
+        self,
+        ciphertext: str,
+        vigenere_key_length: int = 8,
+        transposition_col_range: tuple[int, int] = (5, 8),
+        second_key_length: int = 6,
+        top_n: int = 5,
+        min_score_threshold: float | None = None,
+        try_all_alphabets: bool = False,
+        eureka_snapshot_path: str | Path | None = None,
+        eureka_score_threshold: float = 80.0,
+    ) -> list[dict[str, Any]]:
+        """S→T→S chain: Vigenère → columnar transposition → Vigenère.
+
+        Models the hypothesis that K4 was produced by:
+            plaintext → Vigenère₁(key₁) → columnar_transposition(P) → Vigenère₂(key₂) → K4
+
+        The attack inverts each layer in reverse order:
+            1. Recover key₂ via frequency analysis, decrypt first Vigenère layer
+            2. Search columnar transpositions on each intermediate
+            3. Recover key₁ from each transposed result, scoring final candidates
+
+        Args:
+            ciphertext:              K4 ciphertext.
+            vigenere_key_length:     Length of the first (outer) Vigenère key.
+            transposition_col_range: (min, max) column counts for transposition search.
+            second_key_length:       Length of the second (inner) Vigenère key.
+            top_n:                   Maximum candidates to return.
+            min_score_threshold:     Optional minimum plaintext score filter.
+            try_all_alphabets:       If True, try keyed alphabets for both Vigenère steps.
+            eureka_snapshot_path:    If set, call eureka_check_and_capture on every
+                                     candidate that exceeds eureka_score_threshold.
+                                     Raises EurekaSignal immediately on a 4-keyword hit.
+            eureka_score_threshold:  Instructional score floor before eureka check fires
+                                     (avoids calling the heavier check on every candidate).
+
+        Returns:
+            List of candidate dicts sorted by score, each containing:
+            plaintext, score, outer_vigenere_key, transposition_cols,
+            transposition_perm, inner_vigenere_key, chain='S→T→S'.
+        """
+        # --- Layer 1: undo the outermost Vigenère ---
+        outer_keys = recover_key_by_frequency(
+            ciphertext,
+            vigenere_key_length,
+            top_n=top_n * 2,
+            try_all_alphabets=try_all_alphabets,
+        )
+
+        candidates = []
+        for outer_key in outer_keys[:top_n]:
+            v1_stripped = vigenere_decrypt(ciphertext, outer_key)
+
+            # --- Layer 2: undo the columnar transposition ---
+            min_cols, max_cols = transposition_col_range
+            t_results = search_columnar(v1_stripped, min_cols=min_cols, max_cols=max_cols)
+
+            for t_result in t_results[:3]:
+                t_stripped = t_result['text']
+
+                # --- Layer 3: undo the innermost Vigenère ---
+                inner_keys = recover_key_by_frequency(
+                    t_stripped,
+                    second_key_length,
+                    top_n=3,
+                    try_all_alphabets=try_all_alphabets,
+                )
+                for inner_key in inner_keys:
+                    final_pt = vigenere_decrypt(t_stripped, inner_key)
+                    score = combined_plaintext_score(final_pt)
+                    candidate = {
+                        'plaintext':          final_pt,
+                        'score':              score,
+                        'outer_vigenere_key': outer_key,
+                        'transposition_cols': t_result['cols'],
+                        'transposition_perm': t_result['perm'],
+                        'inner_vigenere_key': inner_key,
+                        'chain':              'S→T→S',
+                        'threshold_applied':  min_score_threshold,
+                    }
+                    candidates.append(candidate)
+
+                    # Eureka early-stop: if an optional snapshot path is configured
+                    # and this candidate clears the score floor, run the full keyword
+                    # check.  EurekaSignal propagates immediately to the caller.
+                    if eureka_snapshot_path is not None and score >= eureka_score_threshold:
+                        from .eureka import eureka_check_and_capture
+                        from .scoring_instructional import combined_instructional_score
+                        inst_score = combined_instructional_score(final_pt, gate_entropy=False)
+                        key_info = {
+                            'outer_vigenere_key': outer_key,
+                            'inner_vigenere_key': inner_key,
+                            'transposition_cols': t_result['cols'],
+                            'transposition_perm': t_result['perm'],
+                            'chain': 'S→T→S',
+                        }
+                        eureka_check_and_capture(
+                            final_pt,
+                            key_info,
+                            extra={'instructional_score': inst_score, 'plaintext_score': score},
+                            snapshot_path=eureka_snapshot_path,
+                            raise_signal=True,
+                        )
 
         return self._finalize_candidates(candidates, top_n, min_score_threshold)
 

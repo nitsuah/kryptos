@@ -49,10 +49,19 @@ class CampaignResult:
 
 
 class K4CampaignOrchestrator:
+    @staticmethod
+    def _attack_worker(args):
+        self, attack_spec, ciphertext = args
+        try:
+            plaintext, confidence = self.execute_attack(ciphertext, attack_spec)
+            return (attack_spec, plaintext, confidence)
+        except Exception:
+            return (attack_spec, None, 0.0)
     def __init__(
         self,
         workspace_dir: Path | None = None,
         log_level: str = "INFO",
+        max_workers: int | None = None,
     ):
         self.workspace_dir = workspace_dir or Path("./data/k4_campaign")
         self.workspace_dir.mkdir(parents=True, exist_ok=True)
@@ -65,6 +74,7 @@ class K4CampaignOrchestrator:
             log_level=log_level,
         )
         self.attack_executor = AttackExecutor(log_dir=self.workspace_dir / "executor_logs")
+        self.max_workers = max_workers
 
         config_path = Path(__file__).parent.parent.parent.parent / "config" / "config.json"
         with open(config_path) as f:
@@ -140,6 +150,8 @@ class K4CampaignOrchestrator:
         max_attacks: int = 100,
         max_time_seconds: float | None = None,
     ) -> CampaignResult:
+        import multiprocessing as mp
+        from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
         campaign_id = f"k4_campaign_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         start_time = datetime.now()
 
@@ -151,29 +163,54 @@ class K4CampaignOrchestrator:
         successful_attacks = 0
         best_candidates = []
         i = 0
+        futures = []
+        max_workers = getattr(self, "max_workers", None) or mp.cpu_count()
 
-        for i, attack_spec in enumerate(attack_queue, 1):
-            if max_time_seconds:
-                elapsed = (datetime.now() - start_time).total_seconds()
-                if elapsed > max_time_seconds:
-                    break
 
-            plaintext, confidence = self.execute_attack(ciphertext, attack_spec)
+        if max_workers == 1:
+            # Serial fallback for test/mocking (no pickling required)
+            for attack_spec in attack_queue:
+                i += 1
+                attack_spec, plaintext, confidence = self._attack_worker((self, attack_spec, ciphertext))
+                if plaintext:
+                    validation = self.validator.validate(plaintext)
+                    if validation.is_valid:
+                        successful_attacks += 1
+                        best_candidates.append(
+                            {
+                                "attack_number": i,
+                                "cipher_type": attack_spec.parameters.cipher_type,
+                                "parameters": attack_spec.parameters.key_or_params,
+                                "plaintext": plaintext[:100],
+                                "confidence": validation.confidence,
+                                "validation": validation.to_dict(),
+                            },
+                        )
+        else:
+            with ProcessPoolExecutor(max_workers=max_workers) as executor:
+                for attack_spec in attack_queue:
+                    futures.append(executor.submit(self._attack_worker, (self, attack_spec, ciphertext)))
 
-            if plaintext:
-                validation = self.validator.validate(plaintext)
-                if validation.is_valid:
-                    successful_attacks += 1
-                    best_candidates.append(
-                        {
-                            "attack_number": i,
-                            "cipher_type": attack_spec.parameters.cipher_type,
-                            "parameters": attack_spec.parameters.key_or_params,
-                            "plaintext": plaintext[:100],
-                            "confidence": validation.confidence,
-                            "validation": validation.to_dict(),
-                        },
-                    )
+                for future in as_completed(futures, timeout=(max_time_seconds or 3600)):
+                    i += 1
+                    try:
+                        attack_spec, plaintext, confidence = future.result(timeout=60)
+                    except TimeoutError:
+                        continue
+                    if plaintext:
+                        validation = self.validator.validate(plaintext)
+                        if validation.is_valid:
+                            successful_attacks += 1
+                            best_candidates.append(
+                                {
+                                    "attack_number": i,
+                                    "cipher_type": attack_spec.parameters.cipher_type,
+                                    "parameters": attack_spec.parameters.key_or_params,
+                                    "plaintext": plaintext[:100],
+                                    "confidence": validation.confidence,
+                                    "validation": validation.to_dict(),
+                                },
+                            )
 
         end_time = datetime.now()
         duration = (end_time - start_time).total_seconds()

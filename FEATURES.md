@@ -4,7 +4,7 @@
 > Cryptographic research toolkit for solving the K4 cipher puzzle
 
 ---
-**Last Updated:** 2026-05-24
+**Last Updated:** 2026-05-25
 ---
 
 ## Core Cryptanalysis Capabilities
@@ -103,24 +103,26 @@
 - K2 Vigenère: 100% (deterministic)
 - K3 Transposition: 60–95% (period/seed/parameter-dependent Monte Carlo)
 
-Operational note:
-- Autonomous coordinator paths currently depend on spaCy model `en_core_web_sm` in this environment.
+### ⚠️ Operational note:
+- Autonomous coordinator and all NLP-dependent features are robust to missing spaCy/NLTK/transformers; all NLP dependencies are optional and fallback logic is in place.
 
 ---
 
 ## 🚀 Planned & Upcoming
 
 ### 🧠 AI/ML & Community
+
 - **LLM-Driven Hypothesis Generation**: Integrate large language models to propose new attack strategies and scoring heuristics
 - **Community Leaderboard**: Track and display top contributors and most successful attack runs
 - **Experiment Diary**: Public log of ongoing research, findings, and lessons learned
 - **How to Contribute a New Attack**: Step-by-step guide for community submissions
 
 ### 🔬 Research & Pipeline
-- **Adaptive Campaign Orchestration**: Bounded parallel workers for scalable search
+
+- **Adaptive Campaign Orchestration**: Bounded parallel workers for scalable search (completed)
 - **Cross-Run Memory Heuristics**: Smarter avoidance of redundant attempts
 - **Operator-Grade Triage Tools**: Enhanced result review and artifact annotation
-- Test suite (fast run): 631 passed, 10 skipped, 2 deselected; code coverage 95% (measured 2026-05-24)
+- Test suite (fast run): 631 passed, 10 skipped, 2 deselected; code coverage 95% (measured 2026-05-25)
 - Monte Carlo / long-running validation tests are marked `slow` and gated out of the fast CI job to keep feedback fast.
 - Coverage gate is currently enforced at 80% (`[coverage:report] fail_under = 80` in `pytest.ini`).
 

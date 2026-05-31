@@ -32,12 +32,15 @@ def test_extract_with_run_dir(tmp_path):
         writer.writerow(['sample', 'baseline', 'with_cribs', 'delta'])
         writer.writerow(["Saw 'MAGNETIC' anomaly again", '0.0', '1.0', '0.5'])
     cribs = ['MAGNETIC']
+    # Write cribs to a temp file
+    cribs_file = tmp_path / 'cribs.txt'
+    cribs_file.write_text('\n'.join(cribs), encoding='utf-8')
     matches = scan_run(run_dir, set(cribs))
     assert all(isinstance(m, SpyMatch) for m in matches)
     # confidence assignment done inside scan_run
     assert matches, 'scan_run should yield matches'
-    # Filter with extract using min_conf threshold
-    kept = extract(min_conf=0.5, run_dir=run_dir)
+    # Filter with extract using min_conf threshold, using the temp cribs file
+    kept = extract(min_conf=0.5, run_dir=run_dir, cribs_path=cribs_file)
     assert kept, 'extract should keep matches above confidence threshold'
     assert matches, 'extract should return matches when run_dir provided'
     tokens2 = {t for m in kept for t in m.tokens}

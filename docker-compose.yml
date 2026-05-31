@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  kryptos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kryptos-dev
+    container_name: kryptos-dev
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: tail -f /dev/null
+    environment:
+      - PYTHONUNBUFFERED=1
+    tty: true
