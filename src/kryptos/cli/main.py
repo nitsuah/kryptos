@@ -47,10 +47,18 @@ def cmd_sections(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_ciphertext(cipher_path: Path | None, section: str = 'K4') -> str:
+    if cipher_path is not None:
+        with open(cipher_path, encoding='utf-8') as fh:
+            return fh.read().strip()
+    config_path = Path(__file__).parent.parent.parent.parent / 'config' / 'config.json'
+    with open(config_path, encoding='utf-8') as fh:
+        return json.load(fh)['ciphertexts'][section]
+
+
 def cmd_k4_decrypt(args: argparse.Namespace) -> int:
     logger = setup_logging(logger_name='kryptos.cli')
-    with open(args.cipher, encoding='utf-8') as fh:
-        ciphertext = fh.read().strip()
+    ciphertext = _load_ciphertext(args.cipher)
     # Enable alphabet auto-selection by default unless explicitly disabled
     try_all_alphabets = getattr(args, 'try_all_alphabets', True)
     res = decrypt_best(
@@ -85,8 +93,7 @@ def cmd_sections_decrypt(args: argparse.Namespace) -> int:
     if section not in SECTIONS:
         print(json.dumps({'error': 'invalid_section', 'section': section}))
         return 2
-    with open(args.cipher, encoding='utf-8') as fh:
-        ciphertext = fh.read().strip()
+    ciphertext = _load_ciphertext(args.cipher, section)
     decrypt_fn = SECTIONS[section]
     try:
         explain = getattr(args, 'explain', False)
@@ -153,7 +160,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp_sections.set_defaults(func=cmd_sections)
 
     sp_k4_decrypt = sub.add_parser('k4-decrypt', help='Decrypt K4 ciphertext')
-    sp_k4_decrypt.add_argument('--cipher', type=Path, required=True, help='Path to ciphertext file (raw)')
+    sp_k4_decrypt.add_argument('--cipher', type=Path, default=None, help='Path to ciphertext file; omit to use K4 from config/config.json')
     sp_k4_decrypt.add_argument('--limit', type=int, default=100, help='Candidate limit')
     sp_k4_decrypt.add_argument('--adaptive', action='store_true', help='Enable adaptive mode')
     sp_k4_decrypt.add_argument('--report', action='store_true', help='Emit report')
@@ -162,7 +169,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp_sections_decrypt = sub.add_parser('sections-decrypt', help='Decrypt a section (K1, K2, K3, K4)')
     sp_sections_decrypt.add_argument('--section', type=str, required=True, choices=['K1', 'K2', 'K3', 'K4'], help='Section to decrypt')
-    sp_sections_decrypt.add_argument('--cipher', type=Path, required=True, help='Path to ciphertext file (raw)')
+    sp_sections_decrypt.add_argument('--cipher', type=Path, default=None, help='Path to ciphertext file; omit to use the section ciphertext from config/config.json')
     sp_sections_decrypt.add_argument('--key', type=str, default=None, help='Key for K1/K2 (ignored for K3/K4)')
     sp_sections_decrypt.add_argument('--json', action='store_true', help='Emit output as JSON (single line, no extra text)')
     sp_sections_decrypt.add_argument('--explain', action='store_true', help='Show explainability metadata for the decryption (if available)')

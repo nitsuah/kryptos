@@ -445,16 +445,48 @@ class OpsStrategicDirector:
         )
 
     def _load_strategy_kb(self) -> dict[str, Any]:
-        kb_file = self.cache_dir / "strategy_kb.json"
-        if kb_file.exists():
-            with open(kb_file) as f:
-                return json.load(f)
-        return {"successful_strategies": [], "failed_strategies": [], "lessons_learned": []}
+        try:
+            from kryptos.db import get_conn
+            with get_conn() as conn:
+                cur = conn.cursor()
+                cur.execute("SELECT category, description, attack_type, confidence, metadata FROM strategy_kb ORDER BY id")
+                rows = cur.fetchall()
+            kb: dict[str, Any] = {"successful_strategies": [], "failed_strategies": [], "lessons_learned": []}
+            category_map = {"successful": "successful_strategies", "failed": "failed_strategies", "lesson": "lessons_learned"}
+            for category, description, attack_type, confidence, metadata in rows:
+                entry = {"description": description, "attack_type": attack_type, "confidence": confidence, "metadata": metadata or {}}
+                kb[category_map[category]].append(entry)
+            return kb
+        except Exception:
+            return {"successful_strategies": [], "failed_strategies": [], "lessons_learned": []}
 
     def _save_decision(self, decision: StrategicDecision):
-        decisions_file = self.cache_dir / "decisions.jsonl"
-        with open(decisions_file, "a") as f:
-            f.write(json.dumps(vars(decision), default=str) + "\n")
+        try:
+            from kryptos.db import get_conn
+            with get_conn() as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    """INSERT INTO ops_decisions
+                       (timestamp, action, reasoning, affected_attacks, resource_changes,
+                        success_criteria, review_in_hours, confidence)
+                       VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s, %s)""",
+                    (
+                        decision.timestamp,
+                        decision.action.value,
+                        decision.reasoning,
+                        decision.affected_attacks,
+                        json.dumps(decision.resource_changes),
+                        decision.success_criteria,
+                        decision.review_in_hours,
+                        decision.confidence,
+                    ),
+                )
+        except Exception as exc:
+            # Fallback to JSONL so a missing DB never breaks a campaign run
+            decisions_file = self.cache_dir / "decisions.jsonl"
+            with open(decisions_file, "a") as f:
+                f.write(json.dumps(vars(decision), default=str) + "\n")
+            print(f"Warning: DB write failed ({exc}), decision saved to {decisions_file}")
 
 
 def demo_ops_director():

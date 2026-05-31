@@ -39,10 +39,11 @@ This is the traversal map for humans and AI agents.
 
 ## Sources
 
-- [docs/sources/SANBORN.md](sources/SANBORN.md)
-- [docs/sources/CLOCK.md](sources/CLOCK.md)
-- [docs/sources/sanborn_timeline.md](sources/sanborn_timeline.md)
-- [docs/sources/sanborn_crib_candidates.txt](sources/sanborn_crib_candidates.txt)
+- [docs/sources/SANBORN-summary.md](sources/SANBORN-summary.md) - Sanborn research checklist and artist-clue strategy
+- [docs/sources/CLOCK.md](sources/CLOCK.md) - World Clock / Berlin Clock geographic and cryptographic interpretation
+
+> **DB-backed sources** (query via `source_chunks`, `sanborn_timeline`, `discovered_cribs` tables):
+> Smithsonian 2009 oral history transcript, Sanborn public statement timeline, crib candidates with provenance.
 
 ## Reading Order
 

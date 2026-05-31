@@ -54,8 +54,8 @@ passing), treat those as high-priority cribs but validate their start indices be
 ## Suggested next steps (actionable, reproducible)
 
 1. Build a short timeline of Sanborn statements about Kryptos (date, medium, exact quoted text, source URL/archive).
-Store this as `docs/sources/sanborn_timeline.md` for reproducibility. 2. Extract candidate one- or two-word cribs that
-appear in those statements and add them to `config/crubs_candidates.txt` (or equivalent). Treat them as soft cribs first
+Add entries to the `sanborn_timeline` DB table (columns: date, source_url, title, excerpt, notes). 2. Extract candidate one- or two-word cribs that
+appear in those statements and add them to the `discovered_cribs` DB table with source provenance. Treat them as soft cribs first
 (score boosts), not hard constraints. 3. Run targeted scoring passes that boost candidates containing those words
 (positional and non-positional). Compare rank shifts and surface candidates for manual review. 4. For any mention of
 dates or times, enumerate small key-stream families derived from time encodings (e.g., 24-hour/12-hour, Berlin-clock

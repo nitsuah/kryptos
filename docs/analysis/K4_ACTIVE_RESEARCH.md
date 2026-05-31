@@ -209,8 +209,6 @@ Position  73: K   ← end of CLOCK
 | `CONTRIBUTING.md` | `'NORTHEAST': [25]` in positional_cribs | Should be `[26]` |
 | `CONTRIBUTING.md` | `'BERLIN': [64]` in positional_cribs | Should be `[63]` |
 | `docs/analysis/K4-CLOCKS.html` | States NYPVTTMZF at "positions 26–34" | NYPVTTMZF is at 0-indexed 63–71; cipher at 26–34 is QPRNGKSSO |
-| `docs/INDEX.md` | Links to `K4-theories.md` | File is `K4-T1.md` |
-| `docs/INDEX.md` | Links to `k4_clock_cipher_framework.html` | File is `K4-CLOCKS.html` |
 
 ---
 

@@ -43,3 +43,5 @@ _Completed: 2026-05-30_
 ---
 
 For historical governance notes, see docs/archive/ and AUDIT files.
+In the future this process should fully expand to include more audit coverage of features and functional changes as well as cleanup and refactoring guidance.
+Update this doc accordingly to keep improving this repo via ROADMAP and TASKS.

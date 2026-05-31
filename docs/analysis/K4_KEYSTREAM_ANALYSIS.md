@@ -244,5 +244,5 @@ These also look high-entropy under pure Vigenère, consistent with the composite
 - [`docs/analysis/K4-CLOCKS.html`](K4-CLOCKS.html) — Clock-based composite cipher theories (note: position labels for NORTHEAST in that document are incorrect; see Section 1 above)
 - [`docs/analysis/K4-T1.md`](K4-T1.md) — Physical-geometric resolver specification with toggle matrix
 - [`docs/sources/CLOCK.md`](../sources/CLOCK.md) — World Clock geographic interpretation
-- [`docs/sources/SANBORN.md`](../sources/SANBORN.md) — Sanborn clue research checklist
+- [`docs/sources/SANBORN-summary.md`](../sources/SANBORN-summary.md) — Sanborn clue research checklist
 - [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](30_YEAR_GAP_COVERAGE.md) — Classical cipher coverage assessment

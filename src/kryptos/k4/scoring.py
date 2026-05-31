@@ -10,8 +10,9 @@ from collections.abc import Iterable, Sequence
 from functools import lru_cache
 from pathlib import Path
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
+NGRAMS_DIR = os.path.join(DATA_DIR, 'ngrams')
 CONFIG_PATH = os.path.join(ROOT_DIR, 'config', 'config.json')
 
 
@@ -77,14 +78,14 @@ def _load_wordlist(path: str) -> set[str]:
     return words
 
 
-LETTER_FREQ: dict[str, float] = _load_letter_freq(os.path.join(DATA_DIR, 'letter_freq.tsv'))
-BIGRAMS: dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'bigrams.tsv'))
-TRIGRAMS: dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'trigrams.tsv'))
-_quad_hi_path = os.path.join(DATA_DIR, 'quadgrams_high_quality.tsv')
+LETTER_FREQ: dict[str, float] = _load_letter_freq(os.path.join(NGRAMS_DIR, 'letter_freq.tsv'))
+BIGRAMS: dict[str, float] = _load_ngrams(os.path.join(NGRAMS_DIR, 'bigrams.tsv'))
+TRIGRAMS: dict[str, float] = _load_ngrams(os.path.join(NGRAMS_DIR, 'trigrams.tsv'))
+_quad_hi_path = os.path.join(NGRAMS_DIR, 'quadgrams_high_quality.tsv')
 if os.path.exists(_quad_hi_path):
     QUADGRAMS: dict[str, float] = _load_ngrams(_quad_hi_path)
 else:
-    QUADGRAMS: dict[str, float] = _load_ngrams(os.path.join(DATA_DIR, 'quadgrams.tsv'))
+    QUADGRAMS: dict[str, float] = _load_ngrams(os.path.join(NGRAMS_DIR, 'quadgrams.tsv'))
 
 CRIBS: list[str] = _load_config_cribs(CONFIG_PATH)
 WORDLIST: set[str] = _load_wordlist(os.path.join(DATA_DIR, 'wordlist.txt'))
