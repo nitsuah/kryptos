@@ -1,5 +1,8 @@
 # K4 Active Research State
 
+Breadcrumb: Home > Docs > Analysis > K4 Active Research
+
+
 **Last Updated:** 2026-05-31  
 **Status:** Living document — update after each meaningful run or finding
 

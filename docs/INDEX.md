@@ -1,5 +1,11 @@
 # Kryptos Docs Index
 
+Breadcrumb: Home > Docs > Index
+
+
+Breadcrumb: Home > Docs > Index
+
+
 This is the traversal map for humans and AI agents.
 
 ## Start Here

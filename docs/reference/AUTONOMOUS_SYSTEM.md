@@ -1,5 +1,8 @@
 # Autonomous Cryptanalysis System
 
+Breadcrumb: Home > Docs > Reference > Autonomous System
+
+
 _Last updated: 2026-05-31_
 
 ## Overview

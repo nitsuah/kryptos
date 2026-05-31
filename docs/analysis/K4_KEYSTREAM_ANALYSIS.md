@@ -1,5 +1,8 @@
 # K4 Keystream Analysis — Confirmed Period-13 Window
 
+Breadcrumb: Home > Docs > Analysis > Keystream
+
+
 **Status:** Active research finding  
 **Last Updated:** 2026-05-25  
 **Evidence Level:** High — derived directly from Sanborn's confirmed cribs against the K4 ciphertext

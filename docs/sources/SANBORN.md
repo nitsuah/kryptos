@@ -1,5 +1,8 @@
 # Jim Sanborn — notes and research pointers
 
+Breadcrumb: Home > Docs > Sources > Sanborn
+
+
 This note collects what is publicly known or widely reported about Jim Sanborn (the sculptor who created the Kryptos
 piece), the kinds of clues he has given publicly, and pragmatic next steps for researching artist-level hints that might
 inform K4 hypotheses.

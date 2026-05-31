@@ -458,6 +458,13 @@ class OpsStrategicDirector:
                 kb[category_map[category]].append(entry)
             return kb
         except Exception:
+            kb_file = self.cache_dir / "strategy_kb.json"
+            if kb_file.exists():
+                try:
+                    with open(kb_file) as f:
+                        return json.load(f)
+                except Exception:
+                    pass
             return {"successful_strategies": [], "failed_strategies": [], "lessons_learned": []}
 
     def _save_decision(self, decision: StrategicDecision):

@@ -1,5 +1,8 @@
 # Governance and Maintenance Notes
 
+Breadcrumb: Home > Docs > Governance
+
+
 _Last updated: 2026-05-30_
 
 

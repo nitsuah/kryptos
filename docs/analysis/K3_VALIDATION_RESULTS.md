@@ -1,5 +1,8 @@
 # K3 Autonomous Solving Validation Results
 
+Breadcrumb: Home > Docs > Analysis > K3 Validation
+
+
 **Date:** May 24, 2026 **Validation:** Monte Carlo testing of SA solver for columnar transposition
 
 ## Executive Summary

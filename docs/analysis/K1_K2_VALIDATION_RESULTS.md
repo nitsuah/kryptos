@@ -1,5 +1,8 @@
 # K1/K2 Autonomous Recovery Validation Results
 
+Breadcrumb: Home > Docs > Analysis > K1-K2 Validation
+
+
 **Date:** May 24, 2026 **Validation:** Monte Carlo testing (50 runs each)
 
 ## Executive Summary

@@ -1,5 +1,8 @@
 # K1-K3 PATTERN ANALYSIS REPORT
 
+Breadcrumb: Home > Docs > Analysis > K1-K3 Patterns
+
+
 Generated: 2025-10-25 01:20:57
 
 ## Overview

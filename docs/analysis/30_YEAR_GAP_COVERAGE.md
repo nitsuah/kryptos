@@ -1,5 +1,8 @@
 # 30-YEAR GAP COVERAGE ANALYSIS
 
+Breadcrumb: Home > Docs > Analysis > 30-Year Gap
+
+
 **Assessment Date:** October 25, 2025 — _Updated: 2026-05-31_ **Scope:** Pre-1990 Classical Cryptography (Kryptos Era)
 
 > **2026-05-31 update:** ADFGVX (`kryptos.k4.adfgvx`) and Nihilist (`kryptos.k4.nihilist`) are now implemented and exposed in the public API. Beaufort is also implemented (`kryptos.k4.beaufort`). Fractionating cipher coverage and the composite coverage table below have been updated accordingly.

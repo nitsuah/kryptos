@@ -51,7 +51,8 @@ def _load_ciphertext(cipher_path: Path | None, section: str = 'K4') -> str:
     if cipher_path is not None:
         with open(cipher_path, encoding='utf-8') as fh:
             return fh.read().strip()
-    config_path = Path(__file__).parent.parent.parent.parent / 'config' / 'config.json'
+    from kryptos.paths import get_repo_root
+    config_path = get_repo_root() / 'config' / 'config.json'
     with open(config_path, encoding='utf-8') as fh:
         return json.load(fh)['ciphertexts'][section]
 

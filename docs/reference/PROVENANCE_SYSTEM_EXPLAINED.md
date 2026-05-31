@@ -1,5 +1,8 @@
 # Provenance and Search-Space Tracking
 
+Breadcrumb: Home > Docs > Reference > Provenance
+
+
 _Last updated: 2026-05-31_
 
 ## Purpose

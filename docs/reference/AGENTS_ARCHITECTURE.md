@@ -1,5 +1,8 @@
 # Agents Architecture
 
+Breadcrumb: Home > Docs > Reference > Agents
+
+
 _Last updated: 2026-05-31_
 
 ## Purpose
