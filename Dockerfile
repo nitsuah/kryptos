@@ -7,7 +7,7 @@ FROM python:3.11-slim AS deps
 WORKDIR /app
 
 # Copy dependency and build files
-COPY requirements.txt ./
+COPY config/requirements.txt ./
 COPY pyproject.toml ./
 COPY src/ ./src/
 
@@ -47,7 +47,7 @@ COPY . .
 RUN chown -R appuser:appuser /app
 
 # Install dev requirements for test execution
-RUN pip install --no-cache-dir -r requirements-dev.txt
+RUN pip install --no-cache-dir -r config/requirements-dev.txt
 
 # Switch to non-root user
 USER appuser

@@ -277,25 +277,48 @@ class SpyWebIntel:
         return True
 
     def _load_cache(self):
-        cache_file = self.cache_dir / "cribs.json"
-        if cache_file.exists():
-            try:
-                with open(cache_file) as f:
-                    data = json.load(f)
-                    self.discovered_cribs = [
-                        CribCandidate(
-                            text=c["text"],
-                            confidence=c["confidence"],
-                            source=c["source"],
-                            context=c["context"],
-                            discovered_date=datetime.fromisoformat(c["discovered_date"]),
-                            category=c["category"],
-                            metadata=c.get("metadata", {}),
-                        )
-                        for c in data
-                    ]
-            except Exception as e:
-                print(f"Failed to load cache: {e}")
+        try:
+            from kryptos.db import get_conn
+            with get_conn() as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT text, confidence, source, context, created_at, category FROM discovered_cribs ORDER BY id"
+                )
+                rows = cur.fetchall()
+            self.discovered_cribs = [
+                CribCandidate(
+                    text=text,
+                    confidence=confidence,
+                    source=source,
+                    context=context or "",
+                    discovered_date=created_at,
+                    category=category or "",
+                    metadata={},
+                )
+                for text, confidence, source, context, created_at, category in rows
+            ]
+        except Exception as e:
+            print(f"Failed to load cribs from DB: {e}")
+            # Fall back to local JSON cache if DB is unavailable
+            cache_file = self.cache_dir / "cribs.json"
+            if cache_file.exists():
+                try:
+                    with open(cache_file) as f:
+                        data = json.load(f)
+                        self.discovered_cribs = [
+                            CribCandidate(
+                                text=c["text"],
+                                confidence=c["confidence"],
+                                source=c["source"],
+                                context=c["context"],
+                                discovered_date=datetime.fromisoformat(c["discovered_date"]),
+                                category=c["category"],
+                                metadata=c.get("metadata", {}),
+                            )
+                            for c in data
+                        ]
+                except Exception as e2:
+                    print(f"Failed to load cribs from local cache: {e2}")
 
         hashes_file = self.cache_dir / "processed_hashes.json"
         if hashes_file.exists():
@@ -306,26 +329,41 @@ class SpyWebIntel:
                 print(f"Failed to load processed hashes: {e}")
 
     def _save_cache(self):
-        cache_file = self.cache_dir / "cribs.json"
         try:
-            data = [
-                {
-                    "text": c.text,
-                    "confidence": c.confidence,
-                    "source": c.source,
-                    "context": c.context,
-                    "discovered_date": c.discovered_date.isoformat(),
-                    "category": c.category,
-                    "metadata": c.metadata,
-                }
-                for c in self.discovered_cribs
-            ]
-
-            with open(cache_file, "w") as f:
-                json.dump(data, f, indent=2)
-
+            from kryptos.db import get_conn
+            with get_conn() as conn:
+                cur = conn.cursor()
+                for c in self.discovered_cribs:
+                    cur.execute(
+                        """INSERT INTO discovered_cribs (text, source, confidence, category, context)
+                           VALUES (%s, %s, %s, %s, %s)
+                           ON CONFLICT (text) DO UPDATE
+                               SET confidence = EXCLUDED.confidence,
+                                   source     = EXCLUDED.source,
+                                   category   = EXCLUDED.category,
+                                   context    = EXCLUDED.context""",
+                        (c.text, c.source, c.confidence, c.category or None, c.context or None),
+                    )
         except Exception as e:
-            print(f"Failed to save cache: {e}")
+            print(f"Failed to save cribs to DB ({e}), falling back to local cache")
+            cache_file = self.cache_dir / "cribs.json"
+            try:
+                data = [
+                    {
+                        "text": c.text,
+                        "confidence": c.confidence,
+                        "source": c.source,
+                        "context": c.context,
+                        "discovered_date": c.discovered_date.isoformat(),
+                        "category": c.category,
+                        "metadata": c.metadata,
+                    }
+                    for c in self.discovered_cribs
+                ]
+                with open(cache_file, "w") as f:
+                    json.dump(data, f, indent=2)
+            except Exception as e2:
+                print(f"Failed to save local cache: {e2}")
 
         hashes_file = self.cache_dir / "processed_hashes.json"
         try:

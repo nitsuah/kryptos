@@ -1,5 +1,8 @@
 # K4 Keystream Analysis — Confirmed Period-13 Window
 
+Breadcrumb: Home > Docs > Analysis > Keystream
+
+
 **Status:** Active research finding  
 **Last Updated:** 2026-05-25  
 **Evidence Level:** High — derived directly from Sanborn's confirmed cribs against the K4 ciphertext
@@ -147,61 +150,35 @@ The core attack strategy: if we can identify the correct transposition permutati
 
 ---
 
-## 7. Next Attack Vectors
+## 7. Attack Vectors — Status
 
-### 7.1 Inverse Transposition Sweep
+### ✅ 7.1 Inverse Transposition Sweep — COMPLETE, NULL RESULT
 
-Test geometric transposition grids and reading paths, compute what the keystream looks like after inverting each transposition:
+`kryptos.k4.inverse_transposition_sweep.full_sweep` tested all 3 grid geometries (10×10, 7×14, 8×13) with ENE diagonal (67.5°) and columnar routes. No transposition permutation produced a recognizable keystream at EAST+NORTHEAST positions.
 
-**Grid candidates (97 chars → padded)**:
-- 10×10 = 100 slots (3 null padding)
-- 7×14 = 98 slots (1 null padding)
-- 8×13 = 104 slots (7 null padding)
+### ✅ 7.2 Keyed Alphabet Realignment — COMPLETE, NULL RESULT
 
-**Reading path**: ENE diagonal at angle 67.5° (tan ≈ 2.414). For every 1 row down, column pointer advances ≈ 2.4 slots, wrapping at grid width.
+`check_keyed_alphabet_realignment` tested KRYPTOS, PALIMPSEST, and ABSCISSA alphabets. The effective keystream at positions 22–34 does not resolve to a recognizable pattern (clock state, keyword, or bounded-value vector) under any of them.
 
-**Success criterion**: After applying P⁻¹, the keystream at EAST+NORTHEAST positions reduces to a recognizable pattern — a valid Berlin Clock vector, a Vigenère key word, or a keyed-alphabet sequence.
+### ✅ 7.3 InstructionalScorer — COMPLETE
 
-### 7.2 Keyed Alphabet Realignment
+`kryptos.k4.scoring_instructional` — `instructional_score`, `combined_instructional_score`, `entropy_gate`. Integrated into the composite sweep scoring pipeline.
 
-Standard Vigenère assumes A=0, B=1, …, Z=25. If a keyed alphabet is applied first, the modular delta between cipher and plain changes entirely.
+### ✅ 7.4 Full Composite Sweep (Clock × Grid × Alphabet) — COMPLETE, NULL RESULT
 
-**Alphabets to test**:
-- `KRYPTOSABCDEFGHIJLMNQUVWXZ` (K1/K2 keyed alphabet)
-- `PALIMPSESTABCDFGHJKNOQRUVWXYZ` (K1 Vigenère keyword alphabet)
-- `ABSCISSADEFGHJKLMNOPQRTUVWXYZ` (K2 Vigenère keyword alphabet)
+`run_composite_sweep` — 3 alphabets × 3 grids × 720 clock states × ENE+columnar routes. No simultaneous 4-crib match found. Null artifact: `K4_COMPOSITE_SWEEP_NULL.json`. Best candidates had ≤ 1 keyword hit.
 
-For each keyed alphabet, re-derive the effective keystream at positions 22–34. If the result maps to a valid clock state or a recognizable keyword, the keyed alphabet is the correct alphabet layer.
+### ❌ 7.5 Clock → Hill 2×2 Invertibility Pre-filter — NOT YET RUN
 
-### 7.3 InstructionalScorer
+The composite sweep uses clock values as Vigenère shifts. The specific attack of using a clock state's first 4 lamp values as a Hill 2×2 matrix key (filtering to the ~100 invertible states first) has not been implemented or run. See TASKS.md.
 
-Standard quadgram scoring penalizes imperative/instructional plaintext (coordinates, compass directions, action verbs). Since K4 likely contains instructions referencing the CIA grounds, deploy a vocabulary-boosted scorer:
+### ❌ 7.6 Non-standard Clock Encodings — NOT YET RUN
 
-```python
-INSTRUCTIONAL_VECTORS = {
-    "cardinal":     ["NORTH", "SOUTH", "EAST", "WEST", "NORTHEAST", ...],
-    "spatial":      ["BETWEEN", "UNDER", "ABOVE", "SHADOW", "LINES", ...],
-    "measurement":  ["FEET", "DEGREES", "MINUTES", "SECONDS", ...],
-    "imperative":   ["LOOK", "GO", "TURN", "DIG", "FIND", "SEEK", ...]
-}
-```
+Current sweep only tests `full_berlin_clock_shifts` (all 4 lamp rows concatenated). Sub-row encodings (hour rows only, minute rows only, row sums → letter) not tested. See TASKS.md.
 
-Use Levenshtein distance ≤ 1 to catch Sanborn-style misspellings.
+### ❌ 7.7 Beaufort Cipher Sweep — NOT YET RUN
 
-### 7.4 Clock State × Keyed-Alphabet × Grid Composite (Full Sweep)
-
-Combined search space:
-
-| Parameter            | Options                         | Count |
-|---------------------|---------------------------------|-------|
-| Alphabet             | linear, KRYPTOS, PALIMPSEST    | 3     |
-| Grid geometry        | 10×10, 7×14, 8×13              | 3     |
-| ENE diagonal angle   | exact 67.5°, ±5° variants      | 3     |
-| Berlin Clock states  | all 720 invertible Hill states  | ~100  |
-
-Total: 3 × 3 × 3 × 100 ≈ **2,700 combinations**. At ~1ms each, this is a sub-3-second sweep.
-
-Validate each combination against EAST+NORTHEAST crib at confirmed positions, then also check BERLIN+CLOCK at positions 63–73.
+`kryptos.k4.beaufort` is implemented but no systematic sweep against K4 has been run. See TASKS.md.
 
 ---
 
@@ -231,11 +208,13 @@ These also look high-entropy under pure Vigenère, consistent with the composite
 
 ## 9. Open Questions
 
-1. What transposition permutation P maps the scattered EAST+NORTHEAST characters back to positions whose keystream forms a clean key?
-2. Does a keyed alphabet (KRYPTOS or PALIMPSEST) make the keystream resolve to a Berlin Clock reading or other structured value?
-3. Is the ENE diagonal at exactly 67.5° the correct geometric reading path, or are variations (e.g., true column-major, route transposition) more likely?
-4. Does the BERLIN+CLOCK window keystream (MUYKLGKORNA) become recognizable after the same transposition reversal that unlocks EAST+NORTHEAST?
-5. Could the "five or six techniques" include: keyed-alphabet + Vigenère + transposition + null padding + Berlin Clock offset + intentional misspelling?
+1. ~~What transposition permutation P maps EAST+NORTHEAST to a recognizable keystream?~~ — Tested: no such permutation found in the grid+route space explored. Either the transposition is not grid-based, or the substitution layer is not Vigenère-equivalent.
+2. ~~Does a keyed alphabet make the keystream structured?~~ — Tested KRYPTOS/PALIMPSEST/ABSCISSA: null result. If a keyed alphabet is involved, it's one not yet tried.
+3. ~~Is the ENE diagonal the correct reading path?~~ — Tested in full sweep alongside columnar: null result for both. ENE diagonal is not the sole transposition mechanism under the assumptions tested.
+4. **Does the BERLIN+CLOCK keystream (MUYKLGKORNA) become recognizable after the same transposition reversal?** — Not yet tested in isolation. The full sweep validated all 4 cribs simultaneously but did not report partial 2-crib matches at BERLIN+CLOCK positions specifically.
+5. **Could the clock be used as a Hill matrix key rather than a Vigenère key?** — Not tested. The ~100 invertible clock states as Hill 2×2 keys is the highest-priority untested attack.
+6. **Are there non-standard clock encodings** (sub-row, row sums, hour-only) that produce a structured key? — Not tested.
+7. **Beaufort cipher** — implemented but not swept against K4. Reciprocal nature means it could be what makes standard Vigenère reverse-analysis fail.
 
 ---
 
@@ -244,5 +223,5 @@ These also look high-entropy under pure Vigenère, consistent with the composite
 - [`docs/analysis/K4-CLOCKS.html`](K4-CLOCKS.html) — Clock-based composite cipher theories (note: position labels for NORTHEAST in that document are incorrect; see Section 1 above)
 - [`docs/analysis/K4-T1.md`](K4-T1.md) — Physical-geometric resolver specification with toggle matrix
 - [`docs/sources/CLOCK.md`](../sources/CLOCK.md) — World Clock geographic interpretation
-- [`docs/sources/SANBORN.md`](../sources/SANBORN.md) — Sanborn clue research checklist
+- [`docs/sources/SANBORN-summary.md`](../sources/SANBORN-summary.md) — Sanborn clue research checklist
 - [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](30_YEAR_GAP_COVERAGE.md) — Classical cipher coverage assessment

@@ -25,7 +25,24 @@ python -m kryptos.cli.main autonomous --max-hours 24 --cycle-interval 5
 
 Contributor operating standards and workflow expectations are consolidated in `CONTRIBUTING.md`.
 
-## Kryptos Manifesto
+
+## Repository Structure
+
+The repository is organized for clarity, reproducibility, and future migration to a database-backed architecture. Key folders and files:
+
+- **artifacts/**: Runtime outputs, logs, reports, and temporary artifacts (not git-tracked; will eventually migrate to DB, but required for now)
+- **config/**: Configuration files (config.json, subfolders for meta_coordinator, ops_strategy, etc.). Consider moving root-level config/test/lint files here if tool support allows.
+- **data/**: Static resources for scoring and analysis (n-gram tables, ciphertext, etc.). Will be replaced by DB in 2027.
+- **docs/**: All documentation, analysis, reference, and archive. May migrate to DB for dynamic docs in the future, but static docs remain valuable.
+- **scripts/**: Utility scripts for linting, cleanup, and testing. To be audited and centralized for reusability.
+- **src/**: Main source code. To be reorganized after other cleanup.
+- **tests/**: Test suite. Reorganization planned after repo cleanup.
+- **Root files**: Project metadata, requirements, Docker, and key documentation. Some config/test/lint files may move to config/ if supported.
+
+**Planned migrations:**
+- Data and artifacts will move to a database as part of 2027 work.
+- Documentation may be dynamically served from a DB in the future.
+
 
 Kryptos is a long-horizon cryptanalysis program, not a promise machine.
 

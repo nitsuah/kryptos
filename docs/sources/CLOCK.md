@@ -1,5 +1,8 @@
 # The World Clock (Weltzeituhr) in Kryptos K4
 
+Breadcrumb: Home > Docs > Sources > Clock
+
+
 In the context of Jim Sanborn's Kryptos K4 puzzle, the World Clock (Weltzeituhr) is not used as a complex math engine, but rather as a highly tactile, physical, and historical key. When Sanborn formally clarified that the "BERLINCLOCK" clue explicitly pointed to the World Clock, codebreakers and journalists—including those who recently reviewed his original Smithsonian coding scraps—identified how its specific attributes translate cryptographically:
 
 1. Geographic Alignment & Vector Keys

@@ -1,102 +1,70 @@
-
 # 🗺️ Kryptos Roadmap
 
-Last Updated: 2026-05-30
-Next Review: 2026-06-30
+Last Updated: 2026-06-01
+Next Review: 2026-07-01
+---
 
+## Untested K4 Attack Vectors 🎯
 
-## Q1 2026: Foundation (Completed) 🚀
-- [x] Deliver the modular K4 analysis toolkit and composite scoring pipeline
-- [x] Add broad automated test coverage with fast and slow partitions
-- [x] Add provenance, attempt logging, and repeatable scoring utilities
-- [x] Add segmented CI validation
+> These are the highest-priority items before broader infrastructure work. All prior Q3/Q4 sweeps produced null results; these are the remaining untested angles. Each is small and targeted.
 
+- [ ] **Clock → Hill 2×2 invertibility pre-filter** — For each of 720 clock states form a 2×2 matrix from the first 4 lamp values, filter to the ~100 invertible mod 26, apply Hill 2×2 decryption to K4, validate EAST+NORTHEAST. Clock and Hill have only been tested independently so far.
+- [ ] **4-char clock key → Vigenère with NORTHEAST anchor** — Derive a 4-char Vigenère key from each clock state (not the full shift sequence), test with `positional_crib_bonus` gating on NORTHEAST at position 26. Several clock→4-char encoding schemes to try.
+- [ ] **Non-standard Berlin Clock sub-row encodings** — Hour rows only, minute rows only, row sums → letter. Current sweep only uses `full_berlin_clock_shifts` (all 4 rows concatenated).
+- [ ] **Berlin Clock lamp counts as transposition column widths** — Use lamp values (e.g. [4,3,11,4]) as column widths for a multi-round columnar transposition, not Vigenère shifts.
+- [ ] **Beaufort cipher sweep** — `kryptos.k4.beaufort` is implemented; no systematic K4 sweep has run. Quick pass with KRYPTOS, PALIMPSEST, BERLIN, CLOCK, ABSCISSA keys.
 
-## Q2 2026: Coverage & Validation (Completed) ✅
-- [x] Fix the container runtime write-permission path
-- [x] Complete Phase 6.2 composite validation
-- [x] Wire manifesto alignment checks into PR cadence (signal, reproducibility, pruning)
-- [x] Improve targeted coverage in low-coverage modules and raise the CI test coverage gate
-- [x] Implement composite-chain execution support (`V→T`, `T→V`) plus chain hypothesis classes
-- [x] Add cross-run key-memory primitives (`SearchSpaceTracker` tried-key persistence + `skip_tried` path)
-- [x] Document confirmed period-13 keystream from EAST+NORTHEAST cribs (see `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`)
-- [x] Establish active research state doc and attack queue (see `docs/analysis/K4_ACTIVE_RESEARCH.md`)
+### Definition of Done
 
-## Q3 2026: K4 Structural Attack + Infrastructure (Completed) ✅
+- [ ] Each attack run with null-result artifact or `K4_BREAKTHROUGH_SNAPSHOT.md` if a match is found
+- [ ] Results recorded in `k4_research_findings` DB table and `docs/analysis/K4_ACTIVE_RESEARCH.md`
 
-- [x] Keystream validation utility (EAST+NORTHEAST lock, Vigenère shift computation)
-- [x] Inverse transposition sweep (all grid geometries, ENE diagonal, permutation inversion)
-- [x] Keyed alphabet realignment (KRYPTOS, PALIMPSEST, ABSCISSA)
-- [x] Full composite parameter sweep (alphabets × grids × angles × clock states)
-- [x] InstructionalScorer (vocabulary, Levenshtein, entropy)
-- [x] Eureka capture protocol (4-crib match, breakthrough snapshot, halt)
-- [x] CONTRIBUTING.md quick-start code index bugfixes
-- [x] Sections-decrypt CLI command for K1/K2/K3
-- [x] Structured JSON output for section verification
-- [x] Section API end-to-end regression harness
-- [x] Alphabet auto-selection defaulted in CLI and orchestrators
-- [x] Transposition plaintext extraction fix in campaign orchestrator
-- [x] Robust autonomous NLP dependency handling (spaCy/NLTK/transformers optional)
-- [x] Objective-to-evidence scorecard and evidence gate
-- [x] Fresh-environment autonomous smoke validation gate
-- [x] The composite sweep and all attack modules are validated by tests and CI. No simultaneous 4-crib match has been found as of this release; null results are documented with full provenance.
+---
 
-### Q3 Definition of Done
-- [x] All K4-ATTACK-1 through K4-ATTACK-7 and infrastructure/CLI items implemented and passing tests
-- [x] The composite sweep has run on at least one full 720-state clock enumeration × 3 grids × 3 alphabets
-- [x] No simultaneous 4-crib match found → documented with artifact evidence
-- [x] If a match IS found → `K4_BREAKTHROUGH_SNAPSHOT.md` exists with full parameter trace
+## Q1 2027: Dashboard, API & Final Push 🖥️
 
+### Phase 1 — K4 Attack completion
+- [ ] All five untested attack vectors above completed and documented
 
-## Q4 2026: Extended Search & Adaptive Strategy ✅ (Completed 2026-05-30)
+### Phase 2 — Dashboard & UI
 
-### 1. 3-Layer Composite Attacks
-- [x] S→T→S chain: `CompositeChainExecutor.substitution_then_transposition_then_substitution()` in `composite.py`
-- [x] Eureka early-stop wired into S→T→S chain via optional `eureka_snapshot_path` param
-- [x] Validated via `tests/test_composite_3layer.py` (8 tests)
+- [ ] See `docs/analysis/K4-FRONTEND.md` for full spec. Stack: FastAPI + React SPA, single Docker container, Neon DB (not SQLite — the spec's schema is superseded by existing Neon tables).
+- [ ] **Ops Center** — live campaign monitoring, agent status row (SPY/OPS/Q), top fused candidates table, letter frequency chart, live log tail via SSE
+- [ ] **K1–K3 Animated Decoder** — step-by-step visual explainer of how each solved section was encrypted and cracked
+- [ ] **K4 Attack Dashboard** — real-time pipeline progress, scoring breakdowns, evidence artifact viewer
+- [ ] **Vault** — demo encrypt/decrypt interface for all supported ciphers with TTL and read-count enforcement
 
-### 2. Fractionating Ciphers
-- [x] ADFGVX: `src/kryptos/k4/adfgvx.py` — 6×6 Polybius square + ragged-last-row columnar transposition
-- [x] Nihilist: `src/kryptos/k4/nihilist.py` — 5×5 Polybius square + running numeric key
-- [x] Both exposed via `kryptos.k4` public API and tested (11 tests each)
+### Phase 3 — API
+- [ ] **REST API** (`/api/status`, `/api/candidates`, `/api/runs`, `/api/stream/logs`, `POST /api/decrypt`)
+- [ ] **`strategy_kb` write path** — automate writing successful/failed strategies from `OpsStrategicDirector` back to Neon
+- [ ] **Candidate & run storage** — `candidates` and `campaign_runs` tables in Neon (currently file-based under `artifacts/`)
 
-### 3. Adaptive/ML-Driven Strategies
-- [x] `SearchSpaceTracker.get_priority_recommendations()` — diversity bonus + first-type boost heuristics
-- [x] Integrated into `keyspace-stats` CLI for actionable output
+### Phase 4 — Validation & hardening
+- [ ] **K3 double-transposition Monte Carlo** — full double-rotational K3 algorithm not yet statistically validated (only single-column SA solver has been)
+- [ ] **Stress tests for K1/K2** — test with noise, wrong key lengths, partial ciphertext
 
-### 4. Visualization & Coverage Intelligence
-- [x] `keyspace-stats` CLI subcommand — ASCII bar heatmap, priority table, `--json` machine-readable mode
+### Phase 5 — Post-solution
+- [ ] **Solution documentation** — once K4 is solved: full attack path, key insights, solution narrative
+- [ ] **README and docs update** — reflect the solution and its cryptanalytic implications
 
-### 5. Cross-Run Memory & Reliability Gates
-- [x] `SearchSpaceTracker.already_tried_fuzzy(tol=1)` — Levenshtein near-miss deduplication
-- [x] K1/K2/K3 deterministic reliability gates — `tests/test_k1_k2_k3_reliability.py` (23 tests, verifies Sanborn misspellings)
+---
 
-### 6. Q4 Phase 6 Workstreams — Completed
-- [x] Learning and adaptation loop: `get_priority_recommendations()` with coverage/success heuristics
-- [x] Search-space intelligence: `already_tried_fuzzy()` near-miss dedup; `keyspace-stats` heatmap
-- [x] Composite chain quality: S→T→S chain + Eureka early-stop rules
-- [x] Validation expansion: K1/K2/K3 reliability gates + SECTIONS registry tests
-- [x] Production hardening: no deprecated/TODO markers found in source (confirmed 2026-05-30)
+## Agent Module Review (Post-K4, Pre-GUI)
 
-### Q4 Definition of Done
-- [x] All Q4 items shipped with tests (811 passing, 0 failures as of 2026-05-30)
-- [x] ADFGVX and Nihilist available via `from kryptos.k4 import adfgvx_encrypt, nihilist_encrypt`
-- [x] `keyspace-stats` CLI usable: `python -m kryptos.cli.main keyspace-stats --top-n 5`
-- [x] S→T→S chain available: `CompositeChainExecutor().substitution_then_transposition_then_substitution(...)`
+- [ ] Review, refactor, or remove optional/partial agent modules in `src/kryptos/agents/`:
+    - `spy_nlp.py`
+    - `spy_web_intel.py`
+    - `linguist.py`
+    - `ops_director.py`
+- [ ] Decide if these modules are needed, should be modernized, or can be dropped entirely.
+- [ ] Document outcome and update architecture docs as needed.
 
-
-## Q1 2027 and Beyond: Final Push & Post-Solution Analysis 🎯
-
-- [ ] Add a GUI/cli dashboard for real-time campaign monitoring, evidence review, and dynamic reprioritization
-    - [ ] K1–K3 Decoder: input ciphertext + key → plaintext with marker annotations and instructions on how it was encoded and how we hack it
-    - [ ] K4 Attack Dashboard: real-time view of campaign progress, scoring breakdowns, and evidence artifacts
-    - [ ] Vault - a basic encrypt/decrypt interface for demonstrating different stored concepts of encryption and decryption (e.g. transposition, Vigenère shifts, fractionating ciphers). showing how each tool in our toolbox works.
-- [ ] Add Database and interaction API for storing data about keys, plaintexts, attempts, and provenances in a structured way for easier querying and analysis.
-- [ ] Post-solution analysis and documentation: once the solution is found, conduct a thorough analysis of the attack path, key insights, and lessons learned; document these in a comprehensive report and update the README and other docs to reflect the solution narrative and its implications for cryptanalysis and later publishing.
-- [ ] See `docs/analysis/K4-FRONTEND.md`
-
+---
 
 ## Working Notes
-- Active planning is tracked in `ROADMAP.md`, `TASKS.md`, and monthly governance notes in `docs/governance.md`.
-- K4 attack context and findings: `docs/analysis/K4_ACTIVE_RESEARCH.md`
+
+- Active task backlog: `TASKS.md`
+- K4 attack context and null results: `docs/analysis/K4_ACTIVE_RESEARCH.md`
 - Confirmed keystream analysis: `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`
+- Frontend spec: `docs/analysis/K4-FRONTEND.md`
+- Monthly governance log: `docs/governance.md`

@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 from types import SimpleNamespace
 from kryptos.pipeline.k4_campaign import K4CampaignOrchestrator
-from tests.test_multiproc_helpers import AttackGenTestHelper
+from tests.functional.test_multiproc_helpers import AttackGenTestHelper
 
 def _warn_noop(*_args, **_kwargs):
     pass
