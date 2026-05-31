@@ -1,6 +1,8 @@
 # 30-YEAR GAP COVERAGE ANALYSIS
 
-**Assessment Date:** October 25, 2025 **Scope:** Pre-1990 Classical Cryptography (Kryptos Era)
+**Assessment Date:** October 25, 2025 — _Updated: 2026-05-31_ **Scope:** Pre-1990 Classical Cryptography (Kryptos Era)
+
+> **2026-05-31 update:** ADFGVX (`kryptos.k4.adfgvx`) and Nihilist (`kryptos.k4.nihilist`) are now implemented and exposed in the public API. Beaufort is also implemented (`kryptos.k4.beaufort`). Fractionating cipher coverage and the composite coverage table below have been updated accordingly.
 
 ---
 
@@ -16,10 +18,10 @@
 | **Matrix Ciphers (Hill)** | 100% | HIGH | NONE |
 | **Composite Ciphers (2-layer)** | 85% | HIGH | LOW |
 | **Polygraphic Ciphers** | 90% | MEDIUM | MEDIUM |
-| **Fractionating Ciphers** | 30% | LOW | HIGH |
+| **Fractionating Ciphers** | 80% | HIGH | LOW |
 | **Composite Ciphers (3+ layers)** | 0% | N/A | MEDIUM |
 
-**Bottom Line:** If K4 uses standard cryptographic techniques from Sanborn's era, we have excellent coverage. Main gap is obscure WWI/WWII ciphers (ADFGVX, Nihilist, etc.) which are less likely given K1-K3 progression.
+**Bottom Line:** If K4 uses standard cryptographic techniques from Sanborn's era, we have excellent coverage. ADFGVX, Nihilist, and Beaufort are now implemented; remaining fractionating gaps (ADFGX, Straddle Checkerboard, Bazeries) are low-probability given K1–K3 progression.
 
 ---
 
@@ -120,7 +122,7 @@ it as special case).
 | **Double Transposition** | ✅ | ~5K combos (width pairs) | K3 double-rotate suggests this |
 | **Vigenère → Hill** | ✅ | ~2K combos (20 Vig × 100 Hill) | Poly then matrix |
 | **Vigenère → Substitution** | ❌ | Not implemented | Low utility (both are substitution) |
-| **Fractionating → Transposition** | ❌ | Missing ADFGVX, Nihilist | WWI-era combos |
+| **Fractionating → Transposition** | ✅ | ADFGVX + Nihilist implemented | WWI-era combos |
 
 **Why Moderate:** We have all logical 2-layer combinations EXCEPT fractionating ciphers (see next section). Sanborn confirmed "five or six techniques" which suggests multi-layer.
 
@@ -134,9 +136,9 @@ it as special case).
 
 | Cipher | Status | Era | Complexity | Likelihood for K4 |
 |--------|--------|-----|------------|-------------------|
-| **ADFGVX** | ❌ Missing | WWI (1918) | High (Polybius + columnar) | MEDIUM - German military, documented |
+| **ADFGVX** | ✅ Implemented | WWI (1918) | High (Polybius + columnar) | `kryptos.k4.adfgvx` |
 | **ADFGX** | ❌ Missing | WWI (1917) | High (5×5 grid + columnar) | LOW - Predecessor to ADFGVX |
-| **Nihilist** | ❌ Missing | Russian (1880s) | Medium (Polybius + numeric key) | MEDIUM - Russian espionage theme |
+| **Nihilist** | ✅ Implemented | Russian (1880s) | Medium (Polybius + numeric key) | `kryptos.k4.nihilist` |
 | **Straddle Checkerboard** | ❌ Missing | WWII (Soviet) | High (Variable-length encoding) | MEDIUM - Russian spies used this |
 | **Bazeries** | ❌ Missing | 1890s | Medium (Transposition + substitution) | LOW - Obscure |
 
@@ -244,7 +246,7 @@ fence, route ciphers (Ancient - 1900) 3. **Matrix:** Hill cipher (1929) 4. **Pol
 ### Coverage Assessment
 
 - ✅ **Techniques Sanborn likely knew:** 95%+ (textbook ciphers, NSA training material)
-- ⚠️ **Obscure historical ciphers:** 50% (WWI/WWII military - ADFGVX, Nihilist)
+- ✅ **Obscure historical ciphers:** 80% (ADFGVX, Nihilist, Beaufort now implemented)
 - ❌ **Novel inventions:** 0% (if Sanborn created unique cipher, we can't predict)
 
 ### The 30-Year Gap (1990-2020)

@@ -1,416 +1,390 @@
 # Kryptos Public API Reference
 
-Reference version: 2025-10-23
+_Last updated: 2026-05-31_
 
-Breadcrumb: Overview > API > Reference ---
+This document covers the stable, supported Python entry points and CLI subcommands. Items not listed here are internal and may change without notice.
 
-This document enumerates the stable, supported Python entry points and CLI subcommands. Items not listed here are
-considered internal and may change without notice.
+---
 
-## Stability Policy
+## Stability policy
 
-- Stable: Semantic compatibility guaranteed across minor versions (only additive changes).
-- Experimental: May change or be removed after one minor version; marked with warning in docstring.
-- Deprecated: Emits `DeprecationWarning`; scheduled removal appears in `DEPRECATIONS.md`.
+- **Stable** — Semantic compatibility guaranteed across minor versions (additive changes only).
+- **Experimental** — May change or be removed after one minor version.
+- **Deprecated** — Emits `DeprecationWarning`; removal schedule in docstring.
 
-## Python Modules
+---
+
+## Top-level entry point
+
+### `kryptos.k4.decrypt_best`
+
+```python
+from kryptos.k4 import decrypt_best, DecryptResult
+
+result: DecryptResult = decrypt_best(
+    ciphertext: str,
+    *,
+    strategy: str = "default",   # only "default" currently supported
+    limit: int = 50,
+    weights: dict[str, float] | None = None,
+    adaptive: bool = False,
+    report: bool = False,
+    report_dir: str = "reports",
+    try_all_alphabets: bool = False,
+)
+```
+
+`DecryptResult` fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `plaintext` | `str` | Best plaintext candidate |
+| `score` | `float` | Fused score of best candidate |
+| `candidates` | `list[dict]` | Top candidates after aggregation |
+| `profile` | `dict` | Stage durations and diagnostics |
+| `artifacts` | `dict \| None` | Artifact file paths (when `report=True`) |
+| `attempt_log` | `str \| None` | Path to attempt log |
+| `lineage` | `list[str] \| None` | Ordered stage names executed |
+| `metadata` | `dict \| None` | Strategy label, provenance hash |
+
+Default stage bundle: `masking → transposition-adaptive → transposition → berlin-clock`.
+
+---
+
+## Sections
+
+```python
+from kryptos.sections import SECTIONS   # dict[str, callable]
+from kryptos.k1 import decrypt as k1_decrypt
+from kryptos.k2 import decrypt as k2_decrypt
+from kryptos.k3 import decrypt as k3_decrypt
+```
+
+`SECTIONS` maps `{"K1": fn, "K2": fn, "K3": fn, "K4": fn}`. K1/K2 require a `key` argument; K3/K4 do not.
+
+---
+
+## K4 scoring
+
+All scoring functions accept a plain `str` (uppercase alpha assumed) and return `float` unless noted.
 
 ### Core
 
-- `kryptos.paths` — helpers for artifact directories, provenance hashing.
-- `kryptos.logging.setup_logging(level="INFO", logger_name=None, ...)` — set up a namespaced logger.
-
-### Sections
-
-- `kryptos.k1.decrypt(ciphertext: str, **opts) -> DecryptResult`
-- `kryptos.k2.decrypt(ciphertext: str, **opts) -> DecryptResult`
-- `kryptos.k3.decrypt(ciphertext: str, **opts) -> DecryptResult`
-- `kryptos.k4.decrypt_best(ciphertext: str, limit=25, adaptive=True, report=False) -> DecryptBatch`
-- `kryptos.sections.SECTIONS` mapping {"K1": fn, ...}
-
-### K4 Scoring
-
-- `kryptos.k4.scoring.combined_plaintext_score(plaintext: str) -> float`
-- `kryptos.k4.scoring.positional_letter_deviation_score(plaintext: str, period=5) -> float`
-- `kryptos.k4.scoring.combined_plaintext_score_extended(plaintext: str) -> float`
-- `kryptos.k4.scoring.composite_score_with_stage_analysis(stage1_plaintext, stage2_plaintext, stage1_score,
-
-stage2_score, stage1_weight=0.3, stage2_weight=0.7) -> dict`
-
-### K4 Hypotheses
-
-The hypothesis framework provides pluggable cipher implementations for K4 cryptanalysis. Each hypothesis class
-implements the `Hypothesis` protocol with a `generate_candidates()` method.
-
-#### Base Classes
-
-- `kryptos.k4.hypotheses.Hypothesis` (Protocol) — Abstract interface for all hypothesis implementations
-- `kryptos.k4.hypotheses.CompositeHypothesis` — Base class for chaining two hypotheses sequentially
-
-#### Single-Stage Hypotheses
-
-- `kryptos.k4.hypotheses.HillCipher2x2Hypothesis(limit=100)` — Hill cipher with 2x2 matrix (exhaustive key search)
-- `kryptos.k4.hypotheses.HillCipher3x3GeneticHypothesis(population_size=1000, generations=100, mutation_rate=0.1,
-
-elite_fraction=0.2)` — Hill cipher with 3x3 matrix (genetic algorithm for 26^9 keyspace)
-
-- `kryptos.k4.hypotheses.SimpleSubstitutionHypothesis(variants=28)` — Monoalphabetic substitution with frequency
-
-analysis
-
-- `kryptos.k4.hypotheses.VigenereHypothesis(max_key_length=15, candidates_per_length=10)` — Vigenère cipher with
-
-Kasiski/IOC analysis
-
-- `kryptos.k4.hypotheses.AutokeyHypothesis(max_key_length=12, candidates_per_length=10)` — Autokey variant of Vigenère
-- `kryptos.k4.hypotheses.PlayfairHypothesis(max_generations=50, population_size=100)` — Playfair cipher with genetic
-
-algorithm
-
-- `kryptos.k4.hypotheses.FourSquareHypothesis(max_generations=50, population_size=100)` — Four-square cipher with
-
-genetic algorithm
-
-- `kryptos.k4.hypotheses.BifidHypothesis(periods=[5,6,7,8,9,10], candidates_per_period=5)` — Bifid cipher with period
-
-search
-
-- `kryptos.k4.hypotheses.BerlinClockTranspositionHypothesis(widths=[5,6,7,8,10,12], limit_per_width=20)` — Columnar
-
-transposition constrained by Berlin Clock
-
-- `kryptos.k4.hypotheses.BerlinClockVigenereHypothesis(max_key_length=12, candidates_per_length=10)` — Vigenère
-
-constrained by Berlin Clock periods
-
-#### Composite (Two-Stage) Hypotheses
-
-- `kryptos.k4.hypotheses.TranspositionThenHillHypothesis(transposition_candidates=20, hill_limit=1000,
-
-transposition_widths=None)` — Transposition followed by Hill 2x2
-
-- `kryptos.k4.hypotheses.VigenereThenTranspositionHypothesis(vigenere_candidates=50, transposition_limit=100,
-
-vigenere_max_key_length=12, transposition_widths=None)` — Vigenère followed by transposition
-
-- `kryptos.k4.hypotheses.SubstitutionThenTranspositionHypothesis(substitution_variants=28, transposition_limit=100,
-
-transposition_widths=None)` — Substitution followed by transposition
-
-- `kryptos.k4.hypotheses.HillThenTranspositionHypothesis(hill_limit=1000, transposition_candidates=20,
-
-transposition_widths=None)` — Hill 2x2 followed by transposition
-
-- `kryptos.k4.hypotheses.AutokeyThenTranspositionHypothesis(autokey_candidates=30, transposition_limit=100,
-
-autokey_max_key_length=12, transposition_widths=None)` — Autokey followed by transposition
-
-- `kryptos.k4.hypotheses.PlayfairThenTranspositionHypothesis(playfair_candidates=20, transposition_limit=100,
-
-playfair_max_generations=30, transposition_widths=None)` — Playfair followed by transposition
-
-- `kryptos.k4.hypotheses.DoubleTranspositionHypothesis(stage1_candidates=20, stage2_limit=100, stage1_widths=None,
-
-stage2_widths=None)` — Two sequential transposition stages
-
-- `kryptos.k4.hypotheses.VigenereThenHillHypothesis(vigenere_candidates=30, hill_limit=1000,
-
-vigenere_max_key_length=12)` — Vigenère followed by Hill 2x2
-
-### K4 Pipeline
-
-- `kryptos.k4.pipeline.build_default(limit=50, adaptive=True) -> Pipeline`
-- `kryptos.k4.composite.run_pipeline(ciphertext: str, pipeline: Pipeline) -> DecryptBatch`
-
-### K4 Tuning
-
-- `kryptos.k4.tuning.run_crib_weight_sweep(weights: list[float], run_dir: Path|None=None) -> list[CribWeightRow]`
-- `kryptos.k4.tuning.pick_best_weight_from_rows(rows: list[CribWeightRow]) -> float`
-- `kryptos.k4.tuning.tiny_param_sweep() -> list[TinyParamResult]`
-- `kryptos.k4.tuning.holdout_score(weight: float, run_dir: Path|None=None) -> HoldoutSummary`
-- `kryptos.k4.tuning.artifacts.end_to_end_process(run_dir: Path) -> Path`
-
-### Reporting
-
-- `kryptos.k4.report.write_condensed_report(run_dir: Path) -> Path`
-- `kryptos.k4.report.write_top_candidates_markdown(run_dir: Path, limit=10) -> Path`
-
-### Spy Extraction / Evaluation
-
-- `kryptos.spy.extractor.extract(run_dir: Path, min_conf: float=0.3) -> list[str]`
-- `kryptos.spy.extractor.scan_run(run_dir: Path) -> RunExtraction`
-
-### Autopilot (Experimental)
-
-- `kryptos.autopilot.run(plan: AutopilotPlan) -> AutopilotResult` (EXPERIMENTAL)
-- `kryptos.autopilot.recommend_next_action(state: AutopilotState) -> ActionRecommendation` (EXPERIMENTAL)
-
-## CLI Subcommands
-
-Run `kryptos --help` for full usage; stable subcommands listed here.
-
-| Subcommand | Status | Description |
-|------------|--------|-------------|
-| `sections` | Stable | List sections and brief info |
-| `k4-decrypt` | Stable | Run K4 pipeline decrypt attempt |
-| `k4-attempts` | Stable | Flush in-memory attempt log to artifacts |
-| `tuning-crib-weight-sweep` | Stable | Sweep crib weights and record deltas |
-| `tuning-pick-best` | Stable | Select best crib weight from CSV |
-| `tuning-summarize-run` | Stable | Summarize a tuning run directory |
-| `tuning-tiny-param-sweep` | Stable | Deterministic small parameter sweep |
-| `tuning-holdout-score` | Stable | Evaluate chosen crib weight on holdout sentences |
-| `tuning-report` | Planned | Combined condensed + top candidates report (future) |
-| `spy-eval` | Stable | Evaluate SPY predictions across runs |
-| `spy-extract` | Stable | Extract SPY phrases meeting confidence threshold |
-| `autopilot` | Experimental | Run autopilot loop with persona strategy |
-
-## Deprecated / Pending Removal
-
-See `DEPRECATIONS.md` for timeline.
-
-## Versioning Notes
-
-Public API changes recorded in `CHANGELOG.md`. Breaking change proposals require prior deprecation window.
-
-## Examples
-
-### Using Hypothesis Classes
-
-#### Single-Stage Hypothesis
-
 ```python
-from kryptos.k4.hypotheses import VigenereHypothesis
-
-# Create hypothesis with custom parameters
-hypothesis = VigenereHypothesis(
-    max_key_length=15,
-    candidates_per_length=10
+from kryptos.k4.scoring import (
+    combined_plaintext_score,            # primary composite scorer
+    combined_plaintext_score_cached,     # lru_cache-wrapped version
+    combined_plaintext_score_extended,   # adds trigram entropy + wordlist
+    combined_plaintext_score_with_positions,  # adds positional crib bonus
+    combined_plaintext_score_with_external_cribs,
+    composite_score_with_stage_analysis, # dict output with per-stage breakdown
+    baseline_stats,                      # dict of all individual metrics
 )
-
-# Generate candidates for K4 ciphertext
-K4_CIPHER = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
-candidates = hypothesis.generate_candidates(K4_CIPHER, limit=25)
-
-# Inspect results
-for candidate in candidates[:5]:
-    print(f"Score: {candidate.score:.2f}")
-    print(f"Plaintext: {candidate.plaintext}")
-    print(f"Key: {candidate.metadata.get('key')}")
-    print()
 ```
 
-#### Hill 3x3 Genetic Algorithm
-
-```python
-from kryptos.k4.hypotheses import HillCipher3x3GeneticHypothesis
-
-# Create Hill 3x3 genetic algorithm hypothesis
-# Note: Hill 3x3 has 26^9 ≈ 5.4 trillion keys (exhaustive search impossible)
-hypothesis = HillCipher3x3GeneticHypothesis(
-    population_size=1000,  # Keys per generation
-    generations=100,       # GA iterations
-    mutation_rate=0.1,     # Probability of element mutation
-    elite_fraction=0.2     # Top 20% preserved each generation
-)
-
-# Generate candidates (this takes ~10-30 minutes)
-candidates = hypothesis.generate_candidates(K4_CIPHER, limit=10)
-
-# Inspect results
-for candidate in candidates[:3]:
-    print(f"Score: {candidate.score:.2f}")
-    print(f"Plaintext: {candidate.plaintext}")
-    print(f"Key matrix: {candidate.key_info['matrix']}")
-    print(f"Method: {candidate.key_info['method']}")
-    print()
-```
-
-#### Composite (Two-Stage) Hypothesis
-
-```python
-from kryptos.k4.hypotheses import TranspositionThenHillHypothesis
-
-# Create composite hypothesis
-hypothesis = TranspositionThenHillHypothesis(
-    transposition_candidates=20,  # Top 20 transposition results
-    hill_limit=1000,              # Test 1000 Hill 2x2 keys per stage1 result
-    transposition_widths=[5, 6, 7, 8, 10]  # Column widths to try
-)
-
-# Generate candidates
-candidates = hypothesis.generate_candidates(K4_CIPHER, limit=10)
-
-# Examine composite metadata
-best = candidates[0]
-print(f"Transformation chain: {best.metadata['transformation_chain']}")
-print(f"Stage1 plaintext: {best.metadata['stage1_plaintext']}")
-print(f"Stage2 plaintext: {best.plaintext}")
-```
-
-### Custom Scoring Functions
+### N-gram / frequency
 
 ```python
 from kryptos.k4.scoring import (
-    combined_plaintext_score,
-    composite_score_with_stage_analysis
+    bigram_score,
+    trigram_score,
+    quadgram_score,
+    chi_square_stat,
+    index_of_coincidence,
+    letter_coverage,
+    letter_entropy,
+    repeating_bigram_fraction,
+    bigram_gap_variance,
+    trigram_entropy,
+    positional_letter_deviation_score,  # period: int = 5
+    segment_plaintext_scores,           # Iterable[str] → dict
+    vowel_ratio,
 )
+```
 
-# Basic scoring
-plaintext = "ITWASFOUNDUNDERGROUND"
-score = combined_plaintext_score(plaintext)
-print(f"Score: {score:.2f}")
+### Crib bonuses
 
-# Stage-aware composite scoring
-stage1_text = "QWERTYYUIOPASD..."
-stage2_text = "ITWASFOUNDUNDERGROUND..."
-stage1_score = combined_plaintext_score(stage1_text)
-stage2_score = combined_plaintext_score(stage2_text)
-
-result = composite_score_with_stage_analysis(
-    stage1_text, stage2_text,
-    stage1_score, stage2_score,
-    stage1_weight=0.3,
-    stage2_weight=0.7
+```python
+from kryptos.k4.scoring import (
+    crib_bonus,                   # unweighted substring match
+    rarity_weighted_crib_bonus,   # weights uncommon cribs higher
+    positional_crib_bonus,        # positional: dict[str, list[int]], window: int = 5
+    wordlist_hit_rate,            # fraction of windows matching wordlist
 )
-
-print(f"Final score: {result['final_score']:.2f}")
-print(f"IOC improvement bonus: {result['ioc_bonus']:.2f}")
-print(f"Word pattern bonus: {result['word_bonus']:.2f}")
-print(f"Frequency convergence bonus: {result['freq_bonus']:.2f}")
 ```
 
-### Artifact Provenance Tracking
+### Instructional scorer (K4-specific)
 
 ```python
-from kryptos.paths import get_provenance_info
-import json
-
-# Capture environment state
-provenance = get_provenance_info(include_params={
-    'hypothesis': 'TranspositionThenHill',
-    'transposition_candidates': 20,
-    'hill_limit': 1000
-})
-
-# Save with artifact
-artifact_data = {
-    'provenance': provenance,
-    'results': [...],
-    'timestamp': provenance['timestamp']
-}
-
-with open('artifacts/my_run.json', 'w') as f:
-    json.dump(artifact_data, f, indent=2)
-
-# Provenance includes:
-# - git_commit: Current commit hash
-# - git_branch: Current branch name
-# - git_dirty: Whether there are uncommitted changes
-# - python_version: Full Python version string
-# - platform: OS details
-# - timestamp: ISO 8601 UTC timestamp
-# - params: Custom run parameters
+from kryptos.k4.scoring_instructional import (
+    instructional_score,          # boosts geographic/imperative vocabulary
+    combined_instructional_score, # composite with fuzzy Sanborn-misspelling matching
+    entropy_gate,                 # bool — rejects candidates outside entropy band
+)
 ```
 
-### Building Custom Hypotheses
+Vocabulary categories: `cardinal`, `spatial`, `measurement`, `imperative`. Levenshtein ≤ 1 fuzzy matching covers Sanborn-style misspellings (e.g. DESPARATLY, IQLUSION).
 
-To create a custom hypothesis, implement the `Hypothesis` protocol:
+### Enhanced linguistic scorer
 
 ```python
-from kryptos.k4.hypotheses import Hypothesis
-from kryptos.k4.candidate import Candidate
-from kryptos.k4.scoring import combined_plaintext_score
-
-class MyCustomHypothesis:
-    """Custom cipher hypothesis."""
-
-    def __init__(self, my_param: int = 10):
-        self.my_param = my_param
-
-    def generate_candidates(
-        self,
-        ciphertext: str,
-        limit: int = 10
-    ) -> list[Candidate]:
-        """Generate decryption candidates.
-
-        Args:
-            ciphertext: The text to decrypt
-            limit: Maximum number of candidates to return
-
-        Returns:
-            List of Candidate objects, sorted by score (descending)
-        """
-        candidates = []
-
-        # Your decryption logic here
-        for key in self._generate_keys():
-            plaintext = self._decrypt(ciphertext, key)
-            score = combined_plaintext_score(plaintext)
-
-            candidate = Candidate(
-                id=f"MyCustom-{key}",
-                plaintext=plaintext,
-                score=score,
-                metadata={
-                    'hypothesis': 'MyCustomHypothesis',
-                    'key': key,
-                    'my_param': self.my_param
-                }
-            )
-            candidates.append(candidate)
-
-        # Sort by score and return top results
-        candidates.sort(key=lambda c: c.score, reverse=True)
-        return candidates[:limit]
-
-    def _generate_keys(self):
-        """Generate possible keys."""
-        # Your key generation logic
-        pass
-
-    def _decrypt(self, ciphertext: str, key) -> str:
-        """Decrypt with given key."""
-        # Your decryption logic
-        pass
+from kryptos.k4.scoring_enhanced import (
+    combined_linguistic_score,
+    enhanced_combined_score,
+    linguistic_diagnostics,       # dict of all sub-scores
+    syllable_structure_score,
+    word_boundary_score,
+    phonetic_rules_score,
+    vowel_consonant_alternation_score,
+    position_specific_frequency_score,
+)
 ```
 
-### Composite Hypothesis Chaining
+---
 
-The `CompositeHypothesis` base class handles two-stage decryption automatically:
+## K4 pipeline
+
+### Stage factories
 
 ```python
-from kryptos.k4.hypotheses import CompositeHypothesis, VigenereHypothesis, SimpleSubstitutionHypothesis
-
-class MyCompositeHypothesis(CompositeHypothesis):
-    """Custom two-stage hypothesis."""
-
-    def __init__(
-        self,
-        stage1_candidates: int = 30,
-        stage2_limit: int = 100
-    ):
-        # Initialize stage1 hypothesis
-        stage1 = VigenereHypothesis(
-            max_key_length=12,
-            candidates_per_length=stage1_candidates // 6
-        )
-
-        # Initialize stage2 hypothesis
-        stage2 = SimpleSubstitutionHypothesis(variants=28)
-
-        # Call parent constructor
-        super().__init__(
-            stage1_hypothesis=stage1,
-            stage2_hypothesis=stage2,
-            stage1_candidates=stage1_candidates,
-            stage2_limit=stage2_limit,
-            hypothesis_name="MyComposite"
-        )
-
-# Use it
-hypothesis = MyCompositeHypothesis(stage1_candidates=50, stage2_limit=200)
-candidates = hypothesis.generate_candidates(ciphertext, limit=10)
+from kryptos.k4.pipeline import (
+    Stage, StageResult, Pipeline,
+    make_hill_constraint_stage,
+    make_berlin_clock_stage,
+    make_transposition_stage,
+    make_transposition_adaptive_stage,
+    make_masking_stage,
+    make_transposition_multi_crib_stage,
+    make_route_transposition_stage,
+    get_clock_attempt_log,
+)
 ```
 
-Last updated: 2025-10-24T03:55Z
+### Composite runner
+
+```python
+from kryptos.k4.composite import (
+    run_composite_pipeline,       # list[Stage] → pipeline_out dict
+    aggregate_stage_candidates,
+    fuse_scores_weighted,
+    normalize_scores,
+    adaptive_fusion_weights,
+    CompositeChainExecutor,       # S→T→S chain with eureka halt
+)
+```
+
+---
+
+## K4 hypotheses
+
+All hypothesis classes implement `generate_candidates(ciphertext: str, limit: int) -> list[Candidate]`.
+
+### Single-stage
+
+| Class | Description |
+|-------|-------------|
+| `HillCipher2x2Hypothesis(limit)` | Hill 2×2 exhaustive key search |
+| `HillCipher3x3GeneticHypothesis(population_size, generations, mutation_rate, elite_fraction)` | Hill 3×3 genetic algorithm |
+| `BerlinClockTranspositionHypothesis` | Berlin Clock lamp-pattern column widths |
+| `BerlinClockVigenereHypothesis` | Berlin Clock shifts as Vigenère key |
+| `SimpleSubstitutionHypothesis(variants)` | Monoalphabetic frequency analysis |
+| `VigenereHypothesis(max_key_length, candidates_per_length)` | Vigenère with Kasiski + IC |
+| `AutokeyHypothesis` | Self-keying Vigenère |
+| `PlayfairHypothesis` | Playfair 5×5 grid |
+| `FourSquareHypothesis` | Four-Square two-grid |
+| `BifidHypothesis` | Bifid fractionating cipher |
+
+### Composite (2-layer)
+
+| Class | Layers |
+|-------|--------|
+| `TranspositionThenHillHypothesis` | Transposition → Hill 2×2 |
+| `VigenereThenTranspositionHypothesis` | Vigenère → Columnar transposition |
+| `SubstitutionThenTranspositionHypothesis` | Substitution → Transposition |
+| `HillThenTranspositionHypothesis` | Hill → Transposition |
+| `AutokeyThenTranspositionHypothesis` | Autokey → Transposition |
+| `PlayfairThenTranspositionHypothesis` | Playfair → Transposition |
+| `DoubleTranspositionHypothesis` | Double columnar transposition |
+| `VigenereThenHillHypothesis` | Vigenère → Hill |
+
+Extend `CompositeHypothesis(stage1_hypothesis, stage2_hypothesis, stage1_candidates, stage2_limit, hypothesis_name)` for custom chains.
+
+---
+
+## Fractionating ciphers
+
+```python
+from kryptos.k4 import (
+    adfgvx_encrypt, adfgvx_decrypt, build_polybius_square,
+    nihilist_encrypt, nihilist_decrypt,
+)
+from kryptos.k4.beaufort import beaufort_encrypt, beaufort_decrypt, recover_beaufort_key
+```
+
+`nihilist_encrypt/decrypt` operate on `list[int]`. Use `format_ciphertext` / `parse_ciphertext` (in `nihilist` module) for string conversion.
+
+---
+
+## Keystream and crib validation
+
+```python
+from kryptos.k4.keystream_validator import (
+    compute_shifts_at_cribs,     # per-position shift dict from confirmed crib windows
+    validate_keystreams,          # checks shift sequences against expected values
+    validate_k4_cribs,            # validates all four confirmed cribs simultaneously
+    crib_hit_count,               # integer count of crib matches
+    keystream_summary,            # full keystream analysis dict
+)
+```
+
+Confirmed crib positions (0-indexed): EAST 22–25, NORTHEAST 26–34, BERLIN 63–68, CLOCK 69–73.
+
+---
+
+## Inverse transposition sweep
+
+```python
+from kryptos.k4.inverse_transposition_sweep import (
+    invert_permutation,
+    sweep_grid,    # single grid geometry → candidate list
+    full_sweep,    # all grid geometries (10×10, 7×14, 8×13) + ENE angle variants
+)
+```
+
+---
+
+## Eureka detection
+
+```python
+from kryptos.k4.eureka import (
+    EurekaSignal,               # exception raised on breakthrough
+    check_eureka,               # raises EurekaSignal if all cribs satisfied
+    write_breakthrough_snapshot,
+    eureka_check_and_capture,   # combined check + snapshot
+)
+```
+
+`CompositeChainExecutor` calls `eureka_check_and_capture` automatically at each stage boundary.
+
+---
+
+## Provenance and search space
+
+```python
+from kryptos.provenance.attack_log import (
+    AttackLogger, AttackRecord, AttackParameters, AttackResult,
+)
+from kryptos.provenance.search_space import SearchSpaceTracker, KeySpaceRegion
+```
+
+`AttackLogger` deduplicates by parameter hash; pass `skip_tried=True` to skip previously explored keys. `SearchSpaceTracker` tracks region coverage, exports heatmap data, and persists `tried_keys.jsonl` across runs under `artifacts/search_space/`.
+
+---
+
+## Pipeline (campaign level)
+
+```python
+from kryptos.pipeline.k4_campaign import K4CampaignOrchestrator, CampaignResult
+from kryptos.pipeline.attack_generator import AttackGenerator, AttackSpec
+from kryptos.pipeline.attack_executor import AttackExecutor
+```
+
+`K4CampaignOrchestrator` wires generator → executor → provenance in a managed campaign loop. Reads ciphertexts and cribs from `config/config.json`.
+
+---
+
+## Agents
+
+```python
+from kryptos.agents.spy import SpyAgent, PatternInsight, quick_spy_analysis, spy_report
+from kryptos.agents.spy_nlp import SpyNLP, NLPInsight          # requires spaCy en_core_web_sm
+from kryptos.agents.spy_web_intel import SpyWebIntel            # upserts to discovered_cribs (Neon)
+from kryptos.agents.ops_director import (
+    OpsStrategicDirector, StrategicDecision, StrategyAction,
+    AttackProgress, AgentInsight,
+)
+from kryptos.agents.q import QAgent, QConfig, ValidationResult, q_report
+from kryptos.agents.linguist import LinguistAgent, LinguisticScore, SanbornCorpusAnalysis
+from kryptos.agents.k123_analyzer import K123Analyzer
+```
+
+`OpsStrategicDirector` writes decisions to the Neon `ops_decisions` table (fallback: `artifacts/ops_strategy/decisions.jsonl`). `SpyWebIntel` upserts discovered crib candidates to the Neon `discovered_cribs` table.
+
+---
+
+## Autonomous coordination
+
+```python
+from kryptos.autonomous_coordinator import AutonomousCoordinator, AutonomousState
+from kryptos.meta_coordinator import MetaCoordinator
+from kryptos.autopilot import run_exchange, run_autopilot_loop, recommend_next_action
+```
+
+---
+
+## Infrastructure
+
+```python
+from kryptos.paths import (
+    get_repo_root, get_artifacts_root, get_logs_dir,
+    get_decisions_dir, get_tuning_runs_root,
+    ensure_reports_dir, provenance_hash, get_provenance_info,
+)
+from kryptos.db import get_conn, get_db_url   # Neon psycopg2 helper (reads DATABASE_URL env var)
+from kryptos.log_setup import setup_logging
+```
+
+---
+
+## Ciphers (low-level)
+
+```python
+from kryptos.ciphers import (
+    vigenere_decrypt,
+    k3_decrypt,
+    double_rotational_transposition,
+    rotate_matrix_right_90,
+    transposition_decrypt,
+    polybius_decrypt,
+    beaufort_decrypt, beaufort_encrypt,
+)
+```
+
+---
+
+## CLI subcommands
+
+```
+kryptos sections
+kryptos k4-decrypt [--cipher PATH] [--limit N] [--adaptive] [--report] [--no-auto-alphabet]
+kryptos sections-decrypt --section K1|K2|K3|K4 [--cipher PATH] [--key KEY] [--explain] [--json]
+kryptos k4-attempts [--label LABEL]
+kryptos keyspace-stats [--cipher TYPE] [--top-n N] [--json]
+kryptos tuning-crib-weight-sweep [--weights CSV] [--cribs CSV] [--samples PATH] [--json]
+kryptos tuning-pick-best --csv PATH
+kryptos tuning-summarize-run --run-dir PATH [--no-write]
+kryptos tuning-tiny-param-sweep
+kryptos tuning-holdout-score --weight FLOAT [--out PATH] [--no-write]
+kryptos tuning-report --run-dir PATH [--top-n N] [--no-markdown]
+kryptos spy-eval [--labels PATH] [--runs PATH] [--thresholds CSV]
+kryptos spy-extract [--runs PATH] [--min-conf FLOAT]
+kryptos autopilot [--plan TEXT] [--dry-run] [--loop] [--iterations N] [--interval SECS] [--force]
+kryptos autonomous [--max-hours H] [--max-cycles N] [--cycle-interval M] [--ops-cycle M] [--web-intel-hours H]
+kryptos examples-smoke [--limit N] [--keep N]
+```
+
+`--cipher` is optional on `k4-decrypt` and `sections-decrypt`; omitting it loads the ciphertext from `config/config.json`.
+
+---
+
+## Neon DB tables (runtime storage)
+
+| Table | Written by | Purpose |
+|-------|-----------|---------|
+| `ops_decisions` | `OpsStrategicDirector` | Strategy decision log |
+| `strategy_kb` | Manual / future agents | Accumulated attack knowledge |
+| `discovered_cribs` | `SpyWebIntel` | Crib candidates with source provenance |
+| `sanborn_timeline` | Manual research | Public Sanborn statement log |
+| `k4_research_findings` | Manual research | Confirmed facts and ruled-out hypotheses |
+| `k4_keystream` | Manual research | Per-position crib/cipher/plain/shift data |
+| `source_chunks` | Migration script | Chunked primary source material (Smithsonian) |
