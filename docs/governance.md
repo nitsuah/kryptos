@@ -1,6 +1,18 @@
 # Governance and Maintenance Notes
 
-_Last updated: 2026-05-25_
+_Last updated: 2026-05-30_
+
+
+## Monthly Governance Review (May 2026 — Q4 Completion)
+
+_Completed: 2026-05-30_
+
+- All Q4 2026 deliverables shipped: S→T→S composite chain, ADFGVX, Nihilist, fuzzy dedup heuristics, keyspace-stats CLI, K1/K2/K3 reliability gates.
+- 811 tests passing, 0 failures. No deprecated or TODO markers remain in source.
+- ROADMAP.md updated: Q4 marked Completed ✅. Next review scheduled 2026-06-30.
+- ADFGVX and Nihilist exposed in `kryptos.k4` public API; pipeline can now discover them by name.
+- Eureka early-stop wired into S→T→S chain — consistent with composite_sweep.py halt protocol.
+- K1/K2/K3 Sanborn misspellings (IQLUSION, DESPARATLY, UNDERGRUUND) now enforced by deterministic gate tests.
 
 
 ## Monthly Governance Review (June 2026)

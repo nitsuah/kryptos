@@ -19,6 +19,26 @@ from typing import Any
 from kryptos.paths import get_artifacts_root
 
 
+def _levenshtein(a: str, b: str) -> int:
+    """Standard single-row rolling DP edit distance."""
+    if a == b:
+        return 0
+    la, lb = len(a), len(b)
+    if la == 0:
+        return lb
+    if lb == 0:
+        return la
+    if la < lb:
+        a, b, la, lb = b, a, lb, la
+    prev = list(range(lb + 1))
+    for i, ca in enumerate(a, 1):
+        curr = [i] + [0] * lb
+        for j, cb in enumerate(b, 1):
+            curr[j] = min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + (0 if ca == cb else 1))
+        prev = curr
+    return prev[lb]
+
+
 @dataclass
 class KeySpaceRegion:
     cipher_type: str
@@ -119,6 +139,74 @@ class SearchSpaceTracker:
 
     def already_tried(self, cipher_type: str, key: str) -> bool:
         return key in self._tried_keys[cipher_type]
+
+    def already_tried_fuzzy(self, cipher_type: str, key: str, tol: int = 1) -> bool:
+        """Return True if *key* or any near-neighbour (edit distance ≤ tol) was tried.
+
+        Catches Vigenère keys that differ by a single character transposition or
+        substitution — common in random-walk key searches.  Exact match is checked
+        first (O(1)) before the O(|tried| × |key|) Levenshtein scan.
+
+        Args:
+            cipher_type: Cipher namespace (e.g. "vigenere").
+            key:         Candidate key string.
+            tol:         Maximum Levenshtein edit distance to count as "already tried".
+
+        Returns:
+            True if key (or a near-neighbour) has been tried before.
+        """
+        if self.already_tried(cipher_type, key):
+            return True
+        if tol <= 0:
+            return False
+        tried = self._tried_keys.get(cipher_type, set())
+        n = len(key)
+        for prev in tried:
+            # Fast length gate: edit distance ≥ |len_a - len_b|
+            if abs(len(prev) - n) > tol:
+                continue
+            if _levenshtein(key, prev) <= tol:
+                return True
+        return False
+
+    def get_priority_recommendations(
+        self,
+        top_n: int = 5,
+        diversity_bonus: float = 10.0,
+    ) -> list[dict[str, Any]]:
+        """Return prioritised recommendations with diversity and recency heuristics.
+
+        Extends :meth:`get_recommendations` by:
+        - Penalising adjacent regions that are both under-explored (force diversity).
+        - Boosting regions that have never been touched (priority discovery).
+        - Including a ``tried_key_count`` field for provenance inspection.
+
+        Args:
+            top_n:           Number of recommendations to return.
+            diversity_bonus: Extra score added to completely unexplored regions.
+
+        Returns:
+            List of recommendation dicts, sorted by adjusted priority score.
+        """
+        base = self.get_recommendations(top_n=top_n * 3)
+        seen_types: set[str] = set()
+        results: list[dict[str, Any]] = []
+        for rec in base:
+            ct = rec["cipher_type"]
+            tried_count = len(self._tried_keys.get(ct, set()))
+            adjusted = rec["priority_score"]
+            if rec["coverage"] == 0.0:
+                adjusted += diversity_bonus
+            if ct not in seen_types:
+                adjusted += 5.0  # first recommendation per cipher type gets a boost
+                seen_types.add(ct)
+            results.append({
+                **rec,
+                "adjusted_score": round(adjusted, 3),
+                "tried_key_count": tried_count,
+            })
+        results.sort(key=lambda x: -x["adjusted_score"])
+        return results[:top_n]
 
     def mark_tried(self, cipher_type: str, key: str):
         if key not in self._tried_keys[cipher_type]:

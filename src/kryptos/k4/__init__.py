@@ -11,7 +11,19 @@ from dataclasses import dataclass
 from importlib import import_module as _imp
 from typing import Any
 
-__all__ = ["decrypt_best", "DecryptResult"]
+from .adfgvx import adfgvx_decrypt, adfgvx_encrypt, build_polybius_square
+from .nihilist import nihilist_decrypt, nihilist_encrypt
+
+__all__ = [
+    "decrypt_best",
+    "DecryptResult",
+    # Fractionating cipher modules (ADFGVX, Nihilist)
+    "adfgvx_encrypt",
+    "adfgvx_decrypt",
+    "build_polybius_square",
+    "nihilist_encrypt",
+    "nihilist_decrypt",
+]
 
 
 @dataclass(slots=True)

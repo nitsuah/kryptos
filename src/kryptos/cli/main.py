@@ -237,6 +237,24 @@ def build_parser() -> argparse.ArgumentParser:
     sp_examples_smoke.add_argument('--keep', type=int, default=4, help='Max number of recent demo dirs to keep after run (purge older)')
     sp_examples_smoke.set_defaults(func=cmd_examples_smoke)
 
+    sp_keyspace_stats = sub.add_parser(
+        'keyspace-stats',
+        help='Show keyspace coverage heatmap and attack prioritisation recommendations',
+    )
+    sp_keyspace_stats.add_argument(
+        '--cipher', type=str, default=None,
+        help='Cipher type to report on (e.g. "vigenere"). Omit for all types.',
+    )
+    sp_keyspace_stats.add_argument(
+        '--top-n', dest='top_n', type=int, default=5,
+        help='Number of priority recommendations to display (default: 5)',
+    )
+    sp_keyspace_stats.add_argument(
+        '--json', action='store_true',
+        help='Emit machine-readable JSON instead of human-readable table',
+    )
+    sp_keyspace_stats.set_defaults(func=cmd_keyspace_stats)
+
     return parser
 
 
@@ -375,6 +393,44 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_examples_smoke.set_defaults(func=cmd_examples_smoke)
     return p
+
+
+def cmd_keyspace_stats(args: argparse.Namespace) -> int:
+    """Print a keyspace coverage heatmap and attack prioritisation table."""
+    import json as _json
+    from kryptos.provenance.search_space import SearchSpaceTracker
+
+    tracker = SearchSpaceTracker()
+    report = tracker.get_coverage_report(args.cipher)
+    recs = tracker.get_priority_recommendations(top_n=args.top_n)
+
+    if args.json:
+        print(_json.dumps({"coverage": report, "recommendations": recs}, indent=2, default=str))
+        return 0
+
+    # Human-readable output
+    print("\n=== Keyspace Coverage ===")
+    for ct, data in report.get("cipher_types", {}).items():
+        print(f"\n{ct}  (overall {data['overall_coverage']:.1f}%  |  "
+              f"{data['total_explored']:,}/{data['total_size']:,} explored)")
+        for r in data.get("regions", []):
+            bar_fill = int(r["coverage_percent"] / 5)
+            bar = "#" * bar_fill + "." * (20 - bar_fill)
+            print(f"  {r['region']:20s} [{bar}] {r['coverage_percent']:5.1f}%  "
+                  f"({r['explored_count']:,}/{r['total_size']:,})")
+
+    if not report.get("cipher_types"):
+        print("  (no regions registered yet — run a campaign to populate)")
+
+    print("\n=== Priority Recommendations ===")
+    if not recs:
+        print("  (no data yet)")
+    for i, rec in enumerate(recs, 1):
+        print(f"  {i}. [{rec['cipher_type']} / {rec['region']}]  score={rec['adjusted_score']:.1f}  "
+              f"coverage={rec['coverage']:.1f}%")
+        print(f"     {rec['reason']}  |  tried_keys={rec['tried_key_count']}")
+    print()
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
