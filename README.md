@@ -440,3 +440,9 @@ If no legacy directories are present, the script reports that there is nothing t
 - [Hill Cipher](https://en.wikipedia.org/wiki/Hill_cipher)
 - [Index of Coincidence](https://en.wikipedia.org/wiki/Index_of_coincidence)
 - [Entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory))
+## Community Standards
+
+Shared community policies are centralized in https://github.com/nitsuah/.github:
+- Contributing: https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md
+- Code of Conduct: https://github.com/nitsuah/.github/blob/main/CODE_OF_CONDUCT.md
+- Security: https://github.com/nitsuah/.github/blob/main/SECURITY.md
