@@ -1,6 +1,6 @@
 > For shared contribution standards, see [nitsuah/.github/CONTRIBUTING.md](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md).
 
-# Contributing to kryptos
+# Contributing to Kryptos
 
 This file covers repository-specific setup only.
 
