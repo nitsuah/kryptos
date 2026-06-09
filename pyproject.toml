@@ -11,6 +11,10 @@ quote-style = "preserve"
 indent-style = "space"
 line-ending = "auto"
 
+[tool.isort]
+profile = "black"
+line_length = 120
+
 [tool.flake8]
 max-line-length = 120
 extend-ignore = ["E402", "E203"]
