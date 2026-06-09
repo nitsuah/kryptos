@@ -8,23 +8,23 @@ Next Review: 2026-07-01
 
 > These are the highest-priority items before broader infrastructure work. All prior Q3/Q4 sweeps produced null results; these are the remaining untested angles. Each is small and targeted.
 
-- [ ] **Clock → Hill 2×2 invertibility pre-filter** — For each of 720 clock states form a 2×2 matrix from the first 4 lamp values, filter to the ~100 invertible mod 26, apply Hill 2×2 decryption to K4, validate EAST+NORTHEAST. Clock and Hill have only been tested independently so far.
-- [ ] **4-char clock key → Vigenère with NORTHEAST anchor** — Derive a 4-char Vigenère key from each clock state (not the full shift sequence), test with `positional_crib_bonus` gating on NORTHEAST at position 26. Several clock→4-char encoding schemes to try.
-- [ ] **Non-standard Berlin Clock sub-row encodings** — Hour rows only, minute rows only, row sums → letter. Current sweep only uses `full_berlin_clock_shifts` (all 4 rows concatenated).
-- [ ] **Berlin Clock lamp counts as transposition column widths** — Use lamp values (e.g. [4,3,11,4]) as column widths for a multi-round columnar transposition, not Vigenère shifts.
-- [ ] **Beaufort cipher sweep** — `kryptos.k4.beaufort` is implemented; no systematic K4 sweep has run. Quick pass with KRYPTOS, PALIMPSEST, BERLIN, CLOCK, ABSCISSA keys.
+- [x] **Clock → Hill 2×2 invertibility pre-filter** — For each of 720 clock states form a 2×2 matrix from the first 4 lamp values, filter to the ~100 invertible mod 26, apply Hill 2×2 decryption to K4, validate EAST+NORTHEAST. Clock and Hill have only been tested independently so far.
+- [x] **4-char clock key → Vigenère with NORTHEAST anchor** — Derive a 4-char Vigenère key from each clock state (not the full shift sequence), test with `positional_crib_bonus` gating on NORTHEAST at position 26. Several clock→4-char encoding schemes to try.
+- [x] **Non-standard Berlin Clock sub-row encodings** — Hour rows only, minute rows only, row sums → letter. Current sweep only uses `full_berlin_clock_shifts` (all 4 rows concatenated).
+- [x] **Berlin Clock lamp counts as transposition column widths** — Use lamp values (e.g. [4,3,11,4]) as column widths for a multi-round columnar transposition, not Vigenère shifts.
+- [x] **Beaufort cipher sweep** — `kryptos.k4.beaufort` is implemented; no systematic K4 sweep has run. Quick pass with KRYPTOS, PALIMPSEST, BERLIN, CLOCK, ABSCISSA keys.
 
 ### Definition of Done
 
-- [ ] Each attack run with null-result artifact or `K4_BREAKTHROUGH_SNAPSHOT.md` if a match is found
-- [ ] Results recorded in `k4_research_findings` DB table and `docs/analysis/K4_ACTIVE_RESEARCH.md`
+- [x] Each attack run with null-result artifact or `K4_BREAKTHROUGH_SNAPSHOT.md` if a match is found
+- [x] Results recorded in `docs/analysis/K4_ACTIVE_RESEARCH.md` (PR #83, all 5 attacks null result)
 
 ---
 
 ## Q1 2027: Dashboard, API & Final Push 🖥️
 
 ### Phase 1 — K4 Attack completion
-- [ ] All five untested attack vectors above completed and documented
+- [x] All five untested attack vectors above completed and documented
 
 ### Phase 2 — Dashboard & UI
 

@@ -8,10 +8,6 @@ Last Updated: 2026-06-09
 # Q1 2027: Final Push & Post-Solution Analysis
 
 ### Phase 1: Dashboard & UI
-
-# Q1 2027: Final Push & Post-Solution Analysis
-
-### Phase 1: Dashboard & UI
 - Implement real-time campaign monitoring dashboard (CLI/GUI)
 - Build K1–K3 Decoder: input ciphertext + key → annotated plaintext, with encoding/hacking instructions
 - Develop K4 Attack Dashboard: live campaign progress, scoring breakdowns, evidence artifact viewer, visual fingerprint map of attack vectors plausible vs. covered vs. unknown
@@ -34,12 +30,12 @@ Last Updated: 2026-06-09
 
 ## In Progress
 
-### K4 Attack — Untested Vectors (implemented, pending PR merge + artifact run)
-
-- [x] **Clock → Hill 2×2 invertibility pre-filter** — `kryptos.k4.clock_hill_attack.run_clock_hill_attack` implemented + tested. PR open.
-- [x] **4-char clock key → Vigenère with NORTHEAST anchor** — `kryptos.k4.clock_hill_attack.run_clock_vigenere_attack` implemented + tested. PR open.
-- [x] **Non-standard Berlin Clock sub-row encodings** — `kryptos.k4.clock_subrow_attack.run_clock_subrow_attack` implemented + tested. PR open.
-- [x] **Berlin Clock lamp counts as transposition column widths** — `kryptos.k4.clock_subrow_attack.run_clock_transposition_attack` implemented + tested. PR open.
-- [x] **Beaufort cipher sweep** — `kryptos.k4.beaufort_sweep.run_beaufort_sweep` implemented + tested. PR open.
-
 ## Done
+
+### K4 Attack — Untested Vectors (PR #83, merged)
+
+- [x] **Clock → Hill 2×2 invertibility pre-filter** — `kryptos.k4.clock_hill_attack.run_clock_hill_attack`. Null result.
+- [x] **4-char clock key → Vigenère with NORTHEAST anchor** — `kryptos.k4.clock_hill_attack.run_clock_vigenere_attack`. Null result.
+- [x] **Non-standard Berlin Clock sub-row encodings** — `kryptos.k4.clock_subrow_attack.run_clock_subrow_attack`. Null result.
+- [x] **Berlin Clock lamp counts as transposition column widths** — `kryptos.k4.clock_subrow_attack.run_clock_transposition_attack`. Null result.
+- [x] **Beaufort cipher sweep** — `kryptos.k4.beaufort_sweep.run_beaufort_sweep`. Null result.
