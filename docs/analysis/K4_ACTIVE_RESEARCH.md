@@ -3,7 +3,7 @@
 Breadcrumb: Home > Docs > Analysis > K4 Active Research
 
 
-**Last Updated:** 2026-05-31  
+**Last Updated:** 2026-05-31
 **Status:** Living document — update after each meaningful run or finding
 
 This document tracks what is currently known, what has been tested and ruled out, and the active attack queue for K4 cryptanalysis.
@@ -230,5 +230,11 @@ Position  73: K   ← end of CLOCK
 - [`docs/analysis/K4-T1.md`](K4-T1.md) — Physical-geometric composite pipeline specification
 - [`docs/analysis/K4-CLOCKS.html`](K4-CLOCKS.html) — Interactive clock theory framework
 - [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](30_YEAR_GAP_COVERAGE.md) — Cipher technique coverage map
+- [`docs/analysis/K4-FRONTEND.md`](K4-FRONTEND.md) — React/FastAPI frontend for campaign orchestration
 - [`TASKS.md`](../../TASKS.md) — Implementation backlog
 - [`ROADMAP.md`](../../ROADMAP.md) — Phase milestones
+
+## Vault Links
+- [[repos/kryptos/docs/analysis/K4-FRONTEND|K4-FRONTEND]] — frontend specification
+- [[repos/kryptos/docs/archive/AUDIT_2026-06-01|AUDIT_2026-06-01]] — most recent src/ audit
+- [[repos/kryptos|kryptos runbook]] — repo context
