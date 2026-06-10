@@ -41,7 +41,7 @@ Next Review: 2026-07-01
 
 ### Phase 4 — Validation & hardening
 - [x] **K3 double-transposition Monte Carlo** — `kryptos.k3.double_rotation_solver` generalizes K3's two-stage 90cw rotation to all divisor-width/rotation-type pairs; brute-force solver exactly recovers K3's plaintext as the top candidate. Monte Carlo across random parameter pairs: 75% best-of-top-10 success (`tests/e2e/test_k3_double_rotation_monte_carlo.py`)
-- [ ] **Stress tests for K1/K2** — test with noise, wrong key lengths, partial ciphertext
+- [x] **Stress tests for K1/K2** — `kryptos.k4.vigenere_stress_tests.run_k1_k2_stress_suite` exercises noise injection, wrong key lengths, and partial-ciphertext truncation against `recover_key_by_frequency`. K2 (367-char ciphertext) recovers ABSCISSA at noise up to 20% (8/8 trials) and truncation down to 25% (4/4 trials); K1 (63-char ciphertext) only survives noise up to 5% (4/8 trials) and requires the full ciphertext (1/4 partial trials). Wrong key length always fails for both (`tests/e2e/test_k1_k2_stress_suite.py`)
 
 ### Phase 5 — Post-solution
 - [ ] **Solution documentation** — once K4 is solved: full attack path, key insights, solution narrative

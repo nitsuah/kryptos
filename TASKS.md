@@ -45,3 +45,10 @@ Last Updated: 2026-06-10
 - [x] **Generalized double-rotation solver** — `kryptos.k3.double_rotation_solver` generalizes K3's two-stage 90cw grid rotation to all 18 divisor-widths of 336 x 6 rotation types, both stages. `apply_double_rotation(K3_CIPHERTEXT, 24, '90cw', 8, '90cw') == K3_PLAINTEXT` confirmed exactly.
 - [x] **Brute-force recovery** — `brute_force_double_rotation_solve` ranks K3's true plaintext as the #1 candidate (match_ratio=1.0) out of 11,664 (width, rotation) combinations.
 - [x] **Monte Carlo validation** — `run_k3_double_rotation_monte_carlo` over 20 random parameter pairs: 75% best-of-top-10 success. Failures cluster around `'identity'`/extreme-aspect-ratio grids whose score-tied cyclic rearrangements of the plaintext outrank the exact match under n-gram/word scoring (see `tests/e2e/test_k3_double_rotation_monte_carlo.py`).
+
+### K1/K2 Vigenère Stress Tests (Phase 4 validation)
+
+- [x] **Stress-test harness** — `kryptos.k4.vigenere_stress_tests.run_k1_k2_stress_suite` runs `recover_key_by_frequency` against K1 (PALIMPSEST, 63-char ciphertext) and K2 (ABSCISSA, 367-char ciphertext) across noise injection (0/5/10/20%, 2 trials each), wrong key lengths (+/-2 around the true length), and partial-ciphertext truncation (100/75/50/25%).
+- [x] **Noise**: K2 recovers ABSCISSA at all 8 trials up to 20% noise (plaintext match ratio degrades gracefully 1.0 -> ~0.76); K1 only recovers PALIMPSEST at 0% and 5% noise (4/8 trials), collapsing to wrong keys at 10%/20%.
+- [x] **Wrong key length**: for both K1 and K2, only the true key length yields the correct key with a perfect plaintext match; all four off-by-(-2..+2) lengths fail for both.
+- [x] **Partial ciphertext**: K2 recovers ABSCISSA exactly down to 25% (91 chars); K1 only recovers PALIMPSEST at 100% (63 chars) -- 75/50/25% truncations all fail. See `tests/e2e/test_k1_k2_stress_suite.py` and `docs/analysis/K1_K2_VALIDATION_RESULTS.md`.

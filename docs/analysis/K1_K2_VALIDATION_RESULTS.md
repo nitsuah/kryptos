@@ -232,17 +232,77 @@ Update README or docs with:
 
 ### 5. Consider Stress Testing
 
-Future tests to add:
-- K1/K2 with noise (corrupted ciphertext)
-- K1/K2 with wrong key lengths
-- K1/K2 with partial ciphertext
-- K1/K2 with mixed case or punctuation
+**Status: DONE (see 2026-06-10 update below)** — noise, wrong key lengths, and
+partial ciphertext are now covered by `kryptos.k4.vigenere_stress_tests`.
+Mixed case/punctuation is not applicable: the ciphertexts are always
+normalized to uppercase A-Z before recovery (`recover_key_by_frequency`
+groups by alphabetic character only), so case/punctuation variants would
+exercise the same code path as the existing tests.
+
+---
+
+## 2026-06-10 Update: Stress Testing (Noise, Wrong Key Length, Partial Ciphertext)
+
+`kryptos.k4.vigenere_stress_tests.run_k1_k2_stress_suite` runs
+`recover_key_by_frequency` against K1 (PALIMPSEST, 63-char ciphertext) and K2
+(ABSCISSA, 367-char ciphertext) across the three dimensions flagged above as
+untested. All results below are deterministic with `seed=42`
+(`tests/e2e/test_k1_k2_stress_suite.py`, `artifacts/k1_k2_stress_tests.json`).
+
+**Noise** (random A-Z substitutions at each rate, 2 trials/rate):
+
+| Noise rate | K1 key recovered | K2 key recovered |
+|---|---|---|
+| 0% | PALIMPSEST x2 (ratio 1.0) | ABSCISSA x2 (ratio 1.0) |
+| 5% | PALIMPSEST x2 (ratio ~0.98-1.0) | ABSCISSA x2 (ratio ~0.95-0.96) |
+| 10% | wrong key x2 (ratio ~0.21-0.33) | ABSCISSA x2 (ratio ~0.89-0.91) |
+| 20% | wrong key x2 (ratio ~0.29-0.37) | ABSCISSA x2 (ratio ~0.76-0.81) |
+
+K2's longer ciphertext provides enough statistical signal to recover ABSCISSA
+correctly at every noise level tested (8/8), with plaintext match ratio
+degrading gracefully as noise increases. K1's much shorter ciphertext is
+fragile: only the 0% and 5% trials (4/8 total) recover PALIMPSEST; at 10%/20%
+noise the algorithm converges on a different key entirely and the resulting
+plaintext is mostly wrong.
+
+**Wrong key length** (offsets -2..+2 around the true length, top_n=5):
+
+For both K1 (lengths 8-12) and K2 (lengths 6-10), only the true key length
+(10 and 8 respectively) returns the correct key with `plaintext_match_ratio
+== 1.0`. All four incorrect lengths fail for both ciphers -- the correct key
+never appears in the top-5 candidates, and the resulting plaintexts are
+near-random (~3-17% match ratio). This confirms `recover_key_by_frequency`
+cannot bootstrap an unknown key length from frequency analysis alone; it
+requires the key length as an input (e.g. from Kasiski/IC analysis).
+
+**Partial ciphertext** (truncated to 100/75/50/25% of length, key length fixed
+at the true value):
+
+| Fraction | K1 (63 chars) | K2 (367 chars) |
+|---|---|---|
+| 100% | PALIMPSEST (1.0) | ABSCISSA (1.0) |
+| 75% | wrong key (0.43) | ABSCISSA (1.0) |
+| 50% | wrong key (0.29) | ABSCISSA (1.0) |
+| 25% | wrong key (0.33) | ABSCISSA (1.0) |
+
+K2 recovers ABSCISSA exactly even at 25% (91 chars). K1 requires its full 63
+characters -- any truncation drops recovery to a wrong key.
+
+**Takeaway:** the K1/K2 100% Monte Carlo success rates documented above hold
+for *clean, full-length ciphertext at the correct key length*. Robustness to
+noise and truncation scales with ciphertext length: K2 (367 chars) is highly
+robust, K1 (63 chars) is not. Wrong key length is not recoverable by this
+algorithm regardless of ciphertext length -- it is a precondition, not a
+robustness dimension.
 
 ---
 
 ## Files
 
 - **Test file:** `tests/test_k1_k2_monte_carlo.py`
+- **Stress-test harness:** `src/kryptos/k4/vigenere_stress_tests.py`
+- **Stress-test files:** `tests/functional/test_k1_k2_vigenere_stress.py`, `tests/e2e/test_k1_k2_stress_suite.py`
+- **Stress-test results:** `artifacts/k1_k2_stress_tests.json`
 - **Results doc:** `K1_K2_VALIDATION_RESULTS.md` (this file)
 - **Related:** `K3_VALIDATION_RESULTS.md`
 - **Test output:** See pytest run logs
