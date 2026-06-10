@@ -2,7 +2,6 @@
 
 Breadcrumb: Home > Docs > Analysis > Frontend
 
-
 ## Summary
 
 A dark terminal-aesthetic web interface and API layer for the Kryptos project. The goal is a self-contained tool that feels like a real CIA cryptanalysis workstation — monospace, green-on-black, dense with live data — while also serving as a public-facing explainer and a practical encrypted messaging utility.
@@ -301,3 +300,7 @@ docker-compose.yml
 | No UI | React SPA served from the same process |
 
 Nothing in `src/kryptos/` is removed or restructured. The API layer imports existing modules as-is. The frontend is purely additive.
+
+## Related
+- [[repos/kryptos/docs/analysis/K4_ACTIVE_RESEARCH|K4 Active Research]] — parent research state and attack surface
+- [[repos/kryptos|kryptos runbook]] — repo context
