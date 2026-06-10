@@ -174,9 +174,12 @@ This was mentioned in `K4-T1.md` and `30_YEAR_GAP_COVERAGE.md` but the composite
 | S→T→S 3-layer chain | ✅ Complete | `CompositeChainExecutor.substitution_then_transposition_then_substitution()` |
 | ADFGVX | ✅ Complete | `kryptos.k4.adfgvx`; null result against K4 |
 | Nihilist | ✅ Complete | `kryptos.k4.nihilist`; null result against K4 |
-| Beaufort | ✅ Complete | `kryptos.k4.beaufort` |
-| Clock → Hill 2×2 invertibility pre-filter | ❌ Not implemented | Stage 1 of clock-theory attack: filter 720 clock states by Hill matrix invertibility first (~15% pass), then test only those ~100 as Hill keys. Different from current approach which tests Hill and clock independently. |
-| 4-char clock key → Vigenère attack | ❌ Not implemented | Stage 2: derive a 4-char Vigenère key from each clock state (not the full shift sequence), test against NORTHEAST anchor at position 26. Specific framing not in current sweep. |
+| Beaufort | ✅ Complete | `kryptos.k4.beaufort` (primitives); systematic K4 sweep now in `kryptos.k4.beaufort_sweep` |
+| Clock → Hill 2×2 invertibility pre-filter | ✅ Implemented | `kryptos.k4.clock_hill_attack.run_clock_hill_attack` — filters clock states by Hill invertibility, applies Hill 2×2, validates 4 cribs. Null result expected on first run. |
+| 4-char clock key → Vigenère attack | ✅ Implemented | `kryptos.k4.clock_hill_attack.run_clock_vigenere_attack` — 4 encoding schemes × 720 states; NORTHEAST positional gating at position 26. |
+| Non-standard Berlin Clock sub-row encodings | ✅ Implemented | `kryptos.k4.clock_subrow_attack.run_clock_subrow_attack` — 4 sub-row schemes as short Vigenère keys. |
+| Berlin Clock lamp counts as transposition column widths | ✅ Implemented | `kryptos.k4.clock_subrow_attack.run_clock_transposition_attack` — lamp values as columnar transposition widths. |
+| Beaufort sweep against K4 | ✅ Implemented | `kryptos.k4.beaufort_sweep.run_beaufort_sweep` — 10 key candidates × 2 alphabets. |
 
 ---
 
