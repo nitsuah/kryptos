@@ -40,7 +40,7 @@ Next Review: 2026-07-01
 - [ ] **Candidate & run storage** — `candidates` and `campaign_runs` tables in Neon (currently file-based under `artifacts/`)
 
 ### Phase 4 — Validation & hardening
-- [ ] **K3 double-transposition Monte Carlo** — full double-rotational K3 algorithm not yet statistically validated (only single-column SA solver has been)
+- [x] **K3 double-transposition Monte Carlo** — `kryptos.k3.double_rotation_solver` generalizes K3's two-stage 90cw rotation to all divisor-width/rotation-type pairs; brute-force solver exactly recovers K3's plaintext as the top candidate. Monte Carlo across random parameter pairs: 75% best-of-top-10 success (`tests/e2e/test_k3_double_rotation_monte_carlo.py`)
 - [ ] **Stress tests for K1/K2** — test with noise, wrong key lengths, partial ciphertext
 
 ### Phase 5 — Post-solution

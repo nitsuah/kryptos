@@ -99,7 +99,7 @@ Counter-intuitively, period 7 (5,040 permutations) performed BETTER than period 
 - Period 6: 83.3% (3.0x better)
 - Period 7: 95.0% (3.5x better)
 
-**Possible explanations for discrepancy:** 
+**Possible explanations for discrepancy:**
 1. Roadmap claim was conservative/outdated
 2. Earlier version of SA solver had worse parameters
 3. Roadmap tested on actual K3 (double-transposition) which is harder
@@ -107,7 +107,7 @@ Counter-intuitively, period 7 (5,040 permutations) performed BETTER than period 
 
 ### Actual K3 Complexity
 
-**Important note:** Real K3 uses **double rotational transposition**, not simple columnar transposition: 
+**Important note:** Real K3 uses **double rotational transposition**, not simple columnar transposition:
 1. Write into 24×14 grid
 2. Rotate 90° clockwise
 3. Read into 8 columns
@@ -139,6 +139,38 @@ This is significantly more complex than the single columnar transpositions teste
 4. **Text length effects:** Test with varying plaintext lengths (64, 128, 256, 512 chars)
 5. **Column length analysis:** Study correlation between column length and success rate
 
+## 2026-06-10 Update: Double-Rotation Brute-Force Solver
+
+`kryptos.k3.double_rotation_solver` generalizes the actual K3 construction
+(write into a 24x14 grid, rotate 90cw, re-grid at width 8, rotate 90cw
+again) to a brute-force search over all 18 proper divisors of 336 paired
+with all 6 `apply_rotation` types (`identity, 90cw, 90ccw, 180, flip_h,
+flip_v`), for both stages -- 11,664 combinations.
+
+**Real K3 case (validated):**
+
+- `apply_double_rotation(K3_CIPHERTEXT, 24, '90cw', 8, '90cw') == K3_PLAINTEXT` exactly.
+- `brute_force_double_rotation_solve(K3_CIPHERTEXT, top_n=1)` returns K3's
+  exact plaintext as the #1-ranked candidate out of all 11,664 combinations
+  (`tests/functional/test_k3_double_rotation_solver.py`).
+
+**Monte Carlo across random (width, rotation) pairs (`run_k3_double_rotation_monte_carlo`, 20 runs, seed=42):**
+
+- **Best-of-top-10:** 75% (15/20) -- the true plaintext appears in the
+  top-10 candidates with match_ratio >= 0.95.
+- **Strict top-1:** 35% (7/20).
+
+The gap between top-1 and best-of-top-10 is a scoring artifact, not a
+search-space gap: the search space contains rotation/width combinations
+(notably any pairing involving `'identity'`, which is a no-op for any
+width) that produce **cyclic rearrangements** of the true plaintext --
+identical n-gram and word-frequency statistics, just a different start
+offset. These can outscore the exact match by floating-point noise alone.
+All 5 failing best-of-top-10 runs involve `'identity'` or extreme
+aspect-ratio grids (width 2, 56, 112, 168) on at least one stage; K3's
+actual parameters (24/8, both `90cw`) are well clear of this degenerate
+region. See `tests/e2e/test_k3_double_rotation_monte_carlo.py`.
+
 ## Validation Status
 
 | Component | Status | Success Rate | Notes |
@@ -146,7 +178,7 @@ This is significantly more complex than the single columnar transpositions teste
 | Period 5 columnar | ✅ VALIDATED | 68% | 50 runs, 2.5x better than claimed |
 | Period 6 columnar | ✅ VALIDATED | 83% | 30 runs, 3.0x better than claimed |
 | Period 7 columnar | ✅ VALIDATED | 95% | 20 runs, 3.5x better than claimed |
-| Actual K3 double-transposition | ⚠️ UNTESTED | 27.5%? | Needs validation |
+| Actual K3 double-transposition | ✅ VALIDATED (real case) | 100% (real K3); 75% best-of-10 on random pairs | `kryptos.k3.double_rotation_solver`; see 2026-06-10 update above |
 
 ## Test Files
 
@@ -155,8 +187,7 @@ This is significantly more complex than the single columnar transpositions teste
 
 ## Conclusion
 
-The SA solver for columnar transposition is **production-ready** and performs **significantly better than claimed**. The 27.5% claim likely refers to the full K3 double-transposition algorithm, which remains untested. Next priority: validate
-actual K3 solving capability.
+The SA solver for columnar transposition is **production-ready** and performs **significantly better than claimed**. The full K3 double-transposition algorithm has now been validated via `kryptos.k3.double_rotation_solver`: brute-force search exactly recovers K3's real plaintext as the top candidate, and a Monte Carlo across random divisor-width/rotation-type pairs succeeds 75% of the time within the top-10 candidates (35% as the literal #1, due to score ties with cyclic rearrangements -- see the 2026-06-10 update above).
 
 ---
 
