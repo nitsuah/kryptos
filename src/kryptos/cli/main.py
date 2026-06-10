@@ -300,6 +300,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_keyspace_stats.set_defaults(func=cmd_keyspace_stats)
 
+    sp_serve = sub.add_parser("serve", help="Run the Kryptos FastAPI server (turbovec RAG search over artifacts/)")
+    sp_serve.add_argument("--host", type=str, default="0.0.0.0", help="Bind host (default: 0.0.0.0)")
+    sp_serve.add_argument("--port", type=int, default=8000, help="Bind port (default: 8000)")
+    sp_serve.add_argument("--reload", action="store_true", help="Enable auto-reload (development)")
+    sp_serve.set_defaults(func=cmd_serve)
+
     return parser
 
     p = argparse.ArgumentParser(prog="kryptos", description="Kryptos research CLI")
@@ -437,6 +443,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_examples_smoke.set_defaults(func=cmd_examples_smoke)
     return p
+
+
+def cmd_serve(args: argparse.Namespace) -> int:
+    """Run the Kryptos FastAPI server (turbovec RAG search over artifacts/)."""
+    import uvicorn
+
+    uvicorn.run("kryptos.api.app:app", host=args.host, port=args.port, reload=args.reload)
+    return 0
 
 
 def cmd_keyspace_stats(args: argparse.Namespace) -> int:

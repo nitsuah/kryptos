@@ -1,6 +1,6 @@
 # Tasks
 
-Last Updated: 2026-06-09
+Last Updated: 2026-06-10
 
 
 ## Todo
@@ -31,6 +31,16 @@ Last Updated: 2026-06-09
 ## In Progress
 
 ## Done
+
+### RAG API (turbovec) — semantic search over `artifacts/`
+
+- [x] **`kryptos serve`** — minimal FastAPI app (`src/kryptos/api/`) with `/health`, `/api/rag/status`,
+  `POST /api/rag/reindex`, `GET /api/rag/search` endpoints
+- [x] **turbovec-backed `ArtifactIndex`** — `src/kryptos/rag/` chunks `artifacts/` (`.json`/`.md`), embeds with
+  `sentence-transformers` (`all-MiniLM-L6-v2`), indexes with `turbovec.IdMapIndex` (4-bit quantization), persisted
+  under `data/turbovec/`
+- This is the "Now" item from agent-board's `docs/AI_STACK_STRATEGY.md`, scoped separately from the Q1 2027 Phase 2
+  Data & API dashboard work above
 
 ### K4 Attack — Untested Vectors (PR #83, merged)
 

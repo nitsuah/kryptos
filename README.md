@@ -310,6 +310,44 @@ kryptos spy-extract --runs artifacts/tuning_runs --min-conf 0.25 > spy_tokens.js
 You now have: decrypt.json, sweep.json, holdout.json, spy_eval.json, spy_tokens.json summarizing the pipeline, tuning,
 and extraction outputs.
 
+## RAG API (turbovec)
+
+A lightweight FastAPI app provides semantic search over `artifacts/` (decisions, hypotheses, logs, reports), backed by
+a [turbovec](https://pypi.org/project/turbovec/) compressed vector index and `sentence-transformers` embeddings.
+
+Start the server:
+
+```bash
+kryptos serve --port 8000
+```
+
+Build (or rebuild) the index from the current `artifacts/` contents — required before searching, and after any
+`artifacts/` changes:
+
+```bash
+curl -X POST localhost:8000/api/rag/reindex
+```
+
+Check index status:
+
+```bash
+curl localhost:8000/api/rag/status
+```
+
+Semantic search:
+
+```bash
+curl "localhost:8000/api/rag/search?q=Hill+cipher+key+matrix&k=5"
+```
+
+Health check:
+
+```bash
+curl localhost:8000/health
+```
+
+The index is stored under `data/turbovec/` (gitignored, derived from `artifacts/`).
+
 ## Recent Changes
 
 - **2025-10-24**: Fixed CI failures by correcting `.gitignore` pattern - added agents source code (SPY, OPS, Q agents)
@@ -338,7 +376,7 @@ Run the fast test suite with coverage in a lightweight Docker container:
 
 ```bash
 docker run --rm -v "${PWD}:/app" -w /app python:3.13-slim sh -lc \
-  "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml && \
+  "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml fastapi httpx && \
    python -m spacy download en_core_web_sm && \
    pip install --no-cache-dir -e . --no-deps && \
    pytest tests/ -m 'not slow' --cov=src --cov-report=term"

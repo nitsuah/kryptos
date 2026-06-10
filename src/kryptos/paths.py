@@ -6,6 +6,8 @@ Primary helpers (cached):
     get_logs_dir() -> Path
     get_decisions_dir() -> Path
     get_tuning_runs_root() -> Path
+    get_data_root() -> Path
+    get_turbovec_index_dir() -> Path
     ensure_reports_dir() -> Path
     provenance_hash(text: str, meta: dict) -> str
     get_provenance_info() -> dict
@@ -90,6 +92,19 @@ def get_tuning_runs_root() -> Path:
     return runs
 
 
+def get_data_root() -> Path:
+    root = get_repo_root()
+    data = root / "data"
+    data.mkdir(parents=True, exist_ok=True)
+    return data
+
+
+def get_turbovec_index_dir() -> Path:
+    idx = get_data_root() / "turbovec"
+    idx.mkdir(parents=True, exist_ok=True)
+    return idx
+
+
 def ensure_reports_dir(ts: str | None = None) -> Path:
     root = get_artifacts_root()
     date_seg = datetime.now(timezone.utc).strftime("%Y%m%d")
@@ -114,7 +129,7 @@ def provenance_hash(text: str, meta: dict) -> str:
 
 
 def get_provenance_info(include_params: dict | None = None) -> dict:
-    info = {
+    info: dict[str, object] = {
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "python_version": sys.version,
         "python_version_info": {
@@ -189,6 +204,8 @@ __all__ = [
     "get_logs_dir",
     "get_decisions_dir",
     "get_tuning_runs_root",
+    "get_data_root",
+    "get_turbovec_index_dir",
     "ensure_reports_dir",
     "provenance_hash",
     "get_provenance_info",
