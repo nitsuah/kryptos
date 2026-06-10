@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Start-Sleep *)",
+      "PowerShell(Push-Location *)",
+      "PowerShell(Test-Path *)",
+      "Bash(git -C * show *)",
+      "PowerShell(where *)"
+    ]
+  }
+}
