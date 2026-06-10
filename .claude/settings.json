@@ -6,7 +6,10 @@
       "PowerShell(Push-Location *)",
       "PowerShell(Test-Path *)",
       "Bash(git -C * show *)",
-      "PowerShell(where *)"
+      "PowerShell(where *)",
+      "Bash(docker info)",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__Claude_in_Chrome__tabs_context_mcp"
     ]
   }
 }
