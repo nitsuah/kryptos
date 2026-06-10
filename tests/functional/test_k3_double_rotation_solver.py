@@ -1,0 +1,42 @@
+"""Functional tests for kryptos.k3.double_rotation_solver.
+
+Validates the generalized two-stage grid-rotation construction against
+K3's actual ciphertext/plaintext: K3 is a 24-wide 90cw rotation followed
+by an 8-wide 90cw rotation.
+"""
+
+from __future__ import annotations
+
+from kryptos.k3.double_rotation_solver import K3_LENGTH, apply_double_rotation, brute_force_double_rotation_solve
+
+K3_CIPHERTEXT = (
+    "ENDYAHROHNLSRHEOCPTEOIBIDYSHNAIACHTNREYULDSLLSLLNOHSNOSMRWXMNET"
+    "PRNGATIHNRARPESLNNELEBLPIIACAEWMTWNDITEENRAHCTENEUDRETNHAEOETFOLS"
+    "EDTIWENHAEIOYTEYQHEENCTAYCREIFTBRSPAMHHEWENATAMATEGYEERLBTEEFOASF"
+    "IOTUETUAEOTOARMAEERTNRTIBSEDDNIAAHTTMSTEWPIEROAGRIEWFEBAECTDDHILC"
+    "EIHSITEGOEAOSDDRYDLORITRKLMLEHAGTDHARDPNEOHMGFMFEUHEECDMRIPFEIMEH"
+    "NLSSTTRTVDOHW"
+)
+
+K3_PLAINTEXT = (
+    "SLOWLYDESPARATLYSLOWLYTHEREMAINSOFPASSAGEDEBRISTHATENCUMBEREDTHEL"
+    "OWERPARTOFTHEDOORWAYWASREMOVEDWITHTREMBLINGHANDSIMADEATINYBREACHI"
+    "NTHEUPPERLEFTHANDCORNERANDTHENWIDENINGTHEHOLEALITTLEIINSERTEDTHEC"
+    "ANDLEANDPEEREDINTHEHOTAIRESCAPINGFROMTHECHAMBERCAUSEDTHEFLAMETOF"
+    "LICKERBUTPRESENTLYDETAILSOFTHEROOMWITHINEMERGEDFROMTHEMISTXCANYO"
+    "USEEANYTHINGQ"
+)
+
+
+def test_constants():
+    assert len(K3_CIPHERTEXT) == K3_LENGTH
+    assert len(K3_PLAINTEXT) == K3_LENGTH
+
+
+def test_apply_double_rotation_reproduces_k3_decrypt():
+    assert apply_double_rotation(K3_CIPHERTEXT, 24, "90cw", 8, "90cw") == K3_PLAINTEXT
+
+
+def test_brute_force_recovers_k3_plaintext():
+    top = brute_force_double_rotation_solve(K3_CIPHERTEXT, top_n=1)
+    assert top[0].text == K3_PLAINTEXT

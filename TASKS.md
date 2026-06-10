@@ -1,6 +1,6 @@
 # Tasks
 
-Last Updated: 2026-06-09
+Last Updated: 2026-06-10
 
 
 ## Todo
@@ -39,3 +39,9 @@ Last Updated: 2026-06-09
 - [x] **Non-standard Berlin Clock sub-row encodings** — `kryptos.k4.clock_subrow_attack.run_clock_subrow_attack`. Null result.
 - [x] **Berlin Clock lamp counts as transposition column widths** — `kryptos.k4.clock_subrow_attack.run_clock_transposition_attack`. Null result.
 - [x] **Beaufort cipher sweep** — `kryptos.k4.beaufort_sweep.run_beaufort_sweep`. Null result.
+
+### K3 Double-Transposition Monte Carlo (Phase 4 validation)
+
+- [x] **Generalized double-rotation solver** — `kryptos.k3.double_rotation_solver` generalizes K3's two-stage 90cw grid rotation to all 18 divisor-widths of 336 x 6 rotation types, both stages. `apply_double_rotation(K3_CIPHERTEXT, 24, '90cw', 8, '90cw') == K3_PLAINTEXT` confirmed exactly.
+- [x] **Brute-force recovery** — `brute_force_double_rotation_solve` ranks K3's true plaintext as the #1 candidate (match_ratio=1.0) out of 11,664 (width, rotation) combinations.
+- [x] **Monte Carlo validation** — `run_k3_double_rotation_monte_carlo` over 20 random parameter pairs: 75% best-of-top-10 success. Failures cluster around `'identity'`/extreme-aspect-ratio grids whose score-tied cyclic rearrangements of the plaintext outrank the exact match under n-gram/word scoring (see `tests/e2e/test_k3_double_rotation_monte_carlo.py`).
