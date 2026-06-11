@@ -45,6 +45,16 @@ Last Updated: 2026-06-10
 - [x] **`linguist.py` status** — confirmed standalone, extensively unit-tested (`tests/functional/test_linguist.py`), not wired into `pipeline/validator.py` (which uses `scoring_enhanced` instead). Documented as a future integration candidate (see Todo).
 - [x] **Updated `docs/reference/AGENTS_ARCHITECTURE.md`, `ROADMAP.md`** with corrected integration details and findings summary.
 
+### RAG API (turbovec) — semantic search over `artifacts/`
+
+- [x] **`kryptos serve`** — minimal FastAPI app (`src/kryptos/api/`) with `/health`, `/api/rag/status`,
+  `POST /api/rag/reindex`, `GET /api/rag/search` endpoints
+- [x] **turbovec-backed `ArtifactIndex`** — `src/kryptos/rag/` chunks `artifacts/` (`.json`/`.md`), embeds with
+  `sentence-transformers` (`all-MiniLM-L6-v2`), indexes with `turbovec.IdMapIndex` (4-bit quantization), persisted
+  under `data/turbovec/`
+- This is the "Now" item from agent-board's `docs/AI_STACK_STRATEGY.md`, scoped separately from the Q1 2027 Phase 2
+  Data & API dashboard work above
+
 ### K4 Attack — Untested Vectors (PR #83, merged)
 
 - [x] **Clock → Hill 2×2 invertibility pre-filter** — `kryptos.k4.clock_hill_attack.run_clock_hill_attack`. Null result.
