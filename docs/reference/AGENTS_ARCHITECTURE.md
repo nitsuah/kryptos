@@ -46,7 +46,7 @@ Corpus-style linguistic scoring using Sanborn's known plaintext as reference mat
 
 | Module | Role |
 |--------|------|
-| `agents/linguist.py` | `LinguistAgent`, `LinguisticScore`, `SanbornCorpusAnalysis`. **Standalone** — not currently wired into `AutonomousCoordinator` or `pipeline/validator.py`. The main pipeline's stage-3 linguistic validation uses `scoring_enhanced.combined_linguistic_score`/`linguistic_diagnostics` instead. `LinguistAgent` offers richer (transformer-based, with heuristic fallback) perplexity/coherence scoring; see `docs/analysis/AGENT_MODULE_REVIEW.md` for a possible future integration path. |
+| `agents/linguist.py` | `LinguistAgent`, `LinguisticScore`, `SanbornCorpusAnalysis`. Optional enhanced-scoring pass wired into `pipeline/validator.py` stage 3 via `PlaintextValidator(enable_linguist=True)` (default `False`). When enabled, `_init_linguist()` requires `torch`/`transformers`; if unavailable or initialization fails, degrades gracefully to `linguist_available=False` and stage 3 behaves exactly as before. `LinguistAgent` offers transformer-based (with heuristic fallback) perplexity/coherence scoring via `validate_candidate`/`batch_validate`, exposed as `PlaintextValidator._linguist_score`/`batch_validate_linguist`. |
 
 ### K123 Analyzer — pattern extraction from solved sections
 
@@ -116,6 +116,7 @@ Strategy knowledge (`strategy_kb` table) is read by `OpsStrategicDirector` on in
 | `tests/functional/test_ops_agent.py` | OPS strategic decisions |
 | `tests/functional/test_q_agent.py` | Q validation thresholds |
 | `tests/functional/test_linguist.py` | Linguist scoring |
+| `tests/functional/test_validator_linguist.py` | LINGUIST integration in `pipeline/validator.py` stage 3 (opt-in, graceful degradation) |
 | `tests/functional/test_spy_*.py` | SPY pattern analysis |
 | `tests/smoke/test_cli_subcommands.py` | CLI entry points |
 

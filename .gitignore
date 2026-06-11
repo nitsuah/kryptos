@@ -39,6 +39,8 @@ MANIFEST
 /data/*.generated
 # turbovec RAG index, generated from gitignored artifacts/
 /data/turbovec/
+# LINGUIST agent model cache (downloaded on first use when enable_linguist=True)
+/data/linguist/
 reports/
 artifacts/
 /agents/

@@ -18,32 +18,32 @@ from typing import Any
 from kryptos.log_setup import setup_logging
 
 ENGLISH_FREQ = {
-    'E': 12.70,
-    'T': 9.06,
-    'A': 8.17,
-    'O': 7.51,
-    'I': 6.97,
-    'N': 6.75,
-    'S': 6.33,
-    'H': 6.09,
-    'R': 5.99,
-    'D': 4.25,
-    'L': 4.03,
-    'C': 2.78,
-    'U': 2.76,
-    'M': 2.41,
-    'W': 2.36,
-    'F': 2.23,
-    'G': 2.02,
-    'Y': 1.97,
-    'P': 1.93,
-    'B': 1.29,
-    'V': 0.98,
-    'K': 0.77,
-    'J': 0.15,
-    'X': 0.15,
-    'Q': 0.10,
-    'Z': 0.07,
+    "E": 12.70,
+    "T": 9.06,
+    "A": 8.17,
+    "O": 7.51,
+    "I": 6.97,
+    "N": 6.75,
+    "S": 6.33,
+    "H": 6.09,
+    "R": 5.99,
+    "D": 4.25,
+    "L": 4.03,
+    "C": 2.78,
+    "U": 2.76,
+    "M": 2.41,
+    "W": 2.36,
+    "F": 2.23,
+    "G": 2.02,
+    "Y": 1.97,
+    "P": 1.93,
+    "B": 1.29,
+    "V": 0.98,
+    "K": 0.77,
+    "J": 0.15,
+    "X": 0.15,
+    "Q": 0.10,
+    "Z": 0.07,
 }
 
 
@@ -55,7 +55,7 @@ def simple_dictionary_score(text: str) -> float:
     if not normalized:
         return 0.0
 
-    freq = {}
+    freq: dict[str, float] = {}
     for c in normalized:
         freq[c] = freq.get(c, 0) + 1
 
@@ -96,6 +96,7 @@ class PlaintextValidator:
         min_dictionary_score: float = 0.5,
         min_confidence: float = 0.7,
         log_level: str = "INFO",
+        enable_linguist: bool = False,
     ):
         """Initialize validator.
 
@@ -104,11 +105,36 @@ class PlaintextValidator:
             min_dictionary_score: Minimum dictionary score to pass
             min_confidence: Minimum confidence to mark as valid
             log_level: Logging level
+            enable_linguist: Enable the optional LINGUIST neural-scoring pass
+                (kryptos.agents.linguist.LinguistAgent) in stage 3, alongside the
+                existing heuristic checks. Requires torch/transformers; degrades
+                to disabled (linguist_available=False) if they are unavailable
+                or the agent fails to initialize.
         """
         self.known_cribs = [c.upper() for c in (known_cribs or [])]
         self.min_dictionary_score = min_dictionary_score
         self.min_confidence = min_confidence
         self.log = setup_logging(level=log_level, logger_name="kryptos.pipeline.validator")
+
+        self.linguist = self._init_linguist() if enable_linguist else None
+        self.linguist_available = self.linguist is not None
+
+    def _init_linguist(self) -> Any:
+        try:
+            import torch  # noqa: F401
+            import transformers  # noqa: F401
+        except ImportError:
+            self.log.info("LINGUIST disabled: torch/transformers not available")
+            return None
+
+        try:
+            from kryptos.agents.linguist import LinguistAgent
+            from kryptos.paths import get_data_root
+
+            return LinguistAgent(cache_dir=get_data_root() / "linguist")
+        except Exception as e:
+            self.log.warning(f"LINGUIST agent unavailable: {e}")
+            return None
 
     def normalize(self, text: str) -> str:
         return "".join(c.upper() for c in text if c.isalpha())
@@ -142,7 +168,7 @@ class PlaintextValidator:
                     {
                         "crib": crib,
                         "position": position,
-                        "context": normalized[max(0, position - 5) : position + len(crib) + 5],
+                        "context": normalized[max(0, position - 5) : position + len(crib) + 5],  # noqa: E203
                     },
                 )
 
@@ -159,44 +185,101 @@ class PlaintextValidator:
         normalized = self.normalize(plaintext)
 
         if not normalized:
-            return {
+            result: dict[str, Any] = {
                 "passed": False,
                 "reason": "Empty plaintext",
                 "metrics": {},
             }
+        else:
+            length = len(normalized)
 
-        length = len(normalized)
+            vowels = sum(1 for c in normalized if c in "AEIOUY")
+            vowel_ratio = vowels / length if length > 0 else 0.0
+            vowel_ok = 0.25 < vowel_ratio < 0.55
 
-        vowels = sum(1 for c in normalized if c in "AEIOUY")
-        vowel_ratio = vowels / length if length > 0 else 0.0
-        vowel_ok = 0.25 < vowel_ratio < 0.55
+            max_repeat = max(
+                (len(list(group)) for char, group in __import__("itertools").groupby(normalized)),
+                default=0,
+            )
+            repetition_ok = max_repeat <= 4
 
-        max_repeat = max((len(list(group)) for char, group in __import__('itertools').groupby(normalized)), default=0)
-        repetition_ok = max_repeat <= 4
+            common_digraphs = ["TH", "HE", "IN", "ER", "AN", "RE", "ON", "AT", "EN", "ND"]
+            digraph_count = sum(1 for dg in common_digraphs if dg in normalized)
+            digraph_ok = digraph_count >= 2 or length < 20
 
-        common_digraphs = ["TH", "HE", "IN", "ER", "AN", "RE", "ON", "AT", "EN", "ND"]
-        digraph_count = sum(1 for dg in common_digraphs if dg in normalized)
-        digraph_ok = digraph_count >= 2 or length < 20
+            passed = vowel_ok and repetition_ok and digraph_ok
 
-        passed = vowel_ok and repetition_ok and digraph_ok
+            reasons = []
+            if not vowel_ok:
+                reasons.append(f"Vowel ratio {vowel_ratio:.2%} outside 25-55%")
+            if not repetition_ok:
+                reasons.append(f"Excessive repetition ({max_repeat} consecutive chars)")
+            if not digraph_ok:
+                reasons.append(f"Too few common digraphs ({digraph_count} found)")
 
-        reasons = []
-        if not vowel_ok:
-            reasons.append(f"Vowel ratio {vowel_ratio:.2%} outside 25-55%")
-        if not repetition_ok:
-            reasons.append(f"Excessive repetition ({max_repeat} consecutive chars)")
-        if not digraph_ok:
-            reasons.append(f"Too few common digraphs ({digraph_count} found)")
+            result = {
+                "passed": passed,
+                "metrics": {
+                    "vowel_ratio": vowel_ratio,
+                    "max_repetition": max_repeat,
+                    "common_digraphs": digraph_count,
+                },
+                "reason": " | ".join(reasons) if reasons else "Linguistic checks passed",
+            }
+
+        if self.linguist_available:
+            result["linguist"] = self._linguist_score(plaintext)
+
+        return result
+
+    def _linguist_score(self, plaintext: str) -> dict[str, Any] | None:
+        try:
+            score = self.linguist.validate_candidate(plaintext)
+        except Exception as e:
+            self.log.warning(f"LINGUIST scoring failed: {e}")
+            return None
 
         return {
-            "passed": passed,
-            "metrics": {
-                "vowel_ratio": vowel_ratio,
-                "max_repetition": max_repeat,
-                "common_digraphs": digraph_count,
-            },
-            "reason": " | ".join(reasons) if reasons else "Linguistic checks passed",
+            "confidence": score.confidence,
+            "perplexity": score.perplexity,
+            "coherence": score.coherence,
+            "grammar_score": score.grammar_score,
+            "model_used": score.model_used,
+            "passed": bool(score.metadata.get("passed", False)),
         }
+
+    def batch_validate_linguist(
+        self,
+        candidates: list[str],
+        threshold: float = 0.6,
+        top_k: int = 10,
+    ) -> list[tuple[str, dict[str, Any]]] | None:
+        """Re-rank candidates using the optional LINGUIST agent's batch scoring.
+
+        Returns None if LINGUIST is not enabled/available (see `enable_linguist`).
+        """
+        if not self.linguist_available:
+            return None
+
+        try:
+            scored = self.linguist.batch_validate(candidates, threshold=threshold, top_k=top_k)
+        except Exception as e:
+            self.log.warning(f"LINGUIST batch scoring failed: {e}")
+            return None
+
+        return [
+            (
+                text,
+                {
+                    "confidence": score.confidence,
+                    "perplexity": score.perplexity,
+                    "coherence": score.coherence,
+                    "grammar_score": score.grammar_score,
+                    "model_used": score.model_used,
+                },
+            )
+            for text, score in scored
+        ]
 
     def stage4_confidence_scoring(self, stage_results: dict[str, dict[str, Any]]) -> dict[str, Any]:
         dict_score = stage_results["stage1_dictionary"]["score"]
