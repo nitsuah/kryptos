@@ -37,6 +37,8 @@ MANIFEST
 *.tmp
 # Ignore generated data files if any
 /data/*.generated
+# turbovec RAG index, generated from gitignored artifacts/
+/data/turbovec/
 reports/
 artifacts/
 /agents/
