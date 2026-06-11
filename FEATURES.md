@@ -4,7 +4,7 @@
 > Cryptographic research toolkit for solving the K4 cipher puzzle
 
 ---
-**Last Updated:** 2026-06-01
+**Last Updated:** 2026-06-10
 ---
 
 
@@ -99,6 +99,16 @@
 - **`k4_research_findings`**: Confirmed facts and ruled-out hypotheses (19 entries, queryable by kind/confidence)
 - **`k4_keystream`**: Per-position crib/cipher/plain/shift data for all four confirmed cribs (24 rows)
 - **`source_chunks`**: Smithsonian 2009 oral history transcript chunked for semantic search (51 chunks)
+
+---
+
+## 🔍 RAG & Semantic Search (turbovec)
+
+- **`kryptos serve`**: Minimal FastAPI app exposing semantic search over `artifacts/` (decisions, hypotheses, logs, reports)
+- **turbovec-backed index**: Compressed vector index (`IdMapIndex`, 4-bit quantization) stored under `data/turbovec/`
+- **`sentence-transformers` embeddings**: `all-MiniLM-L6-v2` (384-dim, CPU-friendly) for chunk and query encoding
+- **Endpoints**: `GET /health`, `GET /api/rag/status`, `POST /api/rag/reindex`, `GET /api/rag/search?q=...&k=...`
+- **On-demand indexing**: Index is built via `/api/rag/reindex`, not automatically at startup — keeps the API lightweight until search is needed
 
 ---
 

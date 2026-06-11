@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+### Added
+
+- `kryptos serve` command and minimal FastAPI app (`src/kryptos/api/`) exposing `/health`, `/api/rag/status`,
+  `POST /api/rag/reindex`, and `GET /api/rag/search` endpoints
+- turbovec-backed `ArtifactIndex` (`src/kryptos/rag/`) for semantic search over `artifacts/`, using
+  `sentence-transformers` embeddings and a 4-bit quantized `turbovec.IdMapIndex` persisted under `data/turbovec/`
+
 ## [Phase 6.3] - 2026-05-25
 
 ### Added
