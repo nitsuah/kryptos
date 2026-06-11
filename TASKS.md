@@ -1,11 +1,9 @@
 # Tasks
 
-Last Updated: 2026-06-10
+Last Updated: 2026-06-11
 
 
 ## Todo
-
-- [ ] **Linguist integration** — wire `LinguistAgent.cross_validate_with_spy`/`batch_validate` (`kryptos.agents.linguist`) into `pipeline/validator.py` stage 3 as an optional enhanced-scoring pass alongside `scoring_enhanced`, gated on `torch`/`transformers` availability (see `docs/analysis/AGENT_MODULE_REVIEW.md`).
 
 # Q1 2027: Final Push & Post-Solution Analysis
 
@@ -44,6 +42,10 @@ Last Updated: 2026-06-10
 - [x] **Bug 5 — `run_autonomous_loop(max_hours=0.0, ...)` infinite loop** — `if max_hours and ...` / `if max_cycles and ...` treated `0`/`0.0` ("exit immediately") the same as `None` ("infinite"), since both are falsy. Previously masked by Bug 4's crash-based early exit; exposed once Bug 4 was fixed, causing PR CI to hang for the full 6-hour job timeout (twice). Fixed via `is not None` checks; verified the previously-hanging test now passes in 15.29s.
 - [x] **`linguist.py` status** — confirmed standalone, extensively unit-tested (`tests/functional/test_linguist.py`), not wired into `pipeline/validator.py` (which uses `scoring_enhanced` instead). Documented as a future integration candidate (see Todo).
 - [x] **Updated `docs/reference/AGENTS_ARCHITECTURE.md`, `ROADMAP.md`** with corrected integration details and findings summary.
+
+### Linguist Integration (`pipeline/validator.py` stage 3)
+
+- [x] **Wired `LinguistAgent` into `PlaintextValidator`** — new `enable_linguist` constructor flag (default `False`). `_init_linguist()` gates on `torch`/`transformers` availability and `LinguistAgent` construction, degrading to `linguist_available=False` on any failure. When enabled, `stage3_linguistic_validation()` adds a `"linguist"` key (confidence/perplexity/coherence/grammar_score/model_used/passed) alongside the existing heuristic fields; `_linguist_score()` and the new `batch_validate_linguist()` re-ranking helper both catch and log scoring exceptions, returning `None` rather than raising. Existing default (`enable_linguist=False`) behavior and `"linguist"`-key absence are unchanged. See `tests/functional/test_validator_linguist.py`.
 
 ### RAG API (turbovec) — semantic search over `artifacts/`
 
