@@ -8,12 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from kryptos.autonomous_coordinator import (
-    AutonomousCoordinator,
-    AutonomousState,
-    CoordinationMessage,
-    MessageType,
-)
+from kryptos.autonomous_coordinator import AutonomousCoordinator, AutonomousState, CoordinationMessage, MessageType
 
 
 @pytest.fixture
@@ -302,7 +297,7 @@ class TestAutonomousIntegration:
             mock_patterns.return_value = [
                 SanbornPattern("THEME", "Test", ["evidence"], "hypothesis", 0.9),
             ]
-            mock_web.return_value = []
+            mock_web.return_value = {"new_cribs": [], "updates": [], "timestamp": datetime.now().isoformat()}
             mock_update.return_value = None  # Mock progress updates
             mock_ops.return_value = StrategicDecision(
                 timestamp=datetime.now(),

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from types import SimpleNamespace
 from pathlib import Path
 
-from kryptos.autonomous_coordinator import AutonomousCoordinator, main
 from kryptos.agents.ops_director import AttackProgress, StrategicDecision, StrategyAction
+from kryptos.autonomous_coordinator import AutonomousCoordinator, main
 
 
 def _mk_coord(tmp_path):
@@ -15,16 +14,16 @@ def _mk_coord(tmp_path):
 def test_web_intelligence_success_and_failure_paths(tmp_path, monkeypatch):
     c = _mk_coord(tmp_path)
 
-    class _Crib:
-        def __init__(self, text):
-            self.text = text
-
-    monkeypatch.setattr(c.web_intel, "gather_intelligence", lambda **_kwargs: ["i1", "i2"])
-    monkeypatch.setattr(c.web_intel, "get_top_cribs", lambda **_kwargs: [_Crib("BERLIN"), _Crib("CLOCK")])
+    monkeypatch.setattr(
+        c.web_intel,
+        "gather_intelligence",
+        lambda: {"new_cribs": ["i1", "i2"], "updates": [], "timestamp": "2026-01-01T00:00:00"},
+    )
+    monkeypatch.setattr(c.web_intel, "get_top_cribs", lambda: ["BERLIN", "CLOCK"])
     c._check_web_intelligence()
     assert any(i.agent_name == "WEB_INTEL" for i in c.state.agent_insights)
 
-    monkeypatch.setattr(c.web_intel, "gather_intelligence", lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("x")))
+    monkeypatch.setattr(c.web_intel, "gather_intelligence", lambda: (_ for _ in ()).throw(RuntimeError("x")))
     c.state.web_intel_last_check = None
     c._check_web_intelligence()
     assert c.state.web_intel_last_check is not None
@@ -52,7 +51,7 @@ def test_ops_analysis_throttle_and_action_variants(tmp_path, monkeypatch):
         review_in_hours=1.0,
         confidence=0.8,
     )
-    monkeypatch.setattr(c.ops_director, "update_attack_progress", lambda _progress: None)
+    monkeypatch.setattr(c.ops_director, "update_attack_progress", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(c.ops_director, "analyze_situation", lambda: decision)
     c._run_ops_strategic_analysis()
     assert c.state.strategic_decisions
@@ -73,7 +72,10 @@ def test_coordination_cycle_checkpoint_and_exchange_error(tmp_path, monkeypatch)
 
     monkeypatch.setattr(c, "_check_web_intelligence", lambda: None)
     monkeypatch.setattr(c, "_run_ops_strategic_analysis", lambda: None)
-    monkeypatch.setattr("kryptos.autonomous_coordinator.run_exchange", lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("boom")))
+    monkeypatch.setattr(
+        "kryptos.autonomous_coordinator.run_exchange",
+        lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("boom")),
+    )
 
     calls = []
     monkeypatch.setattr(c, "create_checkpoint", lambda **kwargs: calls.append(kwargs))

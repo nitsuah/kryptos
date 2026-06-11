@@ -51,13 +51,22 @@ Next Review: 2026-07-01
 
 ## Agent Module Review (Post-K4, Pre-GUI)
 
-- [ ] Review, refactor, or remove optional/partial agent modules in `src/kryptos/agents/`:
+- [x] Review, refactor, or remove optional/partial agent modules in `src/kryptos/agents/`:
     - `spy_nlp.py`
     - `spy_web_intel.py`
     - `linguist.py`
     - `ops_director.py`
-- [ ] Decide if these modules are needed, should be modernized, or can be dropped entirely.
-- [ ] Document outcome and update architecture docs as needed.
+- [x] Decide if these modules are needed, should be modernized, or can be dropped entirely.
+- [x] Document outcome and update architecture docs as needed.
+
+> **Outcome**: all four modules kept, none removed. The review found and fixed 4
+> bugs in `AutonomousCoordinator`'s integration with `spy_nlp`/`spy_web_intel`/
+> `ops_director` (API drift masked by tests mocking buggy call-site signatures),
+> including a crash-on-startup (`SpyNLP()` requiring `en_core_web_sm`, not present
+> in the runtime image) and a crash-on-cycle-1 (`analyze_situation()` returning
+> `None` was unhandled). `linguist.py` is confirmed standalone/well-tested but not
+> wired into the main pipeline; documented as a future integration candidate. See
+> `docs/analysis/AGENT_MODULE_REVIEW.md`.
 
 ---
 
