@@ -65,7 +65,10 @@ Next Review: 2026-07-01
 > including a crash-on-startup (`SpyNLP()` requiring `en_core_web_sm`, not present
 > in the runtime image) and a crash-on-cycle-1 (`analyze_situation()` returning
 > `None` was unhandled). `linguist.py` is confirmed standalone/well-tested but not
-> wired into the main pipeline; documented as a future integration candidate. See
+> wired into the main pipeline; documented as a future integration candidate. A
+> 5th bug — `run_autonomous_loop(max_hours=0.0, ...)` looping forever due to a
+> falsy-zero check, previously masked by the crash-on-cycle-1 bug — was uncovered
+> by a 6-hour CI hang after the cycle-1 crash was fixed, and also fixed. See
 > `docs/analysis/AGENT_MODULE_REVIEW.md`.
 
 ---

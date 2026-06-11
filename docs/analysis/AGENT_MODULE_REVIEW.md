@@ -147,6 +147,65 @@ decision-made paths).
 fresh coordinator state logged `OPS: no strategic decision needed at this time` and
 left `state.strategic_decisions == []`, with no crash.
 
+### Bug 5 — `run_autonomous_loop(max_hours=0.0, ...)` never terminates
+
+`run_autonomous_loop` accepts `max_hours: float | None = None` and
+`max_cycles: int | None = None`, documented as "`None` = infinite". The loop's
+termination checks used Python truthiness instead of an explicit `None` check:
+
+```python
+if max_hours and runtime_hours >= max_hours:
+    ...
+    break
+if max_cycles and self.state.coordination_cycles >= max_cycles:
+    ...
+    break
+```
+
+`0` and `0.0` are falsy in Python, so `max_hours=0.0` (and `max_cycles=0`) — a
+caller asking for "run for zero hours / zero cycles", i.e. exit immediately — was
+silently treated the same as `None` ("run forever"). Combined with
+`cycle_interval_minutes=0` (so `time.sleep(0)` is a no-op), this produces a true
+`while True:` busy-loop that calls `_coordination_cycle()` (and therefore the real,
+unmocked `run_exchange(autopilot=True)`) over and over with no exit condition.
+
+**Discovery**: this bug was masked on `main` by the (now-fixed) Bug 4 —
+`_run_ops_strategic_analysis()` previously crashed with
+`AttributeError: 'NoneType' object has no attribute 'timestamp'` on the very first
+cycle whenever `analyze_situation()` returned `None` (the common case for a fresh
+coordinator with `active_attacks={}`). That crash propagated to
+`run_autonomous_loop`'s outer `except Exception` handler, which logged a fatal error
+and exited the loop after exactly one cycle — accidentally terminating the loop
+*for the wrong reason* before the `max_hours=0.0` bug could ever manifest.
+
+After the Bug 4 fix, `_run_ops_strategic_analysis()` no longer crashes on a fresh
+coordinator, so cycle 1 completes normally, the (still-buggy) `max_hours=0.0` check
+never trips, and the loop runs forever. This was caught by CI: PR #89's "CI (fast)"
+job hung for the full 6-hour GitHub Actions job timeout (twice) on
+`tests/smoke/test_fast_coverage_autonomous_coordinator_extra.py::
+test_state_key_error_paths_and_loop_reporting`, which calls
+`c.run_autonomous_loop(max_hours=0.0, cycle_interval_minutes=0)` against an
+unmocked coordinator.
+
+**Fix**: changed both checks to explicit `is not None` comparisons:
+
+```python
+if max_hours is not None and runtime_hours >= max_hours:
+    ...
+    break
+if max_cycles is not None and self.state.coordination_cycles >= max_cycles:
+    ...
+    break
+```
+
+`grep -rn "max_hours\s*=\s*0\|max_cycles\s*=\s*0"` confirms the only call site
+passing `0`/`0.0` is the test above, so this is a pure bug fix with no other
+call-site impact — `None` continues to mean "infinite", and `0`/`0.0` now correctly
+mean "exit before the first cycle".
+
+**Empirical verification**: the previously-hanging test now passes in 15.29s in
+Docker (was: cancelled after 6h0m18s in GitHub Actions, twice).
+
 ## Module-by-module recommendations
 
 ### `spy_nlp.py` — **keep, no source changes**
@@ -206,8 +265,10 @@ progress with the real 3-argument signature and correctly handles the
 
 ## Summary of changes in this PR
 
-- `src/kryptos/autonomous_coordinator.py`: 4 bug fixes (above), all empirically
-  verified against the real agent implementations in Docker.
+- `src/kryptos/autonomous_coordinator.py`: 5 bug fixes (above), all empirically
+  verified against the real agent implementations in Docker. Bug 5 was discovered
+  via a CI hang (PR CI job cancelled after the 6-hour GitHub Actions job timeout,
+  twice) caused by the Bug 4 fix exposing a pre-existing latent bug.
 - `tests/smoke/test_fast_coverage_autonomous_coordinator_extra.py`: updated mocks to
   match real `SpyWebIntel`/`OpsStrategicDirector` signatures; fixed 2 pre-existing
   flake8 violations (unused import, line-too-long) in the touched file.

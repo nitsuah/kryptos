@@ -560,10 +560,10 @@ class AutonomousCoordinator:
         try:
             while True:
                 runtime_hours = (datetime.now() - start_time).total_seconds() / 3600
-                if max_hours and runtime_hours >= max_hours:
+                if max_hours is not None and runtime_hours >= max_hours:
                     self.logger.info(f"⏰ Max runtime reached ({runtime_hours:.2f} hours)")
                     break
-                if max_cycles and self.state.coordination_cycles >= max_cycles:
+                if max_cycles is not None and self.state.coordination_cycles >= max_cycles:
                     self.logger.info(f"🔄 Max cycles reached ({self.state.coordination_cycles})")
                     break
 
