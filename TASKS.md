@@ -5,6 +5,8 @@ Last Updated: 2026-06-10
 
 ## Todo
 
+- [ ] **Linguist integration** — wire `LinguistAgent.cross_validate_with_spy`/`batch_validate` (`kryptos.agents.linguist`) into `pipeline/validator.py` stage 3 as an optional enhanced-scoring pass alongside `scoring_enhanced`, gated on `torch`/`transformers` availability (see `docs/analysis/AGENT_MODULE_REVIEW.md`).
+
 # Q1 2027: Final Push & Post-Solution Analysis
 
 ### Phase 1: Dashboard & UI
@@ -31,6 +33,17 @@ Last Updated: 2026-06-10
 ## In Progress
 
 ## Done
+
+### Agent Module Review (Post-K4, Pre-GUI)
+
+- [x] **Audited `spy_nlp.py`, `spy_web_intel.py`, `linguist.py`, `ops_director.py`** — all four kept; none removed. See `docs/analysis/AGENT_MODULE_REVIEW.md`.
+- [x] **Bug 1 — dead/crash-prone `SpyNLP()` in `AutonomousCoordinator.__init__`** — direct construction raised `OSError: [E050]` (`en_core_web_sm` not in runtime image), crashing the coordinator on startup. Removed; `SpyNLP` remains correctly used via `SpyAgent`'s guarded fallback.
+- [x] **Bug 2 — `_check_web_intelligence()` called `SpyWebIntel` with wrong kwargs/return-shape** — fixed to call `gather_intelligence()`/`get_top_cribs()` with their real signatures (no `max_sources`/`max_age_days`/`n` kwargs; `new_cribs` is a dict key, `get_top_cribs()` returns `list[str]`). Verified live: 48 cribs found from real scrape.
+- [x] **Bug 3 — `update_attack_progress(progress)` arity mismatch** — real signature is `update_attack_progress(attack_type, attempts, best_score)`; fixed call sites.
+- [x] **Bug 4 — unhandled `analyze_situation() -> None`** — `OpsStrategicDirector.analyze_situation()` returns `None` when no decision is needed (the common case on early cycles); previously crashed with `AttributeError` on `decision.timestamp`. Added early-return + log message; verified live (`OPS: no strategic decision needed at this time`).
+- [x] **Bug 5 — `run_autonomous_loop(max_hours=0.0, ...)` infinite loop** — `if max_hours and ...` / `if max_cycles and ...` treated `0`/`0.0` ("exit immediately") the same as `None` ("infinite"), since both are falsy. Previously masked by Bug 4's crash-based early exit; exposed once Bug 4 was fixed, causing PR CI to hang for the full 6-hour job timeout (twice). Fixed via `is not None` checks; verified the previously-hanging test now passes in 15.29s.
+- [x] **`linguist.py` status** — confirmed standalone, extensively unit-tested (`tests/functional/test_linguist.py`), not wired into `pipeline/validator.py` (which uses `scoring_enhanced` instead). Documented as a future integration candidate (see Todo).
+- [x] **Updated `docs/reference/AGENTS_ARCHITECTURE.md`, `ROADMAP.md`** with corrected integration details and findings summary.
 
 ### RAG API (turbovec) — semantic search over `artifacts/`
 

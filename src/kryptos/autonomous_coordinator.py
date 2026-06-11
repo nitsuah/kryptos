@@ -49,13 +49,7 @@ from pathlib import Path
 from typing import Any
 
 from kryptos.agents.k123_analyzer import K123Analyzer
-from kryptos.agents.ops_director import (
-    AgentInsight,
-    AttackProgress,
-    OpsStrategicDirector,
-    StrategyAction,
-)
-from kryptos.agents.spy_nlp import SpyNLP
+from kryptos.agents.ops_director import AgentInsight, AttackProgress, OpsStrategicDirector, StrategyAction
 from kryptos.agents.spy_web_intel import SpyWebIntel
 from kryptos.autopilot import run_exchange
 from kryptos.log_setup import setup_logging
@@ -226,7 +220,6 @@ class AutonomousCoordinator:
         self.web_intel_check_hours = web_intel_check_hours
 
         self.ops_director = OpsStrategicDirector()
-        self.spy_nlp = SpyNLP()
         self.web_intel = SpyWebIntel()
         self.k123_analyzer = K123Analyzer()
 
@@ -398,23 +391,24 @@ class AutonomousCoordinator:
 
         self.logger.info("Gathering web intelligence...")
         try:
-            intel_items = self.web_intel.gather_intelligence(max_sources=3, max_age_days=30)
+            results = self.web_intel.gather_intelligence()
+            new_cribs = results["new_cribs"]
 
-            if intel_items:
-                top_cribs = self.web_intel.get_top_cribs(n=5)
+            if new_cribs:
+                top_cribs = self.web_intel.get_top_cribs()
                 insight = AgentInsight(
                     agent_name="WEB_INTEL",
                     timestamp=now,
                     category="external_intel",
-                    description=f"Found {len(intel_items)} intel items, {len(top_cribs)} high-confidence cribs",
+                    description=f"Found {len(new_cribs)} new cribs, {len(top_cribs)} high-confidence overall",
                     confidence=0.80,
                     actionable=True,
-                    metadata={"intel_count": len(intel_items), "top_cribs": [c.text for c in top_cribs]},
+                    metadata={"intel_count": len(new_cribs), "top_cribs": top_cribs},
                 )
                 self.state.agent_insights.append(insight)
                 self.ops_director.register_agent_insight(insight)
 
-                self.logger.info(f"Web intel: {len(intel_items)} items, top cribs: {[c.text for c in top_cribs]}")
+                self.logger.info(f"Web intel: {len(new_cribs)} new cribs, top cribs: {top_cribs}")
 
         except Exception as exc:
             self.logger.warning(f"Web intel check failed: {exc}")
@@ -442,10 +436,15 @@ class AutonomousCoordinator:
                 confidence_trend=[],
             )
 
-        for _attack_name, progress in self.state.active_attacks.items():
-            self.ops_director.update_attack_progress(progress)
+        for attack_name, progress in self.state.active_attacks.items():
+            self.ops_director.update_attack_progress(attack_name, progress.attempts, progress.best_score)
 
         decision = self.ops_director.analyze_situation()
+        self.state.last_ops_decision = now
+
+        if decision is None:
+            self.logger.info("OPS: no strategic decision needed at this time")
+            return
 
         decision_dict = {
             "timestamp": decision.timestamp.isoformat(),
@@ -457,7 +456,6 @@ class AutonomousCoordinator:
             "confidence": decision.confidence,
         }
         self.state.strategic_decisions.append(decision_dict)
-        self.state.last_ops_decision = now
 
         self.logger.info(f"🎯 OPS Decision: {decision.action.value}")
         self.logger.info(f"   Reasoning: {decision.reasoning}")
@@ -562,10 +560,10 @@ class AutonomousCoordinator:
         try:
             while True:
                 runtime_hours = (datetime.now() - start_time).total_seconds() / 3600
-                if max_hours and runtime_hours >= max_hours:
+                if max_hours is not None and runtime_hours >= max_hours:
                     self.logger.info(f"⏰ Max runtime reached ({runtime_hours:.2f} hours)")
                     break
-                if max_cycles and self.state.coordination_cycles >= max_cycles:
+                if max_cycles is not None and self.state.coordination_cycles >= max_cycles:
                     self.logger.info(f"🔄 Max cycles reached ({self.state.coordination_cycles})")
                     break
 
