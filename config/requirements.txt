@@ -13,3 +13,4 @@ sentence-transformers>=5.5.1  # Embeddings for kryptos.rag turbovec index (also 
 turbovec  # Compressed vector index for kryptos.rag (RAG over artifacts/)
 fastapi>=0.115  # `kryptos serve` API
 uvicorn[standard]>=0.34  # ASGI server for `kryptos serve`
+psycopg2-binary>=2.9  # PostgreSQL driver for kryptos.db (DATABASE_URL / Neon storage)
