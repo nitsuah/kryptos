@@ -1,6 +1,6 @@
 # Tasks
 
-Last Updated: 2026-06-11
+Last Updated: 2026-06-12
 
 
 ## Todo
@@ -31,6 +31,11 @@ Last Updated: 2026-06-11
 ## In Progress
 
 ## Done
+
+### Quagmire I–IV solver + K4 sweep
+
+- [x] **`kryptos.k4.quagmire`** — canonical encrypt/decrypt for Quagmire I–IV (keyed plaintext/ciphertext alphabets, both Kryptos first-letter and ACA indicator-base conventions). Ground-truth verified: Quagmire III with the KRYPTOS tableau exactly reproduces K1 (PALIMPSEST) and K2 (ABSCISSA) plaintexts.
+- [x] **`kryptos.k4.quagmire_sweep.run_quagmire_sweep`** — 6,240 combinations against K4: Q1/Q2/Q3 × 4 alphabet keywords × 10 word keys × 2 indicator bases, Q4 ordered keyword pairs, plus Q3 with 1,440 Berlin Clock minute-state indicator keys. Positional crib gating (EAST@22/NORTHEAST@26/BERLIN@63/CLOCK@69) + EurekaSignal protocol. **Null result** — rules out pure single-layer Quagmire, reinforcing the substitution+transposition composite model. Artifact: `K4_QUAGMIRE_NULL.json`; recorded in `docs/analysis/K4_ACTIVE_RESEARCH.md`.
 
 ### Agent Module Review (Post-K4, Pre-GUI)
 
