@@ -306,6 +306,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp_serve.add_argument("--reload", action="store_true", help="Enable auto-reload (development)")
     sp_serve.set_defaults(func=cmd_serve)
 
+    sp_db_init = sub.add_parser("db-init", help="Create kryptos Postgres/Neon tables (requires DATABASE_URL)")
+    sp_db_init.set_defaults(func=cmd_db_init)
+
     return parser
 
     p = argparse.ArgumentParser(prog="kryptos", description="Kryptos research CLI")
@@ -450,6 +453,19 @@ def cmd_serve(args: argparse.Namespace) -> int:
     import uvicorn
 
     uvicorn.run("kryptos.api.app:app", host=args.host, port=args.port, reload=args.reload)
+    return 0
+
+
+def cmd_db_init(args: argparse.Namespace) -> int:
+    """Create the kryptos Postgres/Neon tables if they do not exist."""
+    try:
+        from kryptos.db_schema import init_schema
+
+        tables = init_schema()
+    except (RuntimeError, ImportError) as exc:
+        print(f"db-init failed: {exc}")
+        return 1
+    print(f"Ensured {len(tables)} tables: {', '.join(tables)}")
     return 0
 
 
