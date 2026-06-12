@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import random
+
 import pytest
 
 from kryptos.k4.hill_cipher import hill_decrypt, hill_encrypt, matrix_inv_mod
@@ -136,6 +138,10 @@ def test_genetic_algorithm_hill3x3():
 
     Note: This is a slow test (~10-30 seconds) due to GA iterations.
     """
+    # The GA draws from the global `random` module; seed it so the score
+    # threshold below is deterministic rather than a lottery across runs
+    random.seed(42)
+
     # Create a simple known plaintext/ciphertext pair
     plaintext = "EASTBERLINCLOCKX"  # 16 chars (multiple of 3 with padding)
     # Pad to multiple of 3
@@ -180,6 +186,9 @@ def test_genetic_algorithm_convergence():
 
     Uses a simple test case to verify the algorithm improves scores.
     """
+    # Seed for determinism (the GA draws from the global `random` module)
+    random.seed(1234)
+
     # Simple plaintext with good English characteristics
     plaintext = "THISISATESTTHATCONTAINSCOMMONENGLISHLETTERS"
     # Pad to multiple of 3
