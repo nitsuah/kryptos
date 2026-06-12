@@ -102,7 +102,9 @@ Strategy knowledge (`strategy_kb` table) is read by `OpsStrategicDirector` on in
   model is **not** installed in the runtime Docker image; `SpyAgent` degrades
   gracefully (`nlp_available = False`) when it is missing.
 - **`ops_director` LLM paths** require `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`; both fall back to rule-based logic if absent
-- **DB writes** require `DATABASE_URL` in environment (see `kryptos.db`)
+- **DB writes** require `DATABASE_URL` in environment (see `kryptos.db`). Tables are
+  defined in `kryptos.db_schema` and created idempotently with `kryptos db-init`
+  (`strategy_kb`, `ops_decisions`, `discovered_cribs`, `campaign_runs`, `candidates`).
 
 ---
 
@@ -118,6 +120,7 @@ Strategy knowledge (`strategy_kb` table) is read by `OpsStrategicDirector` on in
 | `tests/functional/test_linguist.py` | Linguist scoring |
 | `tests/functional/test_validator_linguist.py` | LINGUIST integration in `pipeline/validator.py` stage 3 (opt-in, graceful degradation) |
 | `tests/functional/test_spy_*.py` | SPY pattern analysis |
+| `tests/functional/test_db_schema.py` | `kryptos.db_schema` table definitions + live round-trips of the agent SQL shapes |
 | `tests/smoke/test_cli_subcommands.py` | CLI entry points |
 
 ---
