@@ -6,6 +6,7 @@ from dataclasses import asdict
 
 from fastapi import FastAPI, HTTPException, Query
 
+from kryptos.api.dashboard import create_dashboard_router
 from kryptos.rag.index import ArtifactIndex
 
 
@@ -14,6 +15,7 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
     index.load()
 
     app = FastAPI(title="Kryptos API", version="0.1.0")
+    app.include_router(create_dashboard_router())
 
     @app.get("/health")
     def health() -> dict:

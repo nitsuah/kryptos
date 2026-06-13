@@ -151,9 +151,54 @@ def fetch_run_candidates(run_id: int, limit: int = 50) -> list[dict[str, Any]]:
         return []
 
 
+def fetch_top_candidates(limit: int = 20) -> list[dict[str, Any]]:
+    """Return the highest-scoring candidates across all runs. Empty if DB off."""
+    if not db_enabled():
+        return []
+    try:
+        from kryptos.db import get_conn
+
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT campaign_run_id, rank, score, source, key_hash, text, origin_stage"
+                    " FROM candidates WHERE score IS NOT NULL ORDER BY score DESC LIMIT %s",
+                    (limit,),
+                )
+                rows = cur.fetchall()
+        cols = ["campaign_run_id", "rank", "score", "source", "key_hash", "text", "origin_stage"]
+        return [dict(zip(cols, row)) for row in rows]
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Failed to fetch top candidates (%s)", exc)
+        return []
+
+
+def table_counts() -> dict[str, int]:
+    """Return row counts for the kryptos tables. Empty dict if DB disabled."""
+    if not db_enabled():
+        return {}
+    tables = ["campaign_runs", "candidates", "strategy_kb", "ops_decisions", "discovered_cribs"]
+    try:
+        from kryptos.db import get_conn
+
+        counts: dict[str, int] = {}
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                for table in tables:
+                    # Table names are a fixed internal allowlist, not user input.
+                    cur.execute(f"SELECT count(*) FROM {table}")  # noqa: S608
+                    counts[table] = int(cur.fetchone()[0])
+        return counts
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Failed to fetch table counts (%s)", exc)
+        return {}
+
+
 __all__ = [
     "db_enabled",
     "persist_campaign_candidates",
     "fetch_recent_runs",
     "fetch_run_candidates",
+    "fetch_top_candidates",
+    "table_counts",
 ]

@@ -380,10 +380,44 @@ kryptos examples-smoke [--limit N] [--keep N]
 
 ---
 
+## HTTP API (`kryptos serve`)
+
+FastAPI app (`kryptos.api.app:create_app`), served with `kryptos serve [--host H] [--port P] [--reload]`.
+
+### RAG (turbovec search over `artifacts/`)
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /health` | Liveness check → `{"status": "ok"}` |
+| `GET /api/rag/status` | turbovec index status |
+| `POST /api/rag/reindex` | Rebuild the artifact index |
+| `GET /api/rag/search?q=&k=` | Semantic search (409 if index not built) |
+
+### Dashboard (`kryptos.api.dashboard`)
+
+Read endpoints query Neon via `kryptos.persistence` and degrade gracefully when `DATABASE_URL`
+is unset (they return `db_enabled: false` with empty results rather than erroring).
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/status` | `db_enabled`, per-table row counts, latest run summary |
+| `GET /api/runs?limit=` | Recent `campaign_runs` (newest first) |
+| `GET /api/runs/{run_id}/candidates?limit=` | Candidates for a run, ranked |
+| `GET /api/candidates?limit=` | Highest-scoring candidates across all runs |
+| `POST /api/decrypt` | Body `{section, ciphertext, key?}` → `{section, plaintext}`. K1/K2 require `key`; K3 ignores it; unknown section → 422 |
+
+> SSE log streaming (`GET /api/stream/logs`) is a planned follow-up — it needs a log-source design and is not yet implemented.
+
+---
+
 ## Neon DB tables (runtime storage)
+
+Schema defined in `kryptos.db_schema`; create with `kryptos db-init`.
 
 | Table | Written by | Purpose |
 |-------|-----------|---------|
+| `campaign_runs` | `kryptos.persistence` (via `k4.reporting`) | One row per candidate-generating run |
+| `candidates` | `kryptos.persistence` (via `k4.reporting`) | Ranked candidate decryptions per run |
 | `ops_decisions` | `OpsStrategicDirector` | Strategy decision log |
 | `strategy_kb` | Manual / future agents | Accumulated attack knowledge |
 | `discovered_cribs` | `SpyWebIntel` | Crib candidates with source provenance |
