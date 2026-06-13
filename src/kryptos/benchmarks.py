@@ -80,6 +80,12 @@ def _clock_transposition(artifact_dir: Path) -> dict[str, Any]:
     return run_clock_transposition_attack(null_artifact_path=artifact_dir / "clock_transposition.json")
 
 
+def _physical_grid(artifact_dir: Path) -> dict[str, Any]:
+    from kryptos.k4.physical_grid import run_physical_grid_attack
+
+    return run_physical_grid_attack(null_artifact_path=artifact_dir / "physical_grid.json")
+
+
 BENCHMARK_CASES: dict[str, BenchmarkCase] = {
     "beaufort_sweep": BenchmarkCase("K4", "beaufort_sweep", _beaufort),
     "quagmire_sweep": BenchmarkCase("K4", "quagmire_sweep", _quagmire),
@@ -87,6 +93,7 @@ BENCHMARK_CASES: dict[str, BenchmarkCase] = {
     "clock_vigenere": BenchmarkCase("K4", "clock_vigenere_attack", _clock_vigenere),
     "clock_subrow": BenchmarkCase("K4", "clock_subrow_attack", _clock_subrow),
     "clock_transposition": BenchmarkCase("K4", "clock_transposition_attack", _clock_transposition),
+    "physical_grid": BenchmarkCase("K4", "physical_grid_attack", _physical_grid),
 }
 
 

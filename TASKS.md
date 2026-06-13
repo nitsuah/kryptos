@@ -32,6 +32,11 @@ Last Updated: 2026-06-12
 
 ## Done
 
+### K4 attack benchmarks + physical-grid keystreams
+
+- [x] **`kryptos.benchmarks` + `kryptos benchmark` CLI + CI job** — timed runner over the fast K4 attack sweeps recording runtime, throughput (tested/sec), and search-space reduction (e.g. clock→Hill invertibility prunes ~79%). Results persist to `benchmarks/results.{json,csv}`; a `benchmarks` job in `ci-fast.yml` publishes a table to the step summary and uploads the artifact.
+- [x] **`kryptos.k4.physical_grid.run_physical_grid_attack`** — builds the 26×26 KRYPTOS Vigenère tableau and walks it along 108 geometric routes (rows/columns/diagonals/serpentine) into the Quagmire III solver against K4 with positional crib gating. 216 candidates, **null result**. Tests the physical-keystream theory; documented diagonal degeneracy on the cyclic tableau. Artifact: `K4_PHYSICAL_GRID_NULL.json`; recorded in `docs/analysis/K4_ACTIVE_RESEARCH.md`.
+
 ### Quagmire I–IV solver + K4 sweep
 
 - [x] **`kryptos.k4.quagmire`** — canonical encrypt/decrypt for Quagmire I–IV (keyed plaintext/ciphertext alphabets, both Kryptos first-letter and ACA indicator-base conventions). Ground-truth verified: Quagmire III with the KRYPTOS tableau exactly reproduces K1 (PALIMPSEST) and K2 (ABSCISSA) plaintexts.
