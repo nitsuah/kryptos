@@ -45,3 +45,30 @@ jobs:
           python -c "from kryptos.agents import OpsAgent, QAgent, SpyAgent; print('✓ Agents imported successfully')"
       - name: Run fast tests (skip slow Monte Carlo tests)
         run: pytest -m "not slow" -q
+
+  benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r config/requirements.txt
+          pip install -e .
+      - name: Run attack-sweep benchmarks
+        run: kryptos benchmark --out-dir benchmarks
+      - name: Publish benchmark summary
+        run: |
+          echo "## K4 attack-sweep benchmarks" >> "$GITHUB_STEP_SUMMARY"
+          python -c "import json; from kryptos.benchmarks import format_results_table; print(format_results_table(json.load(open('benchmarks/results.json'))))" >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            benchmarks/results.json
+            benchmarks/results.csv
