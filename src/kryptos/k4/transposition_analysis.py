@@ -6,9 +6,9 @@ ciphers, critical for K3-style attacks and likely K4 composite methods.
 
 from __future__ import annotations
 
+import inspect
 import logging
 import random
-import inspect
 from collections import Counter
 from typing import Any
 
@@ -19,31 +19,31 @@ logger = logging.getLogger(__name__)
 ENGLISH_IC = 0.0667
 
 COMMON_BIGRAMS = {
-    'TH': 1.52,
-    'HE': 1.28,
-    'IN': 0.94,
-    'ER': 0.94,
-    'AN': 0.82,
-    'RE': 0.68,
-    'ND': 0.63,
-    'AT': 0.59,
-    'ON': 0.57,
-    'NT': 0.56,
-    'HA': 0.56,
-    'ES': 0.56,
-    'ST': 0.55,
-    'EN': 0.55,
-    'ED': 0.53,
-    'TO': 0.52,
-    'IT': 0.50,
-    'OU': 0.50,
-    'EA': 0.47,
-    'HI': 0.46,
+    "TH": 1.52,
+    "HE": 1.28,
+    "IN": 0.94,
+    "ER": 0.94,
+    "AN": 0.82,
+    "RE": 0.68,
+    "ND": 0.63,
+    "AT": 0.59,
+    "ON": 0.57,
+    "NT": 0.56,
+    "HA": 0.56,
+    "ES": 0.56,
+    "ST": 0.55,
+    "EN": 0.55,
+    "ED": 0.53,
+    "TO": 0.52,
+    "IT": 0.50,
+    "OU": 0.50,
+    "EA": 0.47,
+    "HI": 0.46,
 }
 
 
 def calculate_ioc(text: str) -> float:
-    text = ''.join(c for c in text.upper() if c.isalpha())
+    text = "".join(c for c in text.upper() if c.isalpha())
     n = len(text)
 
     if n < 2:
@@ -58,7 +58,7 @@ def calculate_ioc(text: str) -> float:
 
 
 def detect_transposition_period(ciphertext: str, max_period: int = 30) -> list[tuple[int, float]]:
-    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    text = "".join(c for c in ciphertext.upper() if c.isalpha())
     n = len(text)
 
     if n < 20:
@@ -94,7 +94,7 @@ def detect_transposition_period(ciphertext: str, max_period: int = 30) -> list[t
 
 
 def detect_period_by_repeated_sequences(ciphertext: str, min_length: int = 3) -> dict[int, int]:
-    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    text = "".join(c for c in ciphertext.upper() if c.isalpha())
     n = len(text)
 
     sequences: dict[str, list[int]] = {}
@@ -130,30 +130,30 @@ def detect_period_combined(ciphertext: str, max_period: int = 30) -> list[tuple[
     ioc_scores = detect_transposition_period(ciphertext, max_period)
     for period, score in ioc_scores[:10]:
         if period not in results:
-            results[period] = {'ioc': 0, 'kasiski': 0}
-        results[period]['ioc'] = score
+            results[period] = {"ioc": 0, "kasiski": 0}
+        results[period]["ioc"] = score
 
     kasiski_factors = detect_period_by_repeated_sequences(ciphertext)
     max_kasiski = max(kasiski_factors.values()) if kasiski_factors else 1
     for period, count in kasiski_factors.items():
         if period <= max_period:
             if period not in results:
-                results[period] = {'ioc': 0, 'kasiski': 0}
-            results[period]['kasiski'] = count / max_kasiski if max_kasiski > 0 else 0
+                results[period] = {"ioc": 0, "kasiski": 0}
+            results[period]["kasiski"] = count / max_kasiski if max_kasiski > 0 else 0
 
     combined: list[tuple[int, float, str]] = []
     for period, scores in results.items():
-        ioc_score = scores.get('ioc', 0)
-        kasiski_score = scores.get('kasiski', 0)
+        ioc_score = scores.get("ioc", 0)
+        kasiski_score = scores.get("kasiski", 0)
 
         confidence = (ioc_score * 0.9) + (kasiski_score * 0.1)
 
         if ioc_score > kasiski_score:
-            method = 'ioc'
+            method = "ioc"
         elif kasiski_score > 0:
-            method = 'kasiski'
+            method = "kasiski"
         else:
-            method = 'ioc'
+            method = "ioc"
 
         combined.append((period, confidence, method))
 
@@ -163,38 +163,38 @@ def detect_period_combined(ciphertext: str, max_period: int = 30) -> list[tuple[
 
 
 COMMON_TRIGRAMS = {
-    'THE': 1.81,
-    'AND': 0.73,
-    'ING': 0.72,
-    'ENT': 0.42,
-    'ION': 0.42,
-    'HER': 0.36,
-    'FOR': 0.34,
-    'THA': 0.33,
-    'NTH': 0.33,
-    'INT': 0.32,
-    'ERE': 0.31,
-    'TIO': 0.31,
-    'TER': 0.30,
-    'EST': 0.28,
-    'ERS': 0.28,
-    'ATI': 0.26,
-    'HAT': 0.26,
-    'ATE': 0.25,
-    'ALL': 0.25,
-    'ETH': 0.24,
-    'HIS': 0.35,
-    'WAS': 0.26,
-    'YOU': 0.24,
-    'ITH': 0.24,
-    'VER': 0.24,
-    'WIT': 0.22,
-    'THI': 0.21,
+    "THE": 1.81,
+    "AND": 0.73,
+    "ING": 0.72,
+    "ENT": 0.42,
+    "ION": 0.42,
+    "HER": 0.36,
+    "FOR": 0.34,
+    "THA": 0.33,
+    "NTH": 0.33,
+    "INT": 0.32,
+    "ERE": 0.31,
+    "TIO": 0.31,
+    "TER": 0.30,
+    "EST": 0.28,
+    "ERS": 0.28,
+    "ATI": 0.26,
+    "HAT": 0.26,
+    "ATE": 0.25,
+    "ALL": 0.25,
+    "ETH": 0.24,
+    "HIS": 0.35,
+    "WAS": 0.26,
+    "YOU": 0.24,
+    "ITH": 0.24,
+    "VER": 0.24,
+    "WIT": 0.22,
+    "THI": 0.21,
 }
 
 
 def score_bigrams(text: str) -> float:
-    text = ''.join(c for c in text.upper() if c.isalpha())
+    text = "".join(c for c in text.upper() if c.isalpha())
     if len(text) < 2:
         return 0.0
 
@@ -209,7 +209,7 @@ def score_bigrams(text: str) -> float:
 def score_words(text: str) -> float:
     from kryptos.k4.scoring import WORDLIST
 
-    text = ''.join(c for c in text.upper() if c.isalpha())
+    text = "".join(c for c in text.upper() if c.isalpha())
     if not text:
         return 0.0
 
@@ -253,7 +253,7 @@ def score_combined_with_words(text: str) -> float:
 
 
 def score_trigrams(text: str) -> float:
-    text = ''.join(c for c in text.upper() if c.isalpha())
+    text = "".join(c for c in text.upper() if c.isalpha())
     if len(text) < 3:
         return 0.0
 
@@ -270,7 +270,7 @@ def score_combined(text: str) -> float:
 
 
 def apply_columnar_permutation_encrypt(plaintext: str, period: int, permutation: list[int]) -> str:
-    text = ''.join(c for c in plaintext.upper() if c.isalpha())
+    text = "".join(c for c in plaintext.upper() if c.isalpha())
     rows = (len(text) + period - 1) // period
 
     grid = []
@@ -282,7 +282,7 @@ def apply_columnar_permutation_encrypt(plaintext: str, period: int, permutation:
                 row.append(text[idx])
                 idx += 1
             else:
-                row.append('')
+                row.append("")
         grid.append(row)
 
     ciphertext = []
@@ -291,11 +291,11 @@ def apply_columnar_permutation_encrypt(plaintext: str, period: int, permutation:
             if col_idx < len(row) and row[col_idx]:
                 ciphertext.append(row[col_idx])
 
-    return ''.join(ciphertext)
+    return "".join(ciphertext)
 
 
 def apply_columnar_permutation_reverse(ciphertext: str, period: int, permutation: list[int]) -> str:
-    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    text = "".join(c for c in ciphertext.upper() if c.isalpha())
     n = len(text)
 
     base_len = n // period
@@ -319,7 +319,7 @@ def apply_columnar_permutation_reverse(ciphertext: str, period: int, permutation
             if row < len(col):
                 plaintext.append(col[row])
 
-    return ''.join(plaintext)
+    return "".join(plaintext)
 
 
 def solve_columnar_permutation_multi_start(
@@ -349,9 +349,9 @@ def solve_columnar_permutation_multi_start(
 
     rng_obj = _resolve_rng(rng, config)
 
-    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    text = "".join(c for c in ciphertext.upper() if c.isalpha())
     global_best_perm = list(range(period))
-    global_best_score = float('-inf')
+    global_best_score = float("-inf")
 
     for _restart in range(num_restarts):
         current_perm = list(range(period))
@@ -406,33 +406,33 @@ def apply_rotation(text: str, width: int, rotation_type: str) -> str:
                 row.append(text[idx])
                 idx += 1
             else:
-                row.append(' ')
+                row.append(" ")
         grid.append(row)
 
-    if rotation_type == 'identity':
+    if rotation_type == "identity":
         pass
 
-    elif rotation_type == '90cw':
+    elif rotation_type == "90cw":
         grid = [[grid[height - 1 - j][i] for j in range(height)] for i in range(width)]
 
-    elif rotation_type == '90ccw':
+    elif rotation_type == "90ccw":
         grid = [[grid[j][width - 1 - i] for j in range(height)] for i in range(width)]
 
-    elif rotation_type == '180':
+    elif rotation_type == "180":
         grid = [[grid[height - 1 - i][width - 1 - j] for j in range(width)] for i in range(height)]
 
-    elif rotation_type == 'flip_h':
+    elif rotation_type == "flip_h":
         grid = [row[::-1] for row in grid]
 
-    elif rotation_type == 'flip_v':
+    elif rotation_type == "flip_v":
         grid = grid[::-1]
 
-    result = ''.join(''.join(row) for row in grid)
+    result = "".join("".join(row) for row in grid)
     return result.rstrip()
 
 
 def test_all_rotations(ciphertext: str, period: int, top_n: int = 3) -> list[tuple[str, float, str]]:
-    rotations = ['identity', '90cw', '90ccw', '180', 'flip_h', 'flip_v']
+    rotations = ["identity", "90cw", "90ccw", "180", "flip_h", "flip_v"]
     results = []
 
     for rot_type in rotations:
@@ -476,7 +476,7 @@ def detect_period_by_brute_force(
 
         adjusted_score = score * penalty
 
-        text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+        text = "".join(c for c in ciphertext.upper() if c.isalpha())
         decrypted = apply_columnar_permutation_reverse(text, period, perm)
         preview = decrypted[:50]
 
@@ -494,6 +494,7 @@ def solve_columnar_permutation_simulated_annealing(
     cooling_rate: float = 0.9995,
     config: SolverConfig | None = None,
     rng: random.Random | None = None,
+    seed_perm: list[int] | None = None,
 ) -> tuple[list[int], float]:
     """Solve columnar transposition using simulated annealing.
 
@@ -506,6 +507,11 @@ def solve_columnar_permutation_simulated_annealing(
         max_iterations: Maximum iterations
         initial_temp: Starting temperature (higher = more exploration)
         cooling_rate: Temperature decay factor per iteration (0.99-0.999)
+        seed_perm: Optional starting permutation (e.g. seeded from K3's known
+            width/rotation pattern). When provided, the search starts here
+            instead of from a random shuffle, so a strong prior converges
+            faster and cannot do worse than the seed's score. Must be a
+            permutation of ``range(period)``.
 
     Returns:
         (best_permutation, best_score) tuple
@@ -522,10 +528,15 @@ def solve_columnar_permutation_simulated_annealing(
 
     rng_obj = _resolve_rng(rng, config)
 
-    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    text = "".join(c for c in ciphertext.upper() if c.isalpha())
 
-    current_perm = list(range(period))
-    rng_obj.shuffle(current_perm)
+    if seed_perm is not None:
+        if sorted(seed_perm) != list(range(period)):
+            raise ValueError(f"seed_perm must be a permutation of range({period})")
+        current_perm = list(seed_perm)
+    else:
+        current_perm = list(range(period))
+        rng_obj.shuffle(current_perm)
 
     current_text = apply_columnar_permutation_reverse(text, period, current_perm)
     current_score = score_combined(current_text)
@@ -576,6 +587,7 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
     cooling_rate: float = 0.9995,
     config: SolverConfig | None = None,
     rng: random.Random | None = None,
+    seed_perm: list[int] | None = None,
 ) -> tuple[list[int], float]:
     """Solve columnar transposition with multiple simulated annealing runs.
 
@@ -586,6 +598,9 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
         max_iterations: Iterations per run
         initial_temp: Starting temperature
         cooling_rate: Temperature decay factor
+        seed_perm: Optional starting permutation for the first restart (e.g.
+            seeded from K3's known width/rotation pattern); remaining restarts
+            use random starts as usual.
 
     Returns:
         (best_permutation, best_score) tuple across all runs
@@ -603,9 +618,28 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
     rng_obj = _resolve_rng(rng, config)
 
     best_perm: list[int] = list(range(period))
-    best_score = float('-inf')
+    best_score = float("-inf")
 
-    for _ in range(num_restarts):
+    for restart_idx in range(num_restarts):
+        # Seed the first restart from the supplied permutation (if any) using
+        # the modern keyword signature directly; subsequent restarts fall
+        # through to the signature-adapting path below for random starts.
+        if restart_idx == 0 and seed_perm is not None:
+            perm, score = solve_columnar_permutation_simulated_annealing(
+                ciphertext,
+                period,
+                max_iterations,
+                initial_temp,
+                cooling_rate,
+                config,
+                rng_obj,
+                seed_perm=seed_perm,
+            )
+            if score > best_score:
+                best_score = score
+                best_perm = perm
+            continue
+
         # Call the SA solver. Tests may monkeypatch the solver with a
         # replacement that accepts fewer positional args (legacy tests use
         # a 5-arg lambda). Inspect the callable's signature and adapt the
@@ -614,7 +648,11 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
 
         try:
             sig = inspect.signature(solver)
-            params = [p for p in sig.parameters.values() if p.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)]
+            params = [
+                p
+                for p in sig.parameters.values()
+                if p.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+            ]
             accepts_varargs = any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in sig.parameters.values())
         except (ValueError, TypeError):
             sig = None
@@ -622,6 +660,7 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
             accepts_varargs = False
 
         # Prefer calling with the full, modern signature when supported.
+        args: tuple[Any, ...]
         if accepts_varargs or len(params) >= 7:
             args = (ciphertext, period, max_iterations, initial_temp, cooling_rate, config, rng_obj)
         elif len(params) >= 5:
@@ -631,7 +670,9 @@ def solve_columnar_permutation_simulated_annealing_multi_start(
             args = (ciphertext, period)
 
         try:
-            perm, score = solver(*args)
+            # Dynamic dispatch: arity is resolved at runtime from the (possibly
+            # monkeypatched) solver's signature, so mypy can't verify the unpack.
+            perm, score = solver(*args)  # type: ignore[arg-type]
         except TypeError:
             # As a last resort, try the 5-arg form then re-raise if it still fails.
             perm, score = solver(ciphertext, period, max_iterations, initial_temp, cooling_rate)
@@ -671,10 +712,10 @@ def solve_columnar_permutation_exhaustive(
 
     import itertools
 
-    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    text = "".join(c for c in ciphertext.upper() if c.isalpha())
 
     best_perm = list(range(period))
-    best_score = float('-inf')
+    best_score = float("-inf")
     permutations_checked = 0
 
     for perm in itertools.permutations(range(period)):
@@ -696,7 +737,7 @@ def solve_columnar_permutation_exhaustive(
 
 def solve_columnar_permutation(ciphertext: str, period: int, max_iterations: int = 10000) -> tuple[list[int], float]:
     rng_obj = random
-    text = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    text = "".join(c for c in ciphertext.upper() if c.isalpha())
 
     current_perm = list(range(period))
     rng_obj.shuffle(current_perm)
@@ -755,7 +796,10 @@ def _resolve_rng(rng: random.Random | None, config: SolverConfig | None) -> rand
         return rng
     if config is not None and config.rng_seed is not None:
         return random.Random(config.rng_seed)
-    return random
+    # Fall back to the module-global random, which duck-types as a Random
+    # instance (shuffle/sample/random/randint). Tests monkeypatch this global,
+    # so returning a fresh Random() here would change behavior.
+    return random  # type: ignore[return-value]
 
 
 def test_period_detection():
@@ -823,11 +867,11 @@ def test_permutation_solver():
     period = 7
     permutation = [3, 1, 4, 0, 6, 2, 5]
 
-    columns = ['' for _ in range(period)]
+    columns = ["" for _ in range(period)]
     for i, char in enumerate(plaintext):
         columns[i % period] += char
 
-    ciphertext = ''.join(columns[p] for p in permutation)
+    ciphertext = "".join(columns[p] for p in permutation)
 
     print(f"Plaintext:  {plaintext}")
     print(f"Period:     {period}")
@@ -846,7 +890,7 @@ def test_permutation_solver():
 
     if recovered_text == plaintext:
         print("✅ PERFECT: Exact plaintext recovered!")
-    elif recovered_text.replace(' ', '') == plaintext.replace(' ', ''):
+    elif recovered_text.replace(" ", "") == plaintext.replace(" ", ""):
         print("✅ SUCCESS: Plaintext recovered (minor spacing differences)")
     else:
         print("⚠️  PARTIAL: Text recovered but not exact match")

@@ -31,6 +31,9 @@ repos:
       - id: flake8
         name: flake8 (python)
         language_version: python3
+        # Flake8-pyproject lets the hook read [tool.flake8] from pyproject.toml
+        # (extend-ignore = E402, E203), matching the CI flake8 configuration.
+        additional_dependencies: ["Flake8-pyproject"]
         args: ["--max-line-length=120"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy

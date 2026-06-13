@@ -32,6 +32,11 @@ Last Updated: 2026-06-12
 
 ## Done
 
+### SA transposition seeding + early-crib locking verification
+
+- [x] **Seedable SA columnar solver** — added `seed_perm` to `solve_columnar_permutation_simulated_annealing` (and the multi-start variant's first restart) so the search can be seeded from a known pattern (e.g. K3's width/rotation) instead of a random shuffle, validating the seed is a true permutation. Verified end-to-end: random-init SA recovers a planted columnar plaintext on realistic-length text, and seeding at the optimum never scores worse than the seed.
+- [x] **Early-crib locking pruning verified** — `search_with_multiple_cribs_positions` rejects permutations that don't place cribs at their known positions before scoring, pruning >90% of the columnar space at depth 1 (5040→2 for one crib, →1 for two) while always retaining the true permutation; the top crib-consistent candidate is the real plaintext. Documented the n-gram scoring-misranking caveat that crib locking sidesteps. See `tests/e2e/test_sa_transposition_crib_lock.py`.
+
 ### K4 attack benchmarks + physical-grid keystreams
 
 - [x] **`kryptos.benchmarks` + `kryptos benchmark` CLI + CI job** — timed runner over the fast K4 attack sweeps recording runtime, throughput (tested/sec), and search-space reduction (e.g. clock→Hill invertibility prunes ~79%). Results persist to `benchmarks/results.{json,csv}`; a `benchmarks` job in `ci-fast.yml` publishes a table to the step summary and uploads the artifact.
