@@ -105,6 +105,11 @@ Strategy knowledge (`strategy_kb` table) is read by `OpsStrategicDirector` on in
 - **DB writes** require `DATABASE_URL` in environment (see `kryptos.db`). Tables are
   defined in `kryptos.db_schema` and created idempotently with `kryptos db-init`
   (`strategy_kb`, `ops_decisions`, `discovered_cribs`, `campaign_runs`, `candidates`).
+  Write paths: agents persist `strategy_kb`/`ops_decisions` (`ops_director`) and
+  `discovered_cribs` (`spy_web_intel`); candidate reporting persists `campaign_runs` +
+  `candidates` via `kryptos.persistence` (best-effort, mirrors the JSON/CSV artifacts,
+  auto-enabled when `DATABASE_URL` is set). All write paths fall back to files on any
+  DB error so persistence is never on the critical path.
 
 ---
 
