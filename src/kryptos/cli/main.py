@@ -309,6 +309,13 @@ def build_parser() -> argparse.ArgumentParser:
     sp_db_init = sub.add_parser("db-init", help="Create kryptos Postgres/Neon tables (requires DATABASE_URL)")
     sp_db_init.set_defaults(func=cmd_db_init)
 
+    sp_benchmark = sub.add_parser("benchmark", help="Run K4 attack-sweep benchmarks (writes results.json/csv)")
+    sp_benchmark.add_argument("--cases", type=str, default="", help="Comma-separated case names (default: all)")
+    sp_benchmark.add_argument(
+        "--out-dir", type=str, default="benchmarks", help="Output directory (default: benchmarks)"
+    )
+    sp_benchmark.set_defaults(func=cmd_benchmark)
+
     return parser
 
     p = argparse.ArgumentParser(prog="kryptos", description="Kryptos research CLI")
@@ -466,6 +473,17 @@ def cmd_db_init(args: argparse.Namespace) -> int:
         print(f"db-init failed: {exc}")
         return 1
     print(f"Ensured {len(tables)} tables: {', '.join(tables)}")
+    return 0
+
+
+def cmd_benchmark(args: argparse.Namespace) -> int:
+    """Run attack-sweep benchmarks and write results.json/results.csv."""
+    from kryptos.benchmarks import format_results_table, run_benchmarks
+
+    names = [n.strip() for n in args.cases.split(",") if n.strip()] if args.cases else None
+    rows = run_benchmarks(names=names, out_dir=args.out_dir)
+    print(format_results_table(rows))
+    print(f"\nResults written to {args.out_dir}/results.json and {args.out_dir}/results.csv")
     return 0
 
 

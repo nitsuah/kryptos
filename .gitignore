@@ -43,4 +43,7 @@ MANIFEST
 /data/linguist/
 reports/
 artifacts/
+# Benchmark results are per-machine throughput data, not repo state
+/benchmarks/results.json
+/benchmarks/results.csv
 /agents/
