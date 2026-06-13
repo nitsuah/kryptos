@@ -31,6 +31,7 @@ Defined in `kryptos.benchmarks.BENCHMARK_CASES`:
 | `clock_vigenere` | `kryptos.k4.clock_hill_attack.run_clock_vigenere_attack` |
 | `clock_subrow` | `kryptos.k4.clock_subrow_attack.run_clock_subrow_attack` |
 | `clock_transposition` | `kryptos.k4.clock_subrow_attack.run_clock_transposition_attack` |
+| `physical_grid` | `kryptos.k4.physical_grid.run_physical_grid_attack` |
 
 `space_reduction` is the fraction of the enumerated space pruned by an
 attack's pre-filter (e.g. the clock→Hill invertibility filter); `—` when the
