@@ -1,0 +1,253 @@
+/* Terminal aesthetic — palette from docs/analysis/K4-FRONTEND.md */
+:root {
+  --bg: #04342c; /* deep teal-black */
+  --surface: #085041;
+  --border: rgba(29, 158, 117, 0.25);
+  --text: #9fe1cb; /* muted green */
+  --accent: #1d9e75; /* primary green */
+  --highlight: #7f77dd; /* purple — active probes, agent Q */
+  --warning: #ef9f27; /* amber — running states */
+  --danger: #e24b4a; /* red — errors, expired */
+  --radius: 3px;
+  --mono: "Courier New", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent);
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--surface);
+}
+
+.topbar .brand {
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+.topbar .clock {
+  color: var(--text);
+  opacity: 0.85;
+}
+
+.agent-pips {
+  display: flex;
+  gap: 12px;
+}
+
+.pip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.pip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.green {
+  background: var(--accent);
+}
+.dot.amber {
+  background: var(--warning);
+}
+.dot.purple {
+  background: var(--highlight);
+}
+.dot.grey {
+  background: var(--border);
+}
+
+/* Layout */
+.main {
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.panel > h2 {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  border-bottom: 0.5px solid var(--border);
+}
+
+.panel > .body {
+  padding: 12px;
+}
+
+/* Metric cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  background: var(--bg);
+}
+
+.card .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+
+.card .value {
+  font-size: 22px;
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 0.5px solid var(--border);
+  font-size: 12px;
+}
+
+th {
+  color: var(--accent);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+td.plaintext {
+  color: var(--text);
+  letter-spacing: 1px;
+}
+
+/* Forms */
+input,
+select,
+textarea,
+button {
+  font-family: var(--mono);
+  font-size: 13px;
+  background: var(--bg);
+  color: var(--text);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+}
+
+button {
+  cursor: pointer;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.field label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.result {
+  margin-top: 10px;
+  padding: 8px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.error {
+  color: var(--danger);
+}
+
+.muted {
+  opacity: 0.6;
+}
+
+.banner {
+  padding: 6px 12px;
+  border: 0.5px solid var(--warning);
+  border-radius: var(--radius);
+  color: var(--warning);
+  font-size: 12px;
+}
