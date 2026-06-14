@@ -96,6 +96,23 @@ a {
   background: var(--border);
 }
 
+/* Nav */
+.nav {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.nav button {
+  background: transparent;
+}
+
+.nav button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* Layout */
 .main {
   padding: 16px;
