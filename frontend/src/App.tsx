@@ -3,8 +3,9 @@ import { api, StatusResponse } from "./api";
 import Topbar from "./components/Topbar";
 import OpsCenter from "./pages/OpsCenter";
 import Decode from "./pages/Decode";
+import Database from "./pages/Database";
 
-type Page = "ops" | "decode";
+type Page = "ops" | "decode" | "database";
 
 export default function App() {
   const [page, setPage] = useState<Page>("ops");
@@ -36,6 +37,9 @@ export default function App() {
         <button className={page === "decode" ? "active" : ""} onClick={() => setPage("decode")}>
           Decode
         </button>
+        <button className={page === "database" ? "active" : ""} onClick={() => setPage("database")}>
+          Database
+        </button>
       </nav>
       <main className="main">
         {error && <div className="banner">API unreachable: {error}</div>}
@@ -44,7 +48,9 @@ export default function App() {
             DATABASE_URL not configured — run history is empty. Decrypt still works.
           </div>
         )}
-        {page === "ops" ? <OpsCenter status={status} /> : <Decode />}
+        {page === "ops" && <OpsCenter status={status} />}
+        {page === "decode" && <Decode />}
+        {page === "database" && <Database status={status} />}
       </main>
     </div>
   );
