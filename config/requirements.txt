@@ -11,6 +11,6 @@ anthropic>=0.107.1  # Optional: for Anthropic LLM integration
 torch>=2.12.0  # Optional: for LINGUIST neural models; also backs kryptos.rag embeddings
 sentence-transformers>=5.5.1  # Embeddings for kryptos.rag turbovec index (also used for LINGUIST)
 turbovec  # Compressed vector index for kryptos.rag (RAG over artifacts/)
-fastapi>=0.115  # `kryptos serve` API
+fastapi>=0.137.1  # `kryptos serve` API
 uvicorn[standard]>=0.49.0  # ASGI server for `kryptos serve`
 psycopg2-binary>=2.9  # PostgreSQL driver for kryptos.db (DATABASE_URL / Neon storage)
