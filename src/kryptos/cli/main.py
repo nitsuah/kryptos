@@ -316,6 +316,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_benchmark.set_defaults(func=cmd_benchmark)
 
+
     return parser
 
     p = argparse.ArgumentParser(prog="kryptos", description="Kryptos research CLI")
@@ -485,6 +486,7 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     print(format_results_table(rows))
     print(f"\nResults written to {args.out_dir}/results.json and {args.out_dir}/results.csv")
     return 0
+
 
 
 def cmd_keyspace_stats(args: argparse.Namespace) -> int:

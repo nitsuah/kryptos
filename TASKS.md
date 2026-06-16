@@ -62,6 +62,7 @@ Last Updated: 2026-06-12
 
 - [x] **Wired `LinguistAgent` into `PlaintextValidator`** — new `enable_linguist` constructor flag (default `False`). `_init_linguist()` gates on `torch`/`transformers` availability and `LinguistAgent` construction, degrading to `linguist_available=False` on any failure. When enabled, `stage3_linguistic_validation()` adds a `"linguist"` key (confidence/perplexity/coherence/grammar_score/model_used/passed) alongside the existing heuristic fields; `_linguist_score()` and the new `batch_validate_linguist()` re-ranking helper both catch and log scoring exceptions, returning `None` rather than raising. Existing default (`enable_linguist=False`) behavior and `"linguist"`-key absence are unchanged. See `tests/functional/test_validator_linguist.py`.
 
+
 ### RAG API (turbovec) — semantic search over `artifacts/`
 
 - [x] **`kryptos serve`** — minimal FastAPI app (`src/kryptos/api/`) with `/health`, `/api/rag/status`,
