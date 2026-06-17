@@ -1,13 +1,43 @@
-"""FastAPI app: health check + turbovec RAG search over `artifacts/`."""
+"""FastAPI app: health check + turbovec RAG search + dashboard SPA."""
 
 from __future__ import annotations
 
+import logging
+import os
 from dataclasses import asdict
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.staticfiles import StaticFiles
 
 from kryptos.api.dashboard import create_dashboard_router
 from kryptos.rag.index import ArtifactIndex
+
+logger = logging.getLogger(__name__)
+
+
+def _resolve_frontend_dist() -> Path | None:
+    """Locate the built frontend bundle, or None if it isn't present.
+
+    Order: KRYPTOS_FRONTEND_DIST env override, then <repo_root>/frontend/dist,
+    then <cwd>/frontend/dist. A dist counts only if it contains index.html.
+    """
+    candidates: list[Path] = []
+    override = os.environ.get("KRYPTOS_FRONTEND_DIST")
+    if override:
+        candidates.append(Path(override))
+    try:
+        from kryptos.paths import get_repo_root
+
+        candidates.append(get_repo_root() / "frontend" / "dist")
+    except Exception:  # noqa: BLE001 - repo-root discovery is best-effort
+        pass
+    candidates.append(Path.cwd() / "frontend" / "dist")
+
+    for c in candidates:
+        if c.is_dir() and (c / "index.html").is_file():
+            return c
+    return None
 
 
 def create_app(index: ArtifactIndex | None = None) -> FastAPI:
@@ -38,6 +68,15 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
             )
         results = index.search(q, k=k)
         return {"query": q, "results": [asdict(r) for r in results]}
+
+    # Mount the built SPA LAST so API routes (/api/*, /health) always win.
+    # html=True serves index.html for unknown paths (client-side routing).
+    dist = _resolve_frontend_dist()
+    if dist is not None:
+        app.mount("/", StaticFiles(directory=str(dist), html=True), name="spa")
+        logger.info("Serving frontend SPA from %s", dist)
+    else:
+        logger.info("No frontend dist found; serving API only")
 
     return app
 
