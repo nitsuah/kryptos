@@ -4,7 +4,7 @@
 > Cryptographic research toolkit for solving the K4 cipher puzzle
 
 ---
-**Last Updated:** 2026-06-10
+**Last Updated:** 2026-06-17
 ---
 
 
@@ -52,6 +52,10 @@
 - **Keystream Validator**: Per-position shift computation and simultaneous 4-crib validation (`keystream_validator.py`)
 - **Eureka Capture Protocol**: Raises `EurekaSignal` on simultaneous 4-crib match; writes breakthrough snapshot; wired into `CompositeChainExecutor` (`eureka.py`)
 - **Keyed Alphabet Realignment**: Tests KRYPTOS, PALIMPSEST, ABSCISSA alphabets against confirmed crib positions (`vigenere_key_recovery.check_keyed_alphabet_realignment`); null result
+- **Quagmire I–IV Solver + Sweep**: Canonical encrypt/decrypt for all four Quagmire variants (ground-truth verified against K1/K2); 6,240-combination K4 sweep with positional crib gating + Eureka protocol (`k4.quagmire`, `k4.quagmire_sweep`); null result
+- **Physical-Grid Tableau Walk**: Walks the 26×26 KRYPTOS Vigenère tableau along 108 geometric routes into the Quagmire III solver against K4 (`k4.physical_grid`); null result
+- **Berlin Clock Attack Suite**: Clock→Hill 2×2 invertibility pre-filter, 4-char clock→Vigenère with NORTHEAST anchor, non-standard sub-row encodings, and lamp-count transposition widths (`k4.clock_hill_attack`, `k4.clock_subrow_attack`); all null result
+- **Beaufort K4 Sweep**: Systematic reciprocal-Beaufort pass over KRYPTOS/PALIMPSEST/BERLIN/CLOCK/ABSCISSA keys (`k4.beaufort_sweep`); null result
 
 ### ⚙️ Pipeline Architecture
 
@@ -112,6 +116,31 @@
 
 ---
 
+## 🖥️ Dashboard, Web UI & HTTP API
+
+### React SPA (terminal aesthetic)
+
+- **Ops Center**: Live campaign monitoring, agent status row, top fused candidates, run history with drill-down, and an ad-hoc decrypt panel
+- **K1–K3 Animated Decoder**: Step-by-step visual explainer of how each solved section was encrypted and cracked
+- **Database Admin**: Neon connection status and per-table row counts
+- **Vault**: Seal a secret under the keyed-alphabet Vigenère, share an opaque token, unseal once with the key, and check status — TTL and read-count enforced server-side
+- **Single-container delivery**: FastAPI serves the built `frontend/dist` bundle via `StaticFiles(html=True)`; the root `Dockerfile` builds the SPA in a `node:22-alpine` stage and ships it alongside the API (`KRYPTOS_FRONTEND_DIST`)
+- **Stack**: Vite + React 18 + TypeScript, no runtime UI framework
+
+### HTTP API (FastAPI)
+
+- **Dashboard endpoints**: `GET /api/status`, `GET /api/runs`, `GET /api/runs/{id}/candidates`, `GET /api/candidates`, `POST /api/decrypt`
+- **Vault endpoints**: `POST /api/vault/seal`, `POST /api/vault/unseal`, `GET /api/vault/{token}` (503/404/410/403 error mapping for unavailable/missing/gone/wrong-key)
+- **RAG endpoints**: `GET /api/rag/status`, `POST /api/rag/reindex`, `GET /api/rag/search`
+- **Health**: `GET /health`
+
+### Persistence
+
+- **`campaign_runs` + `candidates` tables**: Best-effort write path persists live campaign runs and their candidates to Neon (graceful no-op without `DATABASE_URL`)
+- **`vault_payloads` table**: Token-addressed ciphertext with verifier, max-reads, and expiry; atomic read-decrement guarantees one-shot semantics
+
+---
+
 ## Development Tools
 
 - **CLI Interface**: 18 subcommands covering decryption, tuning, provenance, autonomous runs, and reporting
@@ -139,25 +168,16 @@
 
 ## 🚀 Planned & Upcoming
 
-### 🔑 K4 Untested Attack Vectors
-- **Clock → Hill 2×2 pre-filter**: Use clock state lamp values as a Hill matrix key (~100 invertible states to test)
-- **4-char clock key → Vigenère**: Derive 4-char keys from clock states, test with NORTHEAST positional anchor
-- **Non-standard clock encodings**: Sub-row variants (hour-only, minute-only, row sums)
-- **Clock lamp counts as transposition widths**: Use lamp values as column widths, not Vigenère shifts
-- **Beaufort cipher sweep**: `kryptos.k4.beaufort` implemented; no systematic K4 sweep run yet
+> The five untested K4 attack vectors, the dashboard pages (Ops Center, K1–K3 Decoder,
+> Database, Vault), the REST API, Neon candidate/run storage, and the K3 double-rotation
+> Monte Carlo have all shipped — see the sections above. What remains:
 
 ### 🖥️ Dashboard & UI
-- **Ops Center Dashboard**: Live campaign monitoring, agent status, top candidates, letter frequency chart
-- **K1–K3 Animated Decoder**: Step-by-step visual explainer of each solved section
-- **K4 Attack Dashboard**: Real-time pipeline progress, scoring breakdowns, evidence artifacts
-- **Vault**: Demo encrypt/decrypt interface for all supported ciphers
-- **FastAPI + React SPA**: Single-container deployment via `docker compose up`
-- See `docs/analysis/K4-FRONTEND.md` for full spec (note: SQLite schema in that doc is superseded by Neon)
+- **SSE live-log tail**: `GET /api/stream/logs` + an Ops Center `LogTail` component (backend implemented on the `sse-log-tail` branch; frontend wiring pending)
+- **Dedicated K4 Attack Dashboard**: Visual fingerprint map of attack vectors — plausible vs. covered vs. unknown (live progress, scoring, and artifact lookup are already covered by Ops Center, Database, and RAG search)
 
 ### 📡 API & Data
-- **REST API**: Endpoints for decryption, candidate queries, run history, live log streaming (SSE)
 - **`strategy_kb` write path**: Automate writing successful/failed strategies back to the Neon table
-- **K3 double-transposition Monte Carlo**: Full double-rotational K3 algorithm not yet validated statistically
 
 ### 🧠 AI/ML & Community
 - **LLM-Driven Hypothesis Generation**: Use LLMs to propose new attacks and scoring strategies
