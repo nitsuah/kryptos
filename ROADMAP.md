@@ -1,6 +1,6 @@
 # 🗺️ Kryptos Roadmap
 
-Last Updated: 2026-06-01
+Last Updated: 2026-06-17
 Next Review: 2026-07-01
 ---
 
@@ -28,16 +28,18 @@ Next Review: 2026-07-01
 
 ### Phase 2 — Dashboard & UI
 
-- [ ] See `docs/analysis/K4-FRONTEND.md` for full spec. Stack: FastAPI + React SPA, single Docker container, Neon DB (not SQLite — the spec's schema is superseded by existing Neon tables).
-- [ ] **Ops Center** — live campaign monitoring, agent status row (SPY/OPS/Q), top fused candidates table, letter frequency chart, live log tail via SSE
-- [ ] **K1–K3 Animated Decoder** — step-by-step visual explainer of how each solved section was encrypted and cracked
-- [ ] **K4 Attack Dashboard** — real-time pipeline progress, scoring breakdowns, evidence artifact viewer
-- [ ] **Vault** — demo encrypt/decrypt interface for all supported ciphers with TTL and read-count enforcement
+> Stack shipped as specified: FastAPI + React SPA in a single multistage Docker container, served from `frontend/dist` by `create_app()`, backed by Neon. See `docs/analysis/K4-FRONTEND.md`.
+
+- [x] **Ops Center** — live campaign monitoring, agent status row, top fused candidates table, run history with drill-down, ad-hoc decrypt panel (#100). Live log tail via SSE is the remaining piece (see Phase 3).
+- [x] **K1–K3 Animated Decoder** — step-by-step visual explainer of how each solved section was encrypted and cracked (#102)
+- [x] **Database admin page** — Neon connection status + per-table row counts (#104)
+- [x] **Vault** — seal/unseal/peek encrypt/decrypt interface (keyed-alphabet Vigenère) with TTL and read-count enforcement (#115 backend, #116 frontend)
+- [ ] **K4 Attack Dashboard** — dedicated real-time pipeline-progress + evidence-artifact viewer (most is covered by Ops Center, Database, and RAG search; a standalone attack-vector fingerprint view remains)
 
 ### Phase 3 — API
-- [ ] **REST API** (`/api/status`, `/api/candidates`, `/api/runs`, `/api/stream/logs`, `POST /api/decrypt`)
+- [x] **REST dashboard API** — `/api/status`, `/api/runs`, `/api/runs/{id}/candidates`, `/api/candidates`, `POST /api/decrypt` (#99); turbovec RAG search at `/api/rag/*` (#113). `/api/stream/logs` (SSE) is in flight on a separate branch.
 - [ ] **`strategy_kb` write path** — automate writing successful/failed strategies from `OpsStrategicDirector` back to Neon
-- [ ] **Candidate & run storage** — `candidates` and `campaign_runs` tables in Neon (currently file-based under `artifacts/`)
+- [x] **Candidate & run storage** — `candidates` and `campaign_runs` tables in Neon, persisted best-effort from campaigns (#98)
 
 ### Phase 4 — Validation & hardening
 - [x] **K3 double-transposition Monte Carlo** — `kryptos.k3.double_rotation_solver` generalizes K3's two-stage 90cw rotation to all divisor-width/rotation-type pairs; brute-force solver exactly recovers K3's plaintext as the top candidate. Monte Carlo across random parameter pairs: 75% best-of-top-10 success (`tests/e2e/test_k3_double_rotation_monte_carlo.py`)
