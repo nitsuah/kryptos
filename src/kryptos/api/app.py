@@ -7,10 +7,12 @@ import os
 from dataclasses import asdict
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from kryptos.api.dashboard import create_dashboard_router
+from kryptos.api.log_stream import install_log_streaming, log_event_stream
 from kryptos.api.vault_routes import create_vault_router
 from kryptos.rag.index import ArtifactIndex
 
@@ -45,6 +47,9 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
     index = index if index is not None else ArtifactIndex()
     index.load()
 
+    # Capture kryptos log records into the ring buffer the SSE tail streams.
+    install_log_streaming()
+
     app = FastAPI(title="Kryptos API", version="0.1.0")
     app.include_router(create_dashboard_router())
     app.include_router(create_vault_router())
@@ -70,6 +75,17 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
             )
         results = index.search(q, k=k)
         return {"query": q, "results": [asdict(r) for r in results]}
+
+    @app.get("/api/stream/logs")
+    async def stream_logs(
+        request: Request,
+        backlog: int = Query(200, ge=0, le=1000),
+        follow: bool = Query(True),
+    ) -> StreamingResponse:
+        stream = log_event_stream(request.is_disconnected, backlog=backlog, follow=follow)
+        # X-Accel-Buffering disables proxy buffering so events flush immediately.
+        headers = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+        return StreamingResponse(stream, media_type="text/event-stream", headers=headers)
 
     # Mount the built SPA LAST so API routes (/api/*, /health) always win.
     # html=True serves index.html for unknown paths (client-side routing).
