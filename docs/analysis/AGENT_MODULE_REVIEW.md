@@ -1,7 +1,7 @@
 # Agent Module Review (Post-K4, Pre-GUI)
 
 Breadcrumb: Home > Docs > Analysis > Agent Module Review
-
+**repo**: [[repos/kryptos|kryptos]]
 _Date: 2026-06-10_
 
 ## Scope
