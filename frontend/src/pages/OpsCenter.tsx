@@ -4,6 +4,7 @@ import MetricCards from "../components/MetricCards";
 import RunsTable from "../components/RunsTable";
 import CandidatesTable from "../components/CandidatesTable";
 import DecryptPanel from "../components/DecryptPanel";
+import LogTail from "../components/LogTail";
 
 export default function OpsCenter({ status }: { status: StatusResponse | null }) {
   const [runs, setRuns] = useState<Run[]>([]);
@@ -51,6 +52,13 @@ export default function OpsCenter({ status }: { status: StatusResponse | null })
         <h2>Top candidates (all runs)</h2>
         <div className="body">
           <CandidatesTable candidates={topCandidates} />
+        </div>
+      </div>
+
+      <div className="panel">
+        <h2>Live log</h2>
+        <div className="body">
+          <LogTail />
         </div>
       </div>
 
