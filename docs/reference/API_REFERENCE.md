@@ -406,7 +406,23 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 | `GET /api/candidates?limit=` | Highest-scoring candidates across all runs |
 | `POST /api/decrypt` | Body `{section, ciphertext, key?}` → `{section, plaintext}`. K1/K2 require `key`; K3 ignores it; unknown section → 422 |
 
-> SSE log streaming (`GET /api/stream/logs`) is a planned follow-up — it needs a log-source design and is not yet implemented.
+### Live log tail (SSE — `kryptos.api.log_stream`)
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/stream/logs?backlog=&follow=` | Server-Sent Events stream of `kryptos` log records |
+
+`create_app()` installs an idempotent `SSELogHandler` on the `kryptos` logger that
+appends formatted records to a process-wide bounded ring (`LogBuffer`, 1000 lines).
+The endpoint replays the recent backlog, then (when `follow=true`) polls the ring and
+streams new lines as `data:` frames, emitting `: keep-alive` comments every 15s so
+proxies don't drop idle connections.
+
+- `backlog` (default `200`, `0`–`1000`): number of recent lines to replay first.
+- `follow` (default `true`): keep the connection open and stream new lines; `false`
+  replays the backlog and closes. The stream also ends when the client disconnects.
+- Response is `text/event-stream` with `Cache-Control: no-cache` and
+  `X-Accel-Buffering: no` (disables proxy buffering so events flush immediately).
 
 ### Vault (`kryptos.api.vault_routes` / `kryptos.vault`)
 
