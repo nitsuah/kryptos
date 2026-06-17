@@ -5,10 +5,11 @@ Terminal-aesthetic React SPA over the kryptos FastAPI backend
 `docs/reference/API_REFERENCE.md` (`/api/status`, `/api/runs`,
 `/api/runs/{id}/candidates`, `/api/candidates`, `POST /api/decrypt`).
 
-This first slice ships the **Ops Center** page (status, metric cards, top
-candidates, campaign run history with drill-down, and an ad-hoc decrypt
-panel). The K1–K3 animated decoder, Vault, Database admin, and the SSE
-live-log tail from `docs/analysis/K4-FRONTEND.md` are planned follow-ups.
+Shipped pages: **Ops Center** (status, metric cards, top candidates,
+campaign run history with drill-down, ad-hoc decrypt panel), **Decode**
+(K1–K3 animated decoder), and **Database** (Neon connection + per-table
+row counts). The Vault and the SSE live-log tail from
+`docs/analysis/K4-FRONTEND.md` are planned follow-ups.
 
 ## Develop (Docker)
 
@@ -33,7 +34,13 @@ docker run --rm -v "$(pwd)/frontend:/app" -w /app node:22-alpine \
 ```
 
 The production bundle is emitted to `frontend/dist/` (gitignored). FastAPI
-can serve it as static files in a later integration step.
+serves it automatically: `create_app()` mounts `frontend/dist` at `/`
+(via `StaticFiles(..., html=True)`) when a build is present, so the API
+and SPA ship from a single container. The dist location is discovered from
+`KRYPTOS_FRONTEND_DIST`, then `<repo>/frontend/dist`, then
+`<cwd>/frontend/dist`. The root `Dockerfile` builds the SPA in a
+`node:22-alpine` stage and copies it into the runtime image with
+`KRYPTOS_FRONTEND_DIST=/app/frontend/dist` set.
 
 ## Stack
 

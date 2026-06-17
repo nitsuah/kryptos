@@ -1,6 +1,21 @@
 # Multi-stage Dockerfile for a Python application
 
 # ================================
+# Stage 0: Frontend build
+# Builds the React/Vite SPA so it can be served by the FastAPI app.
+# ================================
+FROM node:22-alpine AS frontend
+WORKDIR /frontend
+
+# Install deps from lockfile first for better layer caching
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+# Build the production bundle into /frontend/dist
+COPY frontend/ ./
+RUN npm run build
+
+# ================================
 # Stage 1: Dependencies
 # ================================
 FROM python:3.11-slim AS deps
@@ -42,6 +57,10 @@ COPY --from=deps /usr/local/bin /usr/local/bin
 
 # Copy application code
 COPY . .
+
+# Copy the built SPA from the frontend stage and point the app at it
+COPY --from=frontend /frontend/dist /app/frontend/dist
+ENV KRYPTOS_FRONTEND_DIST=/app/frontend/dist
 
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app

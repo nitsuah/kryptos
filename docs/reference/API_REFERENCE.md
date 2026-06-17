@@ -408,6 +408,18 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 
 > SSE log streaming (`GET /api/stream/logs`) is a planned follow-up — it needs a log-source design and is not yet implemented.
 
+### Frontend SPA (static serving)
+
+When a built frontend bundle is present, `create_app()` mounts it at `/` via
+`StaticFiles(directory=..., html=True)`, so the dashboard SPA and the API ship
+from one process. The mount is added **last**, so `/api/*` and `/health` always
+take precedence; `html=True` serves `index.html` for unknown paths (client-side
+routing). The dist directory is resolved in order: `KRYPTOS_FRONTEND_DIST`, then
+`<repo>/frontend/dist`, then `<cwd>/frontend/dist` (a candidate counts only if it
+contains `index.html`). If no build is found, the API is served alone. The root
+`Dockerfile` builds the SPA in a `node:22-alpine` stage and sets
+`KRYPTOS_FRONTEND_DIST=/app/frontend/dist`.
+
 ---
 
 ## Neon DB tables (runtime storage)
