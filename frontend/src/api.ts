@@ -44,6 +44,31 @@ export interface DecryptResponse {
   plaintext: string;
 }
 
+export interface VaultSealResponse {
+  token: string;
+  cipher: string;
+  max_reads: number;
+  expires_at: string | null;
+}
+
+export interface VaultUnsealResponse {
+  token: string;
+  plaintext: string;
+  reads_remaining: number;
+  expires_at: string | null;
+}
+
+export interface VaultPeekResponse {
+  token: string;
+  cipher: string;
+  status: string;
+  max_reads: number;
+  reads_used: number;
+  reads_remaining: number;
+  sealed_at: string | null;
+  expires_at: string | null;
+}
+
 export class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -86,4 +111,9 @@ export const api = {
   topCandidates: (limit = 20) => getJSON<CandidatesResponse>(`/api/candidates?limit=${limit}`),
   decrypt: (section: string, ciphertext: string, key?: string) =>
     postJSON<DecryptResponse>("/api/decrypt", { section, ciphertext, key: key || null }),
+  vaultSeal: (plaintext: string, key: string, ttl_seconds: number, max_reads: number) =>
+    postJSON<VaultSealResponse>("/api/vault/seal", { plaintext, key, ttl_seconds, max_reads }),
+  vaultUnseal: (token: string, key: string) =>
+    postJSON<VaultUnsealResponse>("/api/vault/unseal", { token, key }),
+  vaultPeek: (token: string) => getJSON<VaultPeekResponse>(`/api/vault/${encodeURIComponent(token)}`),
 };

@@ -7,9 +7,10 @@ Terminal-aesthetic React SPA over the kryptos FastAPI backend
 
 Shipped pages: **Ops Center** (status, metric cards, top candidates,
 campaign run history with drill-down, ad-hoc decrypt panel), **Decode**
-(K1–K3 animated decoder), and **Database** (Neon connection + per-table
-row counts). The Vault and the SSE live-log tail from
-`docs/analysis/K4-FRONTEND.md` are planned follow-ups.
+(K1–K3 animated decoder), **Database** (Neon connection + per-table row
+counts), and **Vault** (seal a secret under the keyed-alphabet Vigenère,
+share the opaque token, unseal once with the key, and check status). The
+SSE live-log tail from `docs/analysis/K4-FRONTEND.md` is a planned follow-up.
 
 ## Develop (Docker)
 
