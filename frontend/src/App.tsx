@@ -4,8 +4,9 @@ import Topbar from "./components/Topbar";
 import OpsCenter from "./pages/OpsCenter";
 import Decode from "./pages/Decode";
 import Database from "./pages/Database";
+import Vault from "./pages/Vault";
 
-type Page = "ops" | "decode" | "database";
+type Page = "ops" | "decode" | "database" | "vault";
 
 export default function App() {
   const [page, setPage] = useState<Page>("ops");
@@ -40,6 +41,9 @@ export default function App() {
         <button className={page === "database" ? "active" : ""} onClick={() => setPage("database")}>
           Database
         </button>
+        <button className={page === "vault" ? "active" : ""} onClick={() => setPage("vault")}>
+          Vault
+        </button>
       </nav>
       <main className="main">
         {error && <div className="banner">API unreachable: {error}</div>}
@@ -51,6 +55,7 @@ export default function App() {
         {page === "ops" && <OpsCenter status={status} />}
         {page === "decode" && <Decode />}
         {page === "database" && <Database status={status} />}
+        {page === "vault" && <Vault />}
       </main>
     </div>
   );
