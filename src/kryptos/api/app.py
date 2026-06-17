@@ -11,6 +11,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 
 from kryptos.api.dashboard import create_dashboard_router
+from kryptos.api.vault_routes import create_vault_router
 from kryptos.rag.index import ArtifactIndex
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,7 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
 
     app = FastAPI(title="Kryptos API", version="0.1.0")
     app.include_router(create_dashboard_router())
+    app.include_router(create_vault_router())
 
     @app.get("/health")
     def health() -> dict:

@@ -85,6 +85,19 @@ SCHEMA_STATEMENTS: dict[str, str] = {
         CREATE INDEX IF NOT EXISTS idx_candidates_score ON candidates (score DESC);
         CREATE INDEX IF NOT EXISTS idx_candidates_run ON candidates (campaign_run_id);
     """,
+    "vault_payloads": """
+        CREATE TABLE IF NOT EXISTS vault_payloads (
+            token       UUID PRIMARY KEY,
+            cipher      TEXT NOT NULL DEFAULT 'vigenere-keyed',
+            ciphertext  TEXT NOT NULL,
+            verifier    TEXT,
+            max_reads   INTEGER NOT NULL DEFAULT 1 CHECK (max_reads >= 1),
+            reads_used  INTEGER NOT NULL DEFAULT 0,
+            sealed_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+            expires_at  TIMESTAMPTZ
+        );
+        CREATE INDEX IF NOT EXISTS idx_vault_expires ON vault_payloads (expires_at);
+    """,
 }
 
 

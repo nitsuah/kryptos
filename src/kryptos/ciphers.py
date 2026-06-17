@@ -15,7 +15,7 @@ KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
 
 
 def vigenere_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False) -> str:
-    key = ''.join(c for c in key.upper() if c.isalpha())
+    key = "".join(c for c in key.upper() if c.isalpha())
     if not key:
         raise ValueError("Key must contain at least one alphabetic character")
     out: list[str] = []
@@ -46,12 +46,39 @@ def vigenere_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False
             ki += 1
         elif preserve_non_alpha:
             out.append(ch)
-    return ''.join(out)
+    return "".join(out)
+
+
+def vigenere_encrypt(plaintext: str, key: str, preserve_non_alpha: bool = False) -> str:
+    """Inverse of :func:`vigenere_decrypt` over the KRYPTOS keyed alphabet.
+
+    Letters are encrypted ``(P + K) mod 26`` against ``KEYED_ALPHABET``;
+    non-alphabetic characters are dropped unless ``preserve_non_alpha`` is set.
+    Plaintext is upper-cased so it maps into the keyed alphabet.
+    """
+    key = "".join(c for c in key.upper() if c.isalpha())
+    if not key:
+        raise ValueError("Key must contain at least one alphabetic character")
+    out: list[str] = []
+    klen = len(KEYED_ALPHABET)
+    ki = 0
+    for ch in plaintext.upper():
+        if ch.isalpha():
+            try:
+                p_index = KEYED_ALPHABET.index(ch)
+                k_index = KEYED_ALPHABET.index(key[ki % len(key)])
+            except ValueError as e:
+                raise ValueError(f"Character '{ch}' or key char not in keyed alphabet") from e
+            out.append(KEYED_ALPHABET[(p_index + k_index) % klen])
+            ki += 1
+        elif preserve_non_alpha:
+            out.append(ch)
+    return "".join(out)
 
 
 def k3_decrypt(ciphertext: str) -> str:
-    clean = ''.join(ciphertext.split())
-    if clean.startswith('?'):
+    clean = "".join(ciphertext.split())
+    if clean.startswith("?"):
         clean = clean[1:]
     return double_rotational_transposition(clean)
 
@@ -63,12 +90,12 @@ def double_rotational_transposition(text: str) -> str:
         raise ValueError(f"K3 ciphertext must be {expected_len} chars (got {len(text)})")
     m1 = [list(text[i * cols1 : (i + 1) * cols1]) for i in range(rows1)]
     m2 = _rotate_right(m1)
-    t1 = ''.join(''.join(r) for r in m2)
+    t1 = "".join("".join(r) for r in m2)
     cols2 = 8
     rows2 = len(t1) // cols2
     m3 = [list(t1[i * cols2 : (i + 1) * cols2]) for i in range(rows2)]
     m4 = _rotate_right(m3)
-    return ''.join(''.join(r) for r in m4)
+    return "".join("".join(r) for r in m4)
 
 
 def _rotate_right(matrix: list[list[str]]) -> list[list[str]]:
@@ -92,8 +119,8 @@ def rotate_matrix_right_90(matrix: Sequence[Sequence[str]]) -> list[list[str]]:
 
 
 def transposition_decrypt(ciphertext: str, key: str | None = None) -> str:
-    clean = ''.join(ciphertext.split())
-    if clean.startswith('?'):
+    clean = "".join(ciphertext.split())
+    if clean.startswith("?"):
         clean = clean[1:]
     if key is None:
         return k3_decrypt(clean)
@@ -101,10 +128,10 @@ def transposition_decrypt(ciphertext: str, key: str | None = None) -> str:
     height = 4
     needed = width * height
     if len(clean) < needed:
-        clean = clean.ljust(needed, 'X')
+        clean = clean.ljust(needed, "X")
     if len(clean) != needed:
         raise ValueError(f"Expected ciphertext length {needed}, got {len(clean)}")
-    key_up = ''.join(c for c in key.upper() if c.isalpha())
+    key_up = "".join(c for c in key.upper() if c.isalpha())
     repeated_key = (key_up * ((width // len(key_up)) + 1))[:width]
     key_tuples = sorted((ch, idx) for idx, ch in enumerate(repeated_key))
     col_order = [idx for _ch, idx in key_tuples]
@@ -118,7 +145,7 @@ def transposition_decrypt(ciphertext: str, key: str | None = None) -> str:
         col_text = cols[order]
         for r in range(height):
             grid[r][orig_col] = col_text[r]
-    return ''.join(''.join(row) for row in grid)
+    return "".join("".join(row) for row in grid)
 
 
 def polybius_decrypt(ciphertext: str, key_square: Sequence[Sequence[str]]) -> str:
@@ -135,7 +162,7 @@ def polybius_decrypt(ciphertext: str, key_square: Sequence[Sequence[str]]) -> st
             out.append(key_square[r][c])
         except (ValueError, IndexError) as exc:
             raise ValueError(f"Invalid pair in ciphertext: {pair}") from exc
-    return ''.join(out)
+    return "".join(out)
 
 
 def beaufort_decrypt(ciphertext: str, key: str, preserve_non_alpha: bool = False) -> str:
@@ -152,6 +179,7 @@ def beaufort_encrypt(plaintext: str, key: str, preserve_non_alpha: bool = False)
 
 __all__ = [
     "vigenere_decrypt",
+    "vigenere_encrypt",
     "k3_decrypt",
     "double_rotational_transposition",
     "rotate_matrix_right_90",

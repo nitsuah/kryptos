@@ -408,6 +408,23 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 
 > SSE log streaming (`GET /api/stream/logs`) is a planned follow-up — it needs a log-source design and is not yet implemented.
 
+### Vault (`kryptos.api.vault_routes` / `kryptos.vault`)
+
+Seal a secret under a keyed-alphabet Vigenère cipher, store it in Neon with a TTL
+and a server-enforced read limit, and get back an opaque UUID token. The **key is
+never stored** (only the ciphertext), so the database alone cannot reveal the
+plaintext. A short verifier hash lets a wrong key be rejected **without consuming
+a read**. The vault requires `DATABASE_URL`; without it every endpoint returns 503.
+
+| Method & path | Purpose |
+|---------------|---------|
+| `POST /api/vault/seal` | Body `{plaintext, key, ttl_seconds?=86400, max_reads?=1}` → `{token, cipher, max_reads, expires_at}` |
+| `POST /api/vault/unseal` | Body `{token, key}` → `{token, plaintext, reads_remaining, expires_at}`. Consumes one read |
+| `GET /api/vault/{token}` | Metadata only (no decrypt, no read consumed): `{status, max_reads, reads_used, reads_remaining, sealed_at, expires_at}` |
+
+Error mapping: unknown token → 404; expired/exhausted → 410; wrong key → 403;
+invalid arguments → 422; no database → 503. `ttl_seconds: 0` means no expiry.
+
 ### Frontend SPA (static serving)
 
 When a built frontend bundle is present, `create_app()` mounts it at `/` via
@@ -430,6 +447,7 @@ Schema defined in `kryptos.db_schema`; create with `kryptos db-init`.
 |-------|-----------|---------|
 | `campaign_runs` | `kryptos.persistence` (via `k4.reporting`) | One row per candidate-generating run |
 | `candidates` | `kryptos.persistence` (via `k4.reporting`) | Ranked candidate decryptions per run |
+| `vault_payloads` | `kryptos.vault` (via `POST /api/vault/seal`) | Sealed secrets: ciphertext, verifier, TTL, read limit |
 | `ops_decisions` | `OpsStrategicDirector` | Strategy decision log |
 | `strategy_kb` | Manual / future agents | Accumulated attack knowledge |
 | `discovered_cribs` | `SpyWebIntel` | Crib candidates with source provenance |
