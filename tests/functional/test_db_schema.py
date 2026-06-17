@@ -10,7 +10,14 @@ import pytest
 
 from kryptos.db_schema import SCHEMA_STATEMENTS, init_schema
 
-EXPECTED_TABLES = {"strategy_kb", "ops_decisions", "discovered_cribs", "campaign_runs", "candidates"}
+EXPECTED_TABLES = {
+    "strategy_kb",
+    "ops_decisions",
+    "discovered_cribs",
+    "campaign_runs",
+    "candidates",
+    "vault_payloads",
+}
 
 # Marker so live tests never collide with (or delete) real rows
 _TEST_TAG = "__kryptos_test__"
