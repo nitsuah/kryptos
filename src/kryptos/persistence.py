@@ -173,6 +173,71 @@ def fetch_top_candidates(limit: int = 20) -> list[dict[str, Any]]:
         return []
 
 
+_STRATEGY_CATEGORIES = ("successful", "failed", "lesson")
+
+
+def persist_strategy(
+    category: str,
+    description: str,
+    attack_type: str | None = None,
+    confidence: float | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> int | None:
+    """Record one accumulated-strategy entry in the ``strategy_kb`` table.
+
+    ``category`` must be one of ``successful``, ``failed``, or ``lesson`` (the
+    table's CHECK constraint). Returns the new ``strategy_kb.id``, or ``None``
+    if persistence was skipped (no DATABASE_URL) or failed — callers keep their
+    own JSONL/in-memory fallback, so a missing DB never loses the learning.
+    """
+    if category not in _STRATEGY_CATEGORIES:
+        raise ValueError(f"category must be one of {_STRATEGY_CATEGORIES}, got {category!r}")
+    if not db_enabled():
+        return None
+    try:
+        from kryptos.db import get_conn
+    except ImportError as exc:  # pragma: no cover - defensive
+        logger.warning("DB persistence unavailable (%s); skipping", exc)
+        return None
+
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO strategy_kb (category, description, attack_type, confidence, metadata)"
+                    " VALUES (%s, %s, %s, %s, %s::jsonb) RETURNING id",
+                    (category, description, attack_type, confidence, json.dumps(metadata or {})),
+                )
+                strategy_id = cur.fetchone()[0]
+        logger.info("Persisted %s strategy %s to strategy_kb", category, strategy_id)
+        return int(strategy_id)
+    except Exception as exc:  # noqa: BLE001 - persistence must never break a run
+        logger.warning("Failed to persist strategy to DB (%s); caller fallback unaffected", exc)
+        return None
+
+
+def fetch_strategy_kb(limit: int = 200) -> list[dict[str, Any]]:
+    """Return accumulated ``strategy_kb`` entries (newest first). Empty if DB off."""
+    if not db_enabled():
+        return []
+    try:
+        from kryptos.db import get_conn
+
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT id, category, description, attack_type, confidence, metadata, created_at"
+                    " FROM strategy_kb ORDER BY id DESC LIMIT %s",
+                    (limit,),
+                )
+                rows = cur.fetchall()
+        cols = ["id", "category", "description", "attack_type", "confidence", "metadata", "created_at"]
+        return [dict(zip(cols, row)) for row in rows]
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Failed to fetch strategy_kb (%s)", exc)
+        return []
+
+
 def table_counts() -> dict[str, int]:
     """Return row counts for the kryptos tables. Empty dict if DB disabled."""
     if not db_enabled():
@@ -197,8 +262,10 @@ def table_counts() -> dict[str, int]:
 __all__ = [
     "db_enabled",
     "persist_campaign_candidates",
+    "persist_strategy",
     "fetch_recent_runs",
     "fetch_run_candidates",
     "fetch_top_candidates",
+    "fetch_strategy_kb",
     "table_counts",
 ]

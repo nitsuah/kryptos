@@ -90,17 +90,18 @@ class OpsStrategicDirector:
         decision = self._make_strategic_decision(situation)
         self.decision_history.append(decision)
         self._save_decision(decision)
+        self._record_strategy_from_decision(decision)
 
         return decision
 
     def synthesize_agent_insights(self, insights: list[AgentInsight]) -> dict[str, Any]:
-        by_category = {}
+        by_category: dict[str, list[AgentInsight]] = {}
         for insight in insights:
             if insight.category not in by_category:
                 by_category[insight.category] = []
             by_category[insight.category].append(insight)
 
-        synthesis = {
+        synthesis: dict[str, Any] = {
             "timestamp": datetime.now(),
             "insight_count": len(insights),
             "categories": list(by_category.keys()),
@@ -109,8 +110,8 @@ class OpsStrategicDirector:
             "confidence": 0.0,
         }
 
-        linguistic_insights = by_category.get("linguistic", [])
-        pattern_insights = by_category.get("pattern", [])
+        linguistic_insights: list[AgentInsight] = by_category.get("linguistic", [])
+        pattern_insights: list[AgentInsight] = by_category.get("pattern", [])
 
         if len(linguistic_insights) >= 2 or (linguistic_insights and pattern_insights):
             synthesis["key_findings"].append(
@@ -125,7 +126,7 @@ class OpsStrategicDirector:
                 "Focus on linguistically-validated candidates - they score higher on multiple metrics",
             )
 
-        intel_insights = by_category.get("external_intel", [])
+        intel_insights: list[AgentInsight] = by_category.get("external_intel", [])
         if intel_insights:
             new_cribs = [i.metadata.get("cribs", []) for i in intel_insights if "cribs" in i.metadata]
             if new_cribs:
@@ -447,14 +448,26 @@ class OpsStrategicDirector:
     def _load_strategy_kb(self) -> dict[str, Any]:
         try:
             from kryptos.db import get_conn
+
             with get_conn() as conn:
                 cur = conn.cursor()
-                cur.execute("SELECT category, description, attack_type, confidence, metadata FROM strategy_kb ORDER BY id")
+                cur.execute(
+                    "SELECT category, description, attack_type, confidence, metadata FROM strategy_kb ORDER BY id"
+                )
                 rows = cur.fetchall()
             kb: dict[str, Any] = {"successful_strategies": [], "failed_strategies": [], "lessons_learned": []}
-            category_map = {"successful": "successful_strategies", "failed": "failed_strategies", "lesson": "lessons_learned"}
+            category_map = {
+                "successful": "successful_strategies",
+                "failed": "failed_strategies",
+                "lesson": "lessons_learned",
+            }
             for category, description, attack_type, confidence, metadata in rows:
-                entry = {"description": description, "attack_type": attack_type, "confidence": confidence, "metadata": metadata or {}}
+                entry = {
+                    "description": description,
+                    "attack_type": attack_type,
+                    "confidence": confidence,
+                    "metadata": metadata or {},
+                }
                 kb[category_map[category]].append(entry)
             return kb
         except Exception:
@@ -467,9 +480,95 @@ class OpsStrategicDirector:
                     pass
             return {"successful_strategies": [], "failed_strategies": [], "lessons_learned": []}
 
+    # Maps a strategy_kb category to the in-memory KB list and back. Categories
+    # match the strategy_kb CHECK constraint (kryptos.db_schema).
+    _KB_CATEGORY_TO_LIST = {
+        "successful": "successful_strategies",
+        "failed": "failed_strategies",
+        "lesson": "lessons_learned",
+    }
+
+    # Which strategic actions are worth recording as durable learning, and the
+    # strategy_kb category each maps to. CONTINUE/REDUCE are steady-state and
+    # produce no entry.
+    _ACTION_TO_CATEGORY = {
+        StrategyAction.BOOST: "successful",
+        StrategyAction.START_NEW: "lesson",
+        StrategyAction.PIVOT: "failed",
+        StrategyAction.STOP: "failed",
+        StrategyAction.EMERGENCY_STOP: "failed",
+    }
+
+    def record_strategy(
+        self,
+        category: str,
+        description: str,
+        attack_type: str | None = None,
+        confidence: float | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
+        """Record an accumulated strategy/lesson in the KB (memory + Neon).
+
+        ``category`` is one of ``successful``, ``failed``, ``lesson``. The entry
+        is appended to the in-memory ``strategy_kb`` immediately and persisted to
+        the ``strategy_kb`` Neon table; if the DB is unavailable it falls back to
+        a JSONL file so the learning is never lost. Mirrors ``_save_decision``.
+        """
+        list_key = self._KB_CATEGORY_TO_LIST.get(category)
+        if list_key is None:
+            raise ValueError(f"category must be one of {tuple(self._KB_CATEGORY_TO_LIST)}, got {category!r}")
+
+        entry = {
+            "description": description,
+            "attack_type": attack_type,
+            "confidence": confidence,
+            "metadata": metadata or {},
+        }
+        if list_key not in self.strategy_kb:
+            self.strategy_kb[list_key] = []
+        self.strategy_kb[list_key].append(entry)
+
+        from kryptos import persistence
+
+        strategy_id = persistence.persist_strategy(
+            category, description, attack_type=attack_type, confidence=confidence, metadata=metadata
+        )
+        if strategy_id is None:
+            kb_file = self.cache_dir / "strategy_kb_writes.jsonl"
+            with open(kb_file, "a") as f:
+                f.write(json.dumps({"category": category, **entry}, default=str) + "\n")
+
+    def _record_strategy_from_decision(self, decision: StrategicDecision) -> None:
+        """Translate a strategic decision into a durable strategy_kb entry.
+
+        PIVOT/STOP record the abandoned attack as a failed strategy, BOOST a
+        successful one, START_NEW a lesson; CONTINUE/REDUCE are skipped. Best-
+        effort: a write failure must never break the decision loop.
+        """
+        category = self._ACTION_TO_CATEGORY.get(decision.action)
+        if category is None:
+            return
+        attack_type = decision.affected_attacks[0] if decision.affected_attacks else None
+        metadata = {
+            "action": decision.action.value,
+            "affected_attacks": decision.affected_attacks,
+            "success_criteria": decision.success_criteria,
+        }
+        try:
+            self.record_strategy(
+                category,
+                decision.reasoning,
+                attack_type=attack_type,
+                confidence=decision.confidence,
+                metadata=metadata,
+            )
+        except Exception as exc:  # noqa: BLE001 - learning capture must not break the loop
+            print(f"Warning: failed to record strategy from decision ({exc})")
+
     def _save_decision(self, decision: StrategicDecision):
         try:
             from kryptos.db import get_conn
+
             with get_conn() as conn:
                 cur = conn.cursor()
                 cur.execute(
