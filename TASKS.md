@@ -1,6 +1,6 @@
 # Tasks
 
-Last Updated: 2026-06-17
+Last Updated: 2026-06-20
 
 
 ## Todo
@@ -9,28 +9,20 @@ Last Updated: 2026-06-17
 
 ### Phase 1: Dashboard & UI
 - Develop dedicated K4 Attack Dashboard: visual fingerprint map of attack vectors plausible vs. covered vs. unknown (Ops Center, Database, and RAG search already cover live progress, scoring, and artifact lookup)
-- Wire the SSE live-log tail (`/api/stream/logs`) into the Ops Center page (backend in flight on a separate branch)
 
-### Phase 2: Data & API
-- `strategy_kb` write path — automate persisting successful/failed strategies from `OpsStrategicDirector` back to Neon
-
-### Phase 3: Post-Solution Analysis
+### Phase 2: Post-Solution Analysis
 - Analyze and document attack path, key insights, and lessons learned after solution
 - Write comprehensive report on solution narrative and cryptanalytic implications
 - Update README and documentation to reflect solution and research outcomes
 
-### Phase 4: Misc/Supporting
+### Phase 3: Misc/Supporting
 - Update docs/analysis/K4-FRONTEND.md for frontend/dashboard integration
 - Ensure all new features have test coverage and artifact logging
 
 
-## In Progress
-
-- [ ] **SSE live-log tail** — `GET /api/stream/logs` (StreamingResponse, `text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler, plus a frontend `LogTail` EventSource component on Ops Center. Backend implemented and unit-tested on the `sse-log-tail` branch.
-
 ## Done
 
-### Dashboard, REST API & Web UI (Q1 2027 Phases 1–2)
+### Dashboard, REST API, Web UI & Ops Strategy KB (Q1 2027 Phases 1–3)
 
 - [x] **FastAPI dashboard endpoints** — `/api/status`, `/api/runs`, `/api/runs/{id}/candidates`, `/api/candidates`, `POST /api/decrypt` over the `create_app()` factory (#99).
 - [x] **Neon persistence for campaigns** — `campaign_runs` + `candidates` tables (`db_schema.py`) with best-effort write path from live campaigns (#93 schema/`kryptos db-init`, #98 persistence).
@@ -38,6 +30,8 @@ Last Updated: 2026-06-17
 - [x] **Kryptos Vault** — seal/unseal/peek API + `vault_payloads` table; keyed-alphabet Vigenère with TTL and read-count enforcement, key never stored, wrong-key attempts don't burn a read (#115 backend, #116 frontend).
 - [x] **Single-container delivery** — FastAPI serves the built SPA from `frontend/dist` via `StaticFiles(html=True)`; root `Dockerfile` builds the bundle in a `node:22-alpine` stage and ships it with the API (#114).
 - [x] **turbovec RAG behind the FastAPI app** — `/api/rag/*` semantic search over `artifacts/` embedded into the dashboard service (#113, #87).
+- [x] **SSE live-log tail** — `GET /api/stream/logs` (StreamingResponse, `text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler (#118); `LogTail` EventSource component on Ops Center page (#119).
+- [x] **`strategy_kb` write path** — `OpsStrategicDirector.record_strategy()` + `_record_strategy_from_decision()` persist BOOST/PIVOT/STOP/START_NEW decisions to Neon `strategy_kb` with JSONL fallback; `fetch_strategy_kb()` and `persist_strategy()` added to `kryptos.persistence` (#122).
 
 ### SA transposition seeding + early-crib locking verification
 
