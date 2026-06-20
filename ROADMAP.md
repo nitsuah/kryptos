@@ -1,6 +1,6 @@
 # 🗺️ Kryptos Roadmap
 
-Last Updated: 2026-06-17
+Last Updated: 2026-06-20
 Next Review: 2026-07-01
 ---
 
@@ -30,15 +30,15 @@ Next Review: 2026-07-01
 
 > Stack shipped as specified: FastAPI + React SPA in a single multistage Docker container, served from `frontend/dist` by `create_app()`, backed by Neon. See `docs/analysis/K4-FRONTEND.md`.
 
-- [x] **Ops Center** — live campaign monitoring, agent status row, top fused candidates table, run history with drill-down, ad-hoc decrypt panel (#100). Live log tail via SSE is the remaining piece (see Phase 3).
+- [x] **Ops Center** — live campaign monitoring, agent status row, top fused candidates table, run history with drill-down, ad-hoc decrypt panel (#100). Live log tail via SSE shipped (#118 backend, #119 frontend).
 - [x] **K1–K3 Animated Decoder** — step-by-step visual explainer of how each solved section was encrypted and cracked (#102)
 - [x] **Database admin page** — Neon connection status + per-table row counts (#104)
 - [x] **Vault** — seal/unseal/peek encrypt/decrypt interface (keyed-alphabet Vigenère) with TTL and read-count enforcement (#115 backend, #116 frontend)
 - [ ] **K4 Attack Dashboard** — dedicated real-time pipeline-progress + evidence-artifact viewer (most is covered by Ops Center, Database, and RAG search; a standalone attack-vector fingerprint view remains)
 
 ### Phase 3 — API
-- [x] **REST dashboard API** — `/api/status`, `/api/runs`, `/api/runs/{id}/candidates`, `/api/candidates`, `POST /api/decrypt` (#99); turbovec RAG search at `/api/rag/*` (#113). `/api/stream/logs` (SSE) is in flight on a separate branch.
-- [ ] **`strategy_kb` write path** — automate writing successful/failed strategies from `OpsStrategicDirector` back to Neon
+- [x] **REST dashboard API** — `/api/status`, `/api/runs`, `/api/runs/{id}/candidates`, `/api/candidates`, `POST /api/decrypt` (#99); turbovec RAG search at `/api/rag/*` (#113); `GET /api/stream/logs` SSE live-log tail (#118).
+- [x] **`strategy_kb` write path** — `OpsStrategicDirector.record_strategy()` persists BOOST/PIVOT/STOP/START_NEW decisions to Neon `strategy_kb` table with JSONL fallback; `_record_strategy_from_decision()` auto-invoked on every `analyze()` cycle (#122).
 - [x] **Candidate & run storage** — `candidates` and `campaign_runs` tables in Neon, persisted best-effort from campaigns (#98)
 
 ### Phase 4 — Validation & hardening
