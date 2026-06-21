@@ -15,11 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .keystream_validator import (
-    K4_CRIBS,
-    crib_hit_count,
-    keystream_summary,
-)
+from .keystream_validator import K4_CRIBS, crib_hit_count, keystream_summary
 
 DEFAULT_SNAPSHOT_PATH = "K4_BREAKTHROUGH_SNAPSHOT.md"
 EUREKA_THRESHOLD = 4  # all four confirmed cribs must match
@@ -33,6 +29,7 @@ class EurekaSignal(Exception):
         snapshot_path: Path where the breakthrough snapshot was written.
         result:        The full result dict that triggered the signal.
     """
+
     def __init__(self, snapshot_path: str, result: dict[str, Any]):
         self.snapshot_path = snapshot_path
         self.result = result
@@ -77,10 +74,13 @@ def write_breakthrough_snapshot(
         exp = info["expected_shifts"]
         crib_table_rows.append(f"| {label:12s} | {match_str:8s} | {obs} | {exp} |")
 
-    crib_table = "\n".join([
-        "| Crib         | Status   | Observed shifts       | Expected shifts       |",
-        "|:-------------|:---------|:----------------------|:----------------------|",
-    ] + crib_table_rows)
+    crib_table = "\n".join(
+        [
+            "| Crib         | Status   | Observed shifts       | Expected shifts       |",
+            "|:-------------|:---------|:----------------------|:----------------------|",
+        ]
+        + crib_table_rows
+    )
 
     key_json = json.dumps(key_info, indent=2, default=str)
     extra_section = ""
@@ -89,12 +89,14 @@ def write_breakthrough_snapshot(
         extra_section = f"\n## Extra Metadata\n```json\n{extra_json}\n```\n"
 
     hits = sum(1 for info in summary.values() if info["match"])
+    _total = len(summary)
+    _status = "🔑 ALL CRIBS MATCHED — CANDIDATE SOLUTION" if hits == _total else f"⚠️ PARTIAL MATCH ({hits}/{_total})"
 
     content = f"""# K4 BREAKTHROUGH SNAPSHOT
 
 **Generated:** {ts}
-**Crib hits:** {hits} / {len(summary)}
-**Status:** {"🔑 ALL CRIBS MATCHED — CANDIDATE SOLUTION" if hits == len(summary) else f"⚠️ PARTIAL MATCH ({hits}/{len(summary)})"}
+**Crib hits:** {hits} / {_total}
+**Status:** {_status}
 
 ---
 
@@ -157,9 +159,7 @@ def eureka_check_and_capture(
     if not check_eureka(candidate_text, cribs=cribs, threshold=threshold):
         return None
 
-    written = write_breakthrough_snapshot(
-        candidate_text, key_info, extra=extra, path=snapshot_path
-    )
+    written = write_breakthrough_snapshot(candidate_text, key_info, extra=extra, path=snapshot_path)
     result = {
         "candidate_text": candidate_text,
         "key_info": key_info,

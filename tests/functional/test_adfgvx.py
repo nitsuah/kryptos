@@ -1,13 +1,8 @@
 """Tests for the ADFGVX fractionating cipher (K4 hypothesis module)."""
 
 import pytest
-from kryptos.k4.adfgvx import (
-    ADFGVX_CHARS,
-    adfgvx_decrypt,
-    adfgvx_encrypt,
-    build_polybius_square,
-    square_index,
-)
+
+from kryptos.k4.adfgvx import ADFGVX_CHARS, adfgvx_decrypt, adfgvx_encrypt, build_polybius_square, square_index
 
 
 class TestBuildPolybius:

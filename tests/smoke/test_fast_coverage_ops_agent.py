@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 
@@ -59,7 +58,7 @@ def test_execute_attack_queue_and_best_attack(tmp_path: Path) -> None:
     assert summary["best_score"] == 0.8
     assert summary["best_attack_rationale"] == "high"
 
-    agent.attack_logger = None
+    agent.attack_logger = None  # type: ignore[assignment]
     with pytest.raises(RuntimeError, match="Attack logging not enabled"):
         agent.execute_attack_queue(specs, "OBKRUOX")
 
@@ -123,7 +122,9 @@ def test_cipher_specific_helpers(monkeypatch: pytest.MonkeyPatch) -> None:
     assert agent._execute_hill("ABC", {}) is None
     monkeypatch.setattr("kryptos.agents.ops.hill_decrypt", lambda _c, _m: "HILL")
     assert agent._execute_hill("ABC", {"key_matrix": [[1, 0], [0, 1]]}) == "HILL"
-    monkeypatch.setattr("kryptos.agents.ops.hill_decrypt", lambda *_args, **_kwargs: (_ for _ in ()).throw(ValueError("bad")))
+    monkeypatch.setattr(
+        "kryptos.agents.ops.hill_decrypt", lambda *_args, **_kwargs: (_ for _ in ()).throw(ValueError("bad"))
+    )  # noqa: E501
     assert agent._execute_hill("ABC", {"key_matrix": [[1]]}) is None
 
     monkeypatch.setattr("kryptos.agents.ops.apply_columnar_permutation", lambda _c, _n, _p: "TR")
@@ -216,7 +217,7 @@ def test_generation_passthrough_and_additional_dispatch(monkeypatch: pytest.Monk
             _ = max_total
             return ["c"]
 
-    agent.attack_generator = _Gen()
+    agent.attack_generator = _Gen()  # type: ignore[assignment]
     assert agent.generate_attack_queue_from_q_hints("ABC", max_attacks=3) == ["q"]
     assert agent.generate_attack_queue_comprehensive("ABC", cipher_types=["vigenere"], max_attacks=5) == ["c"]
 
@@ -230,7 +231,10 @@ def test_generation_passthrough_and_additional_dispatch(monkeypatch: pytest.Monk
 
     monkeypatch.setattr("kryptos.agents.ops.SpyAgent", _Spy)
     assert agent._execute_single_attack(_spec("hill", {"key_matrix": [[1]]}), "ABC").success is True
-    assert agent._execute_single_attack(_spec("transposition", {"period": 3, "permutation": [0, 1, 2]}), "ABC").success is True
+    assert (
+        agent._execute_single_attack(_spec("transposition", {"period": 3, "permutation": [0, 1, 2]}), "ABC").success
+        is True
+    )  # noqa: E501
 
 
 def test_vigenere_keylength_recovery_exception(monkeypatch: pytest.MonkeyPatch) -> None:

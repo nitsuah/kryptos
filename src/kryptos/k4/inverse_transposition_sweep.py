@@ -22,14 +22,9 @@ from __future__ import annotations
 from itertools import permutations
 from typing import Any
 
-from .keystream_validator import (
-    K4_CRIBS,
-    crib_hit_count,
-    compute_shifts_at_cribs,
-    keystream_summary,
-)
-from .transposition_routes import read_ene_diagonal, to_grid, _read_diagonal, _read_spiral
+from .keystream_validator import K4_CRIBS, crib_hit_count, keystream_summary
 from .transposition_analysis import apply_columnar_permutation_reverse
+from .transposition_routes import _read_diagonal, _read_spiral, read_ene_diagonal, to_grid
 
 # Grid sizes to sweep (n_cols for 97-char K4)
 K4_GRID_GEOMETRIES: list[int] = [7, 8, 10]
@@ -37,9 +32,9 @@ K4_GRID_GEOMETRIES: list[int] = [7, 8, 10]
 # Reading routes to apply after inversion
 SWEEP_ROUTES: dict[str, Any] = {
     "ene_diagonal": lambda text, cols: read_ene_diagonal(text, cols, angle_tan=2.414),
-    "columnar":     lambda text, cols: text,           # after P⁻¹, read straight through
-    "spiral":       lambda text, cols: "".join(_read_spiral(to_grid(text, cols))),
-    "diagonal_45":  lambda text, cols: "".join(_read_diagonal(to_grid(text, cols))),
+    "columnar": lambda text, cols: text,  # after P⁻¹, read straight through
+    "spiral": lambda text, cols: "".join(_read_spiral(to_grid(text, cols))),
+    "diagonal_45": lambda text, cols: "".join(_read_diagonal(to_grid(text, cols))),
 }
 
 
@@ -96,15 +91,17 @@ def sweep_grid(
             candidate = route_fn(inverted, n_cols)
             hits = crib_hit_count(candidate, cribs=cribs)
             if hits >= min_hits:
-                results.append({
-                    "n_cols":         n_cols,
-                    "perm":           perm,
-                    "inv_perm":       invert_permutation(perm),
-                    "route":          route_name,
-                    "crib_hits":      hits,
-                    "crib_summary":   keystream_summary(candidate),
-                    "candidate_text": candidate,
-                })
+                results.append(
+                    {
+                        "n_cols": n_cols,
+                        "perm": perm,
+                        "inv_perm": invert_permutation(perm),
+                        "route": route_name,
+                        "crib_hits": hits,
+                        "crib_summary": keystream_summary(candidate),
+                        "candidate_text": candidate,
+                    }
+                )
 
     results.sort(key=lambda r: (-r["crib_hits"], r["n_cols"]))
     return results
@@ -150,7 +147,7 @@ def full_sweep(
     all_results.sort(key=lambda r: (-r["crib_hits"], r["n_cols"]))
     return {
         "results": all_results,
-        "best":    all_results[0] if all_results else None,
+        "best": all_results[0] if all_results else None,
         "grid_sizes_tested": grid_sizes,
         "total_hits": len(all_results),
     }

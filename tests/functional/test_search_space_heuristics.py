@@ -1,7 +1,7 @@
 """Tests for cross-run memory heuristics added to SearchSpaceTracker."""
 
-import pytest
 from pathlib import Path
+
 from kryptos.provenance.search_space import SearchSpaceTracker, _levenshtein
 
 
@@ -100,11 +100,11 @@ class TestGetPriorityRecommendations:
         t = self._populated_tracker(tmp_path)
         # Register two equal-sized regions: one untouched, one partly explored
         t.register_region("test_cipher", "untouched", {}, total_size=1_000_000)
-        t.register_region("test_cipher", "partial",   {}, total_size=1_000_000)
+        t.register_region("test_cipher", "partial", {}, total_size=1_000_000)
         t.record_exploration("test_cipher", "partial", count=100)  # 0.01% coverage
         recs = t.get_priority_recommendations(top_n=10, diversity_bonus=20.0)
         untouched_rec = next((r for r in recs if r["region"] == "untouched"), None)
-        partial_rec   = next((r for r in recs if r["region"] == "partial"),   None)
+        partial_rec = next((r for r in recs if r["region"] == "partial"), None)
         assert untouched_rec is not None
         assert partial_rec is not None
         # The untouched region gets +20 diversity bonus; partial does not → higher adjusted score

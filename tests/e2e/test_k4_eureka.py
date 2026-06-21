@@ -1,18 +1,10 @@
 """Tests for Eureka capture protocol (K4-ATTACK-6)."""
 
-import tempfile
 from pathlib import Path
 
 import pytest
 
-from kryptos.k4.eureka import (
-    DEFAULT_SNAPSHOT_PATH,
-    EUREKA_THRESHOLD,
-    EurekaSignal,
-    check_eureka,
-    eureka_check_and_capture,
-    write_breakthrough_snapshot,
-)
+from kryptos.k4.eureka import EurekaSignal, check_eureka, eureka_check_and_capture, write_breakthrough_snapshot
 
 K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
@@ -74,25 +66,19 @@ class TestWriteBreakthroughSnapshot:
 class TestEurekaCheckAndCapture:
     def test_miss_returns_none(self, tmp_path):
         out = tmp_path / "snap.md"
-        result = eureka_check_and_capture(
-            "A" * 97, {}, snapshot_path=out, raise_signal=False
-        )
+        result = eureka_check_and_capture("A" * 97, {}, snapshot_path=out, raise_signal=False)
         assert result is None
         assert not out.exists()
 
     def test_hit_writes_snapshot(self, tmp_path):
         out = tmp_path / "snap.md"
-        result = eureka_check_and_capture(
-            K4, {"test": True}, snapshot_path=out, raise_signal=False
-        )
+        result = eureka_check_and_capture(K4, {"test": True}, snapshot_path=out, raise_signal=False)
         assert result is not None
         assert out.exists()
 
     def test_hit_returns_result_dict(self, tmp_path):
         out = tmp_path / "snap.md"
-        result = eureka_check_and_capture(
-            K4, {}, snapshot_path=out, raise_signal=False
-        )
+        result = eureka_check_and_capture(K4, {}, snapshot_path=out, raise_signal=False)
         assert "candidate_text" in result
         assert "crib_summary" in result
         assert "snapshot_path" in result
@@ -112,7 +98,5 @@ class TestEurekaCheckAndCapture:
     def test_partial_threshold(self, tmp_path):
         out = tmp_path / "snap.md"
         # threshold=1: K4 should trigger even with only 1 required
-        result = eureka_check_and_capture(
-            K4, {}, snapshot_path=out, threshold=1, raise_signal=False
-        )
+        result = eureka_check_and_capture(K4, {}, snapshot_path=out, threshold=1, raise_signal=False)
         assert result is not None

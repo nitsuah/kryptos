@@ -61,10 +61,8 @@ class TestVigenereDecryptInts:
     def test_4char_key_cyclic(self):
         # Encrypt EAST with shifts [1,2,3,4] then decrypt
         ct = "".join(
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[
-                ("ABCDEFGHIJKLMNOPQRSTUVWXYZ".index(c) + s) % 26
-            ]
-            for c, s in zip("EAST", [1, 2, 3, 4])
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[("ABCDEFGHIJKLMNOPQRSTUVWXYZ".index(c) + s) % 26]
+            for c, s in zip("EAST", [1, 2, 3, 4], strict=False)
         )
         assert vigenere_decrypt_ints(ct, [1, 2, 3, 4]) == "EAST"
 
@@ -86,9 +84,7 @@ class TestClockKeyEncodingSchemes:
         cs = full_clock_state(time(13, 45, 0))
         for name, encoder in CLOCK_KEY_ENCODING_SCHEMES.items():
             result = encoder(cs)
-            assert (
-                len(result) == 4
-            ), f"Scheme '{name}' returned {len(result)} values, expected 4"
+            assert len(result) == 4, f"Scheme '{name}' returned {len(result)} values, expected 4"
 
     def test_each_scheme_returns_valid_mod26(self):
         from datetime import time
@@ -222,9 +218,7 @@ class TestRunClockVigenereAttack:
         # Instead test via threshold=1 on EAST-containing plaintext.
         simple_plain = "EAST" + "X" * 93
         simple_ct = "".join(
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[
-                ("ABCDEFGHIJKLMNOPQRSTUVWXYZ".index(c) + [0, 0, 0, 0][i % 4]) % 26
-            ]
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[("ABCDEFGHIJKLMNOPQRSTUVWXYZ".index(c) + [0, 0, 0, 0][i % 4]) % 26]
             for i, c in enumerate(simple_plain)
         )
 

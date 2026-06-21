@@ -10,7 +10,7 @@ import pytest
 from kryptos.k4 import report as k4_report
 from kryptos.k4 import transposition
 from kryptos.k4.tuning import artifacts as art
-from kryptos.meta_coordinator import AgentStatus, MetaCoordinator, TaskPriority, demo_meta_coordinator
+from kryptos.meta_coordinator import MetaCoordinator, TaskPriority, demo_meta_coordinator
 from kryptos.spy import extractor as spy_extractor
 from kryptos.tuning import spy_eval
 
@@ -52,7 +52,7 @@ def test_report_edge_branches(tmp_path: Path) -> None:
 
     # Patch repo root so learned lines are loaded from tmp.
     old_get_repo_root = k4_report.get_repo_root
-    k4_report.get_repo_root = lambda: tmp_path
+    k4_report.get_repo_root = lambda: tmp_path  # type: ignore[assignment]
     try:
         out_md = k4_report.write_top_candidates_markdown(run_dir, out_dir=tmp_path / "reports", top_n=2)
     finally:
@@ -68,7 +68,7 @@ def test_meta_coordinator_edge_branches(monkeypatch, tmp_path: Path, capsys) -> 
     # complete_task unknown id
     coord.complete_task("missing", {}, success=True)
 
-    t_spy = coord.assign_task("SPY", "a", "d", priority=TaskPriority.HIGH)
+    _t_spy = coord.assign_task("SPY", "a", "d", priority=TaskPriority.HIGH)  # noqa: F841
     t_linguist = coord.assign_task(
         "LINGUIST",
         "b",
@@ -139,7 +139,9 @@ def test_transposition_edge_branches(monkeypatch) -> None:
 
     # prune branch with continue
     monkeypatch.setattr(transposition, "_partial_score", lambda _t, _l: -999.0)
-    out = transposition.search_columnar("ABCDEFG", min_cols=2, max_cols=2, max_perms_per_width=2, prune=True, partial_min_score=0)
+    out = transposition.search_columnar(
+        "ABCDEFG", min_cols=2, max_cols=2, max_perms_per_width=2, prune=True, partial_min_score=0
+    )  # noqa: E501
     assert out == []
 
     # adaptive prune + cache trim + early stop pass line

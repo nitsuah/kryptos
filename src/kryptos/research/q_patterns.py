@@ -161,7 +161,7 @@ class QResearchAnalyzer:
             for i in range(len(text) - length + 1):
                 substr = text[i : i + length]
                 reversed_substr = substr[::-1]
-                mismatches = sum(1 for a, b in zip(substr, reversed_substr) if a != b)
+                mismatches = sum(1 for a, b in zip(substr, reversed_substr, strict=False) if a != b)
 
                 if 0 < mismatches <= 2:
                     confidence = 1.0 - (mismatches / length)
@@ -214,7 +214,7 @@ class QResearchAnalyzer:
 
     def detect_transposition_hints(self, ciphertext: str) -> list[TranspositionHint]:
         text = re.sub(r"[^A-Z]", "", ciphertext.upper())
-        hints = []
+        hints: list[TranspositionHint] = []
 
         if len(text) < 20:
             return hints

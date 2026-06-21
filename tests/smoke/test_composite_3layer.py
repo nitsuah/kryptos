@@ -1,6 +1,5 @@
 """Tests for the 3-layer S→T→S composite chain (K4-ATTACK extension)."""
 
-import pytest
 from kryptos.k4.composite import CompositeChainExecutor
 
 K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"

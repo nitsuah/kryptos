@@ -57,6 +57,7 @@ class K4CampaignOrchestrator:
             return (attack_spec, plaintext, confidence)
         except Exception:
             return (attack_spec, None, 0.0)
+
     def __init__(
         self,
         workspace_dir: Path | None = None,
@@ -151,7 +152,8 @@ class K4CampaignOrchestrator:
         max_time_seconds: float | None = None,
     ) -> CampaignResult:
         import multiprocessing as mp
-        from concurrent.futures import ProcessPoolExecutor, as_completed, TimeoutError
+        from concurrent.futures import ProcessPoolExecutor, TimeoutError, as_completed
+
         campaign_id = f"k4_campaign_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         start_time = datetime.now()
 
@@ -165,7 +167,6 @@ class K4CampaignOrchestrator:
         i = 0
         futures = []
         max_workers = getattr(self, "max_workers", None) or mp.cpu_count()
-
 
         if max_workers == 1:
             # Serial fallback for test/mocking (no pickling required)

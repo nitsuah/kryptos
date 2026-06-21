@@ -27,7 +27,7 @@ from typing import Any
 
 from .berlin_clock import enumerate_clock_shift_sequences
 from .eureka import DEFAULT_SNAPSHOT_PATH, EurekaSignal, write_breakthrough_snapshot
-from .inverse_transposition_sweep import SWEEP_ROUTES, K4_GRID_GEOMETRIES, invert_permutation
+from .inverse_transposition_sweep import K4_GRID_GEOMETRIES, SWEEP_ROUTES, invert_permutation
 from .keystream_validator import K4_CRIBS
 from .scoring_instructional import combined_instructional_score
 from .transposition_analysis import apply_columnar_permutation_reverse
@@ -120,9 +120,7 @@ def run_composite_sweep(
                             break
                         perm_count += 1
 
-                        intermediate = apply_columnar_permutation_reverse(
-                            clock_stripped, n_cols, list(perm)
-                        )
+                        intermediate = apply_columnar_permutation_reverse(clock_stripped, n_cols, list(perm))
 
                         for route_name in routes:
                             route_fn = SWEEP_ROUTES.get(route_name)
@@ -159,16 +157,18 @@ def run_composite_sweep(
 
                             if kw_hits > 0:
                                 score = combined_instructional_score(candidate, gate_entropy=False)
-                                best_candidates.append({
-                                    "candidate_text": candidate,
-                                    "keyword_hits": kw_hits,
-                                    "instructional_score": score,
-                                    "alpha_name": alpha_name,
-                                    "n_cols": n_cols,
-                                    "perm": list(perm),
-                                    "route": route_name,
-                                    "clock_time": clock_time,
-                                })
+                                best_candidates.append(
+                                    {
+                                        "candidate_text": candidate,
+                                        "keyword_hits": kw_hits,
+                                        "instructional_score": score,
+                                        "alpha_name": alpha_name,
+                                        "n_cols": n_cols,
+                                        "perm": list(perm),
+                                        "route": route_name,
+                                        "clock_time": clock_time,
+                                    }
+                                )
 
     except EurekaSignal:
         raise
@@ -195,9 +195,7 @@ def run_composite_sweep(
         "null_artifact_path": str(Path(null_artifact_path).resolve()),
     }
 
-    Path(null_artifact_path).write_text(
-        json.dumps(summary, indent=2, default=str), encoding="utf-8"
-    )
+    Path(null_artifact_path).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     return summary
 
 

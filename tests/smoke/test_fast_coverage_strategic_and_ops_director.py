@@ -17,8 +17,8 @@ from kryptos.agents.ops_director import (
 )
 from kryptos.analysis.strategic_coverage import (
     CoverageTrend,
-    StrategicCoverageAnalyzer,
     SaturationAnalysis,
+    StrategicCoverageAnalyzer,
     demo_strategic_coverage,
 )
 from kryptos.provenance.search_space import SearchSpaceTracker
@@ -87,7 +87,7 @@ def test_strategic_analyzer_branches_and_demo(tmp_path: Path, monkeypatch: pytes
     assert isinstance(fallback, dict)
 
     html = analyzer.generate_heatmap_visualization("vigenere", output_format="html")
-    assert "<html>" in html.lower()
+    assert "<html>" in html.lower()  # type: ignore[union-attr]
 
     recs = analyzer.get_ops_recommendations(top_n=10, min_coverage=80.0)
     actions = {r["action"] for r in recs}
@@ -130,7 +130,6 @@ class _DummyAnthropicClient:
         return SimpleNamespace(content=[SimpleNamespace(text="ok")])
 
 
-
 def test_ops_director_branches_and_demo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys) -> None:
     director = OpsStrategicDirector(llm_provider="local", model="rule-based", cache_dir=tmp_path / "ops")
 
@@ -141,9 +140,7 @@ def test_ops_director_branches_and_demo(tmp_path: Path, monkeypatch: pytest.Monk
     assert len(director.active_attacks["attack_a"].confidence_trend) == 100
 
     # Insight trimming branch.
-    director.recent_insights = [
-        AgentInsight("A", datetime.now(), "pattern", "x", 0.5, False) for _ in range(1000)
-    ]
+    director.recent_insights = [AgentInsight("A", datetime.now(), "pattern", "x", 0.5, False) for _ in range(1000)]
     director.register_agent_insight(AgentInsight("SPY", datetime.now(), "pattern", "new", 0.8, True))
     assert len(director.recent_insights) == 1000
 
@@ -151,7 +148,9 @@ def test_ops_director_branches_and_demo(tmp_path: Path, monkeypatch: pytest.Monk
         [
             AgentInsight("SPY", datetime.now(), "linguistic", "ling1", 0.9, True),
             AgentInsight("LINGUIST", datetime.now(), "linguistic", "ling2", 0.7, True),
-            AgentInsight("SPY_WEB", datetime.now(), "external_intel", "intel", 0.8, True, metadata={"cribs": ["BERLIN"]}),
+            AgentInsight(
+                "SPY_WEB", datetime.now(), "external_intel", "intel", 0.8, True, metadata={"cribs": ["BERLIN"]}
+            ),  # noqa: E501
         ],
     )
     assert synthesis["confidence"] > 0
@@ -186,7 +185,9 @@ def test_ops_director_branches_and_demo(tmp_path: Path, monkeypatch: pytest.Monk
 
     # _load_strategy_kb existing-file branch
     kb_path = director.cache_dir / "strategy_kb.json"
-    kb_path.write_text(json.dumps({"successful_strategies": ["a"], "failed_strategies": [], "lessons_learned": []}), encoding="utf-8")
+    kb_path.write_text(
+        json.dumps({"successful_strategies": ["a"], "failed_strategies": [], "lessons_learned": []}), encoding="utf-8"
+    )  # noqa: E501
     assert director._load_strategy_kb()["successful_strategies"] == ["a"]
 
     # _call_llm branches for openai/anthropic and exception fallback.

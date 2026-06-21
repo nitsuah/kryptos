@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -40,18 +39,18 @@ def test_k4_campaign_run_campaign_time_break(tmp_path: Path, monkeypatch: pytest
     orch = object.__new__(K4CampaignOrchestrator)
     orch.max_workers = 1  # Force serial mode for test compatibility
     orch.workspace_dir = tmp_path
-    orch.log = SimpleNamespace(warning=lambda *_args, **_kwargs: None)
-    orch.attack_generator = SimpleNamespace(
+    orch.log = SimpleNamespace(warning=lambda *_args, **_kwargs: None)  # type: ignore[assignment]
+    orch.attack_generator = SimpleNamespace(  # type: ignore[assignment]
         generate_comprehensive_queue=lambda **_kwargs: [
             SimpleNamespace(parameters=SimpleNamespace(cipher_type="vigenere", key_or_params={"key_length": 4})),
             SimpleNamespace(parameters=SimpleNamespace(cipher_type="vigenere", key_or_params={"key_length": 5})),
         ],
     )
-    orch.execute_attack = lambda *_args, **_kwargs: ("TEXT", 0.9)
-    orch.validator = SimpleNamespace(
+    orch.execute_attack = lambda *_args, **_kwargs: ("TEXT", 0.9)  # type: ignore[method-assign]
+    orch.validator = SimpleNamespace(  # type: ignore[assignment]
         validate=lambda _t: SimpleNamespace(is_valid=True, confidence=0.95, to_dict=lambda: {"ok": True}),
     )
-    orch.search_space = SimpleNamespace(get_coverage_report=lambda: {"cov": 1})
+    orch.search_space = SimpleNamespace(get_coverage_report=lambda: {"cov": 1})  # type: ignore[assignment]
 
     class _FakeDT:
         ticks = 0

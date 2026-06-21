@@ -1,6 +1,7 @@
 from kryptos.pipeline.attack_generator import AttackSpec
 from kryptos.provenance.attack_log import AttackParameters
 
+
 class AttackGenTestHelper:
     def generate_comprehensive_queue(self, ciphertext, max_total):
         _ = ciphertext
@@ -14,7 +15,9 @@ class AttackGenTestHelper:
                 tags=["a"],
             ),
             AttackSpec(
-                parameters=AttackParameters(cipher_type="transposition", key_or_params={"period": 5, "method": "simulated_annealing"}),
+                parameters=AttackParameters(
+                    cipher_type="transposition", key_or_params={"period": 5, "method": "simulated_annealing"}
+                ),  # noqa: E501
                 priority=0.9,
                 source="test",
                 rationale="r",

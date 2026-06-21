@@ -8,12 +8,12 @@ import random
 
 import pytest
 
+from kryptos.k4.solver_config import make_ci_solver_config
 from kryptos.k4.transposition_analysis import (
     apply_columnar_permutation_encrypt,
     apply_columnar_permutation_reverse,
     solve_columnar_permutation_simulated_annealing,
 )
-from kryptos.k4.solver_config import make_ci_solver_config
 
 if os.getenv("KRYPTOS_RUN_SLOW_MONTE_CARLO") != "1":
     pytest.skip("Set KRYPTOS_RUN_SLOW_MONTE_CARLO=1 to run this slow module", allow_module_level=True)
@@ -57,7 +57,7 @@ def test_k3_monte_carlo_period_5_50runs():
         if success:
             successes += 1
 
-        symbol = '✓' if success else '✗'
+        symbol = "✓" if success else "✗"
         print(f"  Run {run+1:2d}: {symbol} ({match_ratio:5.1%} match, score={score:.4f})")
 
     success_rate = successes / runs
@@ -108,7 +108,7 @@ def test_k3_monte_carlo_period_6_30runs():
         if success:
             successes += 1
 
-        symbol = '✓' if success else '✗'
+        symbol = "✓" if success else "✗"
         print(f"  Run {run+1:2d}: {symbol} ({match_ratio:5.1%} match, score={score:.4f})")
 
     success_rate = successes / runs
@@ -159,7 +159,7 @@ def test_k3_monte_carlo_period_7_20runs():
         if success:
             successes += 1
 
-        symbol = '✓' if success else '✗'
+        symbol = "✓" if success else "✗"
         print(f"  Run {run+1:2d}: {symbol} ({match_ratio:5.1%} match, score={score:.4f})")
 
     success_rate = successes / runs

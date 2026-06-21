@@ -6,8 +6,8 @@ the Kryptos keyed alphabet.
 
 from __future__ import annotations
 
-from collections import Counter
 import random
+from collections import Counter
 
 from kryptos.k4.solver_config import SolverConfig
 from kryptos.provenance.search_space import SearchSpaceTracker
@@ -34,13 +34,13 @@ def build_keyed_alphabet(keyword: str, base: str = STANDARD_ALPHABET) -> str:
 
 # Pre-built keyed alphabets for the three candidate K4 substitution alphabets
 PALIMPSEST_ALPHABET = build_keyed_alphabet("PALIMPSEST")
-ABSCISSA_ALPHABET   = build_keyed_alphabet("ABSCISSA")
+ABSCISSA_ALPHABET = build_keyed_alphabet("ABSCISSA")
 
 KNOWN_KEYED_ALPHABETS: dict[str, str] = {
-    "KRYPTOS":    KEYED_ALPHABET,
+    "KRYPTOS": KEYED_ALPHABET,
     "PALIMPSEST": PALIMPSEST_ALPHABET,
-    "ABSCISSA":   ABSCISSA_ALPHABET,
-    "STANDARD":   STANDARD_ALPHABET,
+    "ABSCISSA": ABSCISSA_ALPHABET,
+    "STANDARD": STANDARD_ALPHABET,
 }
 
 
@@ -96,10 +96,8 @@ def check_keyed_alphabet_realignment(
     """
     if alphabets is None:
         alphabets = KNOWN_KEYED_ALPHABETS
-    return {
-        name: derive_keystream_under_alphabet(ciphertext, cribs, alpha)
-        for name, alpha in alphabets.items()
-    }
+    return {name: derive_keystream_under_alphabet(ciphertext, cribs, alpha) for name, alpha in alphabets.items()}
+
 
 _spy_agent = None
 
@@ -114,32 +112,32 @@ def _get_spy_agent():
 
 
 ENGLISH_FREQ = {
-    'E': 0.127,
-    'T': 0.091,
-    'A': 0.082,
-    'O': 0.075,
-    'I': 0.070,
-    'N': 0.067,
-    'S': 0.063,
-    'H': 0.061,
-    'R': 0.060,
-    'D': 0.043,
-    'L': 0.040,
-    'C': 0.028,
-    'U': 0.028,
-    'M': 0.024,
-    'W': 0.024,
-    'F': 0.022,
-    'G': 0.020,
-    'Y': 0.020,
-    'P': 0.019,
-    'B': 0.015,
-    'V': 0.010,
-    'K': 0.008,
-    'J': 0.002,
-    'X': 0.002,
-    'Q': 0.001,
-    'Z': 0.001,
+    "E": 0.127,
+    "T": 0.091,
+    "A": 0.082,
+    "O": 0.075,
+    "I": 0.070,
+    "N": 0.067,
+    "S": 0.063,
+    "H": 0.061,
+    "R": 0.060,
+    "D": 0.043,
+    "L": 0.040,
+    "C": 0.028,
+    "U": 0.028,
+    "M": 0.024,
+    "W": 0.024,
+    "F": 0.022,
+    "G": 0.020,
+    "Y": 0.020,
+    "P": 0.019,
+    "B": 0.015,
+    "V": 0.010,
+    "K": 0.008,
+    "J": 0.002,
+    "X": 0.002,
+    "Q": 0.001,
+    "Z": 0.001,
 }
 
 
@@ -206,19 +204,19 @@ def recover_key_by_frequency(
 
     if alphabet is None:
         alphabet = KEYED_ALPHABET
-    ct = ''.join(c for c in ciphertext.upper() if c.isalpha())
+    ct = "".join(c for c in ciphertext.upper() if c.isalpha())
 
     if len(ct) < key_length:
         return []
 
-    columns = [[] for _ in range(key_length)]
+    columns: list[list[str]] = [[] for _ in range(key_length)]
     for i, char in enumerate(ct):
         columns[i % key_length].append(char)
 
     key_chars = []
     for column in columns:
         if not column:
-            key_chars.append(['A'])
+            key_chars.append(["A"])
             continue
 
         scores = []
@@ -235,7 +233,7 @@ def recover_key_by_frequency(
                     continue
 
             if decrypted:
-                score = _score_english_frequency(''.join(decrypted))
+                score = _score_english_frequency("".join(decrypted))
                 scores.append((score, k_char))
 
         scores.sort(reverse=True)
@@ -265,7 +263,7 @@ def recover_key_by_frequency(
                 plaintext = vigenere_decrypt(ciphertext, key)
 
                 analysis = spy.analyze_candidate(plaintext)
-                spy_score = analysis.get('pattern_score', 0.0)
+                spy_score = analysis.get("pattern_score", 0.0)
 
                 scored_candidates.append((spy_score, key))
             except (ValueError, KeyError):
@@ -301,16 +299,16 @@ def _rank_by_word_likelihood(candidates: list[str]) -> list[str]:
         return candidates
 
     known_cipher_keys = {
-        'PALIMPSEST',
-        'ABSCISSA',
-        'KRYPTOS',
-        'BERLIN',
-        'CLOCK',
-        'CIPHER',
-        'SECRET',
-        'SHADOW',
-        'LIGHT',
-        'DIGITAL',
+        "PALIMPSEST",
+        "ABSCISSA",
+        "KRYPTOS",
+        "BERLIN",
+        "CLOCK",
+        "CIPHER",
+        "SECRET",
+        "SHADOW",
+        "LIGHT",
+        "DIGITAL",
     }
 
     scored = []
@@ -320,14 +318,14 @@ def _rank_by_word_likelihood(candidates: list[str]) -> list[str]:
         if key in known_cipher_keys:
             score += 1000.0
 
-        vowels = sum(1 for c in key if c in 'AEIOU')
+        vowels = sum(1 for c in key if c in "AEIOU")
         vowel_ratio = vowels / len(key) if key else 0
         if 0.2 <= vowel_ratio <= 0.4:
             score += 10.0
 
         consonant_run = 0
         for c in key:
-            if c in 'AEIOU':
+            if c in "AEIOU":
                 consonant_run = 0
             else:
                 consonant_run += 1
@@ -337,7 +335,7 @@ def _rank_by_word_likelihood(candidates: list[str]) -> list[str]:
 
         alternations = 0
         for i in range(len(key) - 1):
-            is_vowel = [c in 'AEIOU' for c in key[i : i + 2]]
+            is_vowel = [c in "AEIOU" for c in key[i : i + 2]]
             if is_vowel[0] != is_vowel[1]:
                 alternations += 1
         score += alternations * 2.0
@@ -388,13 +386,13 @@ def _generate_key_combinations(key_chars: list[list[str]], max_keys: int = 10) -
 
     heap = [(initial_sum, initial)]
     seen = {initial}
-    result = []
+    result: list[str] = []
 
     while heap and len(result) < max_keys:
         _, indices = heapq.heappop(heap)
 
         try:
-            key = ''.join(key_chars[i][idx] for i, idx in enumerate(indices))
+            key = "".join(key_chars[i][idx] for i, idx in enumerate(indices))
             result.append(key)
         except IndexError:
             continue
@@ -431,8 +429,8 @@ def recover_key_with_crib(
         List of tuples: (candidate_key, position_found, confidence_score)
         Sorted by confidence (higher = better)
     """
-    ct = ''.join(c for c in ciphertext.upper() if c.isalpha())
-    crib = ''.join(c for c in crib.upper() if c.isalpha())
+    ct = "".join(c for c in ciphertext.upper() if c.isalpha())
+    crib = "".join(c for c in crib.upper() if c.isalpha())
 
     if len(crib) < 3:
         return []
@@ -441,7 +439,7 @@ def recover_key_with_crib(
     candidates: list[tuple[str, int, float]] = []
 
     for pos in positions:
-        key_chars = [''] * key_length
+        key_chars = [""] * key_length
         positions_filled = set()
         valid = True
 
@@ -458,7 +456,7 @@ def recover_key_with_crib(
                 k_idx = (c_idx - p_idx) % len(KEYED_ALPHABET)
                 k_char = KEYED_ALPHABET[k_idx]
 
-                if key_chars[key_pos] == '':
+                if key_chars[key_pos] == "":
                     key_chars[key_pos] = k_char
                     positions_filled.add(key_pos)
                 elif key_chars[key_pos] != k_char:
@@ -472,11 +470,11 @@ def recover_key_with_crib(
             continue
 
         if len(positions_filled) == key_length:
-            key = ''.join(key_chars)
+            key = "".join(key_chars)
             confidence = 1.0
             candidates.append((key, pos, confidence))
         elif len(positions_filled) >= key_length // 2:
-            unfilled = [i for i in range(key_length) if key_chars[i] == '']
+            unfilled = [i for i in range(key_length) if key_chars[i] == ""]
 
             completed_keys = _complete_partial_key(ct, key_chars, unfilled)
             for completed_key in completed_keys[:5]:
@@ -497,7 +495,7 @@ def recover_key_with_crib(
 
 def _complete_partial_key(ciphertext: str, partial_key: list[str], unfilled_positions: list[int]) -> list[str]:
     if not unfilled_positions:
-        return [''.join(partial_key)]
+        return ["".join(partial_key)]
 
     key_length = len(partial_key)
 
@@ -510,7 +508,7 @@ def _complete_partial_key(ciphertext: str, partial_key: list[str], unfilled_posi
         column = [ciphertext[i] for i in range(pos, len(ciphertext), key_length) if i < len(ciphertext)]
 
         if len(column) < 3:
-            completed[pos] = 'K'
+            completed[pos] = "K"
             continue
 
         scores = []
@@ -523,7 +521,7 @@ def _complete_partial_key(ciphertext: str, partial_key: list[str], unfilled_posi
                     p_idx = (c_idx - k_idx) % len(KEYED_ALPHABET)
                     plaintext_col.append(KEYED_ALPHABET[p_idx])
 
-                score = _score_english_frequency(''.join(plaintext_col))
+                score = _score_english_frequency("".join(plaintext_col))
                 scores.append((score, k_char))
             except (ValueError, IndexError):
                 continue
@@ -532,7 +530,7 @@ def _complete_partial_key(ciphertext: str, partial_key: list[str], unfilled_posi
             scores.sort(reverse=True)
             completed[pos] = scores[0][1]
 
-    return [''.join(completed)]
+    return ["".join(completed)]
 
 
 def _brute_force_complete(ciphertext: str, partial_key: list[str], unfilled_positions: list[int]) -> list[str]:
@@ -543,7 +541,7 @@ def _brute_force_complete(ciphertext: str, partial_key: list[str], unfilled_posi
 
     def generate_combinations(pos_idx: int, current_key: list[str]) -> None:
         if pos_idx >= len(unfilled_positions):
-            key_str = ''.join(current_key)
+            key_str = "".join(current_key)
             try:
                 plaintext = vigenere_decrypt(ciphertext, key_str)
                 score = _score_english_frequency(plaintext)
@@ -572,7 +570,7 @@ def _brute_force_complete(ciphertext: str, partial_key: list[str], unfilled_posi
 
     for _, key_str, plaintext in top_freq:
         analysis = spy.analyze_candidate(plaintext)
-        spy_score = analysis['pattern_score']
+        spy_score = analysis["pattern_score"]
         spy_candidates.append((spy_score, key_str))
 
     spy_candidates.sort(reverse=True)
