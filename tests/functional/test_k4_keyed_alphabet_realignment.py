@@ -1,7 +1,6 @@
 """Tests for keyed alphabet realignment — K4-ATTACK-3."""
 
-import pytest
-
+from kryptos.k4.keystream_validator import K4_CRIBS
 from kryptos.k4.vigenere_key_recovery import (
     ABSCISSA_ALPHABET,
     KEYED_ALPHABET,
@@ -12,7 +11,6 @@ from kryptos.k4.vigenere_key_recovery import (
     check_keyed_alphabet_realignment,
     derive_keystream_under_alphabet,
 )
-from kryptos.k4.keystream_validator import K4_CRIBS
 
 K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
@@ -52,6 +50,7 @@ class TestBuildKeyedAlphabet:
 class TestDeriveKeystreamUnderAlphabet:
     def test_standard_alphabet_matches_validator(self):
         from kryptos.k4.keystream_validator import K4_EXPECTED_KEYSTREAMS
+
         result = derive_keystream_under_alphabet(K4, K4_CRIBS, STANDARD_ALPHABET)
         assert result["EAST"] == K4_EXPECTED_KEYSTREAMS["EAST"]
         assert result["NORTHEAST"] == K4_EXPECTED_KEYSTREAMS["NORTHEAST"]
@@ -69,8 +68,8 @@ class TestDeriveKeystreamUnderAlphabet:
 
     def test_correct_length_per_crib(self):
         result = derive_keystream_under_alphabet(K4, K4_CRIBS, STANDARD_ALPHABET)
-        assert len(result["EAST"]) == 4        # EAST is 4 chars
-        assert len(result["NORTHEAST"]) == 9   # NORTHEAST is 9 chars
+        assert len(result["EAST"]) == 4  # EAST is 4 chars
+        assert len(result["NORTHEAST"]) == 9  # NORTHEAST is 9 chars
         assert len(result["BERLIN"]) == 6
         assert len(result["CLOCK"]) == 5
 
@@ -82,6 +81,7 @@ class TestCheckKeyedAlphabetRealignment:
 
     def test_standard_matches_known_keystreams(self):
         from kryptos.k4.keystream_validator import K4_EXPECTED_KEYSTREAMS
+
         result = check_keyed_alphabet_realignment(K4, K4_CRIBS)
         standard = result["STANDARD"]
         for label, shifts in K4_EXPECTED_KEYSTREAMS.items():

@@ -1,8 +1,4 @@
-
 from __future__ import annotations
-
-# Import multiprocessing-safe test helper
-from tests.functional.test_multiproc_helpers import AttackGenTestHelper
 
 import json
 from dataclasses import dataclass
@@ -14,12 +10,13 @@ import pytest
 
 from kryptos.k4 import beaufort
 from kryptos.k4.hypothesis_runner import run_hypothesis_search
-from kryptos.pipeline.attack_generator import AttackSpec
 from kryptos.pipeline.attack_executor import AttackExecutor
-from kryptos.pipeline.k4_campaign import CampaignResult, K4CampaignOrchestrator
+from kryptos.pipeline.k4_campaign import CampaignResult
 from kryptos.pipeline.validator import PlaintextValidator, simple_dictionary_score
-from kryptos.provenance.attack_log import AttackParameters, AttackRecord, AttackResult
+from kryptos.provenance.attack_log import AttackRecord
 from kryptos.reporting import generate_report
+
+# Import multiprocessing-safe test helper
 
 
 def test_generate_report_with_and_without_frequency_plot(tmp_path: Path) -> None:
@@ -30,15 +27,15 @@ def test_generate_report_with_and_without_frequency_plot(tmp_path: Path) -> None
         },
         "cribs": {"KEY1": ["BERLIN", "CLOCK"]},
     }
-    png_path = generate_report(with_freq, "demo", out_dir=tmp_path)
+    png_path = generate_report(with_freq, "demo", out_dir=tmp_path)  # type: ignore[arg-type]
     assert png_path.exists()
     assert (tmp_path / "demo_summary.txt").read_text(encoding="utf-8").strip() == "Key=KEY1: BERLIN, CLOCK"
 
-    no_freq = {
+    no_freq: dict = {  # type: ignore[type-arg]
         "frequencies": {},
         "cribs": {"KEY2": []},
     }
-    out = generate_report(no_freq, "demo2", out_dir=tmp_path)
+    out = generate_report(no_freq, "demo2", out_dir=tmp_path)  # type: ignore[arg-type]
     assert out == tmp_path / "demo2_report.png"
     assert not out.exists()
     assert (tmp_path / "demo2_summary.txt").read_text(encoding="utf-8").strip() == "Key=KEY2: [none]"
@@ -161,7 +158,7 @@ class _DummyLogger:
 
 def test_attack_executor_vigenere_transposition_and_hill(monkeypatch: pytest.MonkeyPatch) -> None:
     logger = _DummyLogger()
-    ex = AttackExecutor(logger=logger)
+    ex = AttackExecutor(logger=logger)  # type: ignore[arg-type]
 
     monkeypatch.setattr("kryptos.pipeline.attack_executor.vigenere_decrypt", lambda _ct, _k: "BERLINXYZ")
     plaintext, record = ex.vigenere_attack("ABC", "KEY", crib_text="BERLIN", tags=["quick"])
@@ -260,33 +257,41 @@ def test_validator_scoring_and_validation_paths(monkeypatch: pytest.MonkeyPatch)
 def _warn_noop(*_args, **_kwargs):
     pass
 
+
 def _validate_always_true(text):
     class Dummy:
         def __init__(self, t):
             self.is_valid = True
             self.confidence = 0.9
             self._t = t
+
         def to_dict(self):
             return {"t": self._t}
+
     return Dummy(text)
+
 
 def _get_coverage_report():
     return {"coverage": 1}
 
+
 def _recover_key_by_frequency(_ct, _kl, top_n=1):
     return ["ABCD"]
+
 
 def _vigenere_decrypt(_ct, _k):
     return "DECRYPTED"
 
+
 def _solve_columnar_permutation_exhaustive(_ct, _period):
     return ([0, 1], 0.4)
+
 
 def _solve_columnar_permutation_simulated_annealing_multi_start(_ct, _period):
     return ([1, 0], 0.6)
 
 
-# test_campaign_execute_methods_and_print_summary moved to test_multiproc_campaign.py for Windows multiprocessing compatibility.
+# test_campaign_execute_methods_and_print_summary moved to test_multiproc_campaign.py for Windows multiprocessing compatibility.  # noqa: E501
 
 
 def test_campaign_result_to_dict() -> None:

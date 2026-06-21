@@ -4,15 +4,15 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from kryptos import paths
 from kryptos.pipeline.attack_generator import AttackGenerator
 from kryptos.pipeline.k4_campaign import CampaignResult, demo_k4_campaign
 from kryptos.pipeline.validator import demo_validator
-from kryptos.provenance.attack_log import AttackLogger, AttackParameters
+from kryptos.provenance.attack_log import AttackLogger
 from kryptos.research.attack_extractor import demo_attack_extractor
 from kryptos.research.literature_bridge import LiteratureGapAnalyzer, demo_literature_gap_analysis
 from kryptos.research.paper_search import PaperSearch, demo_paper_search
 from kryptos.research.q_patterns import demo_q_research
-from kryptos import paths
 
 
 def test_attack_generator_parse_and_seed_edge_cases(tmp_path: Path) -> None:
@@ -39,7 +39,7 @@ def test_attack_generator_no_regions_and_parse_failures(tmp_path: Path) -> None:
         def get_coverage_report(self, _cipher_type: str):
             return {"cipher_types": {"vigenere": {"regions": []}}}
 
-    gen.coverage_analyzer.tracker = _TrackerNoRegions()
+    gen.coverage_analyzer.tracker = _TrackerNoRegions()  # type: ignore[assignment]
     attacks = gen.generate_from_coverage_gaps("vigenere", "OBKRUOX", max_attacks=3)
     assert len(attacks) == 3
 
@@ -98,19 +98,21 @@ def test_paper_search_cache_and_demo_paths(tmp_path: Path, capsys) -> None:
 
     live = {
         "timestamp": datetime.now().isoformat(),
-        "results": [{
-            "paper_id": "x",
-            "title": "t",
-            "authors": ["a"],
-            "abstract": "b",
-            "year": 2024,
-            "venue": None,
-            "url": None,
-            "pdf_url": None,
-            "keywords": [],
-            "cipher_types": [],
-            "relevance_score": 0.0,
-        }],
+        "results": [
+            {
+                "paper_id": "x",
+                "title": "t",
+                "authors": ["a"],
+                "abstract": "b",
+                "year": 2024,
+                "venue": None,
+                "url": None,
+                "pdf_url": None,
+                "keywords": [],
+                "cipher_types": [],
+                "relevance_score": 0.0,
+            }
+        ],
     }
     cache_file.write_text(json.dumps(live), encoding="utf-8")
     loaded = searcher._load_cache(key)
@@ -162,9 +164,11 @@ def test_comprehensive_queue_custom_gap_report(tmp_path: Path) -> None:
                 }
             }
 
-    gen.coverage_analyzer.tracker = _Tracker()
+    gen.coverage_analyzer.tracker = _Tracker()  # type: ignore[assignment]
 
-    queue = gen.generate_comprehensive_queue("OBKRUOXOGHULBSO", cipher_types=["vigenere", "transposition"], max_total=50)
+    queue = gen.generate_comprehensive_queue(
+        "OBKRUOXOGHULBSO", cipher_types=["vigenere", "transposition"], max_total=50
+    )  # noqa: E501
     assert queue
     assert len(queue) <= 50
 

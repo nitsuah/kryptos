@@ -1,13 +1,8 @@
 """Tests for the Nihilist cipher module."""
 
 import pytest
-from kryptos.k4.nihilist import (
-    build_square,
-    format_ciphertext,
-    nihilist_decrypt,
-    nihilist_encrypt,
-    parse_ciphertext,
-)
+
+from kryptos.k4.nihilist import build_square, format_ciphertext, nihilist_decrypt, nihilist_encrypt, parse_ciphertext
 
 
 class TestBuildSquare:

@@ -42,9 +42,7 @@ def _vigenere_decrypt_shifts(text: str, shifts: list[int]) -> str:
     n = len(shifts)
     if n == 0:
         return ct
-    return "".join(
-        ALPHABET[(ALPHABET.index(c) - shifts[i % n]) % 26] for i, c in enumerate(ct)
-    )
+    return "".join(ALPHABET[(ALPHABET.index(c) - shifts[i % n]) % 26] for i, c in enumerate(ct))
 
 
 # ---------------------------------------------------------------------------
@@ -175,9 +173,7 @@ def run_clock_subrow_attack(
         "best_candidates": best_candidates[:10],
         "null_artifact_path": str(Path(null_artifact_path).resolve()),
     }
-    Path(null_artifact_path).write_text(
-        json.dumps(summary, indent=2, default=str), encoding="utf-8"
-    )
+    Path(null_artifact_path).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     return summary
 
 
@@ -195,9 +191,7 @@ def lamp_row_widths(cs: dict) -> list[int]:
     return [h5, h1, m5, m1]
 
 
-def _apply_columnar_with_perm(
-    text: str, n_cols: int, reverse_order: bool = False
-) -> str:
+def _apply_columnar_with_perm(text: str, n_cols: int, reverse_order: bool = False) -> str:
     """Single columnar transposition pass; identity or reverse column ordering."""
     ct = "".join(c for c in text.upper() if c.isalpha())
     if n_cols < 2 or n_cols > len(ct):
@@ -332,9 +326,7 @@ def run_clock_transposition_attack(
         "best_candidates": best_candidates[:10],
         "null_artifact_path": str(Path(null_artifact_path).resolve()),
     }
-    Path(null_artifact_path).write_text(
-        json.dumps(summary, indent=2, default=str), encoding="utf-8"
-    )
+    Path(null_artifact_path).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     return summary
 
 

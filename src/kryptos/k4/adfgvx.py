@@ -17,7 +17,7 @@ and score the result; or decrypt K4 under these keys and score the output.
 from __future__ import annotations
 
 import math
-from typing import Sequence
+from collections.abc import Sequence
 
 ADFGVX_CHARS: str = "ADFGVX"
 _DEFAULT_ALPHA: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -25,6 +25,7 @@ _DEFAULT_ALPHA: str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 # ---------------------------------------------------------------------------
 # Square construction
 # ---------------------------------------------------------------------------
+
 
 def build_polybius_square(keyword: str, alphabet: str = _DEFAULT_ALPHA) -> list[list[str]]:
     """Build a 6×6 ADFGVX Polybius square keyed by *keyword*.
@@ -52,9 +53,7 @@ def build_polybius_square(keyword: str, alphabet: str = _DEFAULT_ALPHA) -> list[
             keyed.append(ch)
             seen.add(ch)
     if len(keyed) != 36:
-        raise ValueError(
-            f"ADFGVX square requires exactly 36 characters; got {len(keyed)}"
-        )
+        raise ValueError(f"ADFGVX square requires exactly 36 characters; got {len(keyed)}")
     return [keyed[i * 6 : i * 6 + 6] for i in range(6)]
 
 
@@ -71,6 +70,7 @@ def square_index(square: Sequence[Sequence[str]], char: str) -> tuple[int, int]:
 # ---------------------------------------------------------------------------
 # ADFGVX encrypt / decrypt
 # ---------------------------------------------------------------------------
+
 
 def adfgvx_encrypt(
     plaintext: str,
@@ -143,6 +143,7 @@ def adfgvx_decrypt(
 # ---------------------------------------------------------------------------
 # Columnar transposition helpers
 # ---------------------------------------------------------------------------
+
 
 def _clean(text: str, alphabet: str) -> str:
     return "".join(c for c in text.upper() if c in alphabet)

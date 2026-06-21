@@ -1,15 +1,11 @@
 """Tests for composite parameter sweep — K4-ATTACK-4."""
 
 import json
-import pytest
 from pathlib import Path
 
-from kryptos.k4.composite_sweep import (
-    K4,
-    _keyword_hits,
-    _vigenere_decrypt,
-    run_composite_sweep,
-)
+import pytest
+
+from kryptos.k4.composite_sweep import K4, _keyword_hits, _vigenere_decrypt, run_composite_sweep
 from kryptos.k4.eureka import EurekaSignal
 
 
@@ -25,6 +21,7 @@ class TestVigenereDecrypt:
 
     def test_roundtrip(self):
         from kryptos.k4.berlin_clock import apply_clock_shifts
+
         shifts = [3, 1, 4, 1, 5]
         encrypted = apply_clock_shifts("FINDTHEEAST", shifts)
         decrypted = _vigenere_decrypt(encrypted, shifts, self.ALPHA)
@@ -36,6 +33,7 @@ class TestVigenereDecrypt:
 
     def test_keyed_alphabet(self):
         from kryptos.k4.vigenere_key_recovery import KEYED_ALPHABET
+
         text = "KRYT"
         shifts = [0, 0, 0, 0]
         assert _vigenere_decrypt(text, shifts, KEYED_ALPHABET) == "KRYT"
@@ -125,6 +123,7 @@ def _make_test_ciphertext(plain: str, n_cols: int) -> str:
     so the sweep recovers plain at the 00:00:00 clock state.
     """
     from datetime import time
+
     from kryptos.k4.berlin_clock import apply_clock_shifts, full_berlin_clock_shifts
     from kryptos.k4.transposition_analysis import apply_columnar_permutation_encrypt
 

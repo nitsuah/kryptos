@@ -1,15 +1,25 @@
-from kryptos.cli import main
-import tempfile
 import json
-import pytest
+import tempfile
 
 import pytest
 
-@pytest.mark.parametrize("section,key,ciphertext,expected", [
-    ("K1", "PALIMPSEST", "EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ", "BERLIN"),
-    ("K2", "KRYPTOS", "GFQMSZKZKZKZKZKZKZKZKZKZKZKZKZKZ", "SOMETHING"),
-    pytest.param("K3", None, "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSO", "NORTHEAST", marks=pytest.mark.skip(reason="K3 test ciphertext is intentionally too short for real decryption")),
-])
+from kryptos.cli import main
+
+
+@pytest.mark.parametrize(
+    "section,key,ciphertext,expected",
+    [
+        ("K1", "PALIMPSEST", "EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ", "BERLIN"),
+        ("K2", "KRYPTOS", "GFQMSZKZKZKZKZKZKZKZKZKZKZKZKZKZ", "SOMETHING"),
+        pytest.param(
+            "K3",
+            None,
+            "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSO",
+            "NORTHEAST",
+            marks=pytest.mark.skip(reason="K3 test ciphertext is intentionally too short for real decryption"),
+        ),  # noqa: E501
+    ],
+)
 def test_sections_decrypt_smoke(section, key, ciphertext, expected):
     with tempfile.NamedTemporaryFile("w+", delete=False, encoding="utf-8") as tmp:
         tmp.write(ciphertext)
@@ -19,15 +29,19 @@ def test_sections_decrypt_smoke(section, key, ciphertext, expected):
             args += ["--key", key]
         code = main(args)
         assert code == 0
-        out = tmp.read() if hasattr(tmp, 'read') else open(tmp.name).read()
+        _out = tmp.read() if hasattr(tmp, "read") else open(tmp.name).read()  # noqa: F841
         # Actually, output is printed to stdout, so capture via capsys in real pytest
         # Here, just check that the command runs and returns 0
 
-@pytest.mark.parametrize("section,key,ciphertext", [
-    ("K1", "PALIMPSEST", "EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ"),
-    ("K2", "KRYPTOS", "GFQMSZKZKZKZKZKZKZKZKZKZKZKZKZKZ"),
-    ("K3", None, "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSO"),
-])
+
+@pytest.mark.parametrize(
+    "section,key,ciphertext",
+    [
+        ("K1", "PALIMPSEST", "EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ"),
+        ("K2", "KRYPTOS", "GFQMSZKZKZKZKZKZKZKZKZKZKZKZKZKZ"),
+        ("K3", None, "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSO"),
+    ],
+)
 def test_sections_decrypt_explain(section, key, ciphertext, capsys):
     with tempfile.NamedTemporaryFile("w+", delete=False, encoding="utf-8") as tmp:
         tmp.write(ciphertext)
@@ -41,6 +55,7 @@ def test_sections_decrypt_explain(section, key, ciphertext, capsys):
         assert code == 0 or data.get("error") == "decrypt_failed"
         assert "explain" in data or data.get("error") == "decrypt_failed"
 
+
 def test_sections_decrypt_missing_key(tmp_path, capsys):
     cipher_file = tmp_path / "cipher.txt"
     cipher_file.write_text("EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ", encoding="utf-8")
@@ -49,6 +64,7 @@ def test_sections_decrypt_missing_key(tmp_path, capsys):
     data = json.loads(out)
     assert code == 2
     assert data["error"] == "missing_key"
+
 
 def test_sections_decrypt_invalid_section(tmp_path, capsys):
     cipher_file = tmp_path / "cipher.txt"

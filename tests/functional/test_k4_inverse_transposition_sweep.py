@@ -1,14 +1,6 @@
 """Tests for inverse transposition sweep and ENE diagonal reader."""
 
-import pytest
-
-from kryptos.k4.inverse_transposition_sweep import (
-    K4_GRID_GEOMETRIES,
-    SWEEP_ROUTES,
-    full_sweep,
-    invert_permutation,
-    sweep_grid,
-)
+from kryptos.k4.inverse_transposition_sweep import K4_GRID_GEOMETRIES, full_sweep, invert_permutation, sweep_grid
 from kryptos.k4.transposition_routes import read_ene_diagonal, to_grid
 
 K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
@@ -60,7 +52,7 @@ class TestENEDiagonalReader:
 
     def test_to_grid_shape(self):
         grid = to_grid(K4, cols=10)
-        assert len(grid) == 10       # ceil(97/10) = 10
+        assert len(grid) == 10  # ceil(97/10) = 10
         assert len(grid[0]) == 10
         # last row may have trailing empty strings
         total_filled = sum(1 for row in grid for cell in row if cell)
@@ -95,13 +87,11 @@ class TestSweepGrid:
         # Identity permutation: P⁻¹ applied to K4 is K4 itself
         # Columnar route just reads it straight → should get 4 crib hits
         from kryptos.k4.transposition_analysis import apply_columnar_permutation_encrypt
+
         # Build a ciphertext from K4 using a known perm; sweep should recover K4 (4 hits)
         test_perm = [1, 0, 2, 3]
         transposed = apply_columnar_permutation_encrypt(K4, 4, test_perm)
-        results = sweep_grid(
-            transposed, n_cols=4, routes=("columnar",),
-            min_hits=4, max_perms=None
-        )
+        results = sweep_grid(transposed, n_cols=4, routes=("columnar",), min_hits=4, max_perms=None)
         assert len(results) >= 1, "Sweep must find at least one 4-crib-hit candidate"
         assert results[0]["crib_hits"] == 4
         # All results must have valid crib range

@@ -25,10 +25,11 @@ import csv
 import json
 import tempfile
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from kryptos.k4.eureka import EurekaSignal
 

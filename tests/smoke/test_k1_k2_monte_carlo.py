@@ -70,18 +70,18 @@ def test_k1_monte_carlo_50runs():
 
             if rank == 1:
                 success_count += 1
-                symbol = '✓'
+                symbol = "✓"
             else:
-                symbol = f'#{rank}'
+                symbol = f"#{rank}"
         except ValueError:
             rank = None
             ranks.append(None)
-            symbol = '✗'
+            symbol = "✗"
 
         # Verify if we can decrypt with top candidate
         top_key = candidates[0]
         top_plaintext = vigenere_decrypt(K1_CIPHERTEXT, top_key)
-        match_ratio = sum(1 for a, b in zip(top_plaintext, K1_PLAINTEXT) if a == b) / len(K1_PLAINTEXT)
+        match_ratio = sum(1 for a, b in zip(top_plaintext, K1_PLAINTEXT, strict=False) if a == b) / len(K1_PLAINTEXT)
 
         print(f"  Run {run+1:2d}: {symbol}  Top key: {top_key}  Match: {match_ratio:.1%}")
 
@@ -146,19 +146,21 @@ def test_k2_monte_carlo_50runs():
 
             if rank == 1:
                 success_count += 1
-                symbol = '✓'
+                symbol = "✓"
             else:
-                symbol = f'#{rank}'
+                symbol = f"#{rank}"
         except ValueError:
             rank = None
             ranks.append(None)
-            symbol = '✗'
+            symbol = "✗"
 
         # Verify top candidate
         top_key = candidates[0]
         top_plaintext = vigenere_decrypt(K2_CIPHERTEXT, top_key)
         # K2 plaintext is longer, just check first 14 chars
-        match_ratio = sum(1 for a, b in zip(top_plaintext[:14], K2_PLAINTEXT) if a == b) / len(K2_PLAINTEXT)
+        match_ratio = sum(1 for a, b in zip(top_plaintext[:14], K2_PLAINTEXT, strict=False) if a == b) / len(
+            K2_PLAINTEXT
+        )  # noqa: E501
 
         print(f"  Run {run+1:2d}: {symbol}  Top key: {top_key}  Match: {match_ratio:.1%}")
 

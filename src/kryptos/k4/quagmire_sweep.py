@@ -18,9 +18,10 @@ anywhere raises EurekaSignal with a breakthrough snapshot.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from datetime import datetime, time, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from .berlin_clock import berlin_clock_shifts
 from .eureka import DEFAULT_SNAPSHOT_PATH, EurekaSignal, write_breakthrough_snapshot

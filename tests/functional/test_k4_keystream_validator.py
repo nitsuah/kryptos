@@ -1,7 +1,5 @@
 """Tests for keystream_validator — confirmed K4 crib shift computation."""
 
-import pytest
-
 from kryptos.k4.keystream_validator import (
     K4_CRIBS,
     K4_EXPECTED_KEYSTREAMS,
@@ -36,7 +34,7 @@ class TestComputeShifts:
         assert observed == K4_EXPECTED_KEYSTREAMS
 
     def test_extra_whitespace_stripped(self):
-        k4_spaced = "OBKRUOXO GHULBSO LIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
+        k4_spaced = "OBKRUOXO GHULBSO LIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"  # noqa: E501
         observed = compute_shifts_at_cribs(k4_spaced, {"EAST": ("EAST", 22)})
         assert observed["EAST"] == [7, 17, 3, 23]
 
@@ -79,7 +77,7 @@ class TestKeystreamSummary:
     def test_summary_structure(self):
         summary = keystream_summary(K4)
         assert set(summary.keys()) == {"EAST", "NORTHEAST", "BERLIN", "CLOCK"}
-        for label, info in summary.items():
+        for _label, info in summary.items():
             assert "observed_shifts" in info
             assert "expected_shifts" in info
             assert "match" in info

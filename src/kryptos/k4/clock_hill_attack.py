@@ -140,9 +140,7 @@ def run_clock_hill_attack(
         "best_candidates": best_candidates[:10],
         "null_artifact_path": str(Path(null_artifact_path).resolve()),
     }
-    Path(null_artifact_path).write_text(
-        json.dumps(summary, indent=2, default=str), encoding="utf-8"
-    )
+    Path(null_artifact_path).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     return summary
 
 
@@ -198,9 +196,7 @@ def vigenere_decrypt_ints(text: str, key_ints: list[int]) -> str:
     n = len(key_ints)
     if n == 0:
         return ct
-    return "".join(
-        ALPHABET[(ALPHABET.index(c) - key_ints[i % n]) % 26] for i, c in enumerate(ct)
-    )
+    return "".join(ALPHABET[(ALPHABET.index(c) - key_ints[i % n]) % 26] for i, c in enumerate(ct))
 
 
 def run_clock_vigenere_attack(
@@ -284,9 +280,7 @@ def run_clock_vigenere_attack(
                     }
                 )
 
-    best_candidates.sort(
-        key=lambda r: (-r["positional_match"], -r["keyword_hits"], -r["crib_hits"])
-    )
+    best_candidates.sort(key=lambda r: (-r["positional_match"], -r["keyword_hits"], -r["crib_hits"]))
 
     summary: dict[str, Any] = {
         "status": "null_result",
@@ -302,9 +296,7 @@ def run_clock_vigenere_attack(
         "best_candidates": best_candidates[:10],
         "null_artifact_path": str(Path(null_artifact_path).resolve()),
     }
-    Path(null_artifact_path).write_text(
-        json.dumps(summary, indent=2, default=str), encoding="utf-8"
-    )
+    Path(null_artifact_path).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     return summary
 
 

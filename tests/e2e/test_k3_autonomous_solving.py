@@ -10,12 +10,12 @@ import random
 
 import pytest
 
+from kryptos.k4.solver_config import make_ci_solver_config
 from kryptos.k4.transposition_analysis import (
     apply_columnar_permutation_encrypt,
     apply_columnar_permutation_reverse,
     solve_columnar_permutation_simulated_annealing,
 )
-from kryptos.k4.solver_config import make_ci_solver_config
 
 if os.getenv("KRYPTOS_RUN_SLOW_MONTE_CARLO") != "1":
     pytest.skip("Set KRYPTOS_RUN_SLOW_MONTE_CARLO=1 to run this slow module", allow_module_level=True)
@@ -54,7 +54,7 @@ def test_k3_autonomous_period_5():
     recovered_text = apply_columnar_permutation_reverse(ciphertext, period, recovered_perm)
 
     # Success if recovered plaintext matches original (allowing for some variation)
-    match_ratio = sum(1 for a, b in zip(recovered_text, plaintext) if a == b) / len(plaintext)
+    match_ratio = sum(1 for a, b in zip(recovered_text, plaintext, strict=False) if a == b) / len(plaintext)
 
     # Log result
     print("\nK3 Period-5 Test (single run - probabilistic):")
@@ -88,7 +88,7 @@ def test_k3_autonomous_period_6():
     )
 
     recovered_text = apply_columnar_permutation_reverse(ciphertext, period, recovered_perm)
-    match_ratio = sum(1 for a, b in zip(recovered_text, plaintext) if a == b) / len(plaintext)
+    match_ratio = sum(1 for a, b in zip(recovered_text, plaintext, strict=False) if a == b) / len(plaintext)
 
     print("\nK3 Period-6 Test (single run - probabilistic):")
     print(f"  True permutation:      {true_permutation}")
@@ -124,7 +124,7 @@ def test_k3_autonomous_period_7():
     )
 
     recovered_text = apply_columnar_permutation_reverse(ciphertext, period, recovered_perm)
-    match_ratio = sum(1 for a, b in zip(recovered_text, plaintext) if a == b) / len(plaintext)
+    match_ratio = sum(1 for a, b in zip(recovered_text, plaintext, strict=False) if a == b) / len(plaintext)
 
     print("\nK3 Period-7 Test (single run - probabilistic):")
     print(f"  True permutation:      {true_permutation}")
@@ -165,7 +165,7 @@ def test_k3_monte_carlo_period_5(runs=10):
         )
 
         recovered_text = apply_columnar_permutation_reverse(ciphertext, period, recovered_perm)
-        match_ratio = sum(1 for a, b in zip(recovered_text, plaintext) if a == b) / len(plaintext)
+        match_ratio = sum(1 for a, b in zip(recovered_text, plaintext, strict=False) if a == b) / len(plaintext)
 
         success = match_ratio > 0.9
         if success:

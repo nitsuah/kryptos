@@ -88,7 +88,9 @@ def test_transposition_search_variants(monkeypatch: pytest.MonkeyPatch) -> None:
         "solve_columnar_permutation_simulated_annealing",
         lambda _ct, _p, _mi, _it, _cr: ([0, 1, 2], 0.5),
     )
-    mp_perm, mp_score = ta.solve_columnar_permutation_simulated_annealing_multi_start("ABCDEFGH", period=3, num_restarts=3)
+    mp_perm, mp_score = ta.solve_columnar_permutation_simulated_annealing_multi_start(
+        "ABCDEFGH", period=3, num_restarts=3
+    )  # noqa: E501
     assert mp_perm == [0, 1, 2]
     assert mp_score == 0.5
 
@@ -102,7 +104,9 @@ def test_transposition_search_variants(monkeypatch: pytest.MonkeyPatch) -> None:
     assert len(brute) == 3
 
 
-def test_simulated_annealing_and_demo_helpers(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+def test_simulated_annealing_and_demo_helpers(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:  # noqa: E501
     monkeypatch.setattr(ta.random, "shuffle", lambda arr: None)
     monkeypatch.setattr(ta.random, "sample", lambda seq, _n: [0, 1])
     monkeypatch.setattr(ta.random, "random", lambda: 0.0)
@@ -123,8 +127,12 @@ def test_simulated_annealing_and_demo_helpers(monkeypatch: pytest.MonkeyPatch, c
     monkeypatch.setattr(ta, "detect_period_combined", lambda _ct, max_period=30: [(24, 0.95, "ioc")])
     ta.test_period_detection()
 
-    monkeypatch.setattr(ta, "solve_columnar_permutation", lambda _ct, _p, max_iterations=5000: ([3, 1, 4, 0, 6, 2, 5], 1.23))
-    monkeypatch.setattr(ta, "apply_columnar_permutation_reverse", lambda _ct, _p, _perm: "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG")
+    monkeypatch.setattr(
+        ta, "solve_columnar_permutation", lambda _ct, _p, max_iterations=5000: ([3, 1, 4, 0, 6, 2, 5], 1.23)
+    )  # noqa: E501
+    monkeypatch.setattr(
+        ta, "apply_columnar_permutation_reverse", lambda _ct, _p, _perm: "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG"
+    )  # noqa: E501
     ta.test_permutation_solver()
 
     out = capsys.readouterr().out
@@ -213,11 +221,15 @@ def test_hypotheses_composite_and_stage_models(monkeypatch: pytest.MonkeyPatch) 
     assert out and out[0].id.startswith("composite_")
 
     monkeypatch.setattr(hyp, "invertible_2x2_keys", lambda: [[[1, 0], [0, 1]]])
-    monkeypatch.setattr(hyp, "score_decryptions", lambda _ct, _keys, limit=1: [{"key": [[1, 0], [0, 1]], "text": "HELLO", "score": 9.0}])
+    monkeypatch.setattr(
+        hyp, "score_decryptions", lambda _ct, _keys, limit=1: [{"key": [[1, 0], [0, 1]], "text": "HELLO", "score": 9.0}]
+    )  # noqa: E501
     hill = hyp.HillCipher2x2Hypothesis().generate_candidates("ABC", limit=1)
     assert hill and hill[0].id.startswith("hill_2x2_")
 
-    monkeypatch.setattr(hyp, "genetic_algorithm_hill3x3", lambda *_args, **_kwargs: [([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 1.0, "TEXT")])
+    monkeypatch.setattr(
+        hyp, "genetic_algorithm_hill3x3", lambda *_args, **_kwargs: [([[1, 0, 0], [0, 1, 0], [0, 0, 1]], 1.0, "TEXT")]
+    )  # noqa: E501
     hill3 = hyp.HillCipher3x3GeneticHypothesis(population_size=2, generations=1).generate_candidates("ABC", limit=1)
     assert hill3 and hill3[0].key_info["method"] == "genetic_algorithm"
 

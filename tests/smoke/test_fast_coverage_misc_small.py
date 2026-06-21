@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import builtins
-import importlib
 import runpy
 import sys
 

@@ -1,8 +1,6 @@
 """Tests for InstructionalScorer (K4-ATTACK-5)."""
 
-import pytest
 from kryptos.k4.scoring_instructional import (
-    INSTRUCTIONAL_VECTORS,
     combined_instructional_score,
     entropy_gate,
     instructional_score,
@@ -55,7 +53,7 @@ class TestInstructionalScore:
     def test_fuzzy_match_tol_0_strict(self):
         # "NORT" is 1 edit from "NORTH" — strict mode should miss it
         score_strict = instructional_score("NORT", fuzzy_tol=0)
-        score_fuzzy  = instructional_score("NORT", fuzzy_tol=1)
+        score_fuzzy = instructional_score("NORT", fuzzy_tol=1)
         assert score_strict == 0.0
         assert score_fuzzy > 0.0
 
@@ -105,15 +103,17 @@ class TestCombinedInstructionalScore:
 
     def test_custom_scorer_used(self):
         sentinel = []
+
         def spy_scorer(text):
             sentinel.append(text)
             return 0.0
+
         combined_instructional_score("TEST", base_scorer=spy_scorer, gate_entropy=False)
         assert "TEST" in sentinel
 
     def test_gate_disabled_always_applies_bonus(self):
         text = "A" * 50  # would fail entropy gate
-        gated   = combined_instructional_score(text, gate_entropy=True)
+        gated = combined_instructional_score(text, gate_entropy=True)
         ungated = combined_instructional_score(text, gate_entropy=False)
         # Both should return floats; gated returns base only, ungated adds bonus
         assert isinstance(gated, float)

@@ -123,7 +123,7 @@ def fetch_recent_runs(limit: int = 20) -> list[dict[str, Any]]:
                 )
                 rows = cur.fetchall()
         cols = ["id", "label", "stage", "cipher_label", "status", "started_at", "finished_at"]
-        return [dict(zip(cols, row)) for row in rows]
+        return [dict(zip(cols, row, strict=False)) for row in rows]
     except Exception as exc:  # noqa: BLE001
         logger.warning("Failed to fetch campaign runs (%s)", exc)
         return []
@@ -145,7 +145,7 @@ def fetch_run_candidates(run_id: int, limit: int = 50) -> list[dict[str, Any]]:
                 )
                 rows = cur.fetchall()
         cols = ["rank", "score", "source", "key", "key_hash", "text", "metrics", "origin_stage", "lineage"]
-        return [dict(zip(cols, row)) for row in rows]
+        return [dict(zip(cols, row, strict=False)) for row in rows]
     except Exception as exc:  # noqa: BLE001
         logger.warning("Failed to fetch candidates for run %s (%s)", run_id, exc)
         return []
@@ -167,7 +167,7 @@ def fetch_top_candidates(limit: int = 20) -> list[dict[str, Any]]:
                 )
                 rows = cur.fetchall()
         cols = ["campaign_run_id", "rank", "score", "source", "key_hash", "text", "origin_stage"]
-        return [dict(zip(cols, row)) for row in rows]
+        return [dict(zip(cols, row, strict=False)) for row in rows]
     except Exception as exc:  # noqa: BLE001
         logger.warning("Failed to fetch top candidates (%s)", exc)
         return []
@@ -232,7 +232,7 @@ def fetch_strategy_kb(limit: int = 200) -> list[dict[str, Any]]:
                 )
                 rows = cur.fetchall()
         cols = ["id", "category", "description", "attack_type", "confidence", "metadata", "created_at"]
-        return [dict(zip(cols, row)) for row in rows]
+        return [dict(zip(cols, row, strict=False)) for row in rows]
     except Exception as exc:  # noqa: BLE001
         logger.warning("Failed to fetch strategy_kb (%s)", exc)
         return []

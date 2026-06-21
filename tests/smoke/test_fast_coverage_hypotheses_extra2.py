@@ -15,7 +15,9 @@ def test_simple_substitution_full_generation(monkeypatch) -> None:
 
 
 def test_vigenere_find_keys_and_generate(monkeypatch) -> None:
-    monkeypatch.setattr("kryptos.k4.scoring.combined_plaintext_score", lambda text: float(sum(ord(c) for c in text[:5])))
+    monkeypatch.setattr(
+        "kryptos.k4.scoring.combined_plaintext_score", lambda text: float(sum(ord(c) for c in text[:5]))
+    )  # noqa: E501
     h = hyp.VigenereHypothesis(min_key_length=2, max_key_length=2, keys_per_length=6, explicit_keywords=["berlin"])
 
     keys = h._find_best_keys_for_length("THISISALONGERTESTCIPHERTEXT", key_length=6)
@@ -86,7 +88,9 @@ def test_composite_initializers_and_hill_limit_wrappers(monkeypatch) -> None:
     assert 123 in limits
     assert 321 in limits
 
-    vt = hyp.VigenereThenTranspositionHypothesis(vigenere_candidates=4, transposition_limit=7, vigenere_max_key_length=3)
+    vt = hyp.VigenereThenTranspositionHypothesis(
+        vigenere_candidates=4, transposition_limit=7, vigenere_max_key_length=3
+    )  # noqa: E501
     assert isinstance(vt.stage1, hyp.VigenereHypothesis)
 
     st = hyp.SubstitutionThenTranspositionHypothesis(transposition_limit=6)

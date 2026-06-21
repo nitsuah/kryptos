@@ -8,7 +8,6 @@ cipher logic will be caught here before it affects K4 analysis.
 
 from __future__ import annotations
 
-import pytest
 from kryptos import k1, k2, k3
 from kryptos.sections import SECTIONS
 
@@ -16,8 +15,8 @@ from kryptos.sections import SECTIONS
 # Canonical ciphertexts (alpha-only, Kryptos sculpture reference)
 # ---------------------------------------------------------------------------
 K1_CIPHERTEXT = "EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJYQTQUXQBQVYUVLLTREVJYQTMKYRDMFD"
-K1_KEY        = "PALIMPSEST"
-K1_PLAINTEXT  = "BETWEENSUBTLESHADINGANDTHEABSENCEOFLIGHTLIESTHENUANCEOFIQLUSION"
+K1_KEY = "PALIMPSEST"
+K1_PLAINTEXT = "BETWEENSUBTLESHADINGANDTHEABSENCEOFLIGHTLIESTHENUANCEOFIQLUSION"
 
 # K2 ciphertext — 336 alpha chars (matches the plaintext through "THIRTYEIGHTDEGREES…")
 K2_CIPHERTEXT = (
@@ -30,9 +29,9 @@ K2_CIPHERTEXT = (
 )
 K2_KEY = "ABSCISSA"
 # Verified markers from the known K2 plaintext
-K2_KNOWN_START   = "ITWASTOTALLYINVISIBLEHOWSTHATPOSSIBLE"
+K2_KNOWN_START = "ITWASTOTALLYINVISIBLEHOWSTHATPOSSIBLE"
 K2_KNOWN_MARKERS = [
-    "UNDERGRUUND",        # Sanborn misspelling of UNDERGROUND
+    "UNDERGRUUND",  # Sanborn misspelling of UNDERGROUND
     "DOESLANGLEYKNOW",
     "THIRTYEIGHTDEGREES",
     "ITSBURIEDOUTTHERESOMEWHERE",
@@ -61,6 +60,7 @@ K3_PLAINTEXT = (
 # K1 gates
 # ---------------------------------------------------------------------------
 
+
 class TestK1Reliability:
     def test_exact_plaintext(self):
         assert k1.decrypt(K1_CIPHERTEXT, K1_KEY) == K1_PLAINTEXT
@@ -87,6 +87,7 @@ class TestK1Reliability:
 # ---------------------------------------------------------------------------
 # K2 gates
 # ---------------------------------------------------------------------------
+
 
 class TestK2Reliability:
     def _pt(self) -> str:
@@ -120,6 +121,7 @@ class TestK2Reliability:
 # K3 gates
 # ---------------------------------------------------------------------------
 
+
 class TestK3Reliability:
     def test_exact_plaintext(self):
         assert k3.decrypt(K3_CIPHERTEXT) == K3_PLAINTEXT
@@ -150,6 +152,7 @@ class TestK3Reliability:
 # ---------------------------------------------------------------------------
 # SECTIONS registry gates
 # ---------------------------------------------------------------------------
+
 
 class TestSectionsRegistry:
     def test_k1_callable(self):

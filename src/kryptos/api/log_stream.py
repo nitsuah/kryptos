@@ -13,7 +13,7 @@ import asyncio
 import logging
 import threading
 from collections import deque
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 DEFAULT_CAPACITY = 1000
 _DEFAULT_FORMAT = "%(asctime)s %(levelname)s %(name)s: %(message)s"
