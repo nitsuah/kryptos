@@ -18,6 +18,7 @@ from kryptos.log_setup import setup_logging
 from kryptos.pipeline.attack_executor import AttackExecutor
 from kryptos.pipeline.attack_generator import AttackGenerator
 from kryptos.pipeline.validator import PlaintextValidator
+from kryptos.paths import get_repo_root
 from kryptos.provenance.attack_log import AttackLogger
 from kryptos.provenance.search_space import SearchSpaceTracker
 
@@ -77,7 +78,7 @@ class K4CampaignOrchestrator:
         self.attack_executor = AttackExecutor(log_dir=self.workspace_dir / "executor_logs")
         self.max_workers = max_workers
 
-        config_path = Path(__file__).parent.parent.parent.parent / "config" / "config.json"
+        config_path = get_repo_root() / "config" / "config.json"
         with open(config_path) as f:
             config = json.load(f)
 
