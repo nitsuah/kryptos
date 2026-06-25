@@ -4,7 +4,7 @@
 > Cryptographic research toolkit for solving the K4 cipher puzzle
 
 ---
-**Last Updated:** 2026-06-17
+**Last Updated:** 2026-06-25
 ---
 
 
@@ -132,12 +132,14 @@
 - **Dashboard endpoints**: `GET /api/status`, `GET /api/runs`, `GET /api/runs/{id}/candidates`, `GET /api/candidates`, `POST /api/decrypt`
 - **Vault endpoints**: `POST /api/vault/seal`, `POST /api/vault/unseal`, `GET /api/vault/{token}` (503/404/410/403 error mapping for unavailable/missing/gone/wrong-key)
 - **RAG endpoints**: `GET /api/rag/status`, `POST /api/rag/reindex`, `GET /api/rag/search`
+- **SSE log tail**: `GET /api/stream/logs` — `StreamingResponse` (`text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler; `LogTail` EventSource component on Ops Center page
 - **Health**: `GET /health`
 
 ### Persistence
 
 - **`campaign_runs` + `candidates` tables**: Best-effort write path persists live campaign runs and their candidates to Neon (graceful no-op without `DATABASE_URL`)
 - **`vault_payloads` table**: Token-addressed ciphertext with verifier, max-reads, and expiry; atomic read-decrement guarantees one-shot semantics
+- **`strategy_kb` write path**: `OpsStrategicDirector.record_strategy()` + `_record_strategy_from_decision()` persist BOOST/PIVOT/STOP/START_NEW decisions to Neon `strategy_kb` with JSONL fallback; `fetch_strategy_kb()` and `persist_strategy()` added to `kryptos.persistence`
 
 ---
 
@@ -173,11 +175,7 @@
 > Monte Carlo have all shipped — see the sections above. What remains:
 
 ### 🖥️ Dashboard & UI
-- **SSE live-log tail**: `GET /api/stream/logs` + an Ops Center `LogTail` component (backend implemented on the `sse-log-tail` branch; frontend wiring pending)
 - **Dedicated K4 Attack Dashboard**: Visual fingerprint map of attack vectors — plausible vs. covered vs. unknown (live progress, scoring, and artifact lookup are already covered by Ops Center, Database, and RAG search)
-
-### 📡 API & Data
-- **`strategy_kb` write path**: Automate writing successful/failed strategies back to the Neon table
 
 ### 🧠 AI/ML & Community
 - **LLM-Driven Hypothesis Generation**: Use LLMs to propose new attacks and scoring strategies
