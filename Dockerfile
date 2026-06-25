@@ -68,6 +68,9 @@ RUN chown -R appuser:appuser /app
 # Install dev requirements for test execution
 RUN pip install --no-cache-dir -r config/requirements-dev.txt
 
+# Point HuggingFace cache at /tmp so appuser can write without a home dir
+ENV HF_HOME=/tmp/hf_cache
+
 # Switch to non-root user
 USER appuser
 

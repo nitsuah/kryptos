@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from kryptos.log_setup import setup_logging
+from kryptos.paths import get_repo_root
 
 ENGLISH_FREQ = {
     "E": 12.70,
@@ -357,7 +358,7 @@ def demo_validator():
     print("=" * 80)
     print()
 
-    config_path = Path(__file__).parent.parent.parent.parent / "config" / "config.json"
+    config_path = get_repo_root() / "config" / "config.json"
     with open(config_path) as f:
         config = json.load(f)
 
