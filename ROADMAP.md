@@ -1,6 +1,6 @@
 # 🗺️ Kryptos Roadmap
 
-Last Updated: 2026-06-20
+Last Updated: 2026-06-25
 Next Review: 2026-07-01
 ---
 
