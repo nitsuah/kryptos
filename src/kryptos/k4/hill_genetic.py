@@ -9,12 +9,7 @@ from __future__ import annotations
 import random
 from math import gcd
 
-from kryptos.k4.hill_cipher import (
-    MOD,
-    hill_decrypt,
-    matrix_det,
-    matrix_inv_mod,
-)
+from kryptos.k4.hill_cipher import MOD, hill_decrypt, matrix_det, matrix_inv_mod
 from kryptos.k4.scoring import combined_plaintext_score
 
 
@@ -38,27 +33,24 @@ def mutate_matrix(matrix: list[list[int]], mutation_rate: float = 0.1) -> list[l
 
 
 def crossover_matrices(parent1: list[list[int]], parent2: list[list[int]]) -> list[list[int]]:
-    flat1 = [parent1[i][j] for i in range(3) for j in range(3)]
-    flat2 = [parent2[i][j] for i in range(3) for j in range(3)]
-
-    point = random.randint(1, 8)
-    child_flat = flat1[:point] + flat2[point:]
-
-    child = [[child_flat[i * 3 + j] for j in range(3)] for i in range(3)]
-    return child
+    # Row-level crossover: each row is inherited independently from one parent.
+    # This preserves Hill cipher row structure better than flat single-point crossover.
+    return [(parent1[i] if random.random() < 0.5 else parent2[i])[:] for i in range(3)]
 
 
 def ensure_invertible(matrix: list[list[int]]) -> list[list[int]]:
     if matrix_inv_mod(matrix) is not None:
         return matrix
 
+    # Work on a copy to avoid mutating the caller's matrix.
+    m = [row[:] for row in matrix]
     for _ in range(10):
         i, j = random.randint(0, 2), random.randint(0, 2)
-        old_val = matrix[i][j]
-        matrix[i][j] = (matrix[i][j] + random.randint(1, 25)) % 26
-        if matrix_inv_mod(matrix) is not None:
-            return matrix
-        matrix[i][j] = old_val
+        old_val = m[i][j]
+        m[i][j] = (m[i][j] + random.randint(1, 25)) % 26
+        if matrix_inv_mod(m) is not None:
+            return m
+        m[i][j] = old_val
 
     return random_invertible_3x3()
 
@@ -99,14 +91,27 @@ def genetic_algorithm_hill3x3(
 
     elite_count = int(population_size * elite_fraction)
 
+    global_best_key: list[list[int]] | None = None
+    global_best_score = float("-inf")
+
     for _ in range(generations):
         scored_population = [(key, fitness(key, ciphertext)) for key in population]
 
         scored_population.sort(key=lambda x: x[1], reverse=True)
 
+        # Track the all-time best so it is never lost to drift.
+        gen_best_key, gen_best_score = scored_population[0]
+        if gen_best_score > global_best_score:
+            global_best_score = gen_best_score
+            global_best_key = [row[:] for row in gen_best_key]
+
         elites = [key for key, _ in scored_population[:elite_count]]
 
         new_population = elites[:]
+
+        # Inject the all-time best in case it was displaced by drift.
+        if global_best_key is not None and global_best_key not in new_population:
+            new_population[0] = [row[:] for row in global_best_key]
 
         while len(new_population) < population_size:
             parent1 = tournament_select(scored_population, tournament_size=5)
@@ -122,8 +127,31 @@ def genetic_algorithm_hill3x3(
 
         population = new_population
 
+    # Local search: hill-climb the top candidates by trying ±1 on each cell.
+    # This is cheap relative to GA cost and significantly improves final quality.
+    top_keys = [
+        key
+        for key, _ in sorted(
+            [(k, fitness(k, ciphertext)) for k in population[:50]],
+            key=lambda x: x[1],
+            reverse=True,
+        )[:10]
+    ]
+    if global_best_key is not None and global_best_key not in top_keys:
+        top_keys.insert(0, global_best_key)
+
+    polished: list[list[list[int]]] = []
+    for key in top_keys:
+        polished.append(_local_search(key, ciphertext, rounds=3))
+    population = list(population) + polished
+
     final_results = []
-    for key in population[:100]:
+    seen: set[str] = set()
+    for key in population[:100] + polished:
+        key_id = str(key)
+        if key_id in seen:
+            continue
+        seen.add(key_id)
         score = fitness(key, ciphertext)
         plaintext = hill_decrypt(ciphertext, key)
         if plaintext:
@@ -131,6 +159,31 @@ def genetic_algorithm_hill3x3(
 
     final_results.sort(key=lambda x: x[1], reverse=True)
     return final_results
+
+
+def _local_search(key: list[list[int]], ciphertext: str, rounds: int = 3) -> list[list[int]]:
+    """Hill-climb a key by exhaustively trying all 26 values for each cell."""
+    best = [row[:] for row in key]
+    best_score = fitness(best, ciphertext)
+    for _ in range(rounds):
+        improved = False
+        for i in range(3):
+            for j in range(3):
+                for v in range(26):
+                    if v == best[i][j]:
+                        continue
+                    candidate = [row[:] for row in best]
+                    candidate[i][j] = v
+                    if matrix_inv_mod(candidate) is None:
+                        continue
+                    s = fitness(candidate, ciphertext)
+                    if s > best_score:
+                        best_score = s
+                        best = candidate
+                        improved = True
+        if not improved:
+            break
+    return best
 
 
 def tournament_select(
