@@ -306,3 +306,31 @@ button:disabled {
   border-bottom: 0.5px solid rgba(29, 158, 117, 0.08);
   padding: 1px 0;
 }
+
+/* K4 Attack Dashboard specific styles */
+.page-container {
+  padding: 16px;
+}
+
+.terminal-box {
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  background: var(--surface);
+}
+
+.attack-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attack-table th,
+.attack-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.status-ruled-out {
+  color: var(--danger);
+}
