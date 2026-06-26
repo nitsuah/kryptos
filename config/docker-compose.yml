@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   kryptos:
     build:
@@ -12,4 +11,5 @@ services:
     command: tail -f /dev/null
     environment:
       - PYTHONUNBUFFERED=1
+      - HF_HOME=/tmp/hf_cache
     tty: true

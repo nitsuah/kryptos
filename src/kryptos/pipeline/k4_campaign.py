@@ -15,6 +15,7 @@ from kryptos.k4.transposition_analysis import (
 )
 from kryptos.k4.vigenere_key_recovery import recover_key_by_frequency
 from kryptos.log_setup import setup_logging
+from kryptos.paths import get_repo_root
 from kryptos.pipeline.attack_executor import AttackExecutor
 from kryptos.pipeline.attack_generator import AttackGenerator
 from kryptos.pipeline.validator import PlaintextValidator
@@ -77,7 +78,7 @@ class K4CampaignOrchestrator:
         self.attack_executor = AttackExecutor(log_dir=self.workspace_dir / "executor_logs")
         self.max_workers = max_workers
 
-        config_path = Path(__file__).parent.parent.parent.parent / "config" / "config.json"
+        config_path = get_repo_root() / "config" / "config.json"
         with open(config_path) as f:
             config = json.load(f)
 
@@ -280,7 +281,7 @@ def demo_k4_campaign():
     print("=" * 80)
     print()
 
-    config_path = Path(__file__).parent.parent.parent.parent / "config" / "config.json"
+    config_path = get_repo_root() / "config" / "config.json"
     with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 

@@ -10,7 +10,9 @@ from collections.abc import Iterable, Sequence
 from functools import lru_cache
 from pathlib import Path
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+from kryptos.paths import get_repo_root
+
+ROOT_DIR = str(get_repo_root())
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
 NGRAMS_DIR = os.path.join(DATA_DIR, 'ngrams')
 CONFIG_PATH = os.path.join(ROOT_DIR, 'config', 'config.json')

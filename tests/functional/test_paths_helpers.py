@@ -34,24 +34,26 @@ def test_provenance_hash_stable():
 
 
 def test_cwd_repo_root_preferred_for_installed_package(tmp_path, monkeypatch):
-    repo_root = tmp_path / 'repo'
+    repo_root = tmp_path / "repo"
     repo_root.mkdir()
-    (repo_root / 'pyproject.toml').write_text('[project]\nname = "kryptos"\nversion = "0.0.0"\n', encoding='utf-8')
+    (repo_root / "pyproject.toml").write_text('[project]\nname = "kryptos"\nversion = "0.0.0"\n', encoding="utf-8")
     # Create the Kryptos-specific marker so _find_repo_root(kryptos_only=True) matches.
-    (repo_root / 'src' / 'kryptos').mkdir(parents=True)
+    (repo_root / "src" / "kryptos").mkdir(parents=True)
 
-    fake_site_packages = tmp_path / 'site-packages' / 'kryptos'
+    fake_site_packages = tmp_path / "site-packages" / "kryptos"
     fake_site_packages.mkdir(parents=True)
-    fake_module = fake_site_packages / 'paths.py'
-    fake_module.write_text('# placeholder', encoding='utf-8')
+    fake_module = fake_site_packages / "paths.py"
+    fake_module.write_text("# placeholder", encoding="utf-8")
 
     paths.get_repo_root.cache_clear()  # type: ignore[attr-defined]
     monkeypatch.delenv(paths.ENV_ROOT, raising=False)
     monkeypatch.chdir(repo_root)
-    monkeypatch.setattr(paths, '__file__', str(fake_module))
+    monkeypatch.setattr(paths, "__file__", str(fake_module))
 
     assert paths.get_repo_root() == repo_root
-    assert paths.get_artifacts_root() == repo_root / 'artifacts'
+    assert paths.get_artifacts_root() == repo_root / "artifacts"
+
+    paths.get_repo_root.cache_clear()  # type: ignore[attr-defined]
 
 
 def test_containment_and_no_root_level_artifacts(tmp_path):
@@ -62,12 +64,12 @@ def test_containment_and_no_root_level_artifacts(tmp_path):
     # No writes should appear outside repo (simulate an operation)
     _ = paths.get_logs_dir()
     _ = paths.get_decisions_dir()
-    outside = repo_root.parent / 'artifacts'
+    outside = repo_root.parent / "artifacts"
     # If outside exists (legacy), ensure we did not modify it this test
     if outside.exists() and outside != artifacts_root:
         before = {p.name for p in outside.iterdir()}
         # write a file inside proper artifacts
-        (artifacts_root / 'containment_test.txt').write_text('ok', encoding='utf-8')
+        (artifacts_root / "containment_test.txt").write_text("ok", encoding="utf-8")
         after = {p.name for p in outside.iterdir()}
         assert before == after
     else:

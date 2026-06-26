@@ -231,8 +231,11 @@ def test_paths_repo_root_fallback(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(paths, "__file__", str(fake_file))
     monkeypatch.setattr(paths, "_find_repo_root", lambda *args, **kwargs: None)
 
-    root = paths.get_repo_root()
-    assert root == fake_file.resolve().parents[1]
+    try:
+        root = paths.get_repo_root()
+        assert root == fake_file.resolve().parents[1]
+    finally:
+        paths.get_repo_root.cache_clear()  # type: ignore[attr-defined]
 
 
 def test_validator_and_campaign_demos(monkeypatch, capsys) -> None:
