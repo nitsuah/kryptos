@@ -5,8 +5,9 @@ import OpsCenter from "./pages/OpsCenter";
 import Decode from "./pages/Decode";
 import Database from "./pages/Database";
 import Vault from "./pages/Vault";
+import K4AttackDashboard from "./pages/K4AttackDashboard";
 
-type Page = "ops" | "decode" | "database" | "vault";
+type Page = "ops" | "decode" | "database" | "vault" | "k4";
 
 export default function App() {
   const [page, setPage] = useState<Page>("ops");
@@ -44,6 +45,9 @@ export default function App() {
         <button className={page === "vault" ? "active" : ""} onClick={() => setPage("vault")}>
           Vault
         </button>
+        <button className={page === "k4" ? "active" : ""} onClick={() => setPage("k4")}>
+          K4 Dashboard
+        </button>
       </nav>
       <main className="main">
         {error && <div className="banner">API unreachable: {error}</div>}
@@ -56,6 +60,7 @@ export default function App() {
         {page === "decode" && <Decode />}
         {page === "database" && <Database status={status} />}
         {page === "vault" && <Vault />}
+        {page === "k4" && <K4AttackDashboard />}
       </main>
     </div>
   );
