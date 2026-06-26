@@ -19,7 +19,6 @@ from kryptos.paths import get_repo_root
 from kryptos.pipeline.attack_executor import AttackExecutor
 from kryptos.pipeline.attack_generator import AttackGenerator
 from kryptos.pipeline.validator import PlaintextValidator
-from kryptos.paths import get_repo_root
 from kryptos.provenance.attack_log import AttackLogger
 from kryptos.provenance.search_space import SearchSpaceTracker
 
