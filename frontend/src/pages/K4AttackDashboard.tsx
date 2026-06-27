@@ -12,10 +12,24 @@ const attackVectors = [
 ];
 
 export default function K4AttackDashboard() {
+  const ruledOutCount = attackVectors.filter(v => v.status === "Ruled Out").length;
+  const progress = (ruledOutCount / attackVectors.length) * 100;
+
   return (
     <div className="page-container">
       <h2>K4 ATTACK VECTOR FINGERPRINT</h2>
-      <div className="terminal-box">
+
+      <div className="panel" style={{ marginBottom: '16px' }}>
+        <div className="body">
+          <div className="label">Attack Surface Coverage</div>
+          <div className="progress-bar-container" style={{ height: '20px', background: '#085041', borderRadius: '3px', marginTop: '8px' }}>
+            <div className="progress-bar" style={{ height: '100%', width: `${progress}%`, background: '#1D9E75', borderRadius: '3px' }}></div>
+          </div>
+          <p>{ruledOutCount} / {attackVectors.length} vectors ruled out</p>
+        </div>
+      </div>
+
+      <div className="panel">
         <table className="attack-table">
           <thead>
             <tr>
@@ -28,7 +42,7 @@ export default function K4AttackDashboard() {
             {attackVectors.map((v) => (
               <tr key={v.name}>
                 <td>{v.name}</td>
-                <td className="status-ruled-out">{v.status}</td>
+                <td className={v.status === "Ruled Out" ? "status-ruled-out" : ""}>{v.status}</td>
                 <td><a href={`/artifacts/${v.artifact}`}>{v.artifact}</a></td>
               </tr>
             ))}
