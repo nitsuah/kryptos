@@ -14,4 +14,6 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - HF_HOME=/tmp/hf_cache
+    env_file:
+      - ../.env
     tty: true
