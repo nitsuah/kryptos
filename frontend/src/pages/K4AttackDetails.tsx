@@ -1,4 +1,3 @@
-import React from "react";
 import AttackVectorVisualizer from "../components/AttackVectorVisualizer";
 
 interface Props {

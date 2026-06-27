@@ -1,1 +1,1 @@
-{"worktree": {"bgIsolation": "none"}}
+{"worktree": {"bgIsolation": "none"}, "permissions": {"allow": ["mcp__MCP_DOCKER__list_directory"]}}

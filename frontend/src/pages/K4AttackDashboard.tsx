@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import K4AttackDetails from "./K4AttackDetails";
 
 const attackVectors = [
