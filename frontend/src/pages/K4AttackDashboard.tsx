@@ -25,42 +25,44 @@ export default function K4AttackDashboard() {
       )}
       <h2>K4 ATTACK VECTOR FINGERPRINT</h2>
 
-      <div className="panel" style={{ marginBottom: '16px' }}>
-        <div className="body">
-          <div className="row">
-            <FormField label="Filter Vectors" style={{ flex: 1 }}>
-              <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search vectors..." />
-            </FormField>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+        <div className="panel" style={{ marginBottom: '0' }}>
+          <div className="body">
+            <div className="row">
+              <FormField label="Filter Vectors" style={{ flex: 1 }}>
+                <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search vectors..." />
+              </FormField>
+            </div>
+            <div className="label" style={{ marginTop: '10px' }}>Attack Surface Coverage</div>
+            <div className="progress-bar-container" style={{ height: '20px', background: 'var(--surface)', borderRadius: '3px', marginTop: '8px', border: '1px solid var(--border)' }}>
+              <div className="progress-bar" style={{ height: '100%', width: `${progress}%`, background: 'var(--accent)', borderRadius: '3px' }}></div>
+            </div>
+            <p style={{ marginTop: '5px', color: 'var(--text)' }}>{ruledOutCount} / {attackVectors.length} vectors ruled out</p>
           </div>
-          <div className="label">Attack Surface Coverage</div>
-          <div className="progress-bar-container" style={{ height: '20px', background: 'var(--surface)', borderRadius: '3px', marginTop: '8px', border: '1px solid var(--border)' }}>
-            <div className="progress-bar" style={{ height: '100%', width: `${progress}%`, background: 'var(--accent)', borderRadius: '3px' }}></div>
-          </div>
-          <p style={{ marginTop: '5px', color: 'var(--text)' }}>{ruledOutCount} / {attackVectors.length} vectors ruled out</p>
         </div>
-      </div>
 
-      <div className="panel">
-        <table className="attack-table">
-          <thead>
-            <tr>
-              <th style={{ color: 'var(--accent)' }}>Attack Vector</th>
-              <th style={{ color: 'var(--accent)' }}>Status</th>
-              <th style={{ color: 'var(--accent)' }}>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredVectors.map((v) => (
-              <tr key={v.name} onClick={() => setSelectedVector(v)} style={{ cursor: 'pointer', borderBottom: '0.5px solid rgba(29, 158, 117, 0.1)' }}>
-                <td style={{ color: 'var(--text)' }}>{v.name}</td>
-                <td className={v.status === "Ruled Out" ? "status-ruled-out" : ""} style={{ color: v.status === "Ruled Out" ? 'var(--accent)' : v.status === "In Progress" ? 'var(--warning)' : 'var(--text)' }}>{v.status}</td>
-                <td><button style={{ background: 'var(--surface)', color: 'var(--accent)', border: '0.5px solid var(--accent)', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>View Details</button></td>
+        <div className="panel">
+          <table className="attack-table">
+            <thead>
+              <tr>
+                <th style={{ color: 'var(--accent)' }}>Attack Vector</th>
+                <th style={{ color: 'var(--accent)' }}>Status</th>
+                <th style={{ color: 'var(--accent)' }}>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredVectors.map((v) => (
+                <tr key={v.name} onClick={() => setSelectedVector(v)} style={{ cursor: 'pointer', borderBottom: '0.5px solid rgba(29, 158, 117, 0.1)' }}>
+                  <td style={{ color: 'var(--text)' }}>{v.name}</td>
+                  <td className={v.status === "Ruled Out" ? "status-ruled-out" : ""} style={{ color: v.status === "Ruled Out" ? 'var(--accent)' : v.status === "In Progress" ? 'var(--warning)' : 'var(--text)' }}>{v.status}</td>
+                  <td><button style={{ background: 'var(--surface)', color: 'var(--accent)', border: '0.5px solid var(--accent)', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>View Details</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <AttackVectorGraph data={attackVectors} />
       </div>
-      <AttackVectorGraph data={attackVectors} />
     </div>
   );
 }
