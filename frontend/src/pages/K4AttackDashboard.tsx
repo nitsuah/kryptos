@@ -16,7 +16,8 @@ export default function K4AttackDashboard() {
   const progress = (ruledOutCount / attackVectors.length) * 100;
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ position: 'relative' }}>
+      <div className="scan-line"></div>
       <h2>K4 ATTACK VECTOR FINGERPRINT</h2>
 
       <div className="panel" style={{ marginBottom: '16px' }}>
