@@ -8,18 +8,45 @@ interface Props {
 
 export default function K4AttackDetails({ vector, onClose }: Props) {
   return (
-    <div className="modal-overlay" onClick={onClose} style={{
-      position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      background: 'rgba(4, 52, 44, 0.8)', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', zIndex: 100
-    }}>
-      <div className="panel" onClick={(e) => e.stopPropagation()} style={{ width: '600px' }}>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="panel modal-content" onClick={(e) => e.stopPropagation()}>
         <h2>{vector.name}</h2>
         <div className="body">
-          <p><strong>Status:</strong> {vector.status}</p>
-          <p><strong>Artifact:</strong> <a href={`/artifacts/${vector.artifact}`}>{vector.artifact}</a></p>
-          <AttackVectorVisualizer vector={vector.name} description={vector.description} />
-          <button onClick={onClose}>Close</button>
+          <p>
+            <strong>Status:</strong>{" "}
+            <span
+              className={`status-${vector.status
+                .toLowerCase()
+                .replace(/\s+/g, "-")}`}
+            >
+              {vector.status}
+            </span>
+          </p>
+          <p>
+            <strong>Artifact:</strong>{" "}
+            {vector.artifact ? (
+              <a
+                href={`/artifacts/${vector.artifact}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {vector.artifact}
+              </a>
+            ) : (
+              "N/A"
+            )}
+          </p>
+
+          {vector.description && (
+            <div className="description-box">{vector.description}</div>
+          )}
+          <AttackVectorVisualizer
+            vector={vector.name}
+            description={vector.description}
+          />
+          <div className="modal-footer">
+            <button onClick={onClose}>Close</button>
+          </div>
         </div>
       </div>
     </div>
