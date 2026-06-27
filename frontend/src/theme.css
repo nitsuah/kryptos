@@ -411,3 +411,140 @@ button:disabled {
   );
   z-index: 10;
 }
+
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(4, 52, 44, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  width: 600px;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 15px rgba(29, 158, 117, 0.6);
+  animation: slideIn 0.4s ease-out;
+}
+
+.modal-content > h2 {
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px var(--accent);
+}
+
+.description-box {
+  border: 0.5px dashed var(--border);
+  padding: 12px;
+  border-radius: 3px;
+  margin: 15px 0;
+  background-color: rgba(29, 158, 117, 0.05);
+  color: var(--text);
+  font-size: 0.9em;
+  line-height: 1.5;
+  box-shadow: 0 0 5px rgba(29, 158, 117, 0.2);
+}
+
+.modal-footer {
+  margin-top: 25px;
+  text-align: right;
+}
+
+.modal-footer button {
+  background: var(--surface);
+  color: var(--accent);
+  border: 0.5px solid var(--accent);
+  padding: 10px 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.status-in-progress { color: var(--warning); }
+.status-ruled-out { color: var(--accent); }
+.status-plausible { color: var(--text); }
+
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* K4 Attack Dashboard specific styles */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.progress-container {
+  margin-top: 15px;
+}
+
+.progress-container .label {
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.progress-bar-container {
+  height: 25px;
+  background: var(--surface);
+  border-radius: 3px;
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  box-shadow: 0 0 5px rgba(29, 158, 117, 0.5);
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  box-shadow: 0 0 8px var(--accent);
+  transition: width 0.5s ease-in-out;
+}
+
+.progress-container p {
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.clickable-row {
+  cursor: pointer;
+  border-bottom: 0.5px solid rgba(29, 158, 117, 0.1);
+  transition: background-color 0.2s;
+}
+
+.clickable-row:hover {
+  background-color: rgba(29, 158, 117, 0.1);
+}
+
+.small-button {
+  background: var(--surface);
+  color: var(--accent);
+  border: 0.5px solid var(--accent);
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
