@@ -33,19 +33,19 @@ export default function App() {
     <div className="app">
       <Topbar status={status} />
       <nav className="nav">
-        <button className={page === "ops" ? "active" : ""} onClick={() => setPage("ops")}>
+        <button className={page === "ops" ? "active nav-button" : "nav-button"} onClick={() => setPage("ops")}>
           Ops Center
         </button>
-        <button className={page === "decode" ? "active" : ""} onClick={() => setPage("decode")}>
+        <button className={page === "decode" ? "active nav-button" : "nav-button"} onClick={() => setPage("decode")}>
           Decode
         </button>
-        <button className={page === "database" ? "active" : ""} onClick={() => setPage("database")}>
+        <button className={page === "database" ? "active nav-button" : "nav-button"} onClick={() => setPage("database")}>
           Database
         </button>
-        <button className={page === "vault" ? "active" : ""} onClick={() => setPage("vault")}>
+        <button className={page === "vault" ? "active nav-button" : "nav-button"} onClick={() => setPage("vault")}>
           Vault
         </button>
-        <button className={page === "k4" ? "active" : ""} onClick={() => setPage("k4")}>
+        <button className={page === "k4" ? "active nav-button" : "nav-button"} onClick={() => setPage("k4")}>
           K4 Dashboard
         </button>
       </nav>

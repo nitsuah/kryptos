@@ -1,1 +1,1 @@
-{"worktree": {"bgIsolation": "none"}, "permissions": {"allow": ["mcp__MCP_DOCKER__list_directory"]}}
+{"worktree": {"bgIsolation": "none"}, "permissions": {"allow": ["mcp__MCP_DOCKER__list_directory", "Bash(git *)", "Bash(docker ps*)", "Bash(gh pr view*)", "Bash(npm run dev)", "Bash(npm install)", "Bash(npm test)", "Bash(vite)"]}}
