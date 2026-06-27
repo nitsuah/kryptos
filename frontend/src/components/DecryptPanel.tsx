@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { ApiError, api } from "../api";
+import FormField from "./FormField";
 
 const SECTIONS = ["K1", "K2", "K3", "K4"];
 
@@ -31,8 +32,7 @@ export default function DecryptPanel() {
   return (
     <form onSubmit={onSubmit}>
       <div className="row">
-        <div className="field" style={{ minWidth: 90 }}>
-          <label>Section</label>
+        <FormField label="Section" style={{ minWidth: 90 }}>
           <select value={section} onChange={(e) => setSection(e.target.value)}>
             {SECTIONS.map((s) => (
               <option key={s} value={s}>
@@ -40,26 +40,24 @@ export default function DecryptPanel() {
               </option>
             ))}
           </select>
-        </div>
-        <div className="field" style={{ flex: 1, minWidth: 160 }}>
-          <label>Key {keyRequired ? "(required)" : "(ignored)"}</label>
+        </FormField>
+        <FormField label={`Key ${keyRequired ? "(required)" : "(ignored)"}`} style={{ flex: 1, minWidth: 160 }}>
           <input
             value={key}
             onChange={(e) => setKey(e.target.value)}
             placeholder={keyRequired ? "PALIMPSEST" : "—"}
             disabled={!keyRequired}
           />
-        </div>
+        </FormField>
       </div>
-      <div className="field">
-        <label>Ciphertext</label>
+      <FormField label="Ciphertext">
         <textarea
           value={ciphertext}
           onChange={(e) => setCiphertext(e.target.value)}
           rows={3}
           placeholder="EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ..."
         />
-      </div>
+      </FormField>
       <button type="submit" disabled={busy || ciphertext.trim().length === 0}>
         {busy ? "Decrypting…" : "Execute"}
       </button>
