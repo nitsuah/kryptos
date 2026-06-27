@@ -69,6 +69,18 @@ export interface VaultPeekResponse {
   expires_at: string | null;
 }
 
+export interface AttackVector {
+  name: string;
+  status: string;
+  artifact: string | null;
+  description: string | null;
+}
+
+export interface AttackVectorsResponse {
+  vectors: AttackVector[];
+}
+
+
 export class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -116,4 +128,5 @@ export const api = {
   vaultUnseal: (token: string, key: string) =>
     postJSON<VaultUnsealResponse>("/api/vault/unseal", { token, key }),
   vaultPeek: (token: string) => getJSON<VaultPeekResponse>(`/api/vault/${encodeURIComponent(token)}`),
+  attackVectors: () => getJSON<AttackVectorsResponse>("/api/attack-vectors"),
 };

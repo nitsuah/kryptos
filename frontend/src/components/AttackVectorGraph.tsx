@@ -1,14 +1,30 @@
-// Mock visualization component for K4 attack surface
-export default function AttackVectorGraph(_props: { data: any[] }) {
+import { AttackVector } from "../api";
+
+export default function AttackVectorGraph({ data }: { data: AttackVector[] }) {
+  const ruledOut = data.filter(v => v.status === "Ruled Out");
+  const others = data.filter(v => v.status !== "Ruled Out");
+
   return (
     <div className="panel" style={{ marginTop: '16px' }}>
       <h2>Attack Surface Analysis</h2>
       <div className="body">
-        <svg viewBox="0 0 400 200" style={{ width: '100%', height: 'auto' }}>
-          {/* Very simple visualization for now */}
-          <rect x="20" y="20" width="360" height="160" fill="var(--bg)" stroke="var(--accent)" strokeWidth="1" />
-          <text x="200" y="100" textAnchor="middle" fill="var(--text)">Surface Graph Placeholder</text>
-        </svg>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {data.map((v) => (
+            <div
+              key={v.name}
+              title={`${v.name}: ${v.status}`}
+              style={{
+                width: '20px',
+                height: '20px',
+                backgroundColor: v.status === "Ruled Out" ? "var(--accent)" : "#555",
+                borderRadius: '3px',
+              }}
+            />
+          ))}
+        </div>
+        <p style={{ marginTop: '10px' }}>
+          {ruledOut.length} ruled out, {others.length} remaining.
+        </p>
       </div>
     </div>
   );

@@ -1,25 +1,23 @@
 interface Props {
   vector: string;
+  description: string | null;
 }
 
-export default function AttackVectorVisualizer({ vector }: Props) {
-  // Simple visualization placeholder - can be made complex based on requirements
+export default function AttackVectorVisualizer({ vector, description }: Props) {
   return (
     <div className="panel">
-      <h2>Visual Fingerprint: {vector}</h2>
-      <div className="body" style={{ textAlign: 'center', padding: '20px' }}>
+      <h3>{vector}</h3>
+      <div className="body" style={{ padding: '20px' }}>
+        <p>{description || "No description available."}</p>
         <div style={{
-          display: 'inline-flex',
-          width: '100px',
-          height: '100px',
+          marginTop: '20px',
+          padding: '10px',
           border: '1px solid var(--accent)',
-          borderRadius: '50%',
-          alignItems: 'center',
-          justifyContent: 'center'
+          borderRadius: '5px',
+          textAlign: 'center'
         }}>
-          [DATA]
+          [Visual Fingerprint Placeholder]
         </div>
-        <p>Visualization logic for {vector} to be implemented.</p>
       </div>
     </div>
   );

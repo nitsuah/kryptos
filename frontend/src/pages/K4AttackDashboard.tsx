@@ -1,26 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import K4AttackDetails from "./K4AttackDetails";
 import AttackVectorGraph from "../components/AttackVectorGraph";
 import FormField from "../components/FormField";
-
-const attackVectors = [
-  { name: "Clock → Hill 2×2 Invertibility", status: "Ruled Out", artifact: "K4_CLOCK_HILL_NULL.json" },
-  { name: "4-char Clock Key → Vigenère", status: "Ruled Out", artifact: "K4_CLOCK_VIG_NULL.json" },
-  { name: "Non-standard Berlin Clock Sub-row", status: "Ruled Out", artifact: "K4_CLOCK_SUBROW_NULL.json" },
-  { name: "Berlin Clock → Columnar Transposition", status: "Ruled Out", artifact: "K4_CLOCK_TRANS_NULL.json" },
-  { name: "Beaufort Cipher Sweep", status: "Ruled Out", artifact: "K4_BEAUFORT_NULL.json" },
-  { name: "Quagmire I-IV Sweep", status: "Ruled Out", artifact: "K4_QUAGMIRE_NULL.json" },
-  { name: "Physical-Grid Tableau-Walk", status: "Ruled Out", artifact: "K4_PHYSICAL_GRID_NULL.json" },
-  { name: "Composite (Clock/Grid/Alphabet)", status: "Ruled Out", artifact: "K4_COMPOSITE_SWEEP_NULL.json" },
-];
+import { api, AttackVector } from "../api";
 
 export default function K4AttackDashboard() {
-  const [selectedVector, setSelectedVector] = useState<any | null>(null);
+  const [selectedVector, setSelectedVector] = useState<AttackVector | null>(null);
   const [filter, setFilter] = useState("");
+  const [attackVectors, setAttackVectors] = useState<AttackVector[]>([]);
+
+  useEffect(() => {
+    api.attackVectors().then(res => setAttackVectors(res.vectors));
+  }, []);
 
   const filteredVectors = attackVectors.filter(v => v.name.toLowerCase().includes(filter.toLowerCase()));
   const ruledOutCount = attackVectors.filter(v => v.status === "Ruled Out").length;
-  const progress = (ruledOutCount / attackVectors.length) * 100;
+  const progress = attackVectors.length > 0 ? (ruledOutCount / attackVectors.length) * 100 : 0;
 
   return (
     <div className="page-container" style={{ position: 'relative' }}>
