@@ -142,9 +142,27 @@ a:hover::after {
   background: transparent;
 }
 
-.nav button.active {
+.nav-button {
+  padding: 8px 15px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text); /* Ensure text color is consistent */
+  transition: all 0.2s ease-in-out; /* Smooth transitions for hover effects */
+}
+
+.nav-button:hover {
   border-color: var(--accent);
   color: var(--accent);
+  box-shadow: 0 0 8px rgba(29, 158, 117, 0.5); /* Subtle glow on hover */
+  transform: translateY(-1px); /* Slight lift effect */
+}
+
+.nav-button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(29, 158, 117, 0.1); /* Active state background */
+  box-shadow: 0 0 10px var(--accent); /* More prominent glow for active state */
 }
 
 /* Layout */

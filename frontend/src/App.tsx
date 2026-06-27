@@ -33,19 +33,19 @@ export default function App() {
     <div className="app">
       <Topbar status={status} />
       <nav className="nav">
-        <button className={page === "ops" ? "active nav-button" : "nav-button"} onClick={() => setPage("ops")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
+        <button className={page === "ops" ? "active nav-button" : "nav-button"} onClick={() => setPage("ops")}>
           Ops Center
         </button>
-        <button className={page === "decode" ? "active nav-button" : "nav-button"} onClick={() => setPage("decode")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
+        <button className={page === "decode" ? "active nav-button" : "nav-button"} onClick={() => setPage("decode")}>
           Decode
         </button>
-        <button className={page === "database" ? "active nav-button" : "nav-button"} onClick={() => setPage("database")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
+        <button className={page === "database" ? "active nav-button" : "nav-button"} onClick={() => setPage("database")}>
           Database
         </button>
-        <button className={page === "vault" ? "active nav-button" : "nav-button"} onClick={() => setPage("vault")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
+        <button className={page === "vault" ? "active nav-button" : "nav-button"} onClick={() => setPage("vault")}>
           Vault
         </button>
-        <button className={page === "k4" ? "active nav-button" : "nav-button"} onClick={() => setPage("k4")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
+        <button className={page === "k4" ? "active nav-button" : "nav-button"} onClick={() => setPage("k4")}>
           K4 Dashboard
         </button>
       </nav>
