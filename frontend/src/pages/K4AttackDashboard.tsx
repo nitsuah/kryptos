@@ -25,42 +25,48 @@ export default function K4AttackDashboard() {
       )}
       <h2>K4 ATTACK VECTOR FINGERPRINT</h2>
 
-      <div className="panel" style={{ marginBottom: '16px' }}>
-        <div className="body">
-          <div className="row">
-            <FormField label="Filter Vectors" style={{ flex: 1 }}>
-              <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search vectors..." />
-            </FormField>
+      <div className="dashboard-grid">
+        <div className="panel">
+          <h2>Analysis Controls</h2>
+          <div className="body">
+            <div className="row">
+              <FormField label="Filter Vectors" style={{ flex: 1 }}>
+                <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search vectors..." />
+              </FormField>
+            </div>
+            <div className="progress-container">
+              <div className="label">Attack Surface Coverage</div>
+              <div className="progress-bar-container">
+                <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+              </div>
+              <p>{ruledOutCount} / {attackVectors.length} vectors ruled out</p>
+            </div>
           </div>
-          <div className="label">Attack Surface Coverage</div>
-          <div className="progress-bar-container" style={{ height: '20px', background: '#085041', borderRadius: '3px', marginTop: '8px' }}>
-            <div className="progress-bar" style={{ height: '100%', width: `${progress}%`, background: '#1D9E75', borderRadius: '3px' }}></div>
-          </div>
-          <p>{ruledOutCount} / {attackVectors.length} vectors ruled out</p>
         </div>
-      </div>
 
-      <div className="panel">
-        <table className="attack-table">
-          <thead>
-            <tr>
-              <th>Attack Vector</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredVectors.map((v) => (
-              <tr key={v.name} onClick={() => setSelectedVector(v)} style={{ cursor: 'pointer' }}>
-                <td>{v.name}</td>
-                <td className={v.status === "Ruled Out" ? "status-ruled-out" : ""}>{v.status}</td>
-                <td><button>View Details</button></td>
+        <div className="panel">
+          <h2>Attack Vector Registry</h2>
+          <table className="attack-table">
+            <thead>
+              <tr>
+                <th>Attack Vector</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredVectors.map((v) => (
+                <tr key={v.name} onClick={() => setSelectedVector(v)} className="clickable-row">
+                  <td>{v.name}</td>
+                  <td className={`status-${v.status.toLowerCase().replace(' ', '-')}`}>{v.status}</td>
+                  <td><button className="small-button">View Details</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <AttackVectorGraph data={attackVectors} />
       </div>
-      <AttackVectorGraph data={attackVectors} />
     </div>
   );
 }
