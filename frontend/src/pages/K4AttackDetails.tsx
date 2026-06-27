@@ -1,4 +1,5 @@
 import React from "react";
+import AttackVectorVisualizer from "../components/AttackVectorVisualizer";
 
 interface Props {
   vector: { name: string; status: string; artifact: string };
@@ -12,11 +13,12 @@ export default function K4AttackDetails({ vector, onClose }: Props) {
       background: 'rgba(4, 52, 44, 0.8)', display: 'flex',
       alignItems: 'center', justifyContent: 'center', zIndex: 100
     }}>
-      <div className="panel" onClick={(e) => e.stopPropagation()} style={{ width: '400px' }}>
+      <div className="panel" onClick={(e) => e.stopPropagation()} style={{ width: '600px' }}>
         <h2>{vector.name}</h2>
         <div className="body">
           <p><strong>Status:</strong> {vector.status}</p>
           <p><strong>Artifact:</strong> <a href={`/artifacts/${vector.artifact}`}>{vector.artifact}</a></p>
+          <AttackVectorVisualizer vector={vector.name} />
           <button onClick={onClose}>Close</button>
         </div>
       </div>
