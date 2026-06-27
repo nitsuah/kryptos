@@ -46,6 +46,17 @@ class DecryptResponse(BaseModel):
     plaintext: str
 
 
+class AttackVector(BaseModel):
+    name: str
+    status: str
+    artifact: str | None = None
+    description: str | None = None
+
+
+class AttackVectorsResponse(BaseModel):
+    vectors: list[AttackVector]
+
+
 def create_dashboard_router() -> APIRouter:
     router = APIRouter(prefix="/api", tags=["dashboard"])
 
@@ -97,6 +108,71 @@ def create_dashboard_router() -> APIRouter:
         except Exception as exc:  # noqa: BLE001
             raise HTTPException(status_code=400, detail=f"Decrypt failed: {exc}") from exc
         return DecryptResponse(section=section, plaintext=str(plaintext))
+
+    @router.get("/attack-vectors", response_model=AttackVectorsResponse)
+    def attack_vectors() -> AttackVectorsResponse:
+        # For now, this is static. Could be moved to DB or a config file later.
+        vectors = [
+            AttackVector(
+                name="Clock → Hill 2×2 Invertibility",
+                status="Ruled Out",
+                artifact="K4_CLOCK_HILL_NULL.json",
+                description="Tests using the Berlin Clock state to seed a 2x2 Hill cipher matrix.",
+            ),
+            AttackVector(
+                name="4-char Clock Key → Vigenère",
+                status="Ruled Out",
+                artifact="K4_CLOCK_VIG_NULL.json",
+                description="Derives a 4-character key from clock state for Vigenère decryption.",
+            ),
+            AttackVector(
+                name="Non-standard Berlin Clock Sub-row",
+                status="Ruled Out",
+                artifact="K4_CLOCK_SUBROW_NULL.json",
+                description="Uses non-standard groupings of clock lamps as keystream generators.",
+            ),
+            AttackVector(
+                name="Berlin Clock → Columnar Transposition",
+                status="Ruled Out",
+                artifact="K4_CLOCK_TRANS_NULL.json",
+                description="Uses lamp counts as column widths for transposition ciphers.",
+            ),
+            AttackVector(
+                name="Beaufort Cipher Sweep",
+                status="Ruled Out",
+                artifact="K4_BEAUFORT_NULL.json",
+                description="Sweeps common keywords using the Beaufort cipher variant.",
+            ),
+            AttackVector(
+                name="Quagmire I-IV Sweep",
+                status="Ruled Out",
+                artifact="K4_QUAGMIRE_NULL.json",
+                description="Exhaustive sweep of all four Quagmire variants with common keywords.",
+            ),
+            AttackVector(
+                name="Physical-Grid Tableau-Walk",
+                status="Ruled Out",
+                artifact="K4_PHYSICAL_GRID_NULL.json",
+                description="Simulates walking paths on a physical grid to generate keystreams.",
+            ),
+            AttackVector(
+                name="Composite (Clock/Grid/Alphabet)",
+                status="Ruled Out",
+                artifact="K4_COMPOSITE_SWEEP_NULL.json",
+                description="Tests combinations of other known K4 elements.",
+            ),
+            AttackVector(
+                name="Vigenère Statistical Attack",
+                status="In Progress",
+                description="Ongoing statistical analysis to find Vigenère key candidates.",
+            ),
+            AttackVector(
+                name="Machine Learning Analysis",
+                status="Planned",
+                description="Use ML models to detect patterns in K4 ciphertext.",
+            ),
+        ]
+        return AttackVectorsResponse(vectors=vectors)
 
     return router
 
