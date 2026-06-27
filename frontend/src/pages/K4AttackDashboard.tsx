@@ -1,6 +1,7 @@
 import { useState } from "react";
 import K4AttackDetails from "./K4AttackDetails";
 import AttackVectorGraph from "../components/AttackVectorGraph";
+import FormField from "../components/FormField";
 
 const attackVectors = [
   { name: "Clock → Hill 2×2 Invertibility", status: "Ruled Out", artifact: "K4_CLOCK_HILL_NULL.json" },
@@ -15,6 +16,9 @@ const attackVectors = [
 
 export default function K4AttackDashboard() {
   const [selectedVector, setSelectedVector] = useState<any | null>(null);
+  const [filter, setFilter] = useState("");
+
+  const filteredVectors = attackVectors.filter(v => v.name.toLowerCase().includes(filter.toLowerCase()));
   const ruledOutCount = attackVectors.filter(v => v.status === "Ruled Out").length;
   const progress = (ruledOutCount / attackVectors.length) * 100;
 
@@ -28,6 +32,11 @@ export default function K4AttackDashboard() {
 
       <div className="panel" style={{ marginBottom: '16px' }}>
         <div className="body">
+          <div className="row">
+            <FormField label="Filter Vectors" style={{ flex: 1 }}>
+              <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search vectors..." />
+            </FormField>
+          </div>
           <div className="label">Attack Surface Coverage</div>
           <div className="progress-bar-container" style={{ height: '20px', background: '#085041', borderRadius: '3px', marginTop: '8px' }}>
             <div className="progress-bar" style={{ height: '100%', width: `${progress}%`, background: '#1D9E75', borderRadius: '3px' }}></div>
@@ -46,7 +55,7 @@ export default function K4AttackDashboard() {
             </tr>
           </thead>
           <tbody>
-            {attackVectors.map((v) => (
+            {filteredVectors.map((v) => (
               <tr key={v.name} onClick={() => setSelectedVector(v)} style={{ cursor: 'pointer' }}>
                 <td>{v.name}</td>
                 <td className={v.status === "Ruled Out" ? "status-ruled-out" : ""}>{v.status}</td>
