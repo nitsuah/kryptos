@@ -1,5 +1,6 @@
 import { useState } from "react";
 import K4AttackDetails from "./K4AttackDetails";
+import AttackVectorGraph from "../components/AttackVectorGraph";
 
 const attackVectors = [
   { name: "Clock → Hill 2×2 Invertibility", status: "Ruled Out", artifact: "K4_CLOCK_HILL_NULL.json" },
@@ -55,6 +56,7 @@ export default function K4AttackDashboard() {
           </tbody>
         </table>
       </div>
+      <AttackVectorGraph data={attackVectors} />
     </div>
   );
 }
