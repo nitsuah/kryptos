@@ -105,6 +105,7 @@ GET  /api/status                     — agent states, runtime, cycle info
 GET  /api/candidates?limit=20        — top fused candidates from DB
 GET  /api/runs                       — campaign run history
 GET  /api/stream/logs                — SSE stream of live log rows
+GET  /api/attack-vectors             — List all K4 attack vectors with status and description
 POST /api/decrypt                    — one-shot composite pipeline call
 POST /api/vault/seal                 — encrypt + store a vault payload
 POST /api/vault/unseal               — decrypt + decrement reads, enforce TTL
@@ -140,6 +141,7 @@ The main dashboard. Shows everything happening in the current autonomous campaig
 - Letter frequency chart — K4 distribution vs English baseline, side-by-side per letter
 - Live log tail — last 20 rows from SSE stream, color-coded by agent
 - Ad-hoc decrypt input — paste any ciphertext, select stages, execute against the pipeline via `POST /api/decrypt`
+- **Dedicated K4 Attack Dashboard** — visualizing attack vectors, their status, and progress. Features include a filterable table of vectors, a dynamic progress bar, and an enhanced visual analysis panel. The modal for details has also been styled.
 
 ### 2. K1–K3 decode
 
@@ -217,7 +219,7 @@ border:      rgba(29, 158, 117, 0.25)
 text:        #9FE1CB  (muted green)
 accent:      #1D9E75  (primary green)
 highlight:   #7F77DD  (purple — active probes, agent Q)
-warning:     #EF9F27  (amber — running states, expiry bars)
+warning:     #EF9F27  (amber — running states)
 danger:      #E24B4A  (red — expired payloads, errors)
 font:        monospace (system or Courier New fallback)
 border-radius: 3–4px max — no pill shapes
