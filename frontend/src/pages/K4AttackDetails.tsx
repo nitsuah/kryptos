@@ -1,7 +1,8 @@
 import AttackVectorVisualizer from "../components/AttackVectorVisualizer";
+import { AttackVector } from "../api";
 
 interface Props {
-  vector: { name: string; status: string; artifact: string };
+  vector: AttackVector;
   onClose: () => void;
 }
 
@@ -17,7 +18,7 @@ export default function K4AttackDetails({ vector, onClose }: Props) {
         <div className="body">
           <p><strong>Status:</strong> {vector.status}</p>
           <p><strong>Artifact:</strong> <a href={`/artifacts/${vector.artifact}`}>{vector.artifact}</a></p>
-          <AttackVectorVisualizer vector={vector.name} />
+          <AttackVectorVisualizer vector={vector.name} description={vector.description} />
           <button onClick={onClose}>Close</button>
         </div>
       </div>
