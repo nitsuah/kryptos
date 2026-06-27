@@ -1,9 +1,5 @@
 import { Run } from "../api";
-
-function fmtTime(ts: string | null): string {
-  if (!ts) return "—";
-  return ts.replace("T", " ").slice(0, 19);
-}
+import RunRow from "./RunRow";
 
 export default function RunsTable({
   runs,
@@ -30,20 +26,7 @@ export default function RunsTable({
       </thead>
       <tbody>
         {runs.map((r) => (
-          <tr
-            key={r.id}
-            onClick={() => onSelect(r.id)}
-            style={{
-              cursor: "pointer",
-              outline: r.id === selectedId ? "0.5px solid var(--accent)" : "none",
-            }}
-          >
-            <td>{r.id}</td>
-            <td>{r.cipher_label ?? "—"}</td>
-            <td>{r.stage ?? "—"}</td>
-            <td>{r.status ?? "—"}</td>
-            <td>{fmtTime(r.started_at)}</td>
-          </tr>
+          <RunRow key={r.id} run={r} onSelect={onSelect} selectedId={selectedId} />
         ))}
       </tbody>
     </table>
