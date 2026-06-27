@@ -8,7 +8,9 @@ services:
     volumes:
       - ..:/app
     working_dir: /app
-    command: tail -f /dev/null
+    ports:
+      - "8000:8000"
+    command: python -m kryptos.cli.main serve
     environment:
       - PYTHONUNBUFFERED=1
       - HF_HOME=/tmp/hf_cache

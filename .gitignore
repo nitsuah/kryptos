@@ -47,3 +47,4 @@ artifacts/
 /benchmarks/results.json
 /benchmarks/results.csv
 /agents/
+.playwright-mcp/
