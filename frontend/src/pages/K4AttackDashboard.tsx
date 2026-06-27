@@ -27,21 +27,23 @@ export default function K4AttackDashboard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
         <div className="panel" style={{ marginBottom: '0' }}>
+          <h2 style={{ paddingBottom: '8px' }}>Analysis Controls</h2>
           <div className="body">
             <div className="row">
               <FormField label="Filter Vectors" style={{ flex: 1 }}>
                 <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Search vectors..." />
               </FormField>
             </div>
-            <div className="label" style={{ marginTop: '10px' }}>Attack Surface Coverage</div>
-            <div className="progress-bar-container" style={{ height: '20px', background: 'var(--surface)', borderRadius: '3px', marginTop: '8px', border: '1px solid var(--border)' }}>
-              <div className="progress-bar" style={{ height: '100%', width: `${progress}%`, background: 'var(--accent)', borderRadius: '3px' }}></div>
+            <div className="label" style={{ marginTop: '15px', fontSize: '12px', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Attack Surface Coverage</div>
+            <div className="progress-bar-container" style={{ height: '25px', background: 'var(--surface)', borderRadius: '3px', marginTop: '10px', border: '1px solid var(--border)', boxShadow: '0 0 5px rgba(29, 158, 117, 0.5)' }}>
+              <div className="progress-bar" style={{ height: '100%', width: `${progress}%`, background: 'var(--accent)', borderRadius: '3px', boxShadow: '0 0 8px var(--accent)' }}></div>
             </div>
-            <p style={{ marginTop: '5px', color: 'var(--text)' }}>{ruledOutCount} / {attackVectors.length} vectors ruled out</p>
+            <p style={{ marginTop: '8px', color: 'var(--text)', fontSize: '13px' }}>{ruledOutCount} / {attackVectors.length} vectors ruled out</p>
           </div>
         </div>
 
         <div className="panel">
+          <h2 style={{ paddingBottom: '8px' }}>Attack Vector Registry</h2>
           <table className="attack-table">
             <thead>
               <tr>
@@ -55,7 +57,7 @@ export default function K4AttackDashboard() {
                 <tr key={v.name} onClick={() => setSelectedVector(v)} style={{ cursor: 'pointer', borderBottom: '0.5px solid rgba(29, 158, 117, 0.1)' }}>
                   <td style={{ color: 'var(--text)' }}>{v.name}</td>
                   <td className={v.status === "Ruled Out" ? "status-ruled-out" : ""} style={{ color: v.status === "Ruled Out" ? 'var(--accent)' : v.status === "In Progress" ? 'var(--warning)' : 'var(--text)' }}>{v.status}</td>
-                  <td><button style={{ background: 'var(--surface)', color: 'var(--accent)', border: '0.5px solid var(--accent)', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>View Details</button></td>
+                  <td><button style={{ background: 'var(--surface)', color: 'var(--accent)', border: '0.5px solid var(--accent)', padding: '6px 12px', borderRadius: '3px', cursor: 'pointer', fontSize: '12px' }}>View Details</button></td>
                 </tr>
               ))}
             </tbody>

@@ -162,14 +162,15 @@ a:hover::after {
 
 .panel > h2 {
   margin: 0;
-  padding: 8px 12px;
-  font-size: 12px;
+  padding: 10px 15px; /* Increased padding */
+  font-size: 14px; /* Slightly larger heading */
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px; /* Increased letter spacing for futuristic look */
   color: var(--accent);
   border-bottom: 0.5px solid var(--border);
-  text-shadow: 0 0 5px var(--accent); /* subtle glow */
+  text-shadow: 0 0 8px var(--accent); /* More pronounced glow */
 }
+
 
 .panel > .body {
   padding: 12px;
