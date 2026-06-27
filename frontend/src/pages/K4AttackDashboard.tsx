@@ -33,10 +33,10 @@ export default function K4AttackDashboard() {
             </FormField>
           </div>
           <div className="label">Attack Surface Coverage</div>
-          <div className="progress-bar-container" style={{ height: '20px', background: '#085041', borderRadius: '3px', marginTop: '8px' }}>
-            <div className="progress-bar" style={{ height: '100%', width: `${progress}%`, background: '#1D9E75', borderRadius: '3px' }}></div>
+          <div className="progress-bar-container" style={{ height: '20px', background: 'var(--surface)', borderRadius: '3px', marginTop: '8px', border: '1px solid var(--border)' }}>
+            <div className="progress-bar" style={{ height: '100%', width: `${progress}%`, background: 'var(--accent)', borderRadius: '3px' }}></div>
           </div>
-          <p>{ruledOutCount} / {attackVectors.length} vectors ruled out</p>
+          <p style={{ marginTop: '5px', color: 'var(--text)' }}>{ruledOutCount} / {attackVectors.length} vectors ruled out</p>
         </div>
       </div>
 
@@ -44,17 +44,17 @@ export default function K4AttackDashboard() {
         <table className="attack-table">
           <thead>
             <tr>
-              <th>Attack Vector</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th style={{ color: 'var(--accent)' }}>Attack Vector</th>
+              <th style={{ color: 'var(--accent)' }}>Status</th>
+              <th style={{ color: 'var(--accent)' }}>Action</th>
             </tr>
           </thead>
           <tbody>
             {filteredVectors.map((v) => (
-              <tr key={v.name} onClick={() => setSelectedVector(v)} style={{ cursor: 'pointer' }}>
-                <td>{v.name}</td>
-                <td className={v.status === "Ruled Out" ? "status-ruled-out" : ""}>{v.status}</td>
-                <td><button>View Details</button></td>
+              <tr key={v.name} onClick={() => setSelectedVector(v)} style={{ cursor: 'pointer', borderBottom: '0.5px solid rgba(29, 158, 117, 0.1)' }}>
+                <td style={{ color: 'var(--text)' }}>{v.name}</td>
+                <td className={v.status === "Ruled Out" ? "status-ruled-out" : ""} style={{ color: v.status === "Ruled Out" ? 'var(--accent)' : v.status === "In Progress" ? 'var(--warning)' : 'var(--text)' }}>{v.status}</td>
+                <td><button style={{ background: 'var(--surface)', color: 'var(--accent)', border: '0.5px solid var(--accent)', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}>View Details</button></td>
               </tr>
             ))}
           </tbody>
