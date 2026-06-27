@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import K4AttackDetails from "./K4AttackDetails";
 
 const attackVectors = [
   { name: "Clock → Hill 2×2 Invertibility", status: "Ruled Out", artifact: "K4_CLOCK_HILL_NULL.json" },
@@ -12,12 +13,16 @@ const attackVectors = [
 ];
 
 export default function K4AttackDashboard() {
+  const [selectedVector, setSelectedVector] = useState<any | null>(null);
   const ruledOutCount = attackVectors.filter(v => v.status === "Ruled Out").length;
   const progress = (ruledOutCount / attackVectors.length) * 100;
 
   return (
     <div className="page-container" style={{ position: 'relative' }}>
       <div className="scan-line"></div>
+      {selectedVector && (
+        <K4AttackDetails vector={selectedVector} onClose={() => setSelectedVector(null)} />
+      )}
       <h2>K4 ATTACK VECTOR FINGERPRINT</h2>
 
       <div className="panel" style={{ marginBottom: '16px' }}>
@@ -36,15 +41,15 @@ export default function K4AttackDashboard() {
             <tr>
               <th>Attack Vector</th>
               <th>Status</th>
-              <th>Artifact</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {attackVectors.map((v) => (
-              <tr key={v.name}>
+              <tr key={v.name} onClick={() => setSelectedVector(v)} style={{ cursor: 'pointer' }}>
                 <td>{v.name}</td>
                 <td className={v.status === "Ruled Out" ? "status-ruled-out" : ""}>{v.status}</td>
-                <td><a href={`/artifacts/${v.artifact}`}>{v.artifact}</a></td>
+                <td><button>View Details</button></td>
               </tr>
             ))}
           </tbody>
