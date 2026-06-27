@@ -1,7 +1,5 @@
-import React from 'react';
-
 // Mock visualization component for K4 attack surface
-export default function AttackVectorGraph({ data }: { data: any[] }) {
+export default function AttackVectorGraph(_props: { data: any[] }) {
   return (
     <div className="panel" style={{ marginTop: '16px' }}>
       <h2>Attack Surface Analysis</h2>
