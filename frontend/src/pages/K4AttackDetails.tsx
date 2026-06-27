@@ -23,8 +23,24 @@ export default function K4AttackDetails({ vector, onClose }: Props) {
           {!vector.artifact && (
             <p style={{ marginBottom: '15px' }}><strong>Artifact:</strong> N/A</p>
           )}
+
+          {vector.description && (
+            <div style={{
+              border: '0.5px dashed var(--border)',
+              padding: '10px',
+              borderRadius: '3px',
+              marginBottom: '15px',
+              backgroundColor: 'rgba(29, 158, 117, 0.05)',
+              color: 'var(--text)',
+              fontSize: '12px',
+              lineHeight: '1.4'
+            }}>
+              <strong>Description:</strong> {vector.description}
+            </div>
+          )}
           <AttackVectorVisualizer vector={vector.name} description={vector.description} />
           <button onClick={onClose} style={{ marginTop: '20px', background: 'var(--surface)', color: 'var(--accent)', border: '0.5px solid var(--accent)', padding: '8px 15px', borderRadius: '3px', cursor: 'pointer', float: 'right' }}>Close</button>
+
         </div>
       </div>
     </div>
