@@ -8,7 +8,7 @@ Last Updated: 2026-06-25
 # Q1 2027: Final Push & Post-Solution Analysis
 
 ### Phase 1: Dashboard & UI
-- Develop dedicated K4 Attack Dashboard: visual fingerprint map of attack vectors plausible vs. covered vs. unknown (Ops Center, Database, and RAG search already cover live progress, scoring, and artifact lookup)
+- [x] Develop dedicated K4 Attack Dashboard: visual fingerprint map of attack vectors plausible vs. covered vs. unknown (Ops Center, Database, and RAG search already cover live progress, scoring, and artifact lookup)
 
 ### Phase 2: Post-Solution Analysis
 - Analyze and document attack path, key insights, and lessons learned after solution
