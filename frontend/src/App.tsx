@@ -33,19 +33,19 @@ export default function App() {
     <div className="app">
       <Topbar status={status} />
       <nav className="nav">
-        <button className={page === "ops" ? "active" : ""} onClick={() => setPage("ops")}>
+        <button className={page === "ops" ? "active nav-button" : "nav-button"} onClick={() => setPage("ops")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
           Ops Center
         </button>
-        <button className={page === "decode" ? "active" : ""} onClick={() => setPage("decode")}>
+        <button className={page === "decode" ? "active nav-button" : "nav-button"} onClick={() => setPage("decode")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
           Decode
         </button>
-        <button className={page === "database" ? "active" : ""} onClick={() => setPage("database")}>
+        <button className={page === "database" ? "active nav-button" : "nav-button"} onClick={() => setPage("database")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
           Database
         </button>
-        <button className={page === "vault" ? "active" : ""} onClick={() => setPage("vault")}>
+        <button className={page === "vault" ? "active nav-button" : "nav-button"} onClick={() => setPage("vault")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
           Vault
         </button>
-        <button className={page === "k4" ? "active" : ""} onClick={() => setPage("k4")}>
+        <button className={page === "k4" ? "active nav-button" : "nav-button"} onClick={() => setPage("k4")} style={{ padding: '8px 15px', border: '0.5px solid var(--border)', borderRadius: 'var(--radius)', background: 'var(--surface)' }}>
           K4 Dashboard
         </button>
       </nav>
