@@ -5,9 +5,6 @@ services:
       dockerfile: Dockerfile
     image: kryptos-dev
     container_name: kryptos-dev
-    volumes:
-      - ..:/app
-    working_dir: /app
     ports:
       - "8000:8000"
     command: python -m kryptos.cli.main serve
@@ -16,4 +13,3 @@ services:
       - HF_HOME=/tmp/hf_cache
     env_file:
       - ../.env
-    tty: true
