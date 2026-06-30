@@ -2,24 +2,22 @@
 
 Last Updated: 2026-06-27
 
+## In Progress
 
-## Todo
+### Q1 2027: Final Push & Post-Solution Analysis
 
-# Q1 2027: Final Push & Post-Solution Analysis
-
-### Phase 1: Dashboard & UI
+#### Phase 1: Dashboard & UI
 - [x] Develop dedicated K4 Attack Dashboard: visual fingerprint map of attack vectors plausible vs. covered vs. unknown (Ops Center, Database, and RAG search already cover live progress, scoring, and artifact lookup)
 - [x] Improve K4 dashboard visual representation and component styling
 
-### Phase 2: Post-Solution Analysis
+#### Phase 2: Post-Solution Analysis
 - [ ] Analyze and document attack path, key insights, and lessons learned after solution
 - [ ] Write comprehensive report on solution narrative and cryptanalytic implications
 - [ ] Update README and documentation to reflect solution and research outcomes
 
-### Phase 3: Misc/Supporting
+#### Phase 3: Misc/Supporting
 - [x] Update docs/analysis/K4-FRONTEND.md for frontend/dashboard integration
 - [ ] Ensure all new features have test coverage and artifact logging
-
 
 ## Done
 
@@ -64,7 +62,6 @@ Last Updated: 2026-06-27
 
 - [x] **Wired `LinguistAgent` into `PlaintextValidator`** — new `enable_linguist` constructor flag (default `False`). `_init_linguist()` gates on `torch`/`transformers` availability and `LinguistAgent` construction, degrading to `linguist_available=False` on any failure. When enabled, `stage3_linguistic_validation()` adds a `"linguist"` key (confidence/perplexity/coherence/grammar_score/model_used/passed) alongside the existing heuristic fields; `_linguist_score()` and the new `batch_validate_linguist()` re-ranking helper both catch and log scoring exceptions, returning `None` rather than raising. Existing default (`enable_linguist=False`) behavior and `"linguist"`-key absence are unchanged. See `tests/functional/test_validator_linguist.py`.
 
-
 ### RAG API (turbovec) — semantic search over `artifacts/`
 
 - [x] **`kryptos serve`** — minimal FastAPI app (`src/kryptos/api/`) with `/health`, `/api/rag/status`,
@@ -72,7 +69,7 @@ Last Updated: 2026-06-27
 - [x] **turbovec-backed `ArtifactIndex`** — `src/kryptos/rag/` chunks `artifacts/` (`.json`/`.md`), embeds with
   `sentence-transformers` (`all-MiniLM-L6-v2`), indexes with `turbovec.IdMapIndex` (4-bit quantization), persisted
   under `data/turbovec/`
-- This is the "Now" item from agent-board's `docs/AI_STACK_STRATEGY.md`, scoped separately from the Q1 2027 Phase 2
+- This is the "Now" item from motor-pool's `docs/AI_STACK_STRATEGY.md`, scoped separately from the Q1 2027 Phase 2
   Data & API dashboard work above
 
 ### K4 Attack — Untested Vectors (PR #83, merged)
