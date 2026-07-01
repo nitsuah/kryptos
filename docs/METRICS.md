@@ -2,6 +2,8 @@
 
 # Metrics
 
+Breadcrumb: [Docs](INDEX.md) > Metrics
+
 **Note:** Data and artifacts are planned to migrate to a database as part of the 2027 roadmap. Current metrics reflect the file-based structure.
 
 **Last Validated:** 2026-05-25 (fast suite + K1/K2/K3 verification)

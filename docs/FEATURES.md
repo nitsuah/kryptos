@@ -1,6 +1,8 @@
 
 # KRYPTOS Features
 
+Breadcrumb: [Docs](INDEX.md) > Features
+
 > Cryptographic research toolkit for solving the K4 cipher puzzle
 
 ---
@@ -52,9 +54,9 @@
 - **Keystream Validator**: Per-position shift computation and simultaneous 4-crib validation (`keystream_validator.py`)
 - **Eureka Capture Protocol**: Raises `EurekaSignal` on simultaneous 4-crib match; writes breakthrough snapshot; wired into `CompositeChainExecutor` (`eureka.py`)
 - **Keyed Alphabet Realignment**: Tests KRYPTOS, PALIMPSEST, ABSCISSA alphabets against confirmed crib positions (`vigenere_key_recovery.check_keyed_alphabet_realignment`); null result
-- **Quagmire I–IV Solver + Sweep**: Canonical encrypt/decrypt for all four Quagmire variants (ground-truth verified against K1/K2); 6,240-combination K4 sweep with positional crib gating + Eureka protocol (`k4.quagmire`, `k4.quagmire_sweep`); null result
+- **Quagmire I–IV Solver + Sweep**: Canonical encrypt/decrypt for all four Quagmire variants (ground-truth verified against K1/K2); 6,240-combination K4 sweep with positional crib gating + Eurek[...]
 - **Physical-Grid Tableau Walk**: Walks the 26×26 KRYPTOS Vigenère tableau along 108 geometric routes into the Quagmire III solver against K4 (`k4.physical_grid`); null result
-- **Berlin Clock Attack Suite**: Clock→Hill 2×2 invertibility pre-filter, 4-char clock→Vigenère with NORTHEAST anchor, non-standard sub-row encodings, and lamp-count transposition widths (`k4.clock_hill_attack`, `k4.clock_subrow_attack`); all null result
+- **Berlin Clock Attack Suite**: Clock→Hill 2×2 invertibility pre-filter, 4-char clock→Vigenère with NORTHEAST anchor, non-standard sub-row encodings, and lamp-count transposition widths (`k[...]
 - **Beaufort K4 Sweep**: Systematic reciprocal-Beaufort pass over KRYPTOS/PALIMPSEST/BERLIN/CLOCK/ABSCISSA keys (`k4.beaufort_sweep`); null result
 
 ### ⚙️ Pipeline Architecture
@@ -124,7 +126,7 @@
 - **K1–K3 Animated Decoder**: Step-by-step visual explainer of how each solved section was encrypted and cracked
 - **Database Admin**: Neon connection status and per-table row counts
 - **Vault**: Seal a secret under the keyed-alphabet Vigenère, share an opaque token, unseal once with the key, and check status — TTL and read-count enforced server-side
-- **Single-container delivery**: FastAPI serves the built `frontend/dist` bundle via `StaticFiles(html=True)`; the root `Dockerfile` builds the SPA in a `node:22-alpine` stage and ships it alongside the API (`KRYPTOS_FRONTEND_DIST`)
+- **Single-container delivery**: FastAPI serves the built `frontend/dist` bundle via `StaticFiles(html=True)`; the root `Dockerfile` builds the SPA in a `node:22-alpine` stage and ships it alongs[...]
 - **Stack**: Vite + React 18 + TypeScript, no runtime UI framework
 
 ### HTTP API (FastAPI)
@@ -132,14 +134,14 @@
 - **Dashboard endpoints**: `GET /api/status`, `GET /api/runs`, `GET /api/runs/{id}/candidates`, `GET /api/candidates`, `POST /api/decrypt`
 - **Vault endpoints**: `POST /api/vault/seal`, `POST /api/vault/unseal`, `GET /api/vault/{token}` (503/404/410/403 error mapping for unavailable/missing/gone/wrong-key)
 - **RAG endpoints**: `GET /api/rag/status`, `POST /api/rag/reindex`, `GET /api/rag/search`
-- **SSE log tail**: `GET /api/stream/logs` — `StreamingResponse` (`text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler; `LogTail` EventSource component on Ops Center page
+- **SSE log tail**: `GET /api/stream/logs` — `StreamingResponse` (`text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler; `LogTail` EventSource component on [...]
 - **Health**: `GET /health`
 
 ### Persistence
 
 - **`campaign_runs` + `candidates` tables**: Best-effort write path persists live campaign runs and their candidates to Neon (graceful no-op without `DATABASE_URL`)
 - **`vault_payloads` table**: Token-addressed ciphertext with verifier, max-reads, and expiry; atomic read-decrement guarantees one-shot semantics
-- **`strategy_kb` write path**: `OpsStrategicDirector.record_strategy()` + `_record_strategy_from_decision()` persist BOOST/PIVOT/STOP/START_NEW decisions to Neon `strategy_kb` with JSONL fallback; `fetch_strategy_kb()` and `persist_strategy()` added to `kryptos.persistence`
+- **`strategy_kb` write path**: `OpsStrategicDirector.record_strategy()` + `_record_strategy_from_decision()` persist BOOST/PIVOT/STOP/START_NEW decisions to Neon `strategy_kb` with JSONL fallbac[...]
 
 ---
 
@@ -175,7 +177,7 @@
 > Monte Carlo have all shipped — see the sections above. What remains:
 
 ### 🖥️ Dashboard & UI
-- **Dedicated K4 Attack Dashboard**: Visual fingerprint map of attack vectors — plausible vs. covered vs. unknown (live progress, scoring, and artifact lookup are already covered by Ops Center, Database, and RAG search)
+- **Dedicated K4 Attack Dashboard**: Visual fingerprint map of attack vectors — plausible vs. covered vs. unknown (live progress, scoring, and artifact lookup are already covered by Ops Center,[...]
 
 ### 🧠 AI/ML & Community
 - **LLM-Driven Hypothesis Generation**: Use LLMs to propose new attacks and scoring strategies
