@@ -43,6 +43,17 @@ and SPA ship from a single container. The dist location is discovered from
 `node:22-alpine` stage and copies it into the runtime image with
 `KRYPTOS_FRONTEND_DIST=/app/frontend/dist` set.
 
+## Deploy on Netlify
+
+The root `netlify.toml` builds from `frontend/` and publishes
+`frontend/dist/`, so the dashboard shell is available at the site root.
+
+Netlify's static hosting does not run the FastAPI process from this
+repository. Deploy the backend separately and set `VITE_API_BASE_URL` in
+Netlify to its public origin (for example, `https://api.example.com`). If the
+variable is omitted, the frontend continues to request `/api/*` from the same
+origin, which is appropriate for the existing single-container deployment.
+
 ## Stack
 
 Vite + React 18 + TypeScript. No runtime UI framework — plain components

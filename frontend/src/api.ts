@@ -1,6 +1,12 @@
 // Typed client for the kryptos FastAPI backend (src/kryptos/api/dashboard.py).
 // Same-origin in production (FastAPI serves the bundle); proxied in dev via vite.
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ?? "";
+
+function apiPath(path: string): string {
+  return `${API_BASE_URL}${path}`;
+}
+
 export interface StatusResponse {
   db_enabled: boolean;
   table_counts: Record<string, number>;
@@ -90,7 +96,7 @@ export class ApiError extends Error {
 }
 
 async function getJSON<T>(path: string): Promise<T> {
-  const resp = await fetch(path);
+  const resp = await fetch(apiPath(path));
   if (!resp.ok) {
     throw new ApiError(resp.status, await resp.text());
   }
@@ -98,7 +104,7 @@ async function getJSON<T>(path: string): Promise<T> {
 }
 
 async function postJSON<T>(path: string, body: unknown): Promise<T> {
-  const resp = await fetch(path, {
+  const resp = await fetch(apiPath(path), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
