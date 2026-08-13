@@ -3,7 +3,7 @@
 Breadcrumb: Home > Docs > Governance
 
 
-_Last updated: 2026-05-30_
+_Last updated: 2026-08-12_
 
 
 ## Monthly Governance Review (May 2026 — Q4 Completion)
@@ -17,6 +17,31 @@ _Completed: 2026-05-30_
 - Eureka early-stop wired into S→T→S chain — consistent with composite_sweep.py halt protocol.
 - K1/K2/K3 Sanborn misspellings (IQLUSION, DESPARATLY, UNDERGRUUND) now enforced by deterministic gate tests.
 
+
+## Monthly Governance Review (August 2026)
+
+_Completed: 2026-08-12_
+
+- All five previously-open K4 attack vectors (clock→Hill, 4-char clock→Vigenère, sub-row encodings, lamp-count transposition, Beaufort sweep) confirmed complete with null results. Added to `K4_ACTIVE_RESEARCH.md` completed table.
+- `K4_KEYSTREAM_ANALYSIS.md` sections 7.5–7.7 updated from "NOT YET RUN" to confirmed null results; Open Questions section updated with 11 live items.
+- `K4_ATTACK_LANDSCAPE.md` created — 3D fingerprint covering all past, present, and frontier attack directions.
+- `TASKS.md` and `ROADMAP.md` updated with 3-layer composite attacks as next strategic priority.
+- Test count updated in `METRICS.md` (829 tests, up from 633 at last metrics update).
+- `docs/INDEX.md` updated with new landscape document.
+- No deprecated code, no open CI failures, no governance intervention required.
+- Next review: September 2026 (add/update this section monthly).
+
+## Monthly Governance Review (July 2026)
+
+_Completed: 2026-07-01_
+
+- All June 2026 deliverables validated and stable.
+- Dashboard (Ops Center, Vault, K1–K3 Animated Decoder, Database admin) shipping and serving via single-container FastAPI+React.
+- Quagmire I–IV solver and sweep (6,240 combinations) complete; null result. Physical-grid tableau walk complete; null result.
+- SA columnar seeding and early-crib locking verified end-to-end with >90% pruning efficiency.
+- Benchmark runner and CI job added for throughput tracking.
+- No open issues or PRs requiring governance intervention.
+- Next review: August 2026 (add/update this section monthly).
 
 ## Monthly Governance Review (June 2026)
 

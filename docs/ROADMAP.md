@@ -2,24 +2,49 @@
 
 Breadcrumb: [Docs](INDEX.md) > Roadmap
 
-Last Updated: 2026-06-25
-Next Review: 2026-07-01
+Last Updated: 2026-08-12
+Next Review: 2026-09-01
 ---
 
-## Untested K4 Attack Vectors 🎯
+## Completed K4 Attack Vectors ✅ (All 14 — as of 2026-08-12)
 
-> These are the highest-priority items before broader infrastructure work. All prior Q3/Q4 sweeps produced null results; these are the remaining untested angles. Each is small and targeted.
+> All single-layer and two-layer composite vectors from Sanborn's publicly known techniques have been exhausted. Each run produced a documented null result. The attack frontier has shifted to 3-layer composites, pre-cipher masking, and secondary-key derivation approaches.
 
-- [x] **Clock → Hill 2×2 invertibility pre-filter** — For each of 720 clock states form a 2×2 matrix from the first 4 lamp values, filter to the ~100 invertible mod 26, apply Hill 2×2 decry[...]
-- [x] **4-char clock key → Vigenère with NORTHEAST anchor** — Derive a 4-char Vigenère key from each clock state (not the full shift sequence), test with `positional_crib_bonus` gating on NO[...]
-- [x] **Non-standard Berlin Clock sub-row encodings** — Hour rows only, minute rows only, row sums → letter. Current sweep only uses `full_berlin_clock_shifts` (all 4 rows concatenated).
-- [x] **Berlin Clock lamp counts as transposition column widths** — Use lamp values (e.g. [4,3,11,4]) as column widths for a multi-round columnar transposition, not Vigenère shifts.
-- [x] **Beaufort cipher sweep** — `kryptos.k4.beaufort` is implemented; no systematic K4 sweep has run. Quick pass with KRYPTOS, PALIMPSEST, BERLIN, CLOCK, ABSCISSA keys.
+- [x] Single-layer repeating Vigenère (all key lengths 1–20, all Kryptos-era keys)
+- [x] Direct Berlin Clock Vigenère (all 720 clock states as Vigenère keys)
+- [x] Keyed alphabet realignment (KRYPTOS, PALIMPSEST, ABSCISSA)
+- [x] Full composite sweep: 3 alphabets × 3 grid geometries × 720 clock states × ENE+columnar routes
+- [x] Inverse transposition sweep (10×10, 7×14, 8×13 grids, ENE diagonal + columnar routes)
+- [x] Hill 2×2 and 3×3 with BERLIN/CLOCK crib constraints
+- [x] Clock → Hill 2×2 invertibility pre-filter (~100 invertible states)
+- [x] 4-char clock key → Vigenère with NORTHEAST anchor (4 encoding schemes × 720 states)
+- [x] Non-standard Berlin Clock sub-row encodings (5-hr only, 1-hr only, minute rows, row sums)
+- [x] Berlin Clock lamp counts as transposition column widths
+- [x] Beaufort cipher sweep (10 key candidates × 2 alphabets)
+- [x] Quagmire I–IV (6,240 combinations including Q3 Berlin Clock minute-state indicator keys)
+- [x] Physical-grid tableau walk (108 geometric routes × 2 indicator bases via Quagmire III)
+- [x] ADFGVX and Nihilist (fractionating ciphers)
 
 ### Definition of Done
 
 - [x] Each attack run with null-result artifact or `K4_BREAKTHROUGH_SNAPSHOT.md` if a match is found
-- [x] Results recorded in `docs/analysis/K4_ACTIVE_RESEARCH.md` (PR #83, all 5 attacks null result)
+- [x] Results recorded in `docs/analysis/K4_ACTIVE_RESEARCH.md`
+
+---
+
+## Frontier K4 Attack Vectors 🔭 (Q3 2026 → Open)
+
+> All clean 2-layer composites are exhausted. The following vectors are structurally distinct and have not been run. Each is achievable with the existing pipeline. Priority order reflects estimated information gain per compute invested.
+
+- [ ] **3-Layer Composite: Keyed-Alphabet → Clock-Vigenère → Columnar Transposition** — The only 3-layer pipeline with all three mechanisms already implemented. ~51,840 combinations with full 4-crib gating. Estimated sub-minute on current hardware.
+- [ ] **Shadow/Null Masking as Layer 0** — Remove characters at clock-shadow positions (angle-based, lamp-off positions, or stride-N) before any cipher operation. Recalculate crib positions in the residue. ~12 masking variants × full composite sweep.
+- [ ] **K2 Coordinate Digits as Clock State Selectors** — Use K2 coordinate values (38:57, 06:05, 17:08, 08:44) as specific HH:MM timestamps to isolate candidate clock states for Hill or Vigenère attacks.
+- [ ] **6-Hour Berlin→CIA Timezone Offset** — Apply a +6 or −6 shift to the clock state index, Vigenère key start position, or columnar transposition key ordering. Motivated by Berlin UTC+1 vs. CIA Langley UTC−5.
+- [ ] **BERLIN+CLOCK Partial Match Isolation** — Relax the 4-crib gate to 2-crib (BERLIN+CLOCK only at positions 63–73) to surface partial-solution candidates that strict gating suppressed.
+- [ ] **Running Key from K3 Plaintext** — Use first 97 chars of K3 decrypted plaintext as a Vigenère running key for K4. Tests the theory that Kryptos sections are chained.
+- [ ] **Gronsfeld Cipher with K2 Coordinate Key** — Vigenère variant keyed by decimal digits: `385765` (from K2 `38 57 6 5 N`) or `770844` (from `77 8 44 W`). Not yet implemented.
+
+> **Landscape reference:** `docs/analysis/K4_ATTACK_LANDSCAPE.md` — full 3D fingerprint with priority, evidence basis, and implementation plan for each frontier vector.
 
 ---
 

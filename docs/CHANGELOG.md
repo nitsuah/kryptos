@@ -10,10 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `docs/analysis/K4_ATTACK_LANDSCAPE.md` — 3D attack fingerprint document: past (14 null-result vectors with evidence), present (working hypotheses, InstructionalScorer, Eureka protocol), and frontier (7 prioritized untested directions with implementation checklists)
 - `kryptos serve` command and minimal FastAPI app (`src/kryptos/api/`) exposing `/health`, `/api/rag/status`,
   `POST /api/rag/reindex`, and `GET /api/rag/search` endpoints
 - turbovec-backed `ArtifactIndex` (`src/kryptos/rag/`) for semantic search over `artifacts/`, using
   `sentence-transformers` embeddings and a 4-bit quantized `turbovec.IdMapIndex` persisted under `data/turbovec/`
+
+### Changed (2026-08-12 doc refresh)
+
+- `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` — Sections 7.5–7.7 updated from "NOT YET RUN" to confirmed null results; Open Questions section expanded from 7 to 11 items reflecting current frontier
+- `docs/analysis/K4_ACTIVE_RESEARCH.md` — Active attack queue rebuilt: completed-attacks table (14 entries), frontier queue (7 open vectors), infrastructure status corrected from "Implemented" to "Complete/null result" for all 5 PR-83 attacks
+- `docs/ROADMAP.md` — Replaced "Untested K4 Attack Vectors" section with completed-vectors table and new "Frontier K4 Attack Vectors" section (7 entries, Q3 2026 onwards)
+- `docs/TASKS.md` — Added Phase 0 (Frontier K4 Attack Planning) with 7 implementation tasks; added CONTRIBUTING.md position-label fix to Phase 3
+- `docs/analysis/30_YEAR_GAP_COVERAGE.md` — Beaufort status corrected from ❌ Missing to ✅ Swept (null); Gronsfeld gap impact upgraded to MEDIUM; 3-layer composite gap upgraded to HIGH priority
+- `docs/METRICS.md` — Test count corrected from 633 to 829 (AUDIT_2026-06-01 baseline); K4 readiness updated from 7.5/10 to 8.5/10
+- `docs/GOVERN.md` — Added July and August 2026 governance review entries
+- `docs/INDEX.md` — K4_ATTACK_LANDSCAPE.md added; AUDIT_2026-06-01 added; analysis section reordered most-important-first
 
 ## [Phase 6.3] - 2026-05-25
 

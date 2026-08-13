@@ -6,7 +6,7 @@ Breadcrumb: [Docs](INDEX.md) > Metrics
 
 **Note:** Data and artifacts are planned to migrate to a database as part of the 2027 roadmap. Current metrics reflect the file-based structure.
 
-**Last Validated:** 2026-05-25 (fast suite + K1/K2/K3 verification)
+**Last Validated:** 2026-06-01 (src/ audit baseline); metrics reflect 829-test state from AUDIT_2026-06-01.md
 
 ## Core Metrics
 
@@ -15,10 +15,10 @@ Breadcrumb: [Docs](INDEX.md) > Metrics
 | Code Coverage       | 95%     | Measured with pytest-cov on fast suite (`pytest tests/ -m "not slow" --cov=src --cov-report=term`) |
 | Source Files        | 86      | Python modules in src/ (excl. tests)       |
 | Test Files          | 142     | `test_*.py` modules in tests/              |
-| Test Functions      | 633     | Total collected items in current fast-suite run context |
-| Test Cases (Total)  | 633     | Collected items (incl. deselected/skipped) |
-| Test Cases (Fast)   | 631     | Executed tests in current fast-suite run   |
-| Test Cases (Slow)   | 10      | Tests skipped (module-level slow marks)    |
+| Test Functions      | 829     | Total collected items (AUDIT_2026-06-01 baseline) |
+| Test Cases (Total)  | 829     | Collected items (incl. deselected/skipped) |
+| Test Cases (Fast)   | 829     | 0 failures, 0 errors at 2026-06-01 audit  |
+| Test Cases (Slow)   | ~10     | Module-level slow marks (Monte Carlo, opt-in) |
 | Lines of Code       | ~50K    | Estimated from 86 files (avg ~580/file)    |
 | Documentation Files | 40+     | Comprehensive docs in docs/ directory      |
 | Subdirectories      | 33      | Well-organized module structure            |
@@ -62,7 +62,7 @@ Breadcrumb: [Docs](INDEX.md) > Metrics
 | Metric                 | Value    | Notes                                    |
 | ---------------------- | -------- | ---------------------------------------- |
 | Linting Status         | Clean    | Pre-commit hooks enforced                |
-| Test Pass Rate         | 100%     | 631 passed, 10 skipped, 2 deselected (fast run, 2026-05-25) |
+| Test Pass Rate         | 100%     | 829 passed, 0 failures (AUDIT_2026-06-01 baseline) |
 | Deprecated Code        | Minimal  | executor.py marked for removal (legacy, retiring after migration confirmation) |
 | TODO/FIXME Count       | Low      | No critical technical debt               |
 | Module Independence    | High     | Clear boundaries, no shadow imports      |
@@ -76,6 +76,6 @@ Breadcrumb: [Docs](INDEX.md) > Metrics
 | PR Turnaround    | <1 day     | Typical PR review time                   |
 | Skipped Tests    | 10         | Module-level slow tests (marked skip)    |
 | Health Score     | 95/100     | Overseer compliance score                 |
-| Last Updated     | 2026-05-25 | Coverage + K1/K2/K3 validation refresh   |
-| Project Status   | Active     | Phase 6.3 in progress (K4 campaign orchestration, robust NLP fallback) |
-| K4 Readiness     | 7.5/10     | All core campaign/orchestration features complete, NLP dependencies robust/optional |
+| Last Updated     | 2026-08-12 | Docs refresh + attack landscape update   |
+| Project Status   | Active     | All Q1-2027 phases shipped; frontier K4 attack planning in progress |
+| K4 Readiness     | 8.5/10     | Full pipeline, dashboard, RAG, and 14 completed attack vectors; 3-layer composites next |

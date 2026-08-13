@@ -3,7 +3,7 @@
 Breadcrumb: Home > Docs > Analysis > K4 Active Research
 
 
-**Last Updated:** 2026-05-31
+**Last Updated:** 2026-08-12
 **Status:** Living document — update after each meaningful run or finding
 
 This document tracks what is currently known, what has been tested and ruled out, and the active attack queue for K4 cryptanalysis.
@@ -92,67 +92,69 @@ Under the composite model, these are NOT the actual substitution key letters at 
 
 ---
 
-## Active Attack Queue (Priority Order)
+## Completed Attack Queue — All Prior Vectors (as of 2026-08-12)
 
-### ✅ DONE — Priority 1: Inverse Transposition + Keystream Collapse
-`kryptos.k4.inverse_transposition_sweep.full_sweep` — all 3 grid geometries, ENE diagonal + columnar routes. **Null result.** No transposition permutation produced a recognizable keystream at EAST+NORTHEAST positions.
-
-### ✅ DONE — Priority 2: Keyed Alphabet Realignment
-`check_keyed_alphabet_realignment` — KRYPTOS, PALIMPSEST, ABSCISSA alphabets tested. **Null result.** No keyed alphabet remapping produces a structured keystream.
-
-### ✅ DONE — Priority 3: Full Composite Sweep (Clock × Grid × Alphabet)
-`run_composite_sweep` — 3 alphabets × 3 grids × 720 clock states × ENE+columnar routes. **Null result.** Artifact: `K4_COMPOSITE_SWEEP_NULL.json`. No simultaneous 4-crib match found.
-
-### ✅ DONE — Priority 4: InstructionalScorer
-`kryptos.k4.scoring_instructional` — vocabulary boost, Levenshtein fuzzy match, entropy gate. Integrated into sweep scoring pipeline.
-
-### ✅ DONE — Priority 5: BERLIN+CLOCK Positional Refinement
-Confirmed via `validate_k4_cribs` and `keystream_summary`. Positions 63–68 (BERLIN) and 69–73 (CLOCK) validated. Keystreams MUYKLG and KORNA computed and stored in `k4_keystream` DB table.
+| Priority | Attack | Module | Result |
+|----------|--------|--------|--------|
+| 1 | Inverse Transposition + Keystream Collapse | `inverse_transposition_sweep.full_sweep` | Null |
+| 2 | Keyed Alphabet Realignment (KRYPTOS/PALIMPSEST/ABSCISSA) | `check_keyed_alphabet_realignment` | Null |
+| 3 | Full Composite Sweep (3 alphabets × 3 grids × 720 clock states × ENE+columnar) | `run_composite_sweep` | Null |
+| 4 | InstructionalScorer (geography/imperative vocab boost + Levenshtein) | `scoring_instructional` | Integrated |
+| 5 | BERLIN+CLOCK Positional Refinement | `validate_k4_cribs` / `keystream_summary` | Confirmed |
+| 6 | Clock → Hill 2×2 Invertibility Pre-filter | `run_clock_hill_attack` | Null |
+| 7 | 4-char Clock Key → Vigenère with NORTHEAST Anchor | `run_clock_vigenere_attack` | Null |
+| 8 | Non-standard Berlin Clock Sub-row Encodings | `run_clock_subrow_attack` | Null |
+| 9 | Berlin Clock Lamp Counts as Transposition Column Widths | `run_clock_transposition_attack` | Null |
+| 10 | Beaufort Cipher Sweep (10 key candidates × 2 alphabets) | `run_beaufort_sweep` | Null |
+| 11 | Quagmire I–IV (6,240 combos including Q3 Berlin Clock minute-state keys) | `run_quagmire_sweep` | Null |
+| 12 | Physical-Grid Tableau Walk (108 geometric routes × 2 indicator bases) | `run_physical_grid_attack` | Null |
+| 13 | ADFGVX (Polybius + columnar) | `kryptos.k4.adfgvx` | Null |
+| 14 | Nihilist (Polybius + numeric key) | `kryptos.k4.nihilist` | Null |
 
 ---
 
-### Priority 1 (NEW): Clock → Hill 2×2 Invertibility Pre-filter
+## Active Attack Queue — FRONTIER (as of 2026-08-12)
 
-**Goal:** Use the Berlin Clock as a Hill 2×2 matrix key directly, not as a Vigenère shift sequence.
+Every clean 2-layer composite and every direct clock-keying variant has now returned null. The frontier shifts to: (a) 3-layer composites, (b) pre-cipher masking/null removal, and (c) clock key derivation approaches that treat K2 coordinates or timezone offsets as secondary inputs.
 
-**The specific attack not yet run:**
-1. For each of the 720 clock states, form a 2×2 matrix from the first 4 lamp values
-2. Filter: only ~15% of clock states yield invertible matrices mod 26 (~100 candidates)
-3. For each invertible state, apply Hill 2×2 decryption to K4 using that matrix
-4. Validate EAST+NORTHEAST cribs in the result
-5. If any match, try all column-width permutations on the result
+See [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](K4_ATTACK_LANDSCAPE.md) for the full 3D fingerprint (past / present / frontier).
 
-This is distinct from what we've run: we've tested Hill keys exhaustively and clock-Vigenère exhaustively, but **never clock-as-Hill-matrix specifically**.
+### 🔴 Priority 1 (OPEN): 3-Layer Composite — Keyed-Alphabet → Clock-Vigenère → Columnar Transposition
 
-**Estimated search space:** ~100 clock states × Hill decryption. Trivial runtime.
+Sanborn confirmed "five or six techniques." All tested composites are 2-layer. A 3-layer pipeline combining (1) keyed-alphabet substitution, (2) clock-derived Vigenère, and (3) columnar transposition with clock-derived column widths has **never been run**. The InstructionalScorer is already wired in; the implementation needs to chain the three stages with full EAST+NORTHEAST+BERLIN+CLOCK crib gating.
 
-### Priority 2 (NEW): 4-char Clock Key → Vigenère with NORTHEAST Anchor
+**Estimated search space:** 3 alphabets × 720 clock states × 4 column-width variants × 6 reading routes ≈ 51,840 combinations. Sub-minute.
 
-**Goal:** Derive a 4-character Vigenère key from each clock state (not the full 4–8 char shift sequence) and test it with the NORTHEAST crib as a positional anchor.
+### 🔴 Priority 2 (OPEN): Shadow/Null Masking as Layer 0
 
-**The gap:** Current sweep cycles through full `berlin_clock_shifts` output (variable length). This attack specifically maps each clock state to a 4-char key (e.g., hour-row sum, minute-row sum, etc. encoded as letters) and tests those as Vigenère keys with `positional_crib_bonus` gating on NORTHEAST at position 26.
+The World Clock source material describes "the secret is the shadow of the word" — a physical position-masking theory where some K4 characters are null inserts (clock-shadow positions), and the real 64–88 character message is the remainder. If a masking layer preceded the cipher layers, every 2-layer attack on the full 97-char sequence is attacking padded input.
 
-**Estimated search space:** 720 states × a few encoding schemes. Sub-second.
+Specific variants to test:
+- Remove every N-th character (N=2,3,4) → decrypt the residue
+- Remove characters at positions corresponding to the clock-shadow angle at a specific timestamp (clock hand position → arc fraction × 97)
+- Remove characters whose index is a clock-lamp-off position
 
-### Priority 3 (NEW): Non-standard Berlin Clock encodings
+**Estimated search space:** ~12 masking variants × full composite sweep. Each variant produces a shorter text; crib positions must be recalculated.
 
-**Goal:** The current sweep uses `full_berlin_clock_shifts` (all 4 lamp rows concatenated). Sanborn may have used a subset or different encoding:
-- 5-hour row only (single digit 0–4)
-- Top two rows only (5-hour + 1-hour = effective hour 0–23 as 2 values)
-- Minute rows only (5-min + 1-min)
-- Clock-position-to-alphabet mapping (row values → keyed alphabet offset)
+### 🟠 Priority 3 (OPEN): K2 Coordinate Digits as Clock State Selectors
 
-None of these sub-encodings have been tested in isolation.
+The K2 plaintext contains explicit coordinates: `38 57 6 5 N` and `77 8 44 W`. As timestamp indices: hour=38%24=14, minute=57 → 14:57; or hour=6, minute=5 → 06:05; or other combinations. These specific clock states have not been isolated and tested against Hill or Vigenère attacks. Similarly, the W-coordinate digits (77, 8, 44) yield additional candidate timestamps (17:08, 08:44, etc.).
 
-### Priority 4 (NEW): Berlin Clock × Transposition Column Widths
+### 🟠 Priority 4 (OPEN): 6-Hour Berlin→CIA Timezone Offset as Cipher Modifier
 
-**Goal:** Use lamp counts from the Berlin Clock as columnar transposition widths, not as Vigenère shifts. At 23:59 the lamp rows show [4,3,11,4] — use these as column widths for a 4-round columnar transposition.
+Berlin is UTC+1; CIA Langley is UTC-5. The offset is 6 hours = 6 positions. If Sanborn encrypted at Berlin local time and intended the receiver at CIA HQ time, a shift of 6 applied to the clock-state index, or to the Vigenère key starting position, or to the columnar transposition key ordering, bridges the gap. Untested as a standalone parameter across all combinations.
 
-This was mentioned in `K4-T1.md` and `30_YEAR_GAP_COVERAGE.md` but the composite sweep used clock values as Vigenère shifts only, not as transposition column widths.
+### 🟡 Priority 5 (OPEN): BERLIN+CLOCK Partial Match Isolation
 
-### Priority 5 (OPEN): Beaufort cipher sweep
+The full sweep validated all 4 cribs simultaneously. Relaxing to 2-crib validation (BERLIN+CLOCK only at positions 63–73) with a wider transposition search may surface partial-solution candidates that the strict 4-crib gate rejected. This is a softer filter that widens the search net.
 
-`kryptos.k4.beaufort` is implemented but **no systematic sweep against K4 has been run**. Beaufort is the "reciprocal Vigenère" — encryption and decryption use the same operation. Worth a quick pass with the same key candidates used for Vigenère (KRYPTOS, PALIMPSEST, BERLIN, CLOCK, etc.).
+### 🟡 Priority 6 (OPEN): Running Key from K3 Plaintext
+
+K3's plaintext is approximately 336 characters. Using the first 97 characters of K3's decrypted plaintext as a running Vigenère key for K4 has never been attempted. Sanborn called K4 the "last layer" — if the sections are chained, earlier plaintext may be the key material for the next section.
+
+### 🟡 Priority 7 (OPEN): Gronsfeld Cipher (Numeric Key from K2 Coordinates)
+
+The Gronsfeld cipher is a Vigenère variant keyed by decimal digits. K2's coordinate string `385765` (38°57'6.5"N) or `770844` (77°8'44"W) produces a 6-digit numeric key. This is a direct reading of the K2 data as a numeric cipher key. Gronsfeld is not yet implemented in the codebase.
 
 ---
 
@@ -177,11 +179,11 @@ This was mentioned in `K4-T1.md` and `30_YEAR_GAP_COVERAGE.md` but the composite
 | ADFGVX | ✅ Complete | `kryptos.k4.adfgvx`; null result against K4 |
 | Nihilist | ✅ Complete | `kryptos.k4.nihilist`; null result against K4 |
 | Beaufort | ✅ Complete | `kryptos.k4.beaufort` (primitives); systematic K4 sweep now in `kryptos.k4.beaufort_sweep` |
-| Clock → Hill 2×2 invertibility pre-filter | ✅ Implemented | `kryptos.k4.clock_hill_attack.run_clock_hill_attack` — filters clock states by Hill invertibility, applies Hill 2×2, validates 4 cribs. Null result expected on first run. |
-| 4-char clock key → Vigenère attack | ✅ Implemented | `kryptos.k4.clock_hill_attack.run_clock_vigenere_attack` — 4 encoding schemes × 720 states; NORTHEAST positional gating at position 26. |
-| Non-standard Berlin Clock sub-row encodings | ✅ Implemented | `kryptos.k4.clock_subrow_attack.run_clock_subrow_attack` — 4 sub-row schemes as short Vigenère keys. |
-| Berlin Clock lamp counts as transposition column widths | ✅ Implemented | `kryptos.k4.clock_subrow_attack.run_clock_transposition_attack` — lamp values as columnar transposition widths. |
-| Beaufort sweep against K4 | ✅ Implemented | `kryptos.k4.beaufort_sweep.run_beaufort_sweep` — 10 key candidates × 2 alphabets. |
+| Clock → Hill 2×2 invertibility pre-filter | ✅ Complete | `kryptos.k4.clock_hill_attack.run_clock_hill_attack` — filters clock states by Hill invertibility, applies Hill 2×2, validates 4 cribs. **Null result.** |
+| 4-char clock key → Vigenère attack | ✅ Complete | `kryptos.k4.clock_hill_attack.run_clock_vigenere_attack` — 4 encoding schemes × 720 states; NORTHEAST positional gating. **Null result.** |
+| Non-standard Berlin Clock sub-row encodings | ✅ Complete | `kryptos.k4.clock_subrow_attack.run_clock_subrow_attack` — 4 sub-row schemes as short Vigenère keys. **Null result.** |
+| Berlin Clock lamp counts as transposition column widths | ✅ Complete | `kryptos.k4.clock_subrow_attack.run_clock_transposition_attack` — lamp values as columnar transposition widths. **Null result.** |
+| Beaufort sweep against K4 | ✅ Complete | `kryptos.k4.beaufort_sweep.run_beaufort_sweep` — 10 key candidates × 2 alphabets. **Null result.** |
 | Quagmire I–IV primitives | ✅ Complete | `kryptos.k4.quagmire` — canonical encrypt/decrypt for all four variants; Q3 with KRYPTOS tableau exactly reproduces K1/K2 (ground-truth tested). |
 | Quagmire sweep against K4 | ✅ Complete | `kryptos.k4.quagmire_sweep.run_quagmire_sweep` — Q1–Q4 word keys + Q3 Berlin Clock minute-state indicator keys; positional crib gating; null result. |
 | Physical-grid tableau-walk keystreams | ✅ Complete | `kryptos.k4.physical_grid.run_physical_grid_attack` — builds the KRYPTOS Vigenère tableau, walks 108 geometric routes into Quagmire III; positional crib gating; null result. |
@@ -236,13 +238,14 @@ Position  73: K   ← end of CLOCK
 
 ## Related Documents
 
+- [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](K4_ATTACK_LANDSCAPE.md) — **3D attack fingerprint: past / present / frontier** (generated 2026-08-12)
 - [`docs/analysis/K4_KEYSTREAM_ANALYSIS.md`](K4_KEYSTREAM_ANALYSIS.md) — Detailed keystream derivation and what it rules out
-- [`docs/analysis/K4-T1.md`](K4-T1.md) — Physical-geometric composite pipeline specification
-- [`docs/analysis/K4-CLOCKS.html`](K4-CLOCKS.html) — Interactive clock theory framework
-- [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](30_YEAR_GAP_COVERAGE.md) — Cipher technique coverage map
+- [`docs/analysis/K4-T1.md`](K4-T1.md) — Physical-geometric composite pipeline specification with toggle matrix
+- [`docs/analysis/K4-CLOCKS.html`](K4-CLOCKS.html) — Interactive clock theory framework (note: NORTHEAST position labels in that doc are incorrect; see K4_KEYSTREAM_ANALYSIS.md §1)
+- [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](30_YEAR_GAP_COVERAGE.md) — Classical cipher technique coverage map
 - [`docs/analysis/K4-FRONTEND.md`](K4-FRONTEND.md) — React/FastAPI frontend for campaign orchestration
-- [`TASKS.md`](../../TASKS.md) — Implementation backlog
-- [`ROADMAP.md`](../../ROADMAP.md) — Phase milestones
+- [`docs/TASKS.md`](../../docs/TASKS.md) — Implementation backlog
+- [`docs/ROADMAP.md`](../../docs/ROADMAP.md) — Phase milestones
 
 ## Vault Links
 - [[repos/kryptos/docs/analysis/K4-FRONTEND|K4-FRONTEND]] — frontend specification

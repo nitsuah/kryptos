@@ -2,13 +2,25 @@
 
 Breadcrumb: [Docs](INDEX.md) > Tasks
 
-Last Updated: 2026-06-27
+Last Updated: 2026-08-12
 
 ## In Progress
 
+#### Phase 0: Frontier K4 Attack Planning (NEW — 2026-08-12)
+
+> All 14 prior attack vectors have returned null results. These are the next structural leaps.
+
+- [ ] **Implement 3-layer composite pipeline** — chain `make_keyed_alphabet_stage` → `make_berlin_clock_stage` (Vigenère mode) → `make_transposition_stage` (columnar with clock-width columns). Wire Eureka gate on simultaneous 4-crib match. ~51,840 combos. Target: sub-minute runtime.
+- [ ] **Shadow/null masking as Layer 0** — add a pre-pass that strips characters at clock-shadow positions (lamp-off indices, stride-N, or angle-based arc fraction), recalculates crib positions in the residue, then runs the full 2-layer composite sweep on the shorter text. ~12 masking variants.
+- [ ] **K2 coordinate timestamp isolation** — extract specific HH:MM values from K2 coordinate digits (`14:57`, `06:05`, `17:08`, `08:44`) and test each as a targeted clock state for Hill 2×2 and Vigenère attacks.
+- [ ] **6-hour timezone offset sweep** — modify clock-state-based attacks (Vigenère key position, Hill matrix index, columnar key order) by ±6 across all existing sweeps. Isolate results that satisfy NORTHEAST.
+- [ ] **BERLIN+CLOCK 2-crib soft filter** — rerun inverse transposition sweep with relaxed 2-crib gate (BERLIN+CLOCK only), log all near-matches, sort by combined BERLIN+CLOCK score to find partial-solution leads.
+- [ ] **Running key from K3 plaintext** — extract first 97 chars of K3 decrypted output as a Vigenère key for K4. Run with and without KRYPTOS keyed alphabet. Low complexity.
+- [ ] **Gronsfeld cipher implementation** — implement Vigenère variant with decimal digit key; test with `385765`, `770844`, and `385706577` (full K2 coordinate digits). Add to `kryptos.k4` module.
+
 #### Phase 1: Dashboard & UI
 
-- [x] Develop dedicated K4 Attack Dashboard: visual fingerprint map of attack vectors plausible vs. covered vs. unknown (Ops Center, Database, and RAG search already cover live progress, scoring, and artifact lookup)
+- [x] Develop dedicated K4 Attack Dashboard: visual fingerprint map of attack vectors plausible vs. covered vs. unknown
 - [x] Improve K4 dashboard visual representation and component styling
 
 #### Phase 2: Post-Solution Analysis
@@ -20,6 +32,7 @@ Last Updated: 2026-06-27
 #### Phase 3: Misc/Supporting
 
 - [x] Update docs/analysis/K4-FRONTEND.md for frontend/dashboard integration
+- [ ] Fix off-by-one position labels in CONTRIBUTING.md (`'NORTHEAST': [25]` → `[26]`; `'BERLIN': [64]` → `[63]`)
 - [ ] Ensure all new features have test coverage and artifact logging
 
 ## Done
