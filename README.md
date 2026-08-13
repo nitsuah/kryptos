@@ -349,7 +349,7 @@ The index is stored under `data/turbovec/` (gitignored, derived from `artifacts/
 
 ## Recent Changes
 
-- **2026-08-12**: Documentation refresh — created `docs/analysis/K4_ATTACK_LANDSCAPE.md` (3D fingerprint of all 14 completed null-result vectors and 7 frontier attack directions); updated ROADMAP, TASKS, GOVERN, METRICS, K4_ACTIVE_RESEARCH, K4_KEYSTREAM_ANALYSIS, and INDEX for accuracy
+- **2026-08-12**: Documentation refresh — created `docs/analysis/K4_ATTACK_LANDSCAPE.md` (3D fingerprint of all completed null-result vectors and 10 frontier directions: P1–P7 active, P8–P10 deferred); updated ROADMAP, TASKS, GOVERN, METRICS, K4_ACTIVE_RESEARCH, K4_KEYSTREAM_ANALYSIS, and INDEX for accuracy
 - **2026-06-01**: src/ audit baseline — 829 tests passing (0 failures); Quagmire I–IV, physical-grid tableau walk, SA columnar seeding, early-crib locking verified; all clock-based attack variants complete
 - **2026-05-25**: All K4-ATTACK-1 through K4-ATTACK-7 complete; 3-layer composite chain (S→T→S), ADFGVX, Nihilist, Beaufort, Quagmire implementations added
 - **2025-10-24**: Fixed CI failures by correcting `.gitignore` pattern - added agents source code (SPY, OPS, Q agents)

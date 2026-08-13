@@ -284,6 +284,8 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 
 ## Attack Gap Summary Table
 
+> **Scope:** 10 total frontier directions — **P1–P7 active** (implement in order), **P8–P10 deferred** (lower estimated information gain; implement after P1–P7 exhausted).
+
 | Vector | Priority | Status | Estimated Combos | Expected Runtime |
 |--------|----------|--------|-----------------|-----------------|
 | 3-layer: keyed-alphabet → Vigenère → columnar | 🔴 P1 | NOT RUN | ~51,840 | < 1 min |
@@ -293,9 +295,9 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 | BERLIN+CLOCK 2-crib soft filter | 🟡 P5 | NOT RUN | Full transposition space | < 5 min |
 | Running key from K3 plaintext | 🟡 P6 | NOT RUN | 2–4 combinations | Seconds |
 | Gronsfeld numeric key cipher | 🟡 P7 | NOT IMPLEMENTED | ~4 keys | After implementation |
-| Myszkowski transposition variant | 🔵 P8 | NOT RUN | ~720 × few | < 1 min |
-| Trifid cipher | 🔵 P9 | NOT IMPLEMENTED | — | After implementation |
-| Straddle Checkerboard | ⬜ P10 | NOT IMPLEMENTED | — | After implementation |
+| Myszkowski transposition variant | 🔵 P8 | DEFERRED | ~few keywords | After P1–P7 |
+| Trifid cipher | 🔵 P9 | DEFERRED | — | After P1–P7 |
+| Straddle Checkerboard | ⬜ P10 | DEFERRED | — | After P1–P7 |
 
 ---
 
