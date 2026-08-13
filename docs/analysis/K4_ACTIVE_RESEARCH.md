@@ -94,22 +94,24 @@ Under the composite model, these are NOT the actual substitution key letters at 
 
 ## Completed Attack Queue — All Prior Vectors (as of 2026-08-12)
 
-| Priority | Attack | Module | Result |
-|----------|--------|--------|--------|
-| 1 | Inverse Transposition + Keystream Collapse | `inverse_transposition_sweep.full_sweep` | Null |
-| 2 | Keyed Alphabet Realignment (KRYPTOS/PALIMPSEST/ABSCISSA) | `check_keyed_alphabet_realignment` | Null |
-| 3 | Full Composite Sweep (3 alphabets × 3 grids × 720 clock states × ENE+columnar) | `run_composite_sweep` | Null |
-| 4 | InstructionalScorer (geography/imperative vocab boost + Levenshtein) | `scoring_instructional` | Integrated |
-| 5 | BERLIN+CLOCK Positional Refinement | `validate_k4_cribs` / `keystream_summary` | Confirmed |
-| 6 | Clock → Hill 2×2 Invertibility Pre-filter | `run_clock_hill_attack` | Null |
-| 7 | 4-char Clock Key → Vigenère with NORTHEAST Anchor | `run_clock_vigenere_attack` | Null |
-| 8 | Non-standard Berlin Clock Sub-row Encodings | `run_clock_subrow_attack` | Null |
-| 9 | Berlin Clock Lamp Counts as Transposition Column Widths | `run_clock_transposition_attack` | Null |
-| 10 | Beaufort Cipher Sweep (10 key candidates × 2 alphabets) | `run_beaufort_sweep` | Null |
-| 11 | Quagmire I–IV (6,240 combos including Q3 Berlin Clock minute-state keys) | `run_quagmire_sweep` | Null |
-| 12 | Physical-Grid Tableau Walk (108 geometric routes × 2 indicator bases) | `run_physical_grid_attack` | Null |
-| 13 | ADFGVX (Polybius + columnar) | `kryptos.k4.adfgvx` | Null |
-| 14 | Nihilist (Polybius + numeric key) | `kryptos.k4.nihilist` | Null |
+Rows 1–3 and 6–14 are cipher-attack sweeps that returned null results. Rows 4–5 are infrastructure/confirmed facts, not attack sweeps — they are included for completeness but should not be counted in null-result tallies.
+
+| # | Attack / Capability | Module | Result |
+|---|---------------------|--------|--------|
+| 1 | Inverse Transposition + Keystream Collapse | `inverse_transposition_sweep.full_sweep` | **Null** |
+| 2 | Keyed Alphabet Realignment (KRYPTOS/PALIMPSEST/ABSCISSA) | `check_keyed_alphabet_realignment` | **Null** |
+| 3 | Full Composite Sweep (3 alphabets × 3 grids × 720 clock states × ENE+columnar) | `run_composite_sweep` | **Null** |
+| 4 | InstructionalScorer (geography/imperative vocab boost + Levenshtein) | `scoring_instructional` | Integrated (infrastructure) |
+| 5 | BERLIN+CLOCK Positional Refinement | `validate_k4_cribs` / `keystream_summary` | Confirmed (architecture) |
+| 6 | Clock → Hill 2×2 Invertibility Pre-filter | `run_clock_hill_attack` | **Null** |
+| 7 | 4-char Clock Key → Vigenère with NORTHEAST Anchor | `run_clock_vigenere_attack` | **Null** |
+| 8 | Non-standard Berlin Clock Sub-row Encodings | `run_clock_subrow_attack` | **Null** |
+| 9 | Berlin Clock Lamp Counts as Transposition Column Widths | `run_clock_transposition_attack` | **Null** |
+| 10 | Beaufort Cipher Sweep (10 key candidates × 2 alphabets) | `run_beaufort_sweep` | **Null** |
+| 11 | Quagmire I–IV (6,240 combos including Q3 Berlin Clock minute-state keys) | `run_quagmire_sweep` | **Null** |
+| 12 | Physical-Grid Tableau Walk (108 geometric routes × 2 indicator bases) | `run_physical_grid_attack` | **Null** |
+| 13 | ADFGVX (Polybius + columnar) | `kryptos.k4.adfgvx` | **Null** |
+| 14 | Nihilist (Polybius + numeric key) | `kryptos.k4.nihilist` | **Null** |
 
 ---
 
@@ -155,6 +157,14 @@ K3's plaintext is approximately 336 characters. Using the first 97 characters of
 ### 🟡 Priority 7 (OPEN): Gronsfeld Cipher (Numeric Key from K2 Coordinates)
 
 The Gronsfeld cipher is a Vigenère variant keyed by decimal digits. K2's coordinate string `385765` (38°57'6.5"N) or `770844` (77°8'44"W) produces a 6-digit numeric key. This is a direct reading of the K2 data as a numeric cipher key. Gronsfeld is not yet implemented in the codebase.
+
+### 🔵 Deferred (LOWER PRIORITY): P8–P10
+
+These three directions are structurally distinct but lower-probability given the K1–K3 pattern. Implement after P1–P7 are exhausted:
+
+- **P8 — Myszkowski Transposition:** Repeated-letter keywords (ABSCISSA: A×2, S×2; PALIMPSEST: P×2, S×2, T×2) with Myszkowski column-grouping. Note: KRYPTOS itself has no repeated letters and does not demonstrate Myszkowski behavior. No infrastructure needed — can reuse columnar solver with grouped-column mode.
+- **P9 — Trifid Cipher:** 27-letter cube fractionation (letter + period). Extends Bifid to triples. Medium-low probability given K1–K3 don't use Trifid. Requires new `kryptos.k4.trifid` module.
+- **P10 — Straddle Checkerboard:** Variable-length encoding used by Cold War Soviet agents (thematically matches Kryptos). High-frequency letters get 1-digit codes, others get 2-digit codes. Tests whether K4's 97 cipher chars came from a ~60-char plaintext via checkerboard expansion. Requires new `kryptos.k4.straddle` module.
 
 ---
 

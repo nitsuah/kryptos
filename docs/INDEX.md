@@ -29,7 +29,7 @@ This is the traversal map for humans and AI agents.
 - [docs/analysis/K4_KEYSTREAM_ANALYSIS.md](analysis/K4_KEYSTREAM_ANALYSIS.md) - Confirmed keystream derivation from EAST+NORTHEAST+BERLIN+CLOCK cribs; what it rules out; open questions
 - [docs/analysis/K4-T1.md](analysis/K4-T1.md) - Physical-geometric composite pipeline specification with toggle matrix
 - [docs/analysis/K4-CLOCKS.html](analysis/K4-CLOCKS.html) - Interactive clock-framework theory artifact (note: NORTHEAST position labels in this file are incorrect; see K4_KEYSTREAM_ANALYSIS.md §1)
-- [docs/analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md) - Classical cipher technique coverage assessment (~95% of pre-1990 techniques)
+- [docs/analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md) - Classical cipher technique coverage assessment (pre-1990 techniques; see doc for current coverage %)
 - [docs/analysis/K1_2_3_PATTERN_ANALYSIS.md](analysis/K1_2_3_PATTERN_ANALYSIS.md) - K1-K3 pattern extraction used to guide K4
 - [docs/analysis/K1_K2_VALIDATION_RESULTS.md](analysis/K1_K2_VALIDATION_RESULTS.md) - K1/K2 Monte Carlo validation results (100%)
 - [docs/analysis/K3_VALIDATION_RESULTS.md](analysis/K3_VALIDATION_RESULTS.md) - K3 SA solver validation results (62–95% seed-dependent)
@@ -41,7 +41,7 @@ This is the traversal map for humans and AI agents.
 
 ## Historical / Archived
 
-- [docs/archive/AUDIT_2026-06-01.md](archive/AUDIT_2026-06-01.md) - Most recent src/ audit (829 tests passing)
+- [docs/archive/AUDIT_2026-06-01.md](archive/AUDIT_2026-06-01.md) - Most recent src/ audit (see doc for test counts)
 - [docs/archive/AUDIT_2026-05-24.md](archive/AUDIT_2026-05-24.md)
 - [docs/archive/AUDIT_2025-10-26.md](archive/AUDIT_2025-10-26.md)
 

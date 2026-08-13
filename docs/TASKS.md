@@ -6,7 +6,7 @@ Last Updated: 2026-08-12
 
 ## In Progress
 
-#### Phase 0: Frontier K4 Attack Planning (NEW — 2026-08-12)
+### Phase 0: Frontier K4 Attack Planning (NEW — 2026-08-12)
 
 > All 14 prior attack vectors have returned null results. These are the next structural leaps.
 
@@ -17,6 +17,11 @@ Last Updated: 2026-08-12
 - [ ] **BERLIN+CLOCK 2-crib soft filter** — rerun inverse transposition sweep with relaxed 2-crib gate (BERLIN+CLOCK only), log all near-matches, sort by combined BERLIN+CLOCK score to find partial-solution leads.
 - [ ] **Running key from K3 plaintext** — extract first 97 chars of K3 decrypted output as a Vigenère key for K4. Run with and without KRYPTOS keyed alphabet. Low complexity.
 - [ ] **Gronsfeld cipher implementation** — implement Vigenère variant with decimal digit key; test with `385765`, `770844`, and `385706577` (full K2 coordinate digits). Add to `kryptos.k4` module.
+
+> **Deferred (P8–P10) — lower priority, no blocking dependency:**
+> - [ ] **Myszkowski transposition variant** — test repeated-letter keywords (ABSCISSA, PALIMPSEST) with Myszkowski column-grouping logic; requires no new infrastructure.
+> - [ ] **Trifid cipher** — 27-letter cube fractionation; implement `kryptos.k4.trifid` and integrate with 4-crib gate.
+> - [ ] **Straddle Checkerboard** — variable-length encoding expansion; implement and test against K4 length constraints.
 
 #### Phase 1: Dashboard & UI
 

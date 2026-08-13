@@ -6,7 +6,7 @@ Breadcrumb: Home > Docs > Analysis > Attack Landscape
 **Framework:** Three-dimensional "pundit squad" model — Past / Present / Frontier  
 **Purpose:** Give any session a complete orientational picture of where we stand and where to go next.
 
-> **Quick orientation:** K4 is a 97-character ciphertext carved in copper at CIA HQ, unsolved since 1990. Sculptor Jim Sanborn has confirmed four plaintext anchors and described "five or six techniques." The architecture is confirmed as **substitution → transposition → K4 ciphertext** (not transposition-first). All 14 clean 2-layer composite vectors have returned null results. The frontier is 3-layer composites, pre-cipher masking, and secondary-key derivation.
+> **Quick orientation:** K4 is a 97-character ciphertext carved in copper at CIA HQ, unsolved since 1990. Sculptor Jim Sanborn has confirmed four plaintext anchors and described "five or six techniques." The architecture is confirmed as **substitution → transposition → K4 ciphertext** (not transposition-first). All systematically-tested single-layer and 2-layer attack sweeps have returned null results — see §1.4 for the complete annotated list. The frontier is 3-layer composites, pre-cipher masking, and secondary-key derivation.
 
 ---
 
@@ -14,7 +14,7 @@ Breadcrumb: Home > Docs > Analysis > Attack Landscape
 
 ### 1.1 Confirmed Architecture
 
-```
+```text
 plaintext
     ↓
 [Layer A: substitution — polyalphabetic or matrix-based]
@@ -41,7 +41,7 @@ K4 ciphertext (97 chars)
 
 ### 1.3 Derived Vigenère-Equivalent Keystreams
 
-```
+```text
 EAST (pos 22–25):      HRDX   — shifts [7, 17, 3, 23]
 NORTHEAST (pos 26–34): DBAUZGSAV — shifts [3, 1, 0, 20, 25, 6, 18, 0, 21]
 BERLIN (pos 63–68):    MUYKLG — shifts [12, 20, 24, 10, 11, 6]
@@ -76,7 +76,7 @@ These are the effective per-position shifts AFTER transposition has rearranged t
 
 1. **The substitution key is not derivable directly from any standard clock encoding.** Every plausible 1- or 2-value clock reading scheme has been tested as a Vigenère key. The keystream shifts (including 17, 20, 25) cannot come from any Berlin Clock row value alone.
 
-2. **The transposition is not a standard grid geometry read in any simple order.** All three prime-97 grid factorizations (10×10, 7×14, 8×13) plus ENE diagonal routing have been exhausted.
+2. **The transposition is not a standard grid geometry read in any simple order.** All three candidate padded grid geometries (10×10, 7×14, and 8×13 — 97 is prime, so each pads with null characters to fill the grid) plus ENE diagonal routing have been exhausted.
 
 3. **The substitution is not any Quagmire variant with known keywords.** K3 uses Quagmire III with the KRYPTOS tableau — K4 does not use the same family in any of the combinations tested.
 
@@ -103,18 +103,18 @@ Sanborn confirmed "five or six techniques" (Wired, 2005). Based on K1–K3 progr
 
 ### 2.2 The CIA Dedication Timestamp as Clock State
 
-The CIA dedication ceremony for Kryptos was November 3, 1990 at approximately 13:00 local time (18:00 UTC). The Berlin Clock lamp state at 13:00:00:
+The CIA dedication ceremony for Kryptos was November 3, 1990 at approximately 13:00 CIA local time (EST = UTC−5), which is 18:00 UTC and 19:00 Berlin local time (CET = UTC+1). The Berlin Clock lamp state encoding 13:00 (CIA local time on the clock):
 
-```
+```text
 Seconds:   ON  (even second)
 5-hr row:  [R][R][0][0]  → 2 × 5 = 10
-1-hr row:  [R][R][R][0]  → 3 × 1 = 13 → hours = 13
-5-min row: [Y][Y][Y][Y][Y][Y][0][0][0][0][0] → 6×5=30
-1-min row: [Y][0][0][0]  → 1 min
-           → 13:31 (full lamp encoding including seconds parity)
+1-hr row:  [R][R][R][0]  → 3 × 1 = 3 → hours = 13
+5-min row: [0][0][0][0][0][0][0][0][0][0][0] → 0
+1-min row: [0][0][0][0]  → 0 min
+           → 13:00 exactly
 ```
 
-This specific timestamp has **not** been tested as a constrained clock state for the 3-layer composite (keyed-alphabet → Vigenère at 13:31 → columnar transposition). It is a strong prior because Sanborn encoded the sculpture at the dedication event.
+These timestamps have **not** been tested as constrained clock states for the 3-layer composite (keyed-alphabet → Vigenère → columnar transposition). Both 13:00 CIA local and 19:00 Berlin local are strong priors because Sanborn encoded the sculpture at the dedication event. They produce distinct Berlin Clock lamp states and should each be run as priority single-state sweeps before exhausting all 720 states.
 
 ### 2.3 InstructionalScorer Integration
 
@@ -157,7 +157,8 @@ These interpretations require physical or photographic access to the sculptures 
 - No prior sweep tested this 3-layer chain
 
 **Parameter grid:**
-```
+
+```text
 Alphabet keys:  KRYPTOS, PALIMPSEST, ABSCISSA (3)
 Clock states:   all 720 (12-hr × 60-min)
 Column widths:  [4], [11], [4,4], [4,11,4] from clock lamp rows (4 variants)
@@ -168,7 +169,7 @@ Reading routes: row-major, column-major, ENE diagonal, reverse row (6 routes)
 
 **Implementation note:** The 3-layer chain should be implemented as a `CompositeChainExecutor` variant: `keyed_alphabet_then_vigenere_then_transposition()`. The Eureka protocol must be wired at the final stage.
 
-**Targeted variant:** Run the CIA dedication timestamp (13:31, Nov 3 1990) as a priority single clock state before the full 720-state sweep.
+**Targeted variant:** Run the CIA dedication timestamp (13:00 CIA local = 19:00 Berlin local, Nov 3 1990) as priority clock states before the full 720-state sweep.
 
 ---
 
@@ -197,7 +198,8 @@ If any K4 characters are nulls inserted by Sanborn as "physical shadows" (World 
 ### 🟠 P3 — K2 Coordinate Digits as Clock State Selectors
 
 **Motivation:** The K2 plaintext encodes a specific geographic location:
-```
+
+```text
 THIRTY EIGHT DEGREES FIFTY SEVEN MINUTES SIX POINT FIVE SECONDS NORTH
 SEVENTY SEVEN DEGREES EIGHT MINUTES FORTY FOUR SECONDS WEST
 ```
@@ -264,7 +266,7 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 
 ### 🔵 P8 — Myszkowski Transposition Variant
 
-**Motivation:** Myszkowski transposition uses a repeated-letter keyword to determine column reading order. Columns under the same letter are read together, left-to-right. This is an edge case of columnar transposition not yet tested in isolation. With the KRYPTOS keyword (repeating T), it produces a non-standard columnar ordering that the general columnar solver would not enumerate.
+**Motivation:** Myszkowski transposition uses a repeated-letter keyword to determine column reading order. Columns under the same letter are read together, left-to-right. This is an edge case of columnar transposition not yet tested in isolation. Keywords with repeated letters — for example ABSCISSA (A×2, S×2) or PALIMPSEST (P×2, S×2, T×2) — produce non-standard columnar groupings that the general columnar solver does not enumerate. KRYPTOS itself (K, R, Y, P, T, O, S) has no repeated letters and cannot demonstrate Myszkowski behavior; none of the Kryptos-family repeated-letter keywords have been specifically tested with the Myszkowski algorithm.
 
 ---
 
@@ -299,10 +301,10 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 
 ## Implementation Checklist for Next Session
 
-```
+```text
 [ ] 1. Implement `CompositeChainExecutor.keyed_alphabet_then_vigenere_then_transposition()`
         - Wire Eureka gate at final stage
-        - Test at CIA dedication timestamp (13:31) first as priority single state
+        - Test at CIA dedication timestamp (13:00 CIA local / 19:00 Berlin local) first as priority single state
         - Then run all 720 × 3 alphabets × 4 column variants × 6 routes
 
 [ ] 2. Implement `make_masking_stage_v2(mode)` with 6 masking variants

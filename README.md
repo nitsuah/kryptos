@@ -149,7 +149,7 @@ to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
-- **Status**: Unsolved. All 14 clean 2-layer composite attack vectors have returned null results. The frontier is 3-layer composites, pre-cipher shadow/null masking, and secondary key derivation (K2 coordinates, timezone offsets, running keys).
+- **Status**: Unsolved. All systematically-tested single-layer and 2-layer composite attack sweeps have returned null results. The frontier is 3-layer composites, pre-cipher shadow/null masking, and secondary key derivation. See [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](docs/analysis/K4_ATTACK_LANDSCAPE.md) for the full annotated list.
 - **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first ruled out)
 - **Confirmed cribs** (0-indexed): EAST at 22–25, NORTHEAST at 26–34, BERLIN at 63–68, CLOCK at 69–73
 - **Implemented Toolkit**: See K4 modules below. Full pipeline covers: Hill 2×2/3×3, columnar/route/ENE-diagonal transposition, Quagmire I–IV, ADFGVX, Nihilist, Beaufort, physical-grid tableau walk, composite multi-stage fusion, InstructionalScorer, Eureka protocol, SA columnar seeding, early-crib locking.

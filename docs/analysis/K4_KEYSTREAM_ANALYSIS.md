@@ -206,7 +206,7 @@ These also look high-entropy under pure Vigenère, consistent with the composite
 
 ---
 
-## 9. Open Questions (as of 2026-08-12)
+## 9. Questions — 11 total (6 resolved, 5 open) — as of 2026-08-12
 
 1. ~~What transposition permutation P maps EAST+NORTHEAST to a recognizable keystream?~~ — Tested: no such permutation found in the grid+route space explored. Either the transposition is not grid-based, or the substitution layer is not Vigenère-equivalent.
 2. ~~Does a keyed alphabet make the keystream structured?~~ — Tested KRYPTOS/PALIMPSEST/ABSCISSA: null result. If a keyed alphabet is involved, it's one not yet tried.

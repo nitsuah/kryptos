@@ -23,12 +23,12 @@ _Completed: 2026-05-30_
 _Completed: 2026-08-12_
 
 - All five previously-open K4 attack vectors (clock→Hill, 4-char clock→Vigenère, sub-row encodings, lamp-count transposition, Beaufort sweep) confirmed complete with null results. Added to `K4_ACTIVE_RESEARCH.md` completed table.
-- `K4_KEYSTREAM_ANALYSIS.md` sections 7.5–7.7 updated from "NOT YET RUN" to confirmed null results; Open Questions section updated with 11 live items.
+- `K4_KEYSTREAM_ANALYSIS.md` sections 7.5–7.7 updated from "NOT YET RUN" to confirmed null results; Open Questions section updated — 11 total items (6 resolved, 5 open).
 - `K4_ATTACK_LANDSCAPE.md` created — 3D fingerprint covering all past, present, and frontier attack directions.
 - `TASKS.md` and `ROADMAP.md` updated with 3-layer composite attacks as next strategic priority.
 - Test count updated in `METRICS.md` (829 tests, up from 633 at last metrics update).
 - `docs/INDEX.md` updated with new landscape document.
-- No deprecated code, no open CI failures, no governance intervention required.
+- Deprecated code: `executor.py` remains marked legacy (retiring after migration confirmation); all other deprecated markers clean. No open CI failures, no governance intervention required.
 - Next review: September 2026 (add/update this section monthly).
 
 ## Monthly Governance Review (July 2026)

@@ -44,7 +44,12 @@ Next Review: 2026-09-01
 - [ ] **Running Key from K3 Plaintext** — Use first 97 chars of K3 decrypted plaintext as a Vigenère running key for K4. Tests the theory that Kryptos sections are chained.
 - [ ] **Gronsfeld Cipher with K2 Coordinate Key** — Vigenère variant keyed by decimal digits: `385765` (from K2 `38 57 6 5 N`) or `770844` (from `77 8 44 W`). Not yet implemented.
 
-> **Landscape reference:** `docs/analysis/K4_ATTACK_LANDSCAPE.md` — full 3D fingerprint with priority, evidence basis, and implementation plan for each frontier vector.
+> **Deferred (P8–P10) — implementable but lower estimated information gain:**
+> - [ ] **Myszkowski Transposition Variant** — repeated-letter keywords (ABSCISSA, PALIMPSEST) with Myszkowski column-grouping logic.
+> - [ ] **Trifid Cipher** — 27-letter cube fractionation; medium-low probability given K1–K3 don't use Trifid.
+> - [ ] **Straddle Checkerboard** — variable-length encoding (Cold War motif); tests whether 97 cipher chars came from a shorter plaintext via checkerboard expansion.
+
+> **Landscape reference:** `docs/analysis/K4_ATTACK_LANDSCAPE.md` — full 3D fingerprint with priority, evidence basis, and implementation plan for each frontier vector (P1–P7 active, P8–P10 deferred).
 
 ---
 
