@@ -149,6 +149,34 @@ FRONTIER_VECTORS = [
         "runnable": True,
     },
     {
+        "id": "p11_alt_keywords",
+        "priority": 11,
+        "name": "P11 — Alternative Keyed-Alphabet Keywords",
+        "status": "Active",
+        "description": (
+            "Tests 11 sculptor/location/crib-derived keywords (SANBORN, LANGLEY, SCHEIDT, WENDELL, "
+            "NORTHEAST, BERLIN, CLOCK, SHADOW, BETWEEN, COMPASS, DIGETAL) as keyed-alphabet seeds "
+            "in the 3-layer composite sweep. CIA timestamps tested first."
+        ),
+        "layer_count": 3,
+        "combo_estimate": 11 * 720 * 2,
+        "runnable": True,
+    },
+    {
+        "id": "p18_key_csp",
+        "priority": 18,
+        "name": "P18 — Repeating-Key CSP",
+        "status": "Active",
+        "description": (
+            "Constraint satisfaction over 22 known (position, shift) pairs from all 4 crib windows. "
+            "For key lengths 2–20, checks if any period is consistent with EAST/NORTHEAST/BERLIN/CLOCK shifts. "
+            "Consistent lengths have their partial key completed via exhaustive enumeration."
+        ),
+        "layer_count": 1,
+        "combo_estimate": 19,
+        "runnable": True,
+    },
+    {
         "id": "p8_myszkowski",
         "priority": 8,
         "name": "P8 — Myszkowski Transposition",
@@ -347,6 +375,32 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
         from kryptos.k4.gronsfeld import run_gronsfeld_sweep
         _update_job(job_id, progress_pct=50.0, clock_time="gronsfeld")
         summary = run_gronsfeld_sweep()
+
+    elif attack_id == "p11_alt_keywords":
+        from kryptos.k4.alt_keywords import run_alt_keyword_sweep
+
+        def _progress_p11(info: dict[str, Any]) -> None:
+            pct = (info["clock_idx"] / info["total_clock"]) * 100
+            _update_job(
+                job_id,
+                progress_pct=round(pct, 1),
+                clock_time=info["clock_time"],
+                total_candidates=info["total_candidates"],
+                top_candidates=info["top_candidates"],
+            )
+
+        summary = run_alt_keyword_sweep(
+            grid_sizes=req.grid_sizes,
+            priority_only=req.priority_only,
+            max_perms_per_grid=req.max_perms_per_grid or 120,
+            progress_cb=_progress_p11,
+        )
+
+    elif attack_id == "p18_key_csp":
+        from kryptos.k4.key_csp import run_key_csp_attack
+        _update_job(job_id, progress_pct=25.0, clock_time="csp-solving")
+        summary = run_key_csp_attack()
+        _update_job(job_id, progress_pct=100.0)
 
     else:
         summary = {"status": "error", "error": f"Unknown attack: {attack_id}"}
