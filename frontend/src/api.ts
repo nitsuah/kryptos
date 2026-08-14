@@ -113,11 +113,18 @@ export interface RunAttackRequest {
 export interface AttackCandidate {
   candidate_text: string;
   keyword_hits: number;
-  instructional_score: number;
-  alpha_name: string;
-  n_cols: number;
-  perm: number[];
-  clock_time: string;
+  instructional_score?: number;
+  alpha_name?: string;
+  n_cols?: number;
+  perm?: number[];
+  clock_time?: string;
+  // P6-specific
+  variant?: string;
+  // P7-specific
+  key?: string;
+  // P3/P4-specific
+  source?: string;
+  is_offset?: boolean;
 }
 
 export interface JobStatus {

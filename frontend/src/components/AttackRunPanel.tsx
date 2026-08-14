@@ -14,15 +14,16 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 function CandidateRow({ c }: { c: AttackCandidate }) {
+  const params = [c.alpha_name, c.n_cols != null ? `${c.n_cols}col` : null, c.variant, c.key].filter(Boolean).join(" / ");
   return (
     <tr>
       <td style={{ fontFamily: "monospace", fontSize: "11px", wordBreak: "break-all" }}>
         {c.candidate_text.slice(0, 40)}{c.candidate_text.length > 40 ? "…" : ""}
       </td>
       <td style={{ textAlign: "center" }}>{c.keyword_hits}</td>
-      <td style={{ textAlign: "center" }}>{c.instructional_score.toFixed(2)}</td>
-      <td style={{ fontSize: "11px" }}>{c.clock_time}</td>
-      <td style={{ fontSize: "11px" }}>{c.alpha_name} / {c.n_cols}col</td>
+      <td style={{ textAlign: "center" }}>{c.instructional_score != null ? c.instructional_score.toFixed(2) : "—"}</td>
+      <td style={{ fontSize: "11px" }}>{c.clock_time ?? c.source ?? "—"}</td>
+      <td style={{ fontSize: "11px" }}>{params || "—"}</td>
     </tr>
   );
 }

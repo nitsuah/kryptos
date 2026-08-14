@@ -48,3 +48,7 @@ artifacts/
 /benchmarks/results.csv
 /agents/
 .playwright-mcp/
+# K4 generated attack artifacts (null results, eureka snapshots)
+K4_*_NULL.json
+K4_BREAKTHROUGH_SNAPSHOT.md
+K4_*_EUREKA.md
