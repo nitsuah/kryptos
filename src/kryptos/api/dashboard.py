@@ -111,68 +111,70 @@ def create_dashboard_router() -> APIRouter:
 
     @router.get("/attack-vectors", response_model=AttackVectorsResponse)
     def attack_vectors() -> AttackVectorsResponse:
-        # For now, this is static. Could be moved to DB or a config file later.
-        vectors = [
+        from kryptos.api.k4_attack_routes import FRONTIER_VECTORS
+
+        ruled_out = [
             AttackVector(
                 name="Clock → Hill 2×2 Invertibility",
                 status="Ruled Out",
                 artifact="K4_CLOCK_HILL_NULL.json",
-                description="Tests using the Berlin Clock state to seed a 2x2 Hill cipher matrix.",
+                description="Berlin Clock state seeds a 2×2 Hill cipher matrix — null result.",
             ),
             AttackVector(
                 name="4-char Clock Key → Vigenère",
                 status="Ruled Out",
                 artifact="K4_CLOCK_VIG_NULL.json",
-                description="Derives a 4-character key from clock state for Vigenère decryption.",
+                description="4-character clock-derived key for Vigenère decryption — null result.",
             ),
             AttackVector(
                 name="Non-standard Berlin Clock Sub-row",
                 status="Ruled Out",
                 artifact="K4_CLOCK_SUBROW_NULL.json",
-                description="Uses non-standard groupings of clock lamps as keystream generators.",
+                description="Non-standard clock lamp groupings as keystream generators — null result.",
             ),
             AttackVector(
                 name="Berlin Clock → Columnar Transposition",
                 status="Ruled Out",
                 artifact="K4_CLOCK_TRANS_NULL.json",
-                description="Uses lamp counts as column widths for transposition ciphers.",
+                description="Lamp counts as column widths for transposition — null result.",
             ),
             AttackVector(
                 name="Beaufort Cipher Sweep",
                 status="Ruled Out",
                 artifact="K4_BEAUFORT_NULL.json",
-                description="Sweeps common keywords using the Beaufort cipher variant.",
+                description="Common keywords via Beaufort cipher — null result.",
             ),
             AttackVector(
                 name="Quagmire I-IV Sweep",
                 status="Ruled Out",
                 artifact="K4_QUAGMIRE_NULL.json",
-                description="Exhaustive sweep of all four Quagmire variants with common keywords.",
+                description="All four Quagmire variants with common keywords — null result.",
             ),
             AttackVector(
                 name="Physical-Grid Tableau-Walk",
                 status="Ruled Out",
                 artifact="K4_PHYSICAL_GRID_NULL.json",
-                description="Simulates walking paths on a physical grid to generate keystreams.",
+                description="108 reading routes on physical grid tableau — null result.",
             ),
             AttackVector(
-                name="Composite (Clock/Grid/Alphabet)",
+                name="2-Layer Composite (Clock/Grid/Alphabet)",
                 status="Ruled Out",
                 artifact="K4_COMPOSITE_SWEEP_NULL.json",
-                description="Tests combinations of other known K4 elements.",
-            ),
-            AttackVector(
-                name="Vigenère Statistical Attack",
-                status="In Progress",
-                description="Ongoing statistical analysis to find Vigenère key candidates.",
-            ),
-            AttackVector(
-                name="Machine Learning Analysis",
-                status="Planned",
-                description="Use ML models to detect patterns in K4 ciphertext.",
+                description="All 2-layer combos: clock-Vigenère × columnar × 3 alphabets — null result.",
             ),
         ]
-        return AttackVectorsResponse(vectors=vectors)
+
+        frontier = [
+            AttackVector(
+                name=v["name"],
+                status=v["status"],
+                artifact=None,
+                description=v["description"],
+            )
+            for v in FRONTIER_VECTORS
+        ]
+
+        return AttackVectorsResponse(vectors=ruled_out + frontier)
 
     return router
 
