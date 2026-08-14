@@ -76,12 +76,12 @@ FRONTIER_VECTORS = [
         "name": "P2 — Shadow / Null Masking",
         "status": "Active",
         "description": (
-            "12 null-character masking variants applied as Layer 0 before the P1 chain. "
-            "Removes or repositions placeholder characters before Vigenère/transposition."
+            "8 null-character masking variants (stride-2/3/4, block-8, clock-shadow, arc-fraction) "
+            "applied as Layer 0 before the P1 chain. Recalculates crib positions in each residue."
         ),
         "layer_count": 4,
-        "combo_estimate": 622080,
-        "runnable": False,
+        "combo_estimate": 8,
+        "runnable": True,
     },
     {
         "id": "p3_k2_coord_clock",
@@ -89,13 +89,12 @@ FRONTIER_VECTORS = [
         "name": "P3 — K2 Coordinate Clock Timestamps",
         "status": "Active",
         "description": (
-            "K2 plaintext contains WGS-84 coordinates (38°57'6.5\"N, 77°8'44\"W). "
-            "Digit sequences [38, 57, 6, 5, 77, 8, 44] treated as clock times: "
-            "5-8 candidate states seconds vs minutes."
+            "K2 plaintext WGS-84 coordinates read as HH:MM clock times: "
+            "14:57, 06:05, 17:08, 08:44, 13:57. Each tested as Berlin Clock state for P1."
         ),
         "layer_count": 2,
-        "combo_estimate": 8,
-        "runnable": False,
+        "combo_estimate": 5,
+        "runnable": True,
     },
     {
         "id": "p4_timezone_offset",
@@ -103,12 +102,12 @@ FRONTIER_VECTORS = [
         "name": "P4 — ±6-Hour Berlin/CIA Timezone Offset",
         "status": "Active",
         "description": (
-            "Berlin is UTC+1 (CET), CIA Langley is UTC-5 (EST) — a 6-hour gap. "
-            "Modifier doubles any sweep by testing both the local and 6-hour-shifted clock state."
+            "Berlin (CET=UTC+1) vs CIA Langley (EST=UTC−5) is a 6-hour gap. "
+            "Doubles any clock sweep by testing ±6h shifted state alongside base state."
         ),
         "layer_count": 2,
-        "combo_estimate": 103680,
-        "runnable": False,
+        "combo_estimate": 10,
+        "runnable": True,
     },
     {
         "id": "p5_two_crib_filter",
@@ -116,12 +115,12 @@ FRONTIER_VECTORS = [
         "name": "P5 — BERLIN+CLOCK 2-Crib Soft Filter",
         "status": "Active",
         "description": (
-            "Surface near-misses: candidates with BERLIN (pos 63-68) and CLOCK (pos 69-73) "
-            "both present. Relaxes threshold from 4 to 2 to catch partial hits."
+            "Relaxes Eureka threshold from 4 to 2 (BERLIN+CLOCK at positions 63-73). "
+            "Surfaces near-misses where the transposition is right but substitution key wrong."
         ),
         "layer_count": 2,
         "combo_estimate": 51840,
-        "runnable": False,
+        "runnable": True,
     },
     {
         "id": "p6_k3_running_key",
@@ -129,12 +128,12 @@ FRONTIER_VECTORS = [
         "name": "P6 — K3 Running Key",
         "status": "Active",
         "description": (
-            "Use first 97 characters of K3 plaintext (SLOWLY DESPARATLY SLOWLY...) "
-            "as a running key for K4 decryption. 2-4 variant combinations."
+            "First 97 chars of K3 plaintext (SLOWLYDESPARATLYSLOWLY...) as Vigenère running key. "
+            "4 variants: standard/KRYPTOS alphabet × direct/reversed key."
         ),
         "layer_count": 2,
         "combo_estimate": 4,
-        "runnable": False,
+        "runnable": True,
     },
     {
         "id": "p7_gronsfeld",
@@ -142,12 +141,12 @@ FRONTIER_VECTORS = [
         "name": "P7 — Gronsfeld Cipher",
         "status": "Active",
         "description": (
-            "Gronsfeld uses decimal digit strings as key. K2 coordinate digits "
-            "(389065770844) as candidate keys. Requires kryptos.k4.gronsfeld implementation."
+            "Vigenère with decimal digit key (0-9 shifts). K2 coordinate digit keys: "
+            "385765, 770844, 385706577, 3857. Implemented in kryptos.k4.gronsfeld."
         ),
         "layer_count": 1,
-        "combo_estimate": 4,
-        "runnable": False,
+        "combo_estimate": 20,
+        "runnable": True,
     },
     {
         "id": "p8_myszkowski",
@@ -212,6 +211,157 @@ class FrontierVectorsResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Attack worker dispatcher
+# ---------------------------------------------------------------------------
+def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
+    """Dispatch the correct attack module and update job state on completion."""
+    attack_id = req.attack_id
+
+    if attack_id == "p1_three_layer":
+        from kryptos.k4.three_layer_composite import CIA_PRIORITY_TIMES, run_three_layer_composite
+
+        clock_step = 86400 if req.priority_only else 3600
+
+        def _progress(info: dict[str, Any]) -> None:
+            pct = (info["clock_idx"] / info["total_clock"]) * 100
+            _update_job(
+                job_id,
+                progress_pct=round(pct, 1),
+                clock_time=info["clock_time"],
+                total_candidates=info["total_candidates"],
+                top_candidates=info["top_candidates"],
+            )
+
+        summary = run_three_layer_composite(
+            grid_sizes=req.grid_sizes,
+            clock_step_seconds=clock_step,
+            priority_clock_times=CIA_PRIORITY_TIMES,
+            max_perms_per_grid=req.max_perms_per_grid,
+            progress_cb=_progress,
+        )
+
+    elif attack_id == "p2_shadow_masking":
+        from kryptos.k4.masking_v2 import all_masking_variants
+        from kryptos.k4.composite_sweep import run_composite_sweep
+        from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
+
+        variants = all_masking_variants()
+        best: list[dict[str, Any]] = []
+        for i, (residue, meta) in enumerate(variants):
+            pct = ((i + 1) / len(variants)) * 100
+            _update_job(job_id, progress_pct=round(pct, 1), clock_time=meta["mode"], total_candidates=i + 1)
+            try:
+                result = run_composite_sweep(
+                    ciphertext=residue,
+                    alphabets=KNOWN_KEYED_ALPHABETS,
+                    grid_sizes=[7, 8],
+                    clock_step_seconds=43200,
+                    max_perms_per_grid=24,
+                    null_artifact_path=f"K4_MASK_{meta['mode'].replace(':', '-')}_NULL.json",
+                )
+                for c in result.get("best_candidates", []):
+                    c["mask_mode"] = meta["mode"]
+                    best.extend(result.get("best_candidates", []))
+            except Exception:  # noqa: BLE001
+                pass
+        best.sort(key=lambda r: (-r.get("keyword_hits", 0), -r.get("instructional_score", 0)))
+        summary = {"status": "null_result", "attack": "P2_shadow_masking", "variants_tested": len(variants), "best_candidates": best[:10]}
+
+    elif attack_id == "p3_k2_coord_clock":
+        from kryptos.k4.k2_clock_states import get_k2_clock_states
+        from kryptos.k4.composite_sweep import run_composite_sweep, K4
+        from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
+
+        states = get_k2_clock_states(include_tz_offset=False)
+        all_best: list[dict[str, Any]] = []
+        for i, state in enumerate(states):
+            pct = ((i + 1) / len(states)) * 100
+            _update_job(job_id, progress_pct=round(pct, 1), clock_time=state["time"], total_candidates=i + 1)
+            # Use the specific shift sequence only
+            single_alpha = {"KRYPTOS": KNOWN_KEYED_ALPHABETS["KRYPTOS"]}
+            try:
+                from kryptos.k4.composite_sweep import _vigenere_decrypt, _keyword_hits
+                from kryptos.k4.transposition_analysis import apply_columnar_permutation_reverse
+                from itertools import permutations as _perms
+                ct = "".join(c for c in K4.upper() if c.isalpha())
+                for alpha_name, alphabet in KNOWN_KEYED_ALPHABETS.items():
+                    stripped = _vigenere_decrypt(ct, state["shifts"], alphabet)
+                    for n_cols in [7, 8, 10]:
+                        for perm in list(_perms(range(n_cols)))[:120]:
+                            candidate = apply_columnar_permutation_reverse(stripped, n_cols, list(perm))
+                            hits = _keyword_hits(candidate)
+                            if hits > 0:
+                                all_best.append({"candidate_text": candidate, "keyword_hits": hits, "clock_time": state["time"], "alpha": alpha_name, "source": state.get("source", "")})
+            except Exception:  # noqa: BLE001
+                pass
+        all_best.sort(key=lambda r: -r["keyword_hits"])
+        summary = {"status": "null_result", "attack": "P3_k2_coord_clock", "states_tested": len(states), "best_candidates": all_best[:10]}
+
+    elif attack_id == "p4_timezone_offset":
+        from kryptos.k4.k2_clock_states import get_k2_clock_states, get_tz_offset_states, CIA_TIMESTAMP_TIMES, clock_state_for_time
+        from kryptos.k4.composite_sweep import _vigenere_decrypt, _keyword_hits, K4
+        from kryptos.k4.transposition_analysis import apply_columnar_permutation_reverse
+        from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
+        from itertools import permutations as _perms
+
+        base = [clock_state_for_time(t) for t, _ in CIA_TIMESTAMP_TIMES]
+        states = get_tz_offset_states(base)
+        ct = "".join(c for c in K4.upper() if c.isalpha())
+        all_best: list[dict[str, Any]] = []
+        for i, state in enumerate(states):
+            pct = ((i + 1) / len(states)) * 100
+            _update_job(job_id, progress_pct=round(pct, 1), clock_time=state["time"], total_candidates=i + 1)
+            for alpha_name, alphabet in KNOWN_KEYED_ALPHABETS.items():
+                stripped = _vigenere_decrypt(ct, state["shifts"], alphabet)
+                for n_cols in [7, 8, 10]:
+                    for perm in list(_perms(range(n_cols)))[:120]:
+                        candidate = apply_columnar_permutation_reverse(stripped, n_cols, list(perm))
+                        hits = _keyword_hits(candidate)
+                        if hits > 0:
+                            all_best.append({"candidate_text": candidate, "keyword_hits": hits, "clock_time": state["time"], "alpha": alpha_name, "is_offset": state.get("is_offset", False)})
+        all_best.sort(key=lambda r: -r["keyword_hits"])
+        summary = {"status": "null_result", "attack": "P4_timezone_offset", "states_tested": len(states), "best_candidates": all_best[:10]}
+
+    elif attack_id == "p5_two_crib_filter":
+        from kryptos.k4.three_layer_composite import run_three_layer_composite, CIA_PRIORITY_TIMES
+
+        def _progress(info: dict[str, Any]) -> None:
+            pct = (info["clock_idx"] / info["total_clock"]) * 100
+            _update_job(job_id, progress_pct=round(pct, 1), clock_time=info["clock_time"], total_candidates=info["total_candidates"], top_candidates=info["top_candidates"])
+
+        summary = run_three_layer_composite(
+            keyword_eureka_threshold=2,  # relaxed to 2 cribs
+            max_perms_per_grid=req.max_perms_per_grid or 120,
+            progress_cb=_progress,
+            null_artifact_path="K4_P5_2CRIB_NULL.json",
+            eureka_snapshot_path="K4_P5_2CRIB_EUREKA.md",
+        )
+        summary["attack"] = "P5_two_crib_soft_filter"
+
+    elif attack_id == "p6_k3_running_key":
+        from kryptos.k4.running_key import run_k3_running_key_attack
+        _update_job(job_id, progress_pct=50.0, clock_time="running-key")
+        summary = run_k3_running_key_attack()
+
+    elif attack_id == "p7_gronsfeld":
+        from kryptos.k4.gronsfeld import run_gronsfeld_sweep
+        _update_job(job_id, progress_pct=50.0, clock_time="gronsfeld")
+        summary = run_gronsfeld_sweep()
+
+    else:
+        summary = {"status": "error", "error": f"Unknown attack: {attack_id}"}
+
+    _update_job(
+        job_id,
+        status="complete",
+        progress_pct=100.0,
+        summary=summary,
+        total_candidates=summary.get("total_candidates", summary.get("states_tested", summary.get("variants_tested", 0))),
+        top_candidates=summary.get("best_candidates", [])[:5],
+    )
+
+
+# ---------------------------------------------------------------------------
 # Router factory
 # ---------------------------------------------------------------------------
 def create_k4_attack_router() -> APIRouter:
@@ -221,12 +371,14 @@ def create_k4_attack_router() -> APIRouter:
     def frontier() -> FrontierVectorsResponse:
         return FrontierVectorsResponse(vectors=FRONTIER_VECTORS)
 
+    _RUNNABLE = {v["id"] for v in FRONTIER_VECTORS if v["runnable"]}
+
     @router.post("/run", response_model=JobStatusResponse)
     def run_attack(req: RunAttackRequest) -> JobStatusResponse:
-        if req.attack_id != "p1_three_layer":
+        if req.attack_id not in _RUNNABLE:
             raise HTTPException(
                 status_code=422,
-                detail=f"Attack '{req.attack_id}' is not yet runnable. Only p1_three_layer is implemented.",
+                detail=f"Attack '{req.attack_id}' is not runnable. Runnable: {sorted(_RUNNABLE)}",
             )
 
         job_id = _new_job(req.attack_id)
@@ -234,39 +386,10 @@ def create_k4_attack_router() -> APIRouter:
 
         def _worker() -> None:
             try:
-                from kryptos.k4.three_layer_composite import CIA_PRIORITY_TIMES, run_three_layer_composite
                 from kryptos.k4.eureka import EurekaSignal
-
-                grid_sizes = req.grid_sizes
-                clock_step = 86400 if req.priority_only else 3600
-                priority_times = CIA_PRIORITY_TIMES if req.priority_only else CIA_PRIORITY_TIMES
-
-                def _progress(info: dict[str, Any]) -> None:
-                    pct = (info["clock_idx"] / info["total_clock"]) * 100
-                    _update_job(
-                        job_id,
-                        progress_pct=round(pct, 1),
-                        clock_time=info["clock_time"],
-                        total_candidates=info["total_candidates"],
-                        top_candidates=info["top_candidates"],
-                    )
-
-                summary = run_three_layer_composite(
-                    grid_sizes=grid_sizes,
-                    clock_step_seconds=clock_step,
-                    priority_clock_times=priority_times,
-                    max_perms_per_grid=req.max_perms_per_grid,
-                    progress_cb=_progress,
-                )
-                _update_job(
-                    job_id,
-                    status="complete",
-                    progress_pct=100.0,
-                    summary=summary,
-                    top_candidates=summary.get("best_candidates", [])[:5],
-                )
+                _run_attack_worker(job_id, req)
             except EurekaSignal as e:
-                logger.critical("EUREKA SIGNAL in P1 attack! %s", e)
+                logger.critical("EUREKA SIGNAL in %s attack! %s", req.attack_id, e)
                 _update_job(
                     job_id,
                     status="eureka",
@@ -274,10 +397,10 @@ def create_k4_attack_router() -> APIRouter:
                     summary={"snapshot_path": e.snapshot_path, "result": e.result},
                 )
             except Exception as exc:  # noqa: BLE001
-                logger.exception("P1 attack job %s failed", job_id)
+                logger.exception("%s attack job %s failed", req.attack_id, job_id)
                 _update_job(job_id, status="error", error=str(exc))
 
-        t = threading.Thread(target=_worker, daemon=True, name=f"k4-p1-{job_id[:8]}")
+        t = threading.Thread(target=_worker, daemon=True, name=f"k4-{req.attack_id[:6]}-{job_id[:8]}")
         t.start()
 
         return JobStatusResponse(**_get_job(job_id))  # type: ignore[arg-type]

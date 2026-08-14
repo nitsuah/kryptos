@@ -548,3 +548,133 @@ button:disabled {
   cursor: pointer;
   font-size: 12px;
 }
+
+/* =========================================================
+   K4 Hero section — Berlin Clock + Cipher Visualizer
+   ========================================================= */
+
+.k4-hero {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: start;
+  padding: 16px;
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(4,52,44,0.9) 0%, rgba(8,80,65,0.7) 100%);
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.k4-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, rgba(29,158,117,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at bottom right, rgba(127,119,221,0.05) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.k4-hero-clocks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.k4-hero-clocks .clock-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted, var(--text));
+  opacity: 0.6;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.k4-hero-cipher {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.k4-hero-cipher h3 {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--accent);
+}
+
+/* Eureka banner flash */
+@keyframes eureka-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(239,159,39,0.8); border-color: var(--warning); }
+  50%  { box-shadow: 0 0 30px 10px rgba(239,159,39,0.4); border-color: #f5c842; }
+  100% { box-shadow: 0 0 0 0 rgba(239,159,39,0); border-color: var(--warning); }
+}
+
+.eureka-banner {
+  animation: eureka-pulse 1.5s infinite;
+}
+
+/* Animated matrix rain dots across hero background */
+@keyframes drift {
+  from { transform: translateY(-10px); opacity: 0; }
+  10%  { opacity: 0.4; }
+  90%  { opacity: 0.4; }
+  to   { transform: translateY(60px); opacity: 0; }
+}
+
+/* Attack queue live indicator */
+@keyframes live-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+
+.live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--danger);
+  margin-right: 6px;
+  animation: live-blink 1.2s infinite;
+  vertical-align: middle;
+}
+
+/* Frontier vector row — hover glow */
+.frontier-row {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  transition: background 0.2s;
+  border-radius: var(--radius);
+}
+
+.frontier-row:hover {
+  background: rgba(29,158,117,0.04);
+}
+
+/* Priority badge colors */
+.priority-p1 { background: #e74c3c; color: #000; }
+.priority-p2 { background: #e67e22; color: #000; }
+.priority-p3, .priority-p4, .priority-p5, .priority-p6, .priority-p7 {
+  background: #2ecc71; color: #000;
+}
+.priority-p8, .priority-p9, .priority-p10 {
+  background: rgba(29,158,117,0.2); color: var(--text);
+}
+
+/* Glowing section title */
+.section-title-glow {
+  text-shadow: 0 0 12px currentColor;
+  letter-spacing: 3px;
+}
+
+/* Scrollable cipher row (no page-wide horizontal scroll) */
+.cipher-scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import K4AttackDetails from "./K4AttackDetails";
 import AttackVectorGraph from "../components/AttackVectorGraph";
 import AttackRunPanel from "../components/AttackRunPanel";
+import BerlinClock from "../components/BerlinClock";
+import K4CipherVisualizer from "../components/K4CipherVisualizer";
 import FormField from "../components/FormField";
 import { api, AttackVector, FrontierVector } from "../api";
 
@@ -13,15 +15,12 @@ const STATUS_COLORS: Record<string, string> = {
   "Planned": "var(--text)",
 };
 
-const PRIORITY_BADGE: Record<number, string> = {
-  1: "#e74c3c",
-  2: "#e67e22",
-  3: "#f1c40f",
-  4: "#f1c40f",
-  5: "#2ecc71",
-  6: "#2ecc71",
-  7: "#2ecc71",
-};
+function priorityClass(p: number): string {
+  if (p === 1) return "priority-p1";
+  if (p === 2) return "priority-p2";
+  if (p <= 7)  return "priority-p3";
+  return "priority-p8";
+}
 
 export default function K4AttackDashboard() {
   const [selectedVector, setSelectedVector] = useState<AttackVector | null>(null);
@@ -49,7 +48,60 @@ export default function K4AttackDashboard() {
         <K4AttackDetails vector={selectedVector} onClose={() => setSelectedVector(null)} />
       )}
 
-      <h2>K4 ATTACK VECTOR FINGERPRINT</h2>
+      {/* ── Hero Section ── */}
+      <div className="k4-hero">
+        {/* Left: live Berlin Clock */}
+        <div className="k4-hero-clocks">
+          <div>
+            <BerlinClock size="md" showLabel />
+            <div className="clock-label">LIVE · BERLIN CLOCK</div>
+          </div>
+        </div>
+
+        {/* Center: K4 cipher with crib highlights */}
+        <div className="k4-hero-cipher">
+          <h3 className="section-title-glow">
+            K4 CIPHERTEXT — 97 CHARACTERS
+          </h3>
+          <div className="cipher-scroll">
+            <K4CipherVisualizer />
+          </div>
+          <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--text)", opacity: 0.5, letterSpacing: "1px" }}>
+            KRYPTOS · LANGLEY VA · SCULPTOR JIM SANBORN · COMMISSIONED 1990
+          </div>
+        </div>
+
+        {/* Right: CIA timestamp clocks */}
+        <div className="k4-hero-clocks">
+          <div>
+            <BerlinClock staticTime="13:00:00" size="sm" showLabel />
+            <div className="clock-label">CIA EST · 13:00</div>
+          </div>
+          <div>
+            <BerlinClock staticTime="19:00:00" size="sm" showLabel />
+            <div className="clock-label">BERLIN CET · 19:00</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Stats strip ── */}
+      <div style={{ display: "flex", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
+        {[
+          { label: "Ruled Out", value: ruledOutCount, color: "var(--accent)" },
+          { label: "Total Vectors", value: attackVectors.length, color: "var(--text)" },
+          { label: "Frontier Active", value: frontierActive, color: "var(--warning)" },
+          { label: "Coverage", value: `${progress.toFixed(0)}%`, color: "var(--highlight)" },
+        ].map(({ label, value, color }) => (
+          <div
+            key={label}
+            className="card"
+            style={{ minWidth: "130px", flex: "1 1 130px" }}
+          >
+            <div className="label">{label}</div>
+            <div className="value" style={{ color, fontSize: "20px" }}>{value}</div>
+          </div>
+        ))}
+      </div>
 
       <div className="dashboard-grid">
         {/* Controls panel */}
@@ -97,12 +149,7 @@ export default function K4AttackDashboard() {
                   className="clickable-row"
                 >
                   <td>{v.name}</td>
-                  <td
-                    className={`status-${v.status.toLowerCase().replace(/\s+/g, "-")}`}
-                    style={{ color: STATUS_COLORS[v.status] }}
-                  >
-                    {v.status}
-                  </td>
+                  <td style={{ color: STATUS_COLORS[v.status] }}>{v.status}</td>
                   <td>
                     <button className="small-button">View Details</button>
                   </td>
@@ -115,21 +162,20 @@ export default function K4AttackDashboard() {
         <AttackVectorGraph data={attackVectors} />
       </div>
 
-      {/* Frontier P1-P10 panel */}
+      {/* ── Frontier P1–P10 panel ── */}
       {frontierVectors.length > 0 && (
         <div className="panel" style={{ marginTop: "20px" }}>
-          <h2>Frontier Attack Queue — P1–P10</h2>
+          <h2>
+            <span className="live-dot" />
+            Frontier Attack Queue — P1–P10
+          </h2>
           <div className="body">
             {frontierVectors.map((v) => {
               const isExpanded = expandedFrontier === v.id;
               return (
                 <div
                   key={v.id}
-                  style={{
-                    borderBottom: "1px solid var(--border)",
-                    paddingBottom: "12px",
-                    marginBottom: "12px",
-                  }}
+                  className="frontier-row"
                 >
                   {/* Header row */}
                   <div
@@ -138,17 +184,17 @@ export default function K4AttackDashboard() {
                       alignItems: "center",
                       gap: "10px",
                       cursor: "pointer",
+                      padding: "4px 0",
                     }}
                     onClick={() => setExpandedFrontier(isExpanded ? null : v.id)}
                   >
                     <span
+                      className={priorityClass(v.priority)}
                       style={{
                         display: "inline-block",
                         width: "22px",
                         height: "22px",
                         borderRadius: "50%",
-                        background: PRIORITY_BADGE[v.priority] ?? "var(--text-muted)",
-                        color: "#000",
                         fontWeight: "bold",
                         fontSize: "11px",
                         textAlign: "center",
@@ -170,11 +216,11 @@ export default function K4AttackDashboard() {
                       {v.status}
                     </span>
                     {v.combo_estimate != null && (
-                      <span style={{ fontSize: "11px", color: "var(--text-muted)", minWidth: "90px", textAlign: "right" }}>
+                      <span style={{ fontSize: "11px", color: "var(--text)", opacity: 0.5, minWidth: "90px", textAlign: "right" }}>
                         ~{v.combo_estimate.toLocaleString()} combos
                       </span>
                     )}
-                    <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                    <span style={{ fontSize: "12px", opacity: 0.5 }}>
                       {isExpanded ? "▲" : "▼"}
                     </span>
                   </div>
@@ -182,28 +228,21 @@ export default function K4AttackDashboard() {
                   {/* Expanded detail */}
                   {isExpanded && (
                     <div style={{ marginTop: "10px", paddingLeft: "32px" }}>
-                      <p style={{ fontSize: "13px", color: "var(--text-muted)", margin: "0 0 8px" }}>
+                      <p style={{ fontSize: "13px", color: "var(--text)", opacity: 0.7, margin: "0 0 8px" }}>
                         {v.description}
                       </p>
                       <div style={{ fontSize: "12px", marginBottom: "8px" }}>
-                        <span style={{ color: "var(--text-muted)" }}>Layers:</span>{" "}
+                        <span style={{ opacity: 0.6 }}>Layers:</span>{" "}
                         {v.layer_count} &nbsp;·&nbsp;
                         {v.runnable ? (
                           <span style={{ color: "var(--accent)" }}>Runnable</span>
                         ) : (
-                          <span style={{ color: "var(--text-muted)" }}>Not yet implemented</span>
+                          <span style={{ opacity: 0.5 }}>Not yet implemented</span>
                         )}
                       </div>
                       {v.runnable && <AttackRunPanel vector={v} />}
-                      {!v.runnable && v.status === "Active" && (
-                        <div
-                          style={{
-                            fontSize: "12px",
-                            color: "var(--text-muted)",
-                            fontStyle: "italic",
-                            marginTop: "4px",
-                          }}
-                        >
+                      {!v.runnable && (
+                        <div style={{ fontSize: "12px", opacity: 0.5, fontStyle: "italic", marginTop: "4px" }}>
                           Implementation pending — see TASKS.md
                         </div>
                       )}
