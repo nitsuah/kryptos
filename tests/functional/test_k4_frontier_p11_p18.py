@@ -1,4 +1,4 @@
-"""Tests for K4 Phase 2 frontier attacks: P11 (alt keywords), P17 (bigram), P18 (key CSP)."""
+"""Tests for K4 Phase 2 frontier attacks: P11/P12 (alphabets), P17 (bigram), P18 (key CSP)."""
 
 from __future__ import annotations
 
@@ -55,6 +55,75 @@ class TestAltKeywords:
     def test_p11_module_importable(self):
         from kryptos.k4.alt_keywords import run_alt_keyword_sweep  # noqa: F401
         assert callable(run_alt_keyword_sweep)
+
+
+# ---------------------------------------------------------------------------
+# P12 — Misspelling-derived alphabets
+# ---------------------------------------------------------------------------
+class TestMisspellingAlphabets:
+    def test_misspelling_alphabets_count(self):
+        from kryptos.k4.misspelling_alphabets import MISSPELLING_ALPHABETS
+        # 3 base keywords × 3 swap combos = 9 alphabets
+        assert len(MISSPELLING_ALPHABETS) == 9
+
+    def test_all_alphabets_valid_26_unique(self):
+        from kryptos.k4.misspelling_alphabets import MISSPELLING_ALPHABETS
+        for name, alpha in MISSPELLING_ALPHABETS.items():
+            assert len(alpha) == 26, f"{name} has wrong length"
+            assert len(set(alpha)) == 26, f"{name} has duplicate letters"
+
+    def test_il_swap_kryptos_swaps_i_and_l(self):
+        from kryptos.k4.misspelling_alphabets import MISSPELLING_ALPHABETS
+        from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
+        base = KNOWN_KEYED_ALPHABETS["KRYPTOS"]
+        swapped = MISSPELLING_ALPHABETS["KRYPTOS_swap_IL"]
+        # I and L should be at each other's original positions
+        pos_i_base, pos_l_base = base.index("I"), base.index("L")
+        pos_i_swap, pos_l_swap = swapped.index("I"), swapped.index("L")
+        assert pos_i_swap == pos_l_base
+        assert pos_l_swap == pos_i_base
+
+    def test_ae_swap_palimpsest_swaps_a_and_e(self):
+        from kryptos.k4.misspelling_alphabets import MISSPELLING_ALPHABETS
+        from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
+        base = KNOWN_KEYED_ALPHABETS["PALIMPSEST"]
+        swapped = MISSPELLING_ALPHABETS["PALIMPSEST_swap_AE"]
+        pos_a_base, pos_e_base = base.index("A"), base.index("E")
+        pos_a_swap, pos_e_swap = swapped.index("A"), swapped.index("E")
+        assert pos_a_swap == pos_e_base
+        assert pos_e_swap == pos_a_base
+
+    def test_both_swaps_differ_from_single_swaps(self):
+        from kryptos.k4.misspelling_alphabets import MISSPELLING_ALPHABETS
+        both = MISSPELLING_ALPHABETS["KRYPTOS_swap_IL_AE"]
+        il = MISSPELLING_ALPHABETS["KRYPTOS_swap_IL"]
+        ae = MISSPELLING_ALPHABETS["KRYPTOS_swap_AE"]
+        assert both != il
+        assert both != ae
+
+    def test_build_swapped_alphabet_identity(self):
+        from kryptos.k4.misspelling_alphabets import build_swapped_alphabet
+        alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        result = build_swapped_alphabet(alpha, [])
+        assert result == alpha
+
+    def test_build_swapped_alphabet_ab_swap(self):
+        from kryptos.k4.misspelling_alphabets import build_swapped_alphabet
+        alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        result = build_swapped_alphabet(alpha, [("A", "B")])
+        assert result[0] == "B" and result[1] == "A"
+        assert result[2:] == alpha[2:]
+
+    def test_p12_module_importable(self):
+        from kryptos.k4.misspelling_alphabets import run_misspelling_sweep  # noqa: F401
+        assert callable(run_misspelling_sweep)
+
+    def test_named_alphabets_include_all_bases(self):
+        from kryptos.k4.misspelling_alphabets import MISSPELLING_ALPHABETS
+        bases = {"KRYPTOS", "PALIMPSEST", "ABSCISSA"}
+        for base in bases:
+            names = [k for k in MISSPELLING_ALPHABETS if k.startswith(base)]
+            assert len(names) == 3, f"Expected 3 variants for {base}, got {names}"
 
 
 # ---------------------------------------------------------------------------

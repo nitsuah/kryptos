@@ -149,6 +149,19 @@ FRONTIER_VECTORS = [
         "runnable": True,
     },
     {
+        "id": "p12_misspelling",
+        "priority": 12,
+        "name": "P12 — Misspelling-Derived Alphabets",
+        "status": "Active",
+        "description": (
+            "K1 IQLUSION (I≡L) and K3 DESPARATLY (A≡E) may define partial K4 alphabet constraints. "
+            "Tests 9 alphabets: KRYPTOS/PALIMPSEST/ABSCISSA × {I↔L swap, A↔E swap, both swaps}."
+        ),
+        "layer_count": 3,
+        "combo_estimate": 9 * 720 * 2,
+        "runnable": True,
+    },
+    {
         "id": "p11_alt_keywords",
         "priority": 11,
         "name": "P11 — Alternative Keyed-Alphabet Keywords",
@@ -375,6 +388,26 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
         from kryptos.k4.gronsfeld import run_gronsfeld_sweep
         _update_job(job_id, progress_pct=50.0, clock_time="gronsfeld")
         summary = run_gronsfeld_sweep()
+
+    elif attack_id == "p12_misspelling":
+        from kryptos.k4.misspelling_alphabets import run_misspelling_sweep
+
+        def _progress_p12(info: dict[str, Any]) -> None:
+            pct = (info["clock_idx"] / info["total_clock"]) * 100
+            _update_job(
+                job_id,
+                progress_pct=round(pct, 1),
+                clock_time=info["clock_time"],
+                total_candidates=info["total_candidates"],
+                top_candidates=info["top_candidates"],
+            )
+
+        summary = run_misspelling_sweep(
+            grid_sizes=req.grid_sizes,
+            priority_only=req.priority_only,
+            max_perms_per_grid=req.max_perms_per_grid or 120,
+            progress_cb=_progress_p12,
+        )
 
     elif attack_id == "p11_alt_keywords":
         from kryptos.k4.alt_keywords import run_alt_keyword_sweep
