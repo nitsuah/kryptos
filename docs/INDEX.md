@@ -24,14 +24,15 @@ This is the traversal map for humans and AI agents.
 
 ## Analysis
 
-- [docs/analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md) - Classical cipher coverage assessment
-- [docs/analysis/K1_2_3_PATTERN_ANALYSIS.md](analysis/K1_2_3_PATTERN_ANALYSIS.md) - K1-K3 pattern extraction used to guide K4
-- [docs/analysis/K1_K2_VALIDATION_RESULTS.md](analysis/K1_K2_VALIDATION_RESULTS.md) - K1/K2 validation results
-- [docs/analysis/K3_VALIDATION_RESULTS.md](analysis/K3_VALIDATION_RESULTS.md) - K3 validation results and variance notes
-- [docs/analysis/K4_KEYSTREAM_ANALYSIS.md](analysis/K4_KEYSTREAM_ANALYSIS.md) - **Confirmed period-13 keystream derivation from EAST+NORTHEAST cribs; what it rules out and the next attack vectors**
+- [docs/analysis/K4_ATTACK_LANDSCAPE.md](analysis/K4_ATTACK_LANDSCAPE.md) - **3D fingerprint: past / present / frontier attack vectors with evidence basis** (generated 2026-08-12)
 - [docs/analysis/K4_ACTIVE_RESEARCH.md](analysis/K4_ACTIVE_RESEARCH.md) - **Living document: confirmed facts, ruled-out hypotheses, active attack queue**
+- [docs/analysis/K4_KEYSTREAM_ANALYSIS.md](analysis/K4_KEYSTREAM_ANALYSIS.md) - Confirmed keystream derivation from EAST+NORTHEAST+BERLIN+CLOCK cribs; what it rules out; open questions
 - [docs/analysis/K4-T1.md](analysis/K4-T1.md) - Physical-geometric composite pipeline specification with toggle matrix
-- [docs/analysis/K4-CLOCKS.html](analysis/K4-CLOCKS.html) - Interactive K4 clock-framework theory artifact (note: position labels for NORTHEAST are incorrect; see K4_KEYSTREAM_ANALYSIS.md)
+- [docs/analysis/K4-CLOCKS.html](analysis/K4-CLOCKS.html) - Interactive clock-framework theory artifact (note: NORTHEAST position labels in this file are incorrect; see K4_KEYSTREAM_ANALYSIS.md §1)
+- [docs/analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md) - Classical cipher technique coverage assessment (pre-1990 techniques; see doc for current coverage %)
+- [docs/analysis/K1_2_3_PATTERN_ANALYSIS.md](analysis/K1_2_3_PATTERN_ANALYSIS.md) - K1-K3 pattern extraction used to guide K4
+- [docs/analysis/K1_K2_VALIDATION_RESULTS.md](analysis/K1_K2_VALIDATION_RESULTS.md) - K1/K2 Monte Carlo validation results (100%)
+- [docs/analysis/K3_VALIDATION_RESULTS.md](analysis/K3_VALIDATION_RESULTS.md) - K3 SA solver validation results (62–95% seed-dependent)
 
 ## Planning
 
@@ -40,8 +41,9 @@ This is the traversal map for humans and AI agents.
 
 ## Historical / Archived
 
-- [docs/archive/AUDIT_2025-10-26.md](archive/AUDIT_2025-10-26.md)
+- [docs/archive/AUDIT_2026-06-01.md](archive/AUDIT_2026-06-01.md) - Most recent src/ audit (see doc for test counts)
 - [docs/archive/AUDIT_2026-05-24.md](archive/AUDIT_2026-05-24.md)
+- [docs/archive/AUDIT_2025-10-26.md](archive/AUDIT_2025-10-26.md)
 
 ## Sources
 

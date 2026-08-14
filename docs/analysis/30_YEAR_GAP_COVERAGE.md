@@ -3,9 +3,11 @@
 Breadcrumb: Home > Docs > Analysis > 30-Year Gap
 
 
-**Assessment Date:** October 25, 2025 — _Updated: 2026-05-31_ **Scope:** Pre-1990 Classical Cryptography (Kryptos Era)
+**Assessment Date:** October 25, 2025 — _Updated: 2026-08-12_ **Scope:** Pre-1990 Classical Cryptography (Kryptos Era)
 
-> **2026-05-31 update:** ADFGVX (`kryptos.k4.adfgvx`) and Nihilist (`kryptos.k4.nihilist`) are now implemented and exposed in the public API. Beaufort is also implemented (`kryptos.k4.beaufort`). Fractionating cipher coverage and the composite coverage table below have been updated accordingly.
+> **2026-08-12 update:** All single-layer and 2-layer composite vectors are now exhausted (14 null results). Beaufort swept (`run_beaufort_sweep`, null). ADFGVX and Nihilist tested and null. The strategic gap has shifted: **3-layer composites are the primary remaining coverage gap (~0%)** and are the highest-priority next target. See `docs/analysis/K4_ATTACK_LANDSCAPE.md` for the full frontier map.
+>
+> **2026-05-31 update:** ADFGVX (`kryptos.k4.adfgvx`) and Nihilist (`kryptos.k4.nihilist`) implemented and exposed in the public API. Beaufort implemented (`kryptos.k4.beaufort`). Fractionating cipher coverage updated accordingly.
 
 ---
 
@@ -22,7 +24,7 @@ Breadcrumb: Home > Docs > Analysis > 30-Year Gap
 | **Composite Ciphers (2-layer)** | 85% | HIGH | LOW |
 | **Polygraphic Ciphers** | 90% | MEDIUM | MEDIUM |
 | **Fractionating Ciphers** | 80% | HIGH | LOW |
-| **Composite Ciphers (3+ layers)** | 0% | N/A | MEDIUM |
+| **Composite Ciphers (3+ layers)** | 0% | N/A | **HIGH** ← primary frontier |
 
 **Bottom Line:** If K4 uses standard cryptographic techniques from Sanborn's era, we have excellent coverage. ADFGVX, Nihilist, and Beaufort are now implemented; remaining fractionating gaps (ADFGX, Straddle Checkerboard, Bazeries) are low-probability given K1–K3 progression.
 
@@ -68,13 +70,13 @@ intelligent search methods.
 | **Vigenère** | ✅ Complete | Key lengths 1-20, Kasiski analysis | Used in K1, K2 |
 | **Autokey** | ✅ Complete | Primers: KRYPTOS, BERLIN, etc. | Self-keying variant |
 | **Running Key** | ✅ Via Vigenère with book text | Depends on key text | Low probability |
-| **Beaufort** | ❌ Missing | Same as Vigenère | Inverted Vigenère, rare |
+| **Beaufort** | ✅ Swept | Same as Vigenère | `beaufort_sweep` — null result |
 | **Porta** | ❌ Missing | ~13 alphabets (reciprocal) | 1563 cipher, less common |
-| **Gronsfeld** | ❌ Missing | Numeric key | Vigenère with digits |
+| **Gronsfeld** | ❌ Missing | Numeric key (0-9 only) | Vigenère with decimal digits; K2 coordinates are a natural key |
 
-**Why Strong:** Vigenère (1553) and variants were standard in 1990. Autokey (1586) less common but documented. Beaufort/Porta are textbook but rarely used in practice.
+**Why Strong:** Vigenère (1553) and variants were standard in 1990. Autokey (1586) less common but documented. Beaufort has been swept (null). Porta/Gronsfeld remain untested.
 
-**Gap Impact:** LOW - Beaufort/Porta/Gronsfeld are mentioned in crypto textbooks but not commonly used. If Sanborn used them, we'd need 1-2 days to implement.
+**Gap Impact:** LOW for Porta. MEDIUM for Gronsfeld — K2 coordinate digits (`385765`, `770844`) are natural Gronsfeld keys and this vector is untested.
 
 #### Transposition Ciphers
 

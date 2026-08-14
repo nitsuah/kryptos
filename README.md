@@ -149,12 +149,11 @@ to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
-- **Status**: Unsolved.
-- **Implemented Toolkit**: See K4 modules below (Hill cipher exploration, scoring, constraint pipeline, multi-stage fusion).
-
-- **Latest Additions**: Multi-crib positional transposition stage, attempt logging & persistence,
-
-advanced linguistic metrics, 3x3 Hill key pruning (partial_len/partial_min tunable in hill constraint stage).
+- **Status**: Unsolved. All systematically-tested single-layer and 2-layer composite attack sweeps have returned null results. The frontier is 3-layer composites, pre-cipher shadow/null masking, and secondary key derivation. See [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](docs/analysis/K4_ATTACK_LANDSCAPE.md) for the full annotated list.
+- **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first ruled out)
+- **Confirmed cribs** (0-indexed): EAST at 22–25, NORTHEAST at 26–34, BERLIN at 63–68, CLOCK at 69–73
+- **Implemented Toolkit**: See K4 modules below. Full pipeline covers: Hill 2×2/3×3, columnar/route/ENE-diagonal transposition, Quagmire I–IV, ADFGVX, Nihilist, Beaufort, physical-grid tableau walk, composite multi-stage fusion, InstructionalScorer, Eureka protocol, SA columnar seeding, early-crib locking.
+- **Attack Landscape**: `docs/analysis/K4_ATTACK_LANDSCAPE.md` — 3D fingerprint of past/present/frontier directions.
 
 ## Deliberate Misspellings / Anomalies
 
@@ -350,13 +349,10 @@ The index is stored under `data/turbovec/` (gitignored, derived from `artifacts/
 
 ## Recent Changes
 
+- **2026-08-12**: Documentation refresh — created `docs/analysis/K4_ATTACK_LANDSCAPE.md` (3D fingerprint of all completed null-result vectors and 10 frontier directions: P1–P7 active, P8–P10 deferred); updated ROADMAP, TASKS, GOVERN, METRICS, K4_ACTIVE_RESEARCH, K4_KEYSTREAM_ANALYSIS, and INDEX for accuracy
+- **2026-06-01**: src/ audit baseline — 829 tests passing (0 failures); Quagmire I–IV, physical-grid tableau walk, SA columnar seeding, early-crib locking verified; all clock-based attack variants complete
+- **2026-05-25**: All K4-ATTACK-1 through K4-ATTACK-7 complete; 3-layer composite chain (S→T→S), ADFGVX, Nihilist, Beaufort, Quagmire implementations added
 - **2025-10-24**: Fixed CI failures by correcting `.gitignore` pattern - added agents source code (SPY, OPS, Q agents)
-
-that was previously blocked
-
-- **2025-10-22**: Added offline autopilot flow (Q/OPS/SPY), conservative SPY extractor with evaluation harness, demo
-
-smoke CI and packaging improvements. See `docs/AUTOPILOT.md` for details
 
 ## Autopilot (Q / OPS / SPY) Summary
 

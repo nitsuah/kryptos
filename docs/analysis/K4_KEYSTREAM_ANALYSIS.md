@@ -4,7 +4,7 @@ Breadcrumb: Home > Docs > Analysis > Keystream
 
 
 **Status:** Active research finding  
-**Last Updated:** 2026-05-25  
+**Last Updated:** 2026-08-12  
 **Evidence Level:** High — derived directly from Sanborn's confirmed cribs against the K4 ciphertext
 
 ---
@@ -168,17 +168,17 @@ The core attack strategy: if we can identify the correct transposition permutati
 
 `run_composite_sweep` — 3 alphabets × 3 grids × 720 clock states × ENE+columnar routes. No simultaneous 4-crib match found. Null artifact: `K4_COMPOSITE_SWEEP_NULL.json`. Best candidates had ≤ 1 keyword hit.
 
-### ❌ 7.5 Clock → Hill 2×2 Invertibility Pre-filter — NOT YET RUN
+### ✅ 7.5 Clock → Hill 2×2 Invertibility Pre-filter — COMPLETE, NULL RESULT
 
-The composite sweep uses clock values as Vigenère shifts. The specific attack of using a clock state's first 4 lamp values as a Hill 2×2 matrix key (filtering to the ~100 invertible states first) has not been implemented or run. See TASKS.md.
+`kryptos.k4.clock_hill_attack.run_clock_hill_attack` — filters all 720 clock states by Hill 2×2 invertibility mod 26 (~100 pass), applies Hill decryption to K4, validates 4 cribs. **Null result.** See `K4_ACTIVE_RESEARCH.md`.
 
-### ❌ 7.6 Non-standard Clock Encodings — NOT YET RUN
+### ✅ 7.6 Non-standard Clock Encodings — COMPLETE, NULL RESULT
 
-Current sweep only tests `full_berlin_clock_shifts` (all 4 lamp rows concatenated). Sub-row encodings (hour rows only, minute rows only, row sums → letter) not tested. See TASKS.md.
+`kryptos.k4.clock_subrow_attack.run_clock_subrow_attack` — tested 4 sub-row schemes (5-hr only, 1-hr only, minute rows only, row sums → letter) as short Vigenère keys. **Null result.** See `K4_ACTIVE_RESEARCH.md`.
 
-### ❌ 7.7 Beaufort Cipher Sweep — NOT YET RUN
+### ✅ 7.7 Beaufort Cipher Sweep — COMPLETE, NULL RESULT
 
-`kryptos.k4.beaufort` is implemented but no systematic sweep against K4 has been run. See TASKS.md.
+`kryptos.k4.beaufort_sweep.run_beaufort_sweep` — systematic pass with 10 key candidates (KRYPTOS, PALIMPSEST, BERLIN, CLOCK, ABSCISSA, and variants) × 2 alphabets. **Null result.** See `K4_ACTIVE_RESEARCH.md`.
 
 ---
 
@@ -206,15 +206,19 @@ These also look high-entropy under pure Vigenère, consistent with the composite
 
 ---
 
-## 9. Open Questions
+## 9. Questions — 11 total (6 resolved, 5 open) — as of 2026-08-12
 
 1. ~~What transposition permutation P maps EAST+NORTHEAST to a recognizable keystream?~~ — Tested: no such permutation found in the grid+route space explored. Either the transposition is not grid-based, or the substitution layer is not Vigenère-equivalent.
 2. ~~Does a keyed alphabet make the keystream structured?~~ — Tested KRYPTOS/PALIMPSEST/ABSCISSA: null result. If a keyed alphabet is involved, it's one not yet tried.
 3. ~~Is the ENE diagonal the correct reading path?~~ — Tested in full sweep alongside columnar: null result for both. ENE diagonal is not the sole transposition mechanism under the assumptions tested.
-4. **Does the BERLIN+CLOCK keystream (MUYKLGKORNA) become recognizable after the same transposition reversal?** — Not yet tested in isolation. The full sweep validated all 4 cribs simultaneously but did not report partial 2-crib matches at BERLIN+CLOCK positions specifically.
-5. **Could the clock be used as a Hill matrix key rather than a Vigenère key?** — Not tested. The ~100 invertible clock states as Hill 2×2 keys is the highest-priority untested attack.
-6. **Are there non-standard clock encodings** (sub-row, row sums, hour-only) that produce a structured key? — Not tested.
-7. **Beaufort cipher** — implemented but not swept against K4. Reciprocal nature means it could be what makes standard Vigenère reverse-analysis fail.
+4. ~~Could the clock be used as a Hill matrix key?~~ — Tested via `run_clock_hill_attack`: null result. ~100 invertible states all produced no crib match.
+5. ~~Are there non-standard clock encodings?~~ — Tested via `run_clock_subrow_attack`: 4 sub-row schemes; null result.
+6. ~~Beaufort cipher sweep~~ — Tested via `run_beaufort_sweep`: null result.
+7. **Does the BERLIN+CLOCK keystream (MUYKLGKORNA) become recognizable after any transposition reversal?** — The full sweep validated all 4 cribs simultaneously but did not isolate partial 2-crib matches at positions 63–73. Worth testing in isolation with a softer filter.
+8. **Is there a masking/null-removal layer before the substitution?** — If some K4 characters are nulls inserted as "shadows" (from the World Clock shadow theory), every attack on the full 97-char sequence is attacking padded input. Untested as a pre-step.
+9. **Are 3-layer composites (e.g., keyed-alphabet → clock-Vigenère → columnar transposition) anywhere near exhausted?** — Current composite coverage is 2-layer only. Sanborn's "five or six techniques" may imply 3+ cipher layers rather than 2 with elaborate key derivation.
+10. **Do K2 coordinate digits constrain the clock state?** — The K2 plaintext contains `38 57 6 5 N, 77 8 44 W`. Hours 38%24=14, minutes 57 (and similar) were never used as specific clock timestamp indices to select a Hill or Vigenère key.
+11. **Does the 6-hour Berlin→CIA timezone offset (UTC+1 → UTC-5) act as a cipher shift modifier?** — If Sanborn encoded at Berlin time and the receiver was at CIA HQ, a 6-position shift on the key index may bridge the gap. Untested.
 
 ---
 
