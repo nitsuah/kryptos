@@ -113,6 +113,23 @@ then convert back.
 
 ## Recent Updates
 
+### K4 Phase 2 Frontier Open (August 2026)
+
+**P1–P7 attacks implemented, tested, and live in Docker dashboard:**
+
+- P1: 3-layer composite (keyed-alphabet → Berlin Clock Vigenère → columnar transposition), CIA timestamps priority-tested
+- P2: 8 shadow/null masking variants (stride-2/3/4, block-8, clock-shadow×2, arc-fraction×2)
+- P3/P4: K2 coordinate digits as HH:MM clock times + ±6h timezone offsets (10 states)
+- P5: 2-crib soft filter for near-miss surfacing (BERLIN+CLOCK threshold=2)
+- P6: K3 plaintext running key (4 variants)
+- P7: Gronsfeld cipher with K2 coordinate digit keys
+
+All null results. Keystream analysis confirms Berlin Clock alone is insufficient (shifts reach 17, 20, 25 — exceeding max row output of 11). Phase 2 opens 10 new directions: alternative alphabet keywords (SANBORN, SCHEIDT, SHADOW), coordinate exploitation (magnetic declination, CIA→Berlin bearing), and candidate corpus mining.
+
+**Live dashboard**: `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 → K4 Dashboard — live Berlin Clock, K4 cipher with crib highlights, Frontier queue with Run Attack buttons.
+
+---
+
 ### Phase 6 Comprehensive Cleanup (October 2025)
 
 **Code Optimization**: Removed **3,554 lines** of unnecessary code while preserving all functionality
@@ -149,11 +166,13 @@ to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
-- **Status**: Unsolved. All systematically-tested single-layer and 2-layer composite attack sweeps have returned null results. The frontier is 3-layer composites, pre-cipher shadow/null masking, and secondary key derivation. See [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](docs/analysis/K4_ATTACK_LANDSCAPE.md) for the full annotated list.
-- **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first ruled out)
-- **Confirmed cribs** (0-indexed): EAST at 22–25, NORTHEAST at 26–34, BERLIN at 63–68, CLOCK at 69–73
-- **Implemented Toolkit**: See K4 modules below. Full pipeline covers: Hill 2×2/3×3, columnar/route/ENE-diagonal transposition, Quagmire I–IV, ADFGVX, Nihilist, Beaufort, physical-grid tableau walk, composite multi-stage fusion, InstructionalScorer, Eureka protocol, SA columnar seeding, early-crib locking.
-- **Attack Landscape**: `docs/analysis/K4_ATTACK_LANDSCAPE.md` — 3D fingerprint of past/present/frontier directions.
+- **Status**: Unsolved. All single-layer, 2-layer, and initial 3-layer composite sweeps have returned null results (75 tests passing, all attacks instrumented). Phase 2 frontier is open: alternative alphabet keywords, aggressive coordinate exploitation, and candidate-text pattern mining.
+- **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first definitively ruled out)
+- **Confirmed cribs** (0-indexed): EAST@22–25, NORTHEAST@26–34, BERLIN@63–68, CLOCK@69–73
+- **Active frontier (P1–P7)**: All implemented and runnable from the K4 dashboard. Priority full-sweep (720 clock states × all permutations) is the highest-value pending run.
+- **Phase 2 directions** (P11–P20): Alternative alphabet keywords (SANBORN, SCHEIDT, LANGLEY, NORTHEAST, SHADOW); magnetic declination clock offset; CIA→Berlin bearing as cipher parameter; candidate corpus fragment mining; QQ/SS bigram constraints; repeating-key CSP over 22 known shift values.
+- **Attack Landscape**: `docs/analysis/K4_ATTACK_LANDSCAPE.md` — 3D fingerprint with evidence basis and implementation plans.
+- **Live dashboard**: `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 → K4 Dashboard
 
 ## Deliberate Misspellings / Anomalies
 

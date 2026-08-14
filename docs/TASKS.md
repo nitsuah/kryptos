@@ -2,114 +2,102 @@
 
 Breadcrumb: [Docs](INDEX.md) > Tasks
 
-Last Updated: 2026-08-12
+Last Updated: 2026-08-14
 
-## In Progress
+---
 
-### Phase 0: Frontier K4 Attack Planning (NEW — 2026-08-12)
+## Active
 
-> All 14 prior attack vectors have returned null results. These are the next structural leaps.
+### Frontier K4 Attacks — Phase 2 (NEW — 2026-08-14)
 
-- [ ] **Implement 3-layer composite pipeline** — chain `make_keyed_alphabet_stage` → `make_berlin_clock_stage` (Vigenère mode) → `make_transposition_stage` (columnar with clock-width columns). Wire Eureka gate on simultaneous 4-crib match. ~51,840 combos. Target: sub-minute runtime.
-- [ ] **Shadow/null masking as Layer 0** — add a pre-pass that strips characters at clock-shadow positions (lamp-off indices, stride-N, or angle-based arc fraction), recalculates crib positions in the residue, then runs the full 2-layer composite sweep on the shorter text. ~12 masking variants.
-- [ ] **K2 coordinate timestamp isolation** — extract specific HH:MM values from K2 coordinate digits (`14:57`, `06:05`, `17:08`, `08:44`) and test each as a targeted clock state for Hill 2×2 and Vigenère attacks.
-- [ ] **6-hour timezone offset sweep** — modify clock-state-based attacks (Vigenère key position, Hill matrix index, columnar key order) by ±6 across all existing sweeps. Isolate results that satisfy NORTHEAST.
-- [ ] **BERLIN+CLOCK 2-crib soft filter** — rerun inverse transposition sweep with relaxed 2-crib gate (BERLIN+CLOCK only), log all near-matches, sort by combined BERLIN+CLOCK score to find partial-solution leads.
-- [ ] **Running key from K3 plaintext** — extract first 97 chars of K3 decrypted output as a Vigenère key for K4. Run with and without KRYPTOS keyed alphabet. Low complexity.
-- [ ] **Gronsfeld cipher implementation** — implement Vigenère variant with decimal digit key; test with `385765`, `770844`, and `385706577` (full K2 coordinate digits). Add to `kryptos.k4` module.
+> P1–P7 are implemented and running. Phase 2 opens new structural directions: alternative alphabet keywords, aggressive coordinate exploitation, and candidate-text analysis.
 
-> **Deferred (P8–P10) — lower priority, no blocking dependency:**
-> - [ ] **Myszkowski transposition variant** — test repeated-letter keywords (ABSCISSA, PALIMPSEST) with Myszkowski column-grouping logic; requires no new infrastructure.
-> - [ ] **Trifid cipher** — 27-letter cube fractionation; implement `kryptos.k4.trifid` and integrate with 4-crib gate.
-> - [ ] **Straddle Checkerboard** — variable-length encoding expansion; implement and test against K4 length constraints.
+#### Alphabet keyword expansion
 
-#### Phase 1: Dashboard & UI
+- [ ] **P11 — Alternative keyed-alphabet keywords** — Test SANBORN, LANGLEY, WENDELL, NORTHEAST, BERLIN, CLOCK, SHADOW, BETWEEN, COMPASS, DIGETAL as keyed-alphabet seeds (instead of KRYPTOS/PALIMPSEST/ABSCISSA) in the full 3-layer composite sweep. Each is a 5-letter keyword substitute; requires no new infrastructure, just adding entries to `KNOWN_KEYED_ALPHABETS`.
+- [ ] **P12 — Misspelling-derived substitution** — K1 has IQLUSION (I≡L, Q≡L), K3 has DESPARATLY (A→E). Model these intentional misspellings as a partial keyed-alphabet definition: the swapped pairs (I=Q, A=E in some reduced alphabet) may constrain K4's substitution alphabet directly. Implement as a `MisspellingAlphabetGenerator` and test in P1 chain.
 
-- [x] Develop dedicated K4 Attack Dashboard: visual fingerprint map of attack vectors plausible vs. covered vs. unknown
-- [x] Improve K4 dashboard visual representation and component styling
+#### Coordinate deep-dive
 
-#### Phase 2: Post-Solution Analysis
+- [ ] **P13 — Magnetic declination clock offset** — At 38°57'N 77°8'W on Nov 3 1990, magnetic declination was ~−9.9° (NOAA IGRF model). Apply this as a fractional clock-hand rotation offset: the Berlin Clock reading at the nominal CIA timestamp shifts by ~10 min. Implement `magnetic_declination_offset(lat, lon, date)` using the IGRF coefficients and test the resulting modified clock states.
+- [ ] **P14 — CIA→Berlin great-circle bearing as cipher parameter** — Bearing from CIA HQ (38°57'N, 77°8'W) to Berlin (52°31'N, 13°24'E) is ~50.7°. Test 50 as: Caesar shift (50 mod 26 = 24), clock minute offset (50 min from CIA timestamp), transposition column start index, Vigenère key position offset. Four lightweight tests against the 4-crib gate.
+- [ ] **P15 — K2 coordinate digits as straddling checkerboard** — Digits 3,8,5,7,6,5 (N coordinate) and 7,7,8,4,4 (W coordinate) as row-header indices in a straddling checkerboard. Build the checkerboard, encode K4 through it, check if output length and character distribution match known ciphertext properties. Implement `kryptos.k4.straddling_checkerboard`.
 
-- [ ] Analyze and document attack path, key insights, and lessons learned after solution
-- [ ] Write comprehensive report on solution narrative and cryptanalytic implications
-- [ ] Update README and documentation to reflect solution and research outcomes
+#### Candidate text analysis
 
-#### Phase 3: Misc/Supporting
+- [ ] **P16 — Candidate corpus fragment mining** — All P1–P7 sweeps wrote null artifacts. Load and merge every `*_NULL.json` artifact, extract `best_candidates[].candidate_text`, and run a sliding-window n-gram counter (4–6 chars) over positions 0–21 (before the EAST crib). Any English fragment appearing in >3% of candidates at a consistent position across multiple attack types is a partial-plaintext anchor. Implement `kryptos.k4.corpus_miner.mine_candidate_corpus(artifact_glob)`.
+- [ ] **P17 — QQ/SS bigram hard constraints** — K4 positions 12–13 are QQ and 31–32 are SS. Under a keyed-alphabet + Vigenère model, QQ at consecutive positions constrains the key: if the keyed alphabet maps two distinct letters to Q, both positions must use those specific key letters. Implement `kryptos.k4.bigram_constraint.build_bigram_constraints(ciphertext, doubled_positions)` and wire as a pre-filter in the transposition sweep, pruning permutations that place the doubled ciphertext chars at positions inconsistent with the key.
+- [ ] **P18 — Repeating-key CSP over all 4 crib windows** — The 4 confirmed cribs give 22 known (position, shift) pairs. For a repeating Vigenère key of length L (7–15), each position ≡ crib_position mod L must produce that shift. This is a constraint satisfaction problem with ~(22 * L) constraints. Implement `kryptos.k4.key_csp.solve_key_csp(crib_shifts, key_lengths)` using AC-3 or backtracking with arc consistency. A solution to the CSP gives the key directly.
 
-- [x] Update docs/analysis/K4-FRONTEND.md for frontend/dashboard integration
-- [ ] Fix off-by-one position labels in CONTRIBUTING.md (`'NORTHEAST': [25]` → `[26]`; `'BERLIN': [64]` → `[63]`)
-- [ ] Ensure all new features have test coverage and artifact logging
+#### CIA/historical keyword research
+
+- [ ] **P19 — Sanborn advisory names as alphabet keywords** — William Webster (DCI 1987–1991), Richard Kerr (DDCI), William Studeman (NSA Director), Ed Scheidt (CIA KGB officer who worked with Sanborn directly). Scheidt is the most important: he designed the encryption with Sanborn and has said "there's still something that needs to be worked out." His name, SCHEIDT, is an untested keyed-alphabet keyword.
+- [ ] **P20 — Cyrillic Projector crossover** — Sanborn's "Cyrillic Projector" sculpture (UNC Chapel Hill, 1997) encodes a KGB document. The KGB keywords from that document — translated to Roman alphabet — may cross-reference K4's cipher key. Research and extract the Cyrillic Projector plaintext; test any Roman-alphabet words as K4 keyed-alphabet seeds.
+
+---
+
+### Phase 0 (complete): Core P1–P7 Frontier Attacks
+
+> All implemented, tested, and running. See `docs/analysis/K4_ATTACK_LANDSCAPE.md` for full parameter details.
+
+- [x] **P1 — 3-Layer Composite** (`three_layer_composite.py`) — keyed-alphabet → clock-Vigenère → columnar transposition. CIA timestamps tested. 22 tests passing.
+- [x] **P2 — Shadow/Null Masking** (`masking_v2.py`) — 8 variants (stride-2/3/4, block-8, clock-shadow×2, arc-fraction×2). 14 tests passing.
+- [x] **P3 — K2 Coordinate Clock Times** (`k2_clock_states.py`) — 5 K2-derived HH:MM timestamps as Berlin Clock states. 12 tests passing.
+- [x] **P4 — ±6h Timezone Offset** (in `k2_clock_states.py`) — doubles any clock sweep. 7 tests passing.
+- [x] **P5 — 2-Crib Soft Filter** (routes, threshold=2) — surfaces near-misses with BERLIN+CLOCK only.
+- [x] **P6 — K3 Running Key** (`running_key.py`) — K3 plaintext first 97 chars × 4 variants. 10 tests passing.
+- [x] **P7 — Gronsfeld Cipher** (`gronsfeld.py`) — K2 coordinate digit keys. 10 tests passing.
+
+**Full-sweep status:** P1 priority-only (CIA timestamps) has been run. The full 720-state × all-permutation sweep has not yet been executed — this is the highest-value pending run.
+
+---
+
+### Phase 1 — Dashboard & UI (complete)
+
+- [x] K4 Attack Dashboard with live Berlin Clock hero section
+- [x] K4CipherVisualizer with EAST/NORTHEAST/BERLIN/CLOCK crib highlights
+- [x] P1–P7 frontier queue with Run Attack buttons and live polling
+- [x] Stats strip, progress bars, Eureka banner
+
+---
+
+## Deferred (P8–P10)
+
+Lower estimated information gain; re-evaluate after Phase 2 results.
+
+- [ ] **Myszkowski transposition** — repeated-letter keywords (ABSCISSA, PALIMPSEST) with Myszkowski column-grouping logic.
+- [ ] **Trifid cipher** — 27-letter cube fractionation; implement `kryptos.k4.trifid`.
+- [ ] **Straddle Checkerboard** — variable-length encoding expansion (Cold War motif); implement and test.
+
+---
 
 ## Done
 
-### Dashboard, REST API, Web UI & Ops Strategy KB (Q1 2027 Phases 1–3)
+### Dashboard, REST API, Web UI & Ops Strategy KB
 
-- [x] **FastAPI dashboard endpoints** — `/api/status`, `/api/runs`, `/api/runs/{id}/candidates`, `/api/candidates`, `POST /api/decrypt` over the `create_app()` factory (#99).
-- [x] **Neon persistence for campaigns** — `campaign_runs` + `candidates` tables (`db_schema.py`) with best-effort write path from live campaigns (#93 schema/`kryptos db-init`, #98 persistence).
-- [x] **React + Vite + TypeScript SPA** — terminal-aesthetic dashboard scaffold with Ops Center (#100), K1–K3 animated decoder (#102), Database admin page (#104), and Vault page (#116). Vite b[...]
-- [x] **Kryptos Vault** — seal/unseal/peek API + `vault_payloads` table; keyed-alphabet Vigenère with TTL and read-count enforcement, key never stored, wrong-key attempts don't burn a read (#11[...]
-- [x] **Single-container delivery** — FastAPI serves the built SPA from `frontend/dist` via `StaticFiles(html=True)`; root `Dockerfile` builds the bundle in a `node:22-alpine` stage and ships it[...]
-- [x] **turbovec RAG behind the FastAPI app** — `/api/rag/*` semantic search over `artifacts/` embedded into the dashboard service (#113, #87).
-- [x] **SSE live-log tail** — `GET /api/stream/logs` (StreamingResponse, `text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler (#118); `LogTail` EventSource [...]
-- [x] **`strategy_kb` write path** — `OpsStrategicDirector.record_strategy()` + `_record_strategy_from_decision()` persist BOOST/PIVOT/STOP/START_NEW decisions to Neon `strategy_kb` with JSONL f[...]
+- [x] FastAPI dashboard endpoints — `/api/status`, `/api/runs`, `/api/candidates`, `POST /api/decrypt`
+- [x] Neon persistence — `campaign_runs` + `candidates` + `strategy_kb` tables
+- [x] React + Vite + TypeScript SPA — terminal-aesthetic; Ops Center, K1–K3 decoder, Database, Vault, K4 Dashboard
+- [x] K4 Attack API — `POST /api/k4/attacks/run`, `GET /api/k4/attacks/jobs/{id}`, `GET /api/k4/attacks/frontier`
+- [x] Single-container Docker delivery — FastAPI serves built SPA from `frontend/dist`
+- [x] turbovec RAG — semantic search over `artifacts/` at `/api/rag/*`
+- [x] SSE live-log tail — `GET /api/stream/logs` via `LogTail` EventSource component
 
-### SA transposition seeding + early-crib locking verification
+### Validation & hardening
 
-- [x] **Seedable SA columnar solver** — added `seed_perm` to `solve_columnar_permutation_simulated_annealing` (and the multi-start variant's first restart) so the search can be seeded from a kno[...]
-- [x] **Early-crib locking pruning verified** — `search_with_multiple_cribs_positions` rejects permutations that don't place cribs at their known positions before scoring, pruning >90% of the co[...]
+- [x] K3 double-transposition Monte Carlo — `kryptos.k3.double_rotation_solver` recovers K3 plaintext #1 out of 11,664 candidates
+- [x] K1/K2 Vigenère stress tests — noise injection, wrong key lengths, partial ciphertext
+- [x] Agent module review — fixed 5 bugs in `AutonomousCoordinator` integration; `linguist.py` wired into `PlaintextValidator`
 
-### K4 attack benchmarks + physical-grid keystreams
+### Earlier K4 attacks (all null results)
 
-- [x] **`kryptos.benchmarks` + `kryptos benchmark` CLI + CI job** — timed runner over the fast K4 attack sweeps recording runtime, throughput (tested/sec), and search-space reduction (e.g. clock[...]
-- [x] **`kryptos.k4.physical_grid.run_physical_grid_attack`** — builds the 26×26 KRYPTOS Vigenère tableau and walks it along 108 geometric routes (rows/columns/diagonals/serpentine) into the Q[...]
+- [x] Clock → Hill 2×2, 4-char clock key → Vigenère, non-standard sub-row encodings, lamp counts as column widths
+- [x] Beaufort cipher sweep
+- [x] Quagmire I–IV (6,240 combinations)
+- [x] Physical-grid tableau walk (108 routes)
+- [x] ADFGVX and Nihilist fractionating ciphers
 
-### Quagmire I–IV solver + K4 sweep
+### Misc
 
-- [x] **`kryptos.k4.quagmire`** — canonical encrypt/decrypt for Quagmire I–IV (keyed plaintext/ciphertext alphabets, both Kryptos first-letter and ACA indicator-base conventions). Ground-truth[...]
-- [x] **`kryptos.k4.quagmire_sweep.run_quagmire_sweep`** — 6,240 combinations against K4: Q1/Q2/Q3 × 4 alphabet keywords × 10 word keys × 2 indicator bases, Q4 ordered keyword pairs, plus Q3 [...]
-
-### Agent Module Review (Post-K4, Pre-GUI)
-
-- [x] **Audited `spy_nlp.py`, `spy_web_intel.py`, `linguist.py`, `ops_director.py`** — all four kept; none removed. See `docs/analysis/AGENT_MODULE_REVIEW.md`.
-- [x] **Bug 1 — dead/crash-prone `SpyNLP()` in `AutonomousCoordinator.__init__`** — direct construction raised `OSError: [E050]` (`en_core_web_sm` not in runtime image), crashing the coordinat[...]
-- [x] **Bug 2 — `_check_web_intelligence()` called `SpyWebIntel` with wrong kwargs/return-shape** — fixed to call `gather_intelligence()`/`get_top_cribs()` with their real signatures (no `max_[...]
-- [x] **Bug 3 — `update_attack_progress(progress)` arity mismatch** — real signature is `update_attack_progress(attack_type, attempts, best_score)`; fixed call sites.
-- [x] **Bug 4 — unhandled `analyze_situation() -> None`** — `OpsStrategicDirector.analyze_situation()` returns `None` when no decision is needed (the common case on early cycles); previously c[...]
-- [x] **Bug 5 — `run_autonomous_loop(max_hours=0.0, ...)` infinite loop** — `if max_hours and ...` / `if max_cycles and ...` treated `0`/`0.0` ("exit immediately") the same as `None` ("infinit[...]
-- [x] **`linguist.py` status** — confirmed standalone, extensively unit-tested (`tests/functional/test_linguist.py`), not wired into `pipeline/validator.py` (which uses `scoring_enhanced` instea[...]
-- [x] **Updated `docs/reference/AGENTS_ARCHITECTURE.md`, `ROADMAP.md`** with corrected integration details and findings summary.
-
-### Linguist Integration (`pipeline/validator.py` stage 3)
-
-- [x] **Wired `LinguistAgent` into `PlaintextValidator`** — new `enable_linguist` constructor flag (default `False`). `_init_linguist()` gates on `torch`/`transformers` availability and `Linguis[...]
-
-### RAG API (turbovec) — semantic search over `artifacts/`
-
-- [x] **`kryptos serve`** — minimal FastAPI app (`src/kryptos/api/`) with `/health`, `/api/rag/status`,
-  `POST /api/rag/reindex`, `GET /api/rag/search` endpoints
-- [x] **turbovec-backed `ArtifactIndex`** — `src/kryptos/rag/` chunks `artifacts/` (`.json`/`.md`), embeds with
-  `sentence-transformers` (`all-MiniLM-L6-v2`), indexes with `turbovec.IdMapIndex` (4-bit quantization), persisted
-  under `data/turbovec/`
-- This is the "Now" item from motor-pool's `docs/AI_STACK_STRATEGY.md`, scoped separately from the Q1 2027 Phase 2
-  Data & API dashboard work above
-
-### K4 Attack — Untested Vectors (PR #83, merged)
-
-- [x] **Clock → Hill 2×2 invertibility pre-filter** — `kryptos.k4.clock_hill_attack.run_clock_hill_attack`. Null result.
-- [x] **4-char clock key → Vigenère with NORTHEAST anchor** — `kryptos.k4.clock_hill_attack.run_clock_vigenere_attack`. Null result.
-- [x] **Non-standard Berlin Clock sub-row encodings** — `kryptos.k4.clock_subrow_attack.run_clock_subrow_attack`. Null result.
-- [x] **Berlin Clock lamp counts as transposition column widths** — `kryptos.k4.clock_subrow_attack.run_clock_transposition_attack`. Null result.
-- [x] **Beaufort cipher sweep** — `kryptos.k4.beaufort_sweep.run_beaufort_sweep`. Null result.
-
-### K3 Double-Transposition Monte Carlo (Phase 4 validation)
-
-- [x] **Generalized double-rotation solver** — `kryptos.k3.double_rotation_solver` generalizes K3's two-stage 90cw grid rotation to all 18 divisor-widths of 336 x 6 rotation types, both stages. [...]
-- [x] **Brute-force recovery** — `brute_force_double_rotation_solve` ranks K3's true plaintext as the #1 candidate (match_ratio=1.0) out of 11,664 (width, rotation) combinations.
-- [x] **Monte Carlo validation** — `run_k3_double_rotation_monte_carlo` over 20 random parameter pairs: 75% best-of-top-10 success. Failures cluster around `'identity'`/extreme-aspect-ratio grid[...]
-
-### K1/K2 Vigenère Stress Tests (Phase 4 validation)
-
-- [x] **Stress-test harness** — `kryptos.k4.vigenere_stress_tests.run_k1_k2_stress_suite` runs `recover_key_by_frequency` against K1 (PALIMPSEST, 63-char ciphertext) and K2 (ABSCISSA, 367-char c[...]
-- [x] **Noise**: K2 recovers ABSCISSA at all 8 trials up to 20% noise (plaintext match ratio degrades gracefully 1.0 -> ~0.76); K1 only recovers PALIMPSEST at 0% and 5% noise (4/8 trials), collaps[...]
-- [x] **Wrong key length**: for both K1 and K2, only the true key length yields the correct key with a perfect plaintext match; all four off-by-(-2..+2) lengths fail for both.
-- [x] **Partial ciphertext**: K2 recovers ABSCISSA exactly down to 25% (91 chars); K1 only recovers PALIMPSEST at 100% (63 chars) -- 75/50/25% truncations all fail. See `tests/e2e/test_k1_k2_stres[...]`
+- [x] Fix off-by-one position labels: `NORTHEAST: [25]` → `[26]`, `BERLIN: [64]` → `[63]` in attack landscape doc
+- [x] `.gitignore` entries for `K4_*_NULL.json`, `K4_BREAKTHROUGH_SNAPSHOT.md`, `*_EUREKA.md`
