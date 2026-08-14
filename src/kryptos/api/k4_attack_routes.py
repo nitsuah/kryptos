@@ -149,6 +149,20 @@ FRONTIER_VECTORS = [
         "runnable": True,
     },
     {
+        "id": "p13_magnetic_declination",
+        "priority": 13,
+        "name": "P13 — Magnetic Declination Clock Offset",
+        "status": "Active",
+        "description": (
+            "At CIA HQ (38.957°N, 77.145°W) on Nov 3 1990, IGRF magnetic declination ≈ −9.9° west. "
+            "Applied to a 12-hour clock face: 9.9° ÷ 360° × 720 min ≈ 20-minute offset. "
+            "Tests CIA+K2 base times shifted ±20 min (14 states total)."
+        ),
+        "layer_count": 2,
+        "combo_estimate": 14,
+        "runnable": True,
+    },
+    {
         "id": "p12_misspelling",
         "priority": 12,
         "name": "P12 — Misspelling-Derived Alphabets",
@@ -388,6 +402,33 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
         from kryptos.k4.gronsfeld import run_gronsfeld_sweep
         _update_job(job_id, progress_pct=50.0, clock_time="gronsfeld")
         summary = run_gronsfeld_sweep()
+
+    elif attack_id == "p13_magnetic_declination":
+        from kryptos.k4.k2_clock_states import get_magnetic_declination_states
+        from kryptos.k4.composite_sweep import _vigenere_decrypt, _keyword_hits, K4
+        from kryptos.k4.transposition_analysis import apply_columnar_permutation_reverse
+        from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
+        from itertools import permutations as _perms
+
+        states = get_magnetic_declination_states()
+        ct = "".join(c for c in K4.upper() if c.isalpha())
+        all_best: list[dict[str, Any]] = []
+        for i, state in enumerate(states):
+            pct = ((i + 1) / len(states)) * 100
+            _update_job(job_id, progress_pct=round(pct, 1), clock_time=state["time"], total_candidates=i + 1)
+            for alpha_name, alphabet in KNOWN_KEYED_ALPHABETS.items():
+                stripped = _vigenere_decrypt(ct, state["shifts"], alphabet)
+                for n_cols in [7, 8, 10]:
+                    for perm in list(_perms(range(n_cols)))[:120]:
+                        candidate = apply_columnar_permutation_reverse(stripped, n_cols, list(perm))
+                        hits = _keyword_hits(candidate)
+                        if hits > 0:
+                            all_best.append({"candidate_text": candidate, "keyword_hits": hits,
+                                             "clock_time": state["time"], "alpha": alpha_name,
+                                             "source": state.get("source", "")})
+        all_best.sort(key=lambda r: -r["keyword_hits"])
+        summary = {"status": "null_result", "attack": "P13_magnetic_declination",
+                   "states_tested": len(states), "best_candidates": all_best[:10]}
 
     elif attack_id == "p12_misspelling":
         from kryptos.k4.misspelling_alphabets import run_misspelling_sweep

@@ -30,6 +30,12 @@ CIA_TIMESTAMP_TIMES: list[tuple[str, str]] = [
 
 TIMEZONE_OFFSET_HOURS = 6  # Berlin (CET/UTC+1) vs CIA (EST/UTC-5)
 
+# P13 — Magnetic declination offset (IGRF, CIA HQ 38.957°N 77.145°W, Nov 3 1990)
+# Declination ≈ -9.9° (west). A 12-hour clock face has 360°, so 9.9° ≈ 19.8 min.
+# Rounded to the nearest minute: ±20 min. Tests both + and - directions.
+MAGNETIC_DECLINATION_DEG: float = -9.9
+MAGNETIC_DECLINATION_MINUTES: int = round(abs(MAGNETIC_DECLINATION_DEG) / 360 * 720)  # ≈ 20
+
 
 def parse_hhmm(hhmm: str) -> time:
     """Parse 'HH:MM' or 'HH:MM:SS' into a time object."""
@@ -90,12 +96,51 @@ def get_tz_offset_states(base_states: list[dict]) -> list[dict]:
     return base_states + extra
 
 
+def offset_time_minutes(hhmm: str, offset_minutes: int) -> str:
+    """Return HH:MM shifted by ±offset_minutes."""
+    t = parse_hhmm(hhmm)
+    total_mins = t.hour * 60 + t.minute + offset_minutes
+    total_mins %= 1440
+    h, m = divmod(total_mins, 60)
+    return f"{h:02d}:{m:02d}"
+
+
+def get_magnetic_declination_states(
+    base_times: list[tuple[str, str]] | None = None,
+    declination_minutes: int = MAGNETIC_DECLINATION_MINUTES,
+) -> list[dict]:
+    """P13: apply magnetic declination offset (±20 min) to CIA and K2 base times.
+
+    Returns clock states where each base timestamp is shifted by ±declination_minutes
+    to account for compass deviation at CIA HQ on Nov 3 1990 (≈ −9.9° = 20 min).
+    """
+    if base_times is None:
+        base_times = CIA_TIMESTAMP_TIMES + K2_CLOCK_TIMES
+
+    states: list[dict] = []
+    for hhmm, source in base_times:
+        for sign, direction in [(+1, "mag_east"), (-1, "mag_west")]:
+            shifted = offset_time_minutes(hhmm, sign * declination_minutes)
+            s = clock_state_for_time(shifted)
+            states.append({
+                **s,
+                "source": f"{source} {direction}({declination_minutes}min decl from {hhmm})",
+                "is_offset": True,
+                "declination_minutes": declination_minutes,
+            })
+    return states
+
+
 __all__ = [
     "K2_CLOCK_TIMES",
     "CIA_TIMESTAMP_TIMES",
     "TIMEZONE_OFFSET_HOURS",
+    "MAGNETIC_DECLINATION_DEG",
+    "MAGNETIC_DECLINATION_MINUTES",
     "clock_state_for_time",
     "offset_time",
+    "offset_time_minutes",
     "get_k2_clock_states",
     "get_tz_offset_states",
+    "get_magnetic_declination_states",
 ]

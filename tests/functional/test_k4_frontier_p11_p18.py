@@ -1,4 +1,4 @@
-"""Tests for K4 Phase 2 frontier attacks: P11/P12 (alphabets), P17 (bigram), P18 (key CSP)."""
+"""Tests for K4 Phase 2 frontier attacks: P11/P12/P13 (alphabets/clock), P17 (bigram), P18 (key CSP)."""
 
 from __future__ import annotations
 
@@ -124,6 +124,67 @@ class TestMisspellingAlphabets:
         for base in bases:
             names = [k for k in MISSPELLING_ALPHABETS if k.startswith(base)]
             assert len(names) == 3, f"Expected 3 variants for {base}, got {names}"
+
+
+# ---------------------------------------------------------------------------
+# P13 — Magnetic declination clock offset
+# ---------------------------------------------------------------------------
+class TestMagneticDeclination:
+    def test_declination_minutes_approx_20(self):
+        from kryptos.k4.k2_clock_states import MAGNETIC_DECLINATION_MINUTES
+        # 9.9 / 360 * 720 = 19.8, rounded = 20
+        assert MAGNETIC_DECLINATION_MINUTES == 20
+
+    def test_declination_constant_negative(self):
+        from kryptos.k4.k2_clock_states import MAGNETIC_DECLINATION_DEG
+        assert MAGNETIC_DECLINATION_DEG < 0  # west declination at CIA HQ
+
+    def test_offset_time_minutes_forward(self):
+        from kryptos.k4.k2_clock_states import offset_time_minutes
+        result = offset_time_minutes("13:00", 20)
+        assert result == "13:20"
+
+    def test_offset_time_minutes_backward(self):
+        from kryptos.k4.k2_clock_states import offset_time_minutes
+        result = offset_time_minutes("13:00", -20)
+        assert result == "12:40"
+
+    def test_offset_time_minutes_wrap_midnight(self):
+        from kryptos.k4.k2_clock_states import offset_time_minutes
+        result = offset_time_minutes("23:50", 20)
+        assert result == "00:10"
+
+    def test_magnetic_states_returns_list(self):
+        from kryptos.k4.k2_clock_states import get_magnetic_declination_states
+        states = get_magnetic_declination_states()
+        assert isinstance(states, list)
+        assert len(states) >= 2  # at least ±20min from CIA timestamp
+
+    def test_magnetic_states_have_required_keys(self):
+        from kryptos.k4.k2_clock_states import get_magnetic_declination_states
+        states = get_magnetic_declination_states()
+        for s in states:
+            assert "time" in s
+            assert "shifts" in s
+            assert "source" in s
+            assert "is_offset" in s
+            assert s["is_offset"] is True
+
+    def test_magnetic_states_cia_times_present(self):
+        from kryptos.k4.k2_clock_states import get_magnetic_declination_states
+        states = get_magnetic_declination_states()
+        times = {s["time"] for s in states}
+        # 13:00 ± 20 min → 12:40 and 13:20
+        assert "12:40" in times
+        assert "13:20" in times
+
+    def test_magnetic_states_berlin_times_present(self):
+        from kryptos.k4.k2_clock_states import get_magnetic_declination_states
+        states = get_magnetic_declination_states()
+        times = {s["time"] for s in states}
+        # 19:00 ± 20 min → 18:40 and 19:20
+        assert "18:40" in times
+        assert "19:20" in times
 
 
 # ---------------------------------------------------------------------------
