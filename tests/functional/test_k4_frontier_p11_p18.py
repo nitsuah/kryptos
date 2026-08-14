@@ -188,6 +188,46 @@ class TestMagneticDeclination:
 
 
 # ---------------------------------------------------------------------------
+# P14 — CIA→Berlin bearing
+# ---------------------------------------------------------------------------
+class TestBearingAttack:
+    def test_bearing_is_approx_44_degrees(self):
+        from kryptos.k4.bearing_attack import CIA_BERLIN_BEARING_DEG
+        # Great-circle bearing CIA HQ → Berlin ≈ 44.4° NNE
+        assert 42 < CIA_BERLIN_BEARING_DEG < 47
+
+    def test_bearing_int_is_44(self):
+        from kryptos.k4.bearing_attack import CIA_BERLIN_BEARING_INT
+        # round(44.4) = 44
+        assert CIA_BERLIN_BEARING_INT == 44
+
+    def test_great_circle_bearing_function(self):
+        from kryptos.k4.bearing_attack import great_circle_bearing
+        # Due east from equator should be 90°
+        b = great_circle_bearing(0, 0, 0, 10)
+        assert abs(b - 90.0) < 1.0
+
+    def test_great_circle_bearing_north(self):
+        from kryptos.k4.bearing_attack import great_circle_bearing
+        # Due north should be 0°
+        b = great_circle_bearing(0, 0, 10, 0)
+        assert abs(b - 0.0) < 1.0 or abs(b - 360.0) < 1.0
+
+    def test_run_bearing_attack_returns_summary(self):
+        from kryptos.k4.bearing_attack import run_bearing_attack
+        summary = run_bearing_attack(null_artifact_path="K4_P14_TEST_NULL.json")
+        assert "attack" in summary
+        assert summary["attack"] == "P14_bearing"
+        assert "cia_berlin_bearing_deg" in summary
+        assert "best_candidates" in summary
+
+    def test_caesar_shift_is_18_mod_26(self):
+        from kryptos.k4.bearing_attack import CIA_BERLIN_BEARING_INT
+        # round(44.4) = 44, 44 mod 26 = 18 = letter S
+        assert CIA_BERLIN_BEARING_INT % 26 == 18
+
+
+# ---------------------------------------------------------------------------
 # P17 — Bigram constraints
 # ---------------------------------------------------------------------------
 class TestBigramConstraint:

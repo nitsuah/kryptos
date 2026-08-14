@@ -20,7 +20,7 @@ Last Updated: 2026-08-14
 #### Coordinate deep-dive
 
 - [ ] **P13 — Magnetic declination clock offset** — At 38°57'N 77°8'W on Nov 3 1990, magnetic declination was ~−9.9° (NOAA IGRF model). Apply this as a fractional clock-hand rotation offset: the Berlin Clock reading at the nominal CIA timestamp shifts by ~10 min. Implement `magnetic_declination_offset(lat, lon, date)` using the IGRF coefficients and test the resulting modified clock states.
-- [ ] **P14 — CIA→Berlin great-circle bearing as cipher parameter** — Bearing from CIA HQ (38°57'N, 77°8'W) to Berlin (52°31'N, 13°24'E) is ~50.7°. Test 50 as: Caesar shift (50 mod 26 = 24), clock minute offset (50 min from CIA timestamp), transposition column start index, Vigenère key position offset. Four lightweight tests against the 4-crib gate.
+- [ ] **P14 — CIA→Berlin great-circle bearing as cipher parameter** — Bearing from CIA HQ (38°57'N, 77°8'W) to Berlin (52°31'N, 13°24'E) is ~44.4°. Test 44 as: Caesar shift (44 mod 26 = 18 = S), clock minute offset (44 min from CIA timestamp), Vigenère key cycle offset by 44 positions. Three lightweight tests against the 4-crib gate.
 - [ ] **P15 — K2 coordinate digits as straddling checkerboard** — Digits 3,8,5,7,6,5 (N coordinate) and 7,7,8,4,4 (W coordinate) as row-header indices in a straddling checkerboard. Build the checkerboard, encode K4 through it, check if output length and character distribution match known ciphertext properties. Implement `kryptos.k4.straddling_checkerboard`.
 
 #### Candidate text analysis

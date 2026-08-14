@@ -149,6 +149,21 @@ FRONTIER_VECTORS = [
         "runnable": True,
     },
     {
+        "id": "p14_bearing",
+        "priority": 14,
+        "name": "P14 — CIA→Berlin Bearing",
+        "status": "Active",
+        "description": (
+            "Great-circle bearing from CIA HQ to Berlin ≈ 50.7°. Tests: "
+            "(1) Caesar shift 50 mod 26 = 24 (Y); "
+            "(2) bearing as clock-minute offset on CIA timestamps; "
+            "(3) Vigenère key cycle shifted by bearing positions."
+        ),
+        "layer_count": 1,
+        "combo_estimate": 50,
+        "runnable": True,
+    },
+    {
         "id": "p13_magnetic_declination",
         "priority": 13,
         "name": "P13 — Magnetic Declination Clock Offset",
@@ -402,6 +417,11 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
         from kryptos.k4.gronsfeld import run_gronsfeld_sweep
         _update_job(job_id, progress_pct=50.0, clock_time="gronsfeld")
         summary = run_gronsfeld_sweep()
+
+    elif attack_id == "p14_bearing":
+        from kryptos.k4.bearing_attack import run_bearing_attack
+        _update_job(job_id, progress_pct=25.0, clock_time="bearing-calc")
+        summary = run_bearing_attack()
 
     elif attack_id == "p13_magnetic_declination":
         from kryptos.k4.k2_clock_states import get_magnetic_declination_states
