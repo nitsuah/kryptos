@@ -219,6 +219,63 @@ FRONTIER_VECTORS = [
         "runnable": True,
     },
     {
+        "id": "p15_straddling_checkerboard",
+        "priority": 15,
+        "name": "P15 — K2 Coordinate Straddling Checkerboard",
+        "status": "Active",
+        "description": (
+            "K2 coordinate digits 3,8,5,7,6,5 (N) and 7,7,8,4,4 (W) as row-header indices "
+            "in a straddling checkerboard. Tests 6 row-header pairs × 3 letter orderings × 2 "
+            "digit-stream converters. Checks encoding distribution and decoding for crib matches."
+        ),
+        "layer_count": 1,
+        "combo_estimate": 36,
+        "runnable": True,
+    },
+    {
+        "id": "p16_corpus_miner",
+        "priority": 16,
+        "name": "P16 — Candidate Corpus Fragment Mining",
+        "status": "Active",
+        "description": (
+            "Loads all K4_*_NULL.json artifacts, extracts candidate_text from each, "
+            "and runs a sliding-window n-gram frequency analysis over positions 0-21 "
+            "(before EAST crib). Flags English fragments recurring in >3% of candidates "
+            "as partial-plaintext anchors."
+        ),
+        "layer_count": 0,
+        "combo_estimate": 1,
+        "runnable": True,
+    },
+    {
+        "id": "p19_advisory_keywords",
+        "priority": 19,
+        "name": "P19 — Sanborn Advisory Names as Keywords",
+        "status": "Active",
+        "description": (
+            "Tests 9 name-derived keyed alphabets: SCHEIDT (most important — designed cipher "
+            "with Sanborn), WEBSTER, STUDEMAN, KERR, SANBORN, LANGLEY, ELONKA, OSHEA, KRYPTOS. "
+            "Same 3-layer composite sweep as P11, CIA timestamps first."
+        ),
+        "layer_count": 3,
+        "combo_estimate": 9 * 2,
+        "runnable": True,
+    },
+    {
+        "id": "p20_cyrillic_projector",
+        "priority": 20,
+        "name": "P20 — Cyrillic Projector KGB Keywords",
+        "status": "Active",
+        "description": (
+            "Sanborn's UNC Cyrillic Projector (1997) encodes a KGB recruitment manual. "
+            "16 transliterated KGB keywords (AGENT, REZIDENT, RAZVEDKA, SLUZHBA, ...) "
+            "tested as keyed-alphabet seeds in the 3-layer composite sweep."
+        ),
+        "layer_count": 3,
+        "combo_estimate": 16 * 2,
+        "runnable": True,
+    },
+    {
         "id": "p8_myszkowski",
         "priority": 8,
         "name": "P8 — Myszkowski Transposition",
@@ -495,6 +552,58 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
         _update_job(job_id, progress_pct=25.0, clock_time="csp-solving")
         summary = run_key_csp_attack()
         _update_job(job_id, progress_pct=100.0)
+
+    elif attack_id == "p15_straddling_checkerboard":
+        from kryptos.k4.straddling_checkerboard import run_straddling_checkerboard_attack
+        _update_job(job_id, progress_pct=10.0, clock_time="checkerboard")
+        summary = run_straddling_checkerboard_attack()
+        _update_job(job_id, progress_pct=100.0)
+
+    elif attack_id == "p16_corpus_miner":
+        from kryptos.k4.corpus_miner import run_corpus_miner_attack
+        _update_job(job_id, progress_pct=10.0, clock_time="mining-artifacts")
+        summary = run_corpus_miner_attack()
+        _update_job(job_id, progress_pct=100.0)
+
+    elif attack_id == "p19_advisory_keywords":
+        from kryptos.k4.advisory_keywords import run_advisory_keyword_sweep
+
+        def _progress_p19(info: dict[str, Any]) -> None:
+            pct = (info["clock_idx"] / info["total_clock"]) * 100
+            _update_job(
+                job_id,
+                progress_pct=round(pct, 1),
+                clock_time=info["clock_time"],
+                total_candidates=info["total_candidates"],
+                top_candidates=info["top_candidates"],
+            )
+
+        summary = run_advisory_keyword_sweep(
+            grid_sizes=req.grid_sizes,
+            priority_only=req.priority_only,
+            max_perms_per_grid=req.max_perms_per_grid or 120,
+            progress_cb=_progress_p19,
+        )
+
+    elif attack_id == "p20_cyrillic_projector":
+        from kryptos.k4.cyrillic_projector import run_cyrillic_projector_sweep
+
+        def _progress_p20(info: dict[str, Any]) -> None:
+            pct = (info["clock_idx"] / info["total_clock"]) * 100
+            _update_job(
+                job_id,
+                progress_pct=round(pct, 1),
+                clock_time=info["clock_time"],
+                total_candidates=info["total_candidates"],
+                top_candidates=info["top_candidates"],
+            )
+
+        summary = run_cyrillic_projector_sweep(
+            grid_sizes=req.grid_sizes,
+            priority_only=req.priority_only,
+            max_perms_per_grid=req.max_perms_per_grid or 120,
+            progress_cb=_progress_p20,
+        )
 
     else:
         summary = {"status": "error", "error": f"Unknown attack: {attack_id}"}
