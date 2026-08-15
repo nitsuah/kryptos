@@ -12,6 +12,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from kryptos.api.dashboard import create_dashboard_router
+from kryptos.api.k4_attack_routes import create_k4_attack_router
 from kryptos.api.log_stream import install_log_streaming, log_event_stream
 from kryptos.api.vault_routes import create_vault_router
 from kryptos.rag.index import ArtifactIndex
@@ -53,6 +54,7 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
     app = FastAPI(title="Kryptos API", version="0.1.0")
     app.include_router(create_dashboard_router())
     app.include_router(create_vault_router())
+    app.include_router(create_k4_attack_router())
 
     @app.get("/health")
     def health() -> dict:

@@ -86,6 +86,59 @@ export interface AttackVectorsResponse {
   vectors: AttackVector[];
 }
 
+// --- Frontier P1-P10 attack vectors ---
+
+export interface FrontierVector {
+  id: string;
+  priority: number;
+  name: string;
+  status: string;
+  description: string;
+  layer_count: number;
+  combo_estimate: number | null;
+  runnable: boolean;
+}
+
+export interface FrontierVectorsResponse {
+  vectors: FrontierVector[];
+}
+
+export interface RunAttackRequest {
+  attack_id: string;
+  priority_only?: boolean;
+  grid_sizes?: number[] | null;
+  max_perms_per_grid?: number | null;
+}
+
+export interface AttackCandidate {
+  candidate_text: string;
+  keyword_hits: number;
+  instructional_score?: number;
+  alpha_name?: string;
+  n_cols?: number;
+  perm?: number[];
+  clock_time?: string;
+  // P6-specific
+  variant?: string;
+  // P7-specific
+  key?: string;
+  // P3/P4-specific
+  source?: string;
+  is_offset?: boolean;
+}
+
+export interface JobStatus {
+  job_id: string;
+  attack_id: string;
+  status: string;  // "queued" | "running" | "complete" | "error" | "eureka"
+  progress_pct: number;
+  clock_time: string | null;
+  total_candidates: number;
+  top_candidates: AttackCandidate[];
+  summary: Record<string, unknown> | null;
+  error: string | null;
+}
+
 
 export class ApiError extends Error {
   status: number;
@@ -135,4 +188,7 @@ export const api = {
     postJSON<VaultUnsealResponse>("/api/vault/unseal", { token, key }),
   vaultPeek: (token: string) => getJSON<VaultPeekResponse>(`/api/vault/${encodeURIComponent(token)}`),
   attackVectors: () => getJSON<AttackVectorsResponse>("/api/attack-vectors"),
+  frontierVectors: () => getJSON<FrontierVectorsResponse>("/api/k4/attacks/frontier"),
+  runAttack: (req: RunAttackRequest) => postJSON<JobStatus>("/api/k4/attacks/run", req),
+  jobStatus: (jobId: string) => getJSON<JobStatus>(`/api/k4/attacks/jobs/${jobId}`),
 };
