@@ -3,14 +3,10 @@
 The great-circle bearing from CIA HQ (38.957°N, 77.145°W) to
 Berlin (52.520°N, 13.405°E) is approximately 44.4° (NNE).
 
-Four interpretations tested against the 4-crib gate:
-  1. Caesar shift 44 mod 26 = 18 (letter S) applied to K4
-  2. Clock-offset: bearing degrees → clock minutes → new CIA timestamps
-  3. Vigenère key position offset: the Vigenère key is indexed from position 50
-  4. Columnar transposition starting column: column order starts at offset 50 mod n_cols
-
-Note: bearing in degrees at destination and departure can vary slightly;
-we test the integer values 50 and 51 (floor and ceil of 50.7°).
+Three interpretations tested against the 4-crib gate:
+  1. Caesar shift: 44 mod 26 = 18 (letter S) applied to K4
+  2. Clock-offset: bearing degrees scaled to clock minutes (~88 min) → new CIA timestamps
+  3. Vigenère key position offset: key cycle starts at position bearing_int (44)
 """
 
 from __future__ import annotations
@@ -43,7 +39,7 @@ def great_circle_bearing(lat1_deg: float, lon1_deg: float, lat2_deg: float, lon2
 
 
 CIA_BERLIN_BEARING_DEG: float = great_circle_bearing(CIA_LAT, CIA_LON, BERLIN_LAT, BERLIN_LON)
-CIA_BERLIN_BEARING_INT: int = round(CIA_BERLIN_BEARING_DEG)  # 51
+CIA_BERLIN_BEARING_INT: int = round(CIA_BERLIN_BEARING_DEG)  # 44
 
 
 def _keyword_hits(text: str) -> int:
@@ -67,7 +63,7 @@ def run_bearing_attack(null_artifact_path: str = "K4_P14_BEARING_NULL.json") -> 
 
     results: list[dict[str, Any]] = []
 
-    # ── Test 1: Caesar shift bearing_int mod 26 = 24 (Y) ──────────────────────
+    # ── Test 1: Caesar shift bearing_int mod 26 = 18 (S) ──────────────────────
     logger.info("P14 Test 1: Caesar shift %d mod 26 = %d", bearing_int, bearing_int % 26)
     shift = bearing_int % 26
     for alpha_name, alpha in KNOWN_KEYED_ALPHABETS.items():
@@ -118,7 +114,7 @@ def run_bearing_attack(null_artifact_path: str = "K4_P14_BEARING_NULL.json") -> 
                         })
 
     # ── Test 3: Vigenère key index offset by bearing ───────────────────────────
-    # Shift the key cycle start to position bearing_int, so key[i] = repeating_key[(i+50)%L]
+    # Shift the key cycle start to position bearing_int, so key[i] = repeating_key[(i+44)%L]
     logger.info("P14 Test 3: Vigenère key offset by %d positions", bearing_int)
     from .berlin_clock import full_berlin_clock_shifts
     from datetime import time as dtime
