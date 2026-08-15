@@ -665,6 +665,9 @@ button:disabled {
 .priority-p8, .priority-p9, .priority-p10 {
   background: rgba(29,158,117,0.2); color: var(--text);
 }
+.priority-p11 {
+  background: rgba(100,149,237,0.25); color: #c0d8ff;
+}
 
 /* Glowing section title */
 .section-title-glow {
