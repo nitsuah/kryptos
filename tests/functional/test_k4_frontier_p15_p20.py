@@ -57,15 +57,16 @@ class TestStraddlingCheckerboard:
         from kryptos.k4.straddling_checkerboard import run_straddling_checkerboard_attack
         result = run_straddling_checkerboard_attack(null_artifact_path="K4_P15_TEST_NULL.json")
         assert isinstance(result, dict)
-        assert "attack" in result
         assert result["attack"] == "P15_straddling_checkerboard"
+        assert "best_candidates" in result
+        assert "total_candidates" in result
 
-    def test_run_attack_combos_tested(self):
+    def test_run_attack_total_candidates(self):
         from kryptos.k4.straddling_checkerboard import run_straddling_checkerboard_attack, CANDIDATE_ROW_HEADERS
         result = run_straddling_checkerboard_attack(null_artifact_path="K4_P15_TEST2_NULL.json")
         # 6 row-headers × 3 orderings × 2 converters = 36
         expected = len(CANDIDATE_ROW_HEADERS) * 3 * 2
-        assert result["combos_tested"] == expected
+        assert result["total_candidates"] == expected
 
     def test_encoding_analysis_present(self):
         from kryptos.k4.straddling_checkerboard import run_straddling_checkerboard_attack

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 from pathlib import Path
 from typing import Any
 
@@ -123,7 +124,7 @@ def mine_candidate_corpus(
                     key = (pos, n, gram)
                     ngram_counts[key] = ngram_counts.get(key, 0) + 1
 
-    min_count = max(1, int(n_candidates * MIN_FREQUENCY_PCT / 100))
+    min_count = max(1, math.ceil(n_candidates * MIN_FREQUENCY_PCT / 100))
     frequent_grams = [
         {
             "position": pos,

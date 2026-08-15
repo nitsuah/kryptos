@@ -222,9 +222,9 @@ def run_straddling_checkerboard_attack(
     summary: dict[str, Any] = {
         "status": "null_result" if not any(r.get("keyword_hits", 0) >= 4 for r in decoding_results) else "eureka",
         "attack": "P15_straddling_checkerboard",
-        "combos_tested": combos_tested,
+        "total_candidates": combos_tested,
         "k2_row_header_candidates": CANDIDATE_ROW_HEADERS,
-        "best_decoding_candidates": decoding_results[:10],
+        "best_candidates": decoding_results[:10],
         "encoding_analysis": encoding_results[:6],
     }
 
