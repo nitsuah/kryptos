@@ -3,7 +3,7 @@ numpy
 requests
 beautifulsoup4
 spacy>=3.8.15
-nltk>=3.10.2
+nltk>=3.10.3
 pyyaml>=6.0.3
 openai>=3.0.0  # Optional: for OpenAI LLM integration
 transformers>=5.14.1  # Optional: for LINGUIST neural validation
