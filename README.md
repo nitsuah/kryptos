@@ -23,7 +23,7 @@ Run a standard autonomous cycle:
 python -m kryptos.cli.main autonomous --max-hours 24 --cycle-interval 5
 ```
 
-Contributor operating standards and workflow expectations are consolidated in `CONTRIBUTING.md`.
+Community standards (contributing, code of conduct, security) are centralized in [nitsuah/.github](https://github.com/nitsuah/.github).
 
 
 ## Repository Structure
@@ -79,19 +79,19 @@ Kryptos is a long-horizon cryptanalysis program, not a promise machine.
 - Every roadmap claim ties to measurable criteria, not adjectives.
 - Every phase includes at least one explicit "stop doing" decision.
 
-For governance and maintenance policy, see `CONTRIBUTING.md` (with historical references in `docs/archive/`).
+For governance and maintenance policy, see `docs/GOVERN.md` (with historical references in `docs/archive/`).
 
 ## docs
 
 All Related documents / quick links can generally be found in `docs/`:
 
 - Docs index: `docs/INDEX.md`
-- Roadmap: `ROADMAP.md`
-- Active standards and contribution workflow: `CONTRIBUTING.md`
+- Roadmap: `docs/ROADMAP.md`
+- Tasks: `docs/TASKS.md`
 - Agents Architecture: `docs/reference/AGENTS_ARCHITECTURE.md`
 - API Reference: `docs/reference/API_REFERENCE.md`
 - Autonomous System: `docs/reference/AUTONOMOUS_SYSTEM.md`
-- Changelog: `CHANGELOG.md`
+- Changelog: `docs/CHANGELOG.md`
 
 **K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in copper that nobody has
 cracked in 30+ years. We're using Python to systematically try every reasonable decryption method – techniques that
@@ -151,12 +151,12 @@ All null results. Keystream analysis confirms Berlin Clock alone is insufficient
 ### ✅ K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"
 
 - **Status**: Solved.
-- **Details**: Decrypted via Vigenère using keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`. Intentional misspelling preserved: `IQLUSION`.
+- **Details**: Vigenère cipher with keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ` (keyword: `KRYPTOS`) and Vigenère key `PALIMPSEST`. Intentional misspelling preserved: `IQLUSION`.
 
 ### ✅ K2: "It was totally invisible. How's that possible?"
 
 - **Status**: Solved.
-- **Details**: Vigenère (key: `ABSCISSA`). Includes embedded null/structural padding (`S`) for historical alignment. Contains geospatial coordinates and narrative text.
+- **Details**: Vigenère cipher with keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ` (keyword: `KRYPTOS`) and Vigenère key `ABSCISSA`. Includes embedded null/structural padding (`X`, and some `Y`) for historical alignment. Contains geospatial coordinates and narrative text.
 
 ### ✅ K3: "Slowly, desperately slowly, the remains of passage debris..."
 
@@ -383,7 +383,7 @@ using the evaluation harness; it falls back to `0.25` when no labeled runs are a
 
 ## Contributing
 
-Contribution guidelines moved to `CONTRIBUTING.md` → [Contributing Guide](./CONTRIBUTING.md).
+Community contribution guidelines are maintained in [nitsuah/.github](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md).
 
 ## Docker Fast Coverage
 
@@ -394,7 +394,7 @@ docker run --rm -v "${PWD}:/app" -w /app python:3.13-slim sh -lc \
   "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml fastapi httpx && \
    python -m spacy download en_core_web_sm && \
    pip install --no-cache-dir -e . --no-deps && \
-   pytest tests/ -m 'not slow' --cov=src --cov-report=term"
+   pytest tests/ -m 'not slow' --cov=kryptos --cov-report=term"
 ```
 
 Note: `tests/test_k4_performance.py` contains a micro-benchmark guard that is automatically skipped in container
@@ -415,11 +415,12 @@ See `LICENSE`.
 
 ## Other Documentation
 
-- `ROADMAP.md` — Current roadmap and phase objectives
+- `docs/ROADMAP.md` — Current roadmap and phase objectives
+- `docs/TASKS.md` — Implementation backlog and K4 attack queue
+- `docs/CHANGELOG.md` — Change history and version tracking
 - `docs/reference/AGENTS_ARCHITECTURE.md` — SPY/OPS/Q agent design and implementation
 - `docs/reference/API_REFERENCE.md` — Python API and CLI command reference
 - `docs/reference/AUTONOMOUS_SYSTEM.md` — Autonomous coordination system
-- `CHANGELOG.md` — Change history and version tracking
 
 ## Code Examples
 

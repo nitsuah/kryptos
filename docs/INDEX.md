@@ -2,18 +2,14 @@
 
 Breadcrumb: Home > Docs > Index
 
-
-Breadcrumb: Home > Docs > Index
-
-
 This is the traversal map for humans and AI agents.
 
 ## Start Here
 
 - [README.md](../README.md) - Project overview and current status
-- [CONTRIBUTING.md](../CONTRIBUTING.md) - Contribution workflow, operating standards, and autonomous quickstart
-- [ROADMAP.md](../ROADMAP.md) - Canonical roadmap and grouped strategic priorities
-- [TASKS.md](../TASKS.md) - Canonical execution backlog
+- [ROADMAP.md](ROADMAP.md) - Canonical roadmap and grouped strategic priorities
+- [TASKS.md](TASKS.md) - Canonical execution backlog
+- [Contributing](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md) - Contribution workflow (nitsuah org-wide)
 
 ## Reference
 
@@ -21,6 +17,9 @@ This is the traversal map for humans and AI agents.
 - [docs/reference/AUTONOMOUS_SYSTEM.md](reference/AUTONOMOUS_SYSTEM.md) - Autonomous agent orchestration
 - [docs/reference/AGENTS_ARCHITECTURE.md](reference/AGENTS_ARCHITECTURE.md) - Agent triumvirate design
 - [docs/reference/PROVENANCE_SYSTEM_EXPLAINED.md](reference/PROVENANCE_SYSTEM_EXPLAINED.md) - Search-space tracking and provenance
+- [CHANGELOG.md](CHANGELOG.md) - Change history and version tracking
+- [METRICS.md](METRICS.md) - Project metrics and health snapshot
+- [GOVERN.md](GOVERN.md) - Governance and maintenance policy
 
 ## Analysis
 
@@ -36,8 +35,8 @@ This is the traversal map for humans and AI agents.
 
 ## Planning
 
-- [ROADMAP.md](../ROADMAP.md) - High-level project roadmap
-- [TASKS.md](../TASKS.md) - Current task backlog
+- [ROADMAP.md](ROADMAP.md) - High-level project roadmap
+- [TASKS.md](TASKS.md) - Current task backlog
 
 ## Historical / Archived
 
