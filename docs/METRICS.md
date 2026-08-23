@@ -12,12 +12,12 @@ Breadcrumb: [Docs](INDEX.md) > Metrics
 
 | Metric              | Value   | Notes                                      |
 | ------------------- | ------- | ------------------------------------------ |
-| Code Coverage       | 95%     | Measured with pytest-cov on fast suite (`pytest tests/ -m "not slow" --cov=src --cov-report=term`) |
+| Code Coverage       | 89.35%  | Measured with pytest-cov (Docker, 2026-08-22): `pytest tests/ --cov=src --cov-report=term`; 1192 collected passed, 28 skipped |
 | Source Files        | 112     | Python modules in src/ excl. `__init__.py` (131 total incl. `__init__.py`) |
 | Test Files          | 184     | `test_*.py` modules in tests/              |
 | Test Functions      | 1271    | `def test_*` functions across all test files (static count 2026-08-22) |
 | Test Cases (Total)  | 1271    | Static function count; pytest-collected may differ due to marks/parametrize |
-| Test Cases (Fast)   | 829     | 0 failures, 0 errors at 2026-06-01 audit (pytest-collected, pre-growth) |
+| Test Cases (Fast)   | 1192    | 0 failures, 28 skipped (Docker run 2026-08-22; slow Monte Carlo tests excluded) |
 | Test Cases (Slow)   | ~22     | `@pytest.mark.slow`-marked test locations (opt-in Monte Carlo) |
 | Lines of Code       | ~65K    | Estimated from 112 non-init source files   |
 | Documentation Files | 40+     | Comprehensive docs in docs/ directory      |
