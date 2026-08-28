@@ -31,8 +31,8 @@ Last Updated: 2026-08-28
 
 #### CIA/historical keyword research
 
-- [x] **P19 — Sanborn advisory names as alphabet keywords** — William Webster (DCI 1987–1991), Richard Kerr (DDCI), William Studeman (NSA Director), Ed Scheidt (CIA KGB officer who worked with Sanborn directly). Scheidt is the most important: he designed the encryption with Sanborn and has said "there's still something that needs to be worked out." His name, SCHEIDT, is an untested keyed-alphabet keyword.
-- [x] **P20 — Cyrillic Projector crossover** — Sanborn's "Cyrillic Projector" sculpture (UNC Chapel Hill, 1997) encodes a KGB document. The KGB keywords from that document — translated to Roman alphabet — may cross-reference K4's cipher key. Research and extract the Cyrillic Projector plaintext; test any Roman-alphabet words as K4 keyed-alphabet seeds.
+- [x] **P19 — Sanborn advisory names as alphabet keywords** — William Webster (DCI 1987–1991), Richard Kerr (DDCI), William Studeman (NSA Director), Ed Scheidt (CIA KGB officer who worked with Sanborn directly). Scheidt is the most important: he designed the encryption with Sanborn and has said "there's still something that needs to be worked out." His name, SCHEIDT, is an untested keyed-alphabet keyword. Implemented in `kryptos.k4.advisory_keywords.run_advisory_keyword_sweep()`; tested in `tests/functional/test_k4_frontier_p15_p20.py::TestAdvisoryKeywords` (6 tests).
+- [x] **P20 — Cyrillic Projector crossover** — Sanborn's "Cyrillic Projector" sculpture (UNC Chapel Hill, 1997) encodes a KGB document. The KGB keywords from that document — translated to Roman alphabet — may cross-reference K4's cipher key. Research and extract the Cyrillic Projector plaintext; test any Roman-alphabet words as K4 keyed-alphabet seeds. Implemented in `kryptos.k4.cyrillic_projector.run_cyrillic_projector_sweep()`; tested in `tests/functional/test_k4_frontier_p15_p20.py::TestCyrillicProjector` (8 tests).
 
 ---
 
