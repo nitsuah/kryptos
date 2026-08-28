@@ -2,7 +2,7 @@
 
 Breadcrumb: [Docs](INDEX.md) > Roadmap
 
-Last Updated: 2026-08-14
+Last Updated: 2026-08-28
 Next Review: 2026-09-15
 
 ---
@@ -54,7 +54,9 @@ All single-layer and 2-layer composite vectors exhausted. Each produced a docume
 
 ---
 
-## Phase 3 — Frontier Phase 2: 10 New Directions 🔭 (Open — 2026-08-14)
+## Phase 3 — Frontier Phase 2: 10 New Directions ✅ (Implemented — see TASKS.md)
+
+> P11–P20 are all implemented (see `docs/TASKS.md` Active section for per-vector detail and module names). "Implemented" here means the attack code exists and is unit-tested, not that every vector has been exhaustively run to a null/positive result — P16's corpus mining, in particular, is scanning a still-partial corpus (only priority-clock-time P1–P7 runs, not the full 720-state sweep).
 
 ### P11–P12 — Alphabet Keyword Expansion
 
@@ -99,6 +101,11 @@ The null-result sweeps produced thousands of candidate texts that were discarded
 - [x] Ops Center, K1–K3 decoder, Database admin, Vault, SSE log tail
 
 ---
+
+## Ideas — not yet scheduled
+
+- **Cross-vector consensus scoring** — new idea (2026-08-28): P16 mines candidate fragments *within* one attack vector's null-result corpus. Twenty structurally independent vectors (P1–P20) each produce scored candidate texts under different key/cipher assumptions; a fragment that surfaces at the same position across *multiple, independently-derived* vectors is a far stronger signal than a repeated fragment within one vector's own sweep, since it would take coincidence across unrelated cryptographic models rather than just within one. Worth building once P1's full sweep and the P11–P20 corpus both have enough volume to compare.
+- **Scheduled overnight full sweeps** — new idea (2026-08-28): P1's full 720-state sweep is noted as sub-minute runtime but still "pending" as a manual action; a scheduled job (or a "run everything overnight" dashboard button) that queues every not-yet-run full sweep would close out the "highest-value pending run" backlog without requiring someone to remember to click it.
 
 ## Phase 5 — Post-Solution (Standing)
 
