@@ -2,7 +2,7 @@
 
 Breadcrumb: [Docs](INDEX.md) > Roadmap
 
-Last Updated: 2026-08-14
+Last Updated: 2026-08-28
 Next Review: 2026-09-15
 
 ---
@@ -54,7 +54,9 @@ All single-layer and 2-layer composite vectors exhausted. Each produced a docume
 
 ---
 
-## Phase 3 — Frontier Phase 2: 10 New Directions 🔭 (Open — 2026-08-14)
+## Phase 3 — Frontier Phase 2: 10 New Directions ✅ (Implemented — see TASKS.md)
+
+> P11–P20 are all implemented (see `docs/TASKS.md` Active section for per-vector detail and module names). "Implemented" here means the attack code exists and is unit-tested, not that every vector has been exhaustively run to a null/positive result — P16's corpus mining, in particular, is scanning a still-partial corpus (only priority-clock-time P1–P7 runs, not the full 720-state sweep).
 
 ### P11–P12 — Alphabet Keyword Expansion
 
@@ -79,7 +81,7 @@ The K2 plaintext encodes CIA HQ at 38°57'6.5"N, 77°8'44"W. Beyond HH:MM readin
 
 The null-result sweeps produced thousands of candidate texts that were discarded after failing the 4-crib gate. These contain latent signal:
 
-- **P16 — Corpus fragment mining** — Mine all `*_NULL.json` artifacts for consistent English 4–6-char fragments at positions 0–21 (before the EAST crib). Any fragment appearing in >3% of candidates at the same position across multiple attack types is a partial-plaintext anchor worth back-solving.
+- **P16 — Corpus fragment mining** — Mine `K4_P{1-7}_*_NULL.json` null-result artifacts from the P1–P7 sweeps for consistent English 4–6-char fragments at positions 0–21 (before the EAST crib). Corpus is currently partial (priority-clock-time P1–P7 runs only, not the full 720-state sweep). Any fragment appearing in >3% of candidates at the same position across multiple attack types is a partial-plaintext anchor worth back-solving.
 - **P17 — QQ/SS bigram hard constraints** — K4 has QQ at 12–13 and SS at 31–32. Consecutive identical ciphertext letters constrain valid key letters at those positions. Model as a pre-filter that prunes permutations incompatible with the doubled-letter constraint before scoring.
 - **P18 — Repeating-key CSP** — 22 known (position, shift) pairs across 4 crib windows. For a repeating key of length L=7–15, positions ≡ mod L must share key letters. Arc-consistency + backtracking over this constraint set yields the key directly if it repeats. O(L × 26) search space per L.
 
@@ -99,6 +101,11 @@ The null-result sweeps produced thousands of candidate texts that were discarded
 - [x] Ops Center, K1–K3 decoder, Database admin, Vault, SSE log tail
 
 ---
+
+## Ideas — not yet scheduled
+
+- **Cross-vector consensus scoring** — new idea (2026-08-28): P16 mines candidate fragments *within* one attack vector's null-result corpus. Twenty structurally independent vectors (P1–P20) each produce scored candidate texts under different key/cipher assumptions; a fragment that surfaces at the same position across *multiple, independently-derived* vectors is a far stronger signal than a repeated fragment within one vector's own sweep, since it would take coincidence across unrelated cryptographic models rather than just within one. Worth building once P1's full sweep and the P11–P20 corpus both have enough volume to compare.
+- **Scheduled overnight full sweeps** — new idea (2026-08-28): P1's full 720-state sweep is noted as sub-minute runtime but still "pending" as a manual action; a scheduled job (or a "run everything overnight" dashboard button) that queues every not-yet-run full sweep would close out the "highest-value pending run" backlog without requiring someone to remember to click it.
 
 ## Phase 5 — Post-Solution (Standing)
 
