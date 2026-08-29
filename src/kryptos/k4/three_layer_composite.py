@@ -367,7 +367,7 @@ def run_three_layer_composite_geometric(
     total_tested = 0
     best_candidates: list[dict[str, Any]] = []
 
-    def _reproduce(key_info: dict[str, Any], _ct: str = ciphertext) -> str:
+    def _reproduce(key_info: dict[str, Any], _ct: str = ct) -> str:
         return _decrypt_three_layer_geometric(
             _ct,
             key_info["order"],

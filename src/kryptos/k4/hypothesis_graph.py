@@ -111,11 +111,26 @@ def new_graph() -> dict[str, Any]:
 
 
 def load(path: str | Path = DEFAULT_GRAPH_PATH) -> dict[str, Any]:
-    """Load a persisted graph, or seed a fresh one if the file doesn't exist."""
+    """Load a persisted graph, or seed a fresh one if the file doesn't exist.
+
+    Migrates older persisted graphs forward: any node/edge added to
+    NODES/EDGES since the file was written is inserted with its default
+    seed, while every edge already present in the file keeps its existing
+    status/evidence untouched. Without this, a graph saved before a new
+    edge existed (e.g. Phase 1's file, before Phase 2 added
+    CLOCK_VIGENERE_LAYER) would raise KeyError the first time a caller
+    tried to record a result on that new edge.
+    """
     p = Path(path)
-    if p.exists():
-        return json.loads(p.read_text(encoding="utf-8"))
-    return new_graph()
+    if not p.exists():
+        return new_graph()
+    graph = json.loads(p.read_text(encoding="utf-8"))
+    fresh = new_graph()
+    graph_edges = graph.setdefault("edges", {})
+    for key, seeded_value in fresh["edges"].items():
+        graph_edges.setdefault(key, seeded_value)
+    graph["nodes"] = fresh["nodes"]
+    return graph
 
 
 def save(graph: dict[str, Any], path: str | Path = DEFAULT_GRAPH_PATH) -> str:

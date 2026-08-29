@@ -99,6 +99,34 @@ class TestPersistence:
         loaded = hg.load(path)
         assert loaded == hg.new_graph()
 
+    def test_load_migrates_stale_graph_missing_new_edges(self, tmp_path):
+        # Simulate a graph persisted before an edge existed in EDGES (e.g. a
+        # Phase 1 file, saved before Phase 2 added CLOCK_VIGENERE_LAYER).
+        path = tmp_path / "stale.json"
+        stale_edges = {
+            k: v for k, v in hg.new_graph()["edges"].items() if "CLOCK_VIGENERE" not in k and "THREE_LAYER" not in k
+        }
+        stale = {"nodes": hg.NODES[:12], "edges": stale_edges}
+        path.write_text(json.dumps(stale), encoding="utf-8")
+
+        loaded = hg.load(path)
+        assert "SUBSTITUTION_LAYER->CLOCK_VIGENERE_LAYER" in loaded["edges"]
+        assert "CLOCK_VIGENERE_LAYER->THREE_LAYER_GEOMETRIC_COMPOSITE" in loaded["edges"]
+        # Recording on a newly-migrated edge must not raise KeyError.
+        hg.record_result(loaded, ("SUBSTITUTION_LAYER", "CLOCK_VIGENERE_LAYER"), "null")
+
+    def test_load_migration_preserves_existing_edge_data(self, tmp_path):
+        path = tmp_path / "stale.json"
+        graph = hg.new_graph()
+        hg.record_result(graph, hg.EDGES[0], "eureka", evidence="pre-existing finding")
+        del graph["edges"]["SUBSTITUTION_LAYER->CLOCK_VIGENERE_LAYER"]
+        path.write_text(json.dumps(graph), encoding="utf-8")
+
+        loaded = hg.load(path)
+        key = f"{hg.EDGES[0][0]}->{hg.EDGES[0][1]}"
+        assert loaded["edges"][key]["status"] == "eureka"
+        assert loaded["edges"][key]["evidence"] == "pre-existing finding"
+
     def test_save_writes_valid_json(self, tmp_path):
         path = tmp_path / "graph.json"
         hg.save(hg.new_graph(), path)

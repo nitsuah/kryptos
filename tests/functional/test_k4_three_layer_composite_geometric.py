@@ -151,3 +151,27 @@ class TestEurekaOnPlantedSolution:
         data = json.loads(graph_path.read_text(encoding="utf-8"))
         assert data["edges"]["SUBSTITUTION_LAYER->CLOCK_VIGENERE_LAYER"]["status"] == "eureka"
         assert data["edges"]["CLOCK_VIGENERE_LAYER->THREE_LAYER_GEOMETRIC_COMPOSITE"]["status"] == "eureka"
+
+    def test_reproduces_from_non_normalized_ciphertext(self, tmp_path):
+        # _reproduce's default must use the normalized `ct`, not the raw
+        # `ciphertext` parameter -- otherwise a ciphertext containing any
+        # non-alpha character reproduces against a different (wrong) length
+        # than what the sweep actually decrypted, and apply_inverse raises.
+        planted_ct, meta = _planted_ciphertext()
+        dirty_ct = planted_ct[:50] + "-" + planted_ct[50:]
+
+        with pytest.raises(EurekaSignal) as excinfo:
+            run_three_layer_composite_geometric(
+                ciphertext=dirty_ct,
+                subst_alphabets={"KRYPTOS": meta["alphabet"]},
+                order_names=["col_major"],
+                reflection_names=["flip_v"],
+                rotation_offsets=[6],
+                remainder_modes=["leading"],
+                null_artifact_path=tmp_path / "null.json",
+                graph_path=tmp_path / "graph.json",
+                eureka_snapshot_path=tmp_path / "snap.md",
+            )
+
+        assert excinfo.value.result["validation"]["reproduced"] is True
+        assert excinfo.value.result["validation"]["promote"] is True
