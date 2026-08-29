@@ -42,6 +42,10 @@ NODES: list[str] = [
     "GRID_4X24_PLUS_1",
     "GEOMETRIC_POSITIONAL_TRANSFORM",
     "SUBSTITUTION_LAYER",
+    # Phase 2 (item 13): does a clock-derived Vigenere layer, combined with
+    # the Phase 1 geometric permutation, complete a 3-layer composite?
+    "CLOCK_VIGENERE_LAYER",
+    "THREE_LAYER_GEOMETRIC_COMPOSITE",
 ]
 
 EDGES: list[tuple[str, str]] = [
@@ -56,6 +60,8 @@ EDGES: list[tuple[str, str]] = [
     ("COORD_SYSTEM_24", "GRID_4X24_PLUS_1"),
     ("GRID_4X24_PLUS_1", "GEOMETRIC_POSITIONAL_TRANSFORM"),
     ("GEOMETRIC_POSITIONAL_TRANSFORM", "SUBSTITUTION_LAYER"),
+    ("SUBSTITUTION_LAYER", "CLOCK_VIGENERE_LAYER"),
+    ("CLOCK_VIGENERE_LAYER", "THREE_LAYER_GEOMETRIC_COMPOSITE"),
 ]
 
 VALID_STATUSES = {"untested", "null", "partial_null", "confirmed", "eureka"}
