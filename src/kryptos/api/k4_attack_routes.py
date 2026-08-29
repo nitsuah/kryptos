@@ -337,6 +337,24 @@ class FrontierVectorsResponse(BaseModel):
     vectors: list[dict[str, Any]]
 
 
+class BearingInfo(BaseModel):
+    forward_azimuth_deg: float
+    back_azimuth_deg: float | None = None
+    distance_m: float
+    distance_ft: float
+    source: str
+    note: str | None = None
+
+
+class PivotStatusResponse(BaseModel):
+    """Physical/Geometric Pivot progress summary — v2 dashboard panel."""
+
+    hypothesis_graph: dict[str, Any]
+    hypothesis_graph_mermaid: str
+    total_candidates_tested: int
+    bearings: dict[str, BearingInfo]
+
+
 # ---------------------------------------------------------------------------
 # Attack worker dispatcher
 # ---------------------------------------------------------------------------
@@ -368,8 +386,8 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
         )
 
     elif attack_id == "p2_shadow_masking":
-        from kryptos.k4.masking_v2 import all_masking_variants
         from kryptos.k4.composite_sweep import run_composite_sweep
+        from kryptos.k4.masking_v2 import all_masking_variants
         from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
 
         variants = all_masking_variants()
@@ -392,11 +410,16 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
             except Exception:  # noqa: BLE001
                 pass
         best.sort(key=lambda r: (-r.get("keyword_hits", 0), -r.get("instructional_score", 0)))
-        summary = {"status": "null_result", "attack": "P2_shadow_masking", "variants_tested": len(variants), "best_candidates": best[:10]}
+        summary = {
+            "status": "null_result",
+            "attack": "P2_shadow_masking",
+            "variants_tested": len(variants),
+            "best_candidates": best[:10],
+        }
 
     elif attack_id == "p3_k2_coord_clock":
+        from kryptos.k4.composite_sweep import K4, run_composite_sweep
         from kryptos.k4.k2_clock_states import get_k2_clock_states
-        from kryptos.k4.composite_sweep import run_composite_sweep, K4
         from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
 
         states = get_k2_clock_states(include_tz_offset=False)
@@ -404,12 +427,12 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
         for i, state in enumerate(states):
             pct = ((i + 1) / len(states)) * 100
             _update_job(job_id, progress_pct=round(pct, 1), clock_time=state["time"], total_candidates=i + 1)
-            # Use the specific shift sequence only
-            single_alpha = {"KRYPTOS": KNOWN_KEYED_ALPHABETS["KRYPTOS"]}
             try:
-                from kryptos.k4.composite_sweep import _vigenere_decrypt, _keyword_hits
-                from kryptos.k4.transposition_analysis import apply_columnar_permutation_reverse
                 from itertools import permutations as _perms
+
+                from kryptos.k4.composite_sweep import _keyword_hits, _vigenere_decrypt
+                from kryptos.k4.transposition_analysis import apply_columnar_permutation_reverse
+
                 ct = "".join(c for c in K4.upper() if c.isalpha())
                 for alpha_name, alphabet in KNOWN_KEYED_ALPHABETS.items():
                     stripped = _vigenere_decrypt(ct, state["shifts"], alphabet)
@@ -418,23 +441,42 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
                             candidate = apply_columnar_permutation_reverse(stripped, n_cols, list(perm))
                             hits = _keyword_hits(candidate)
                             if hits > 0:
-                                all_best.append({"candidate_text": candidate, "keyword_hits": hits, "clock_time": state["time"], "alpha": alpha_name, "source": state.get("source", "")})
+                                all_best.append(
+                                    {
+                                        "candidate_text": candidate,
+                                        "keyword_hits": hits,
+                                        "clock_time": state["time"],
+                                        "alpha": alpha_name,
+                                        "source": state.get("source", ""),
+                                    }
+                                )
             except Exception:  # noqa: BLE001
                 pass
         all_best.sort(key=lambda r: -r["keyword_hits"])
-        summary = {"status": "null_result", "attack": "P3_k2_coord_clock", "states_tested": len(states), "best_candidates": all_best[:10]}
+        summary = {
+            "status": "null_result",
+            "attack": "P3_k2_coord_clock",
+            "states_tested": len(states),
+            "best_candidates": all_best[:10],
+        }
 
     elif attack_id == "p4_timezone_offset":
-        from kryptos.k4.k2_clock_states import get_k2_clock_states, get_tz_offset_states, CIA_TIMESTAMP_TIMES, clock_state_for_time
-        from kryptos.k4.composite_sweep import _vigenere_decrypt, _keyword_hits, K4
+        from itertools import permutations as _perms
+
+        from kryptos.k4.composite_sweep import K4, _keyword_hits, _vigenere_decrypt
+        from kryptos.k4.k2_clock_states import (
+            CIA_TIMESTAMP_TIMES,
+            clock_state_for_time,
+            get_k2_clock_states,
+            get_tz_offset_states,
+        )
         from kryptos.k4.transposition_analysis import apply_columnar_permutation_reverse
         from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
-        from itertools import permutations as _perms
 
         base = [clock_state_for_time(t) for t, _ in CIA_TIMESTAMP_TIMES]
         states = get_tz_offset_states(base)
         ct = "".join(c for c in K4.upper() if c.isalpha())
-        all_best: list[dict[str, Any]] = []
+        all_best = []
         for i, state in enumerate(states):
             pct = ((i + 1) / len(states)) * 100
             _update_job(job_id, progress_pct=round(pct, 1), clock_time=state["time"], total_candidates=i + 1)
@@ -445,16 +487,35 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
                         candidate = apply_columnar_permutation_reverse(stripped, n_cols, list(perm))
                         hits = _keyword_hits(candidate)
                         if hits > 0:
-                            all_best.append({"candidate_text": candidate, "keyword_hits": hits, "clock_time": state["time"], "alpha": alpha_name, "is_offset": state.get("is_offset", False)})
+                            all_best.append(
+                                {
+                                    "candidate_text": candidate,
+                                    "keyword_hits": hits,
+                                    "clock_time": state["time"],
+                                    "alpha": alpha_name,
+                                    "is_offset": state.get("is_offset", False),
+                                }
+                            )
         all_best.sort(key=lambda r: -r["keyword_hits"])
-        summary = {"status": "null_result", "attack": "P4_timezone_offset", "states_tested": len(states), "best_candidates": all_best[:10]}
+        summary = {
+            "status": "null_result",
+            "attack": "P4_timezone_offset",
+            "states_tested": len(states),
+            "best_candidates": all_best[:10],
+        }
 
     elif attack_id == "p5_two_crib_filter":
-        from kryptos.k4.three_layer_composite import run_three_layer_composite, CIA_PRIORITY_TIMES
+        from kryptos.k4.three_layer_composite import CIA_PRIORITY_TIMES, run_three_layer_composite
 
         def _progress(info: dict[str, Any]) -> None:
             pct = (info["clock_idx"] / info["total_clock"]) * 100
-            _update_job(job_id, progress_pct=round(pct, 1), clock_time=info["clock_time"], total_candidates=info["total_candidates"], top_candidates=info["top_candidates"])
+            _update_job(
+                job_id,
+                progress_pct=round(pct, 1),
+                clock_time=info["clock_time"],
+                total_candidates=info["total_candidates"],
+                top_candidates=info["top_candidates"],
+            )
 
         summary = run_three_layer_composite(
             keyword_eureka_threshold=2,  # relaxed to 2 cribs
@@ -467,29 +528,33 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
 
     elif attack_id == "p6_k3_running_key":
         from kryptos.k4.running_key import run_k3_running_key_attack
+
         _update_job(job_id, progress_pct=50.0, clock_time="running-key")
         summary = run_k3_running_key_attack()
 
     elif attack_id == "p7_gronsfeld":
         from kryptos.k4.gronsfeld import run_gronsfeld_sweep
+
         _update_job(job_id, progress_pct=50.0, clock_time="gronsfeld")
         summary = run_gronsfeld_sweep()
 
     elif attack_id == "p14_bearing":
         from kryptos.k4.bearing_attack import run_bearing_attack
+
         _update_job(job_id, progress_pct=25.0, clock_time="bearing-calc")
         summary = run_bearing_attack()
 
     elif attack_id == "p13_magnetic_declination":
+        from itertools import permutations as _perms
+
+        from kryptos.k4.composite_sweep import K4, _keyword_hits, _vigenere_decrypt
         from kryptos.k4.k2_clock_states import get_magnetic_declination_states
-        from kryptos.k4.composite_sweep import _vigenere_decrypt, _keyword_hits, K4
         from kryptos.k4.transposition_analysis import apply_columnar_permutation_reverse
         from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
-        from itertools import permutations as _perms
 
         states = get_magnetic_declination_states()
         ct = "".join(c for c in K4.upper() if c.isalpha())
-        all_best: list[dict[str, Any]] = []
+        all_best = []
         for i, state in enumerate(states):
             pct = ((i + 1) / len(states)) * 100
             _update_job(job_id, progress_pct=round(pct, 1), clock_time=state["time"], total_candidates=i + 1)
@@ -500,12 +565,22 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
                         candidate = apply_columnar_permutation_reverse(stripped, n_cols, list(perm))
                         hits = _keyword_hits(candidate)
                         if hits > 0:
-                            all_best.append({"candidate_text": candidate, "keyword_hits": hits,
-                                             "clock_time": state["time"], "alpha": alpha_name,
-                                             "source": state.get("source", "")})
+                            all_best.append(
+                                {
+                                    "candidate_text": candidate,
+                                    "keyword_hits": hits,
+                                    "clock_time": state["time"],
+                                    "alpha": alpha_name,
+                                    "source": state.get("source", ""),
+                                }
+                            )
         all_best.sort(key=lambda r: -r["keyword_hits"])
-        summary = {"status": "null_result", "attack": "P13_magnetic_declination",
-                   "states_tested": len(states), "best_candidates": all_best[:10]}
+        summary = {
+            "status": "null_result",
+            "attack": "P13_magnetic_declination",
+            "states_tested": len(states),
+            "best_candidates": all_best[:10],
+        }
 
     elif attack_id == "p12_misspelling":
         from kryptos.k4.misspelling_alphabets import run_misspelling_sweep
@@ -549,18 +624,21 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
 
     elif attack_id == "p18_key_csp":
         from kryptos.k4.key_csp import run_key_csp_attack
+
         _update_job(job_id, progress_pct=25.0, clock_time="csp-solving")
         summary = run_key_csp_attack()
         _update_job(job_id, progress_pct=100.0)
 
     elif attack_id == "p15_straddling_checkerboard":
         from kryptos.k4.straddling_checkerboard import run_straddling_checkerboard_attack
+
         _update_job(job_id, progress_pct=10.0, clock_time="checkerboard")
         summary = run_straddling_checkerboard_attack()
         _update_job(job_id, progress_pct=100.0)
 
     elif attack_id == "p16_corpus_miner":
         from kryptos.k4.corpus_miner import run_corpus_miner_attack
+
         _update_job(job_id, progress_pct=10.0, clock_time="mining-artifacts")
         summary = run_corpus_miner_attack()
         _update_job(job_id, progress_pct=100.0)
@@ -613,7 +691,9 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
         status="complete",
         progress_pct=100.0,
         summary=summary,
-        total_candidates=summary.get("total_candidates", summary.get("states_tested", summary.get("variants_tested", 0))),
+        total_candidates=summary.get(
+            "total_candidates", summary.get("states_tested", summary.get("variants_tested", 0))
+        ),
         top_candidates=summary.get("best_candidates", [])[:5],
     )
 
@@ -628,6 +708,51 @@ def create_k4_attack_router() -> APIRouter:
     def frontier() -> FrontierVectorsResponse:
         return FrontierVectorsResponse(vectors=FRONTIER_VECTORS)
 
+    @router.get("/pivot-status", response_model=PivotStatusResponse)
+    def pivot_status() -> PivotStatusResponse:
+        from kryptos.k4 import geodesy, hypothesis_graph
+        from kryptos.k4.bearing_attack import CIA_BERLIN_BEARING_DEG, CIA_BERLIN_BEARING_INT
+
+        graph = hypothesis_graph.load()
+        geodesic = geodesy.cia_berlin_geodesic()
+
+        return PivotStatusResponse(
+            hypothesis_graph=graph,
+            hypothesis_graph_mermaid=hypothesis_graph.to_mermaid(graph),
+            # Grand total across the Physical/Geometric Pivot's real-K4 runs
+            # (Phase 1: 482,112 + Phase 2: 74,880) — see
+            # docs/analysis/K4_ACTIVE_RESEARCH.md's Physical/Geometric Pivot
+            # section for the per-run breakdown. Updated by hand when a new
+            # pivot sweep is run against real K4, not computed live.
+            total_candidates_tested=556_992,
+            bearings={
+                "cia_berlin_spherical": BearingInfo(
+                    forward_azimuth_deg=CIA_BERLIN_BEARING_DEG,
+                    distance_m=0,
+                    distance_ft=0,
+                    source="bearing_attack.great_circle_bearing (spherical approximation)",
+                    note=f"rounded to {CIA_BERLIN_BEARING_INT} deg for the Caesar-shift/clock-offset attacks",
+                ),
+                "cia_berlin_geodesic": BearingInfo(
+                    forward_azimuth_deg=geodesic["forward_azimuth_deg"],
+                    back_azimuth_deg=geodesic["back_azimuth_deg"],
+                    distance_m=geodesic["distance_m"],
+                    distance_ft=geodesic["distance_ft"],
+                    source="kryptos.k4.geodesy (WGS84 geodesic, geographiclib)",
+                ),
+                "kryptos_lodestone_deflection": BearingInfo(
+                    forward_azimuth_deg=0,
+                    distance_m=0,
+                    distance_ft=0,
+                    source="community reporting (unverified)",
+                    note=(
+                        "Explicitly unmeasured per elonka.com's own Kryptos measurement "
+                        "wish list as of this research pass — do not treat as a precise figure."
+                    ),
+                ),
+            },
+        )
+
     _RUNNABLE = {v["id"] for v in FRONTIER_VECTORS if v["runnable"]}
 
     @router.post("/run", response_model=JobStatusResponse)
@@ -635,7 +760,7 @@ def create_k4_attack_router() -> APIRouter:
         if req.attack_id not in _RUNNABLE:
             raise HTTPException(
                 status_code=422,
-                detail=f"Attack '{req.attack_id}' is not runnable. Runnable: {sorted(_RUNNABLE)}",
+                detail=f"Attack '{req.attack_id}' is not runnable. Runnable: {sorted(str(x) for x in _RUNNABLE)}",
             )
 
         job_id = _new_job(req.attack_id)
@@ -644,6 +769,7 @@ def create_k4_attack_router() -> APIRouter:
         def _worker() -> None:
             try:
                 from kryptos.k4.eureka import EurekaSignal
+
                 _run_attack_worker(job_id, req)
             except EurekaSignal as e:
                 logger.critical("EUREKA SIGNAL in %s attack! %s", req.attack_id, e)
