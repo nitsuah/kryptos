@@ -51,12 +51,20 @@ DEFAULT_REFLECTIONS: list[str] = reflection.SHAPE_PRESERVING
 DEFAULT_OFFSETS: list[int] = clock_rotation.PRIORITY_OFFSETS
 DEFAULT_REMAINDER_MODES: list[str] = list(geometry24.REMAINDER_MODES)
 
+# Item 12 — "combine geographic vectors with grid orientation": route names
+# for the exact CIA->Berlin bearing (not snapped to a named compass point),
+# available as an opt-in extra scope alongside DEFAULT_ORDER_NAMES.
+GEO_BEARING_ORDER_NAMES: list[str] = [f"route_{name}" for name in clock_rotation.geography_derived_bearings()]
+
 _TRANSFORM_EDGE = ("GEOMETRIC_POSITIONAL_TRANSFORM", "SUBSTITUTION_LAYER")
 
 
 def _order_coords(order_name: str) -> geometry24.Coords:
     if order_name.startswith("route_"):
         direction = order_name[len("route_") :]
+        geo_bearings = clock_rotation.geography_derived_bearings()
+        if direction in geo_bearings:
+            return ene_routes.route_order(geo_bearings[direction])
         return ene_routes.route_order(direction)
     return geometry24.order_coords(order_name)
 

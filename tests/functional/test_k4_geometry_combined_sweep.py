@@ -43,6 +43,20 @@ class TestComposedFlatIndices:
         flat = gcs.composed_flat_indices("boustrophedon", "rotate_180", -6, "drop")
         assert sorted(flat) == list(range(geometry24.CORE_LEN))
 
+    @pytest.mark.parametrize("order_name", gcs.GEO_BEARING_ORDER_NAMES)
+    def test_geo_bearing_route_is_a_valid_permutation(self, order_name):
+        flat = gcs.composed_flat_indices(order_name, "identity", 0, "trailing")
+        assert sorted(flat) == list(range(97))
+
+    def test_geo_bearing_route_matches_ene_routes_directly(self):
+        from kryptos.k4 import ene_routes
+        from kryptos.k4.clock_rotation import geography_derived_bearings
+
+        bearing = geography_derived_bearings()["cia_berlin_bearing"]
+        expected = ene_routes.route_order(bearing)
+        actual = gcs._order_coords("route_cia_berlin_bearing")
+        assert actual == expected
+
 
 class TestNullResultArtifact:
     def test_null_result_artifact(self, tmp_path):

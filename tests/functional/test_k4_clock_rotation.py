@@ -68,3 +68,25 @@ class TestGeographyPriorityOffsets:
         assert "cia_berlin_bearing_mod24" in offsets
         assert "timezone_offset_hours" in offsets
         assert offsets["timezone_offset_hours"] == cr.BERLIN_LANGLEY_OFFSET_HOURS % N
+
+
+class TestGeographyDerivedBearings:
+    def test_returns_named_float_bearings(self):
+        bearings = cr.geography_derived_bearings()
+        assert "cia_berlin_bearing" in bearings
+        assert "cia_berlin_bearing_reversed" in bearings
+        for value in bearings.values():
+            assert isinstance(value, float)
+            assert 0.0 <= value < 360.0
+
+    def test_reversed_is_opposite(self):
+        bearings = cr.geography_derived_bearings()
+        forward = bearings["cia_berlin_bearing"]
+        reverse = bearings["cia_berlin_bearing_reversed"]
+        assert reverse == pytest.approx((forward + 180.0) % 360.0)
+
+    def test_matches_bearing_attack_source(self):
+        from kryptos.k4.bearing_attack import CIA_BERLIN_BEARING_DEG
+
+        bearings = cr.geography_derived_bearings()
+        assert bearings["cia_berlin_bearing"] == CIA_BERLIN_BEARING_DEG

@@ -107,7 +107,7 @@ def _trace_params(bearing: str | float, max_denominator: int = 24) -> tuple[int,
 
 
 def trace_route(
-    bearing: str,
+    bearing: str | float,
     start_col: int,
     rows: int = ROWS,
     cols: int = COLS,
@@ -115,10 +115,13 @@ def trace_route(
 ) -> list[Coord]:
     """Walk the grid one row at a time along a rational-slope compass bearing.
 
-    A ``"_REVERSED"``-suffixed bearing name traces the same underlying
-    compass angle and then reverses the resulting sequence (literally
-    retracing the path backward), i.e.
-    ``trace_route(f"{X}_REVERSED", c) == list(reversed(trace_route(X, c)))``.
+    ``bearing`` may be a named 16-point compass direction, a
+    ``"_REVERSED"``-suffixed name (traces the same angle then reverses the
+    resulting sequence — literally retracing the path backward, i.e.
+    ``trace_route(f"{X}_REVERSED", c) == list(reversed(trace_route(X, c)))``),
+    or a raw float degree value (e.g. an exact geographic bearing that
+    doesn't land on a named compass point — see
+    :func:`kryptos.k4.clock_rotation.geography_derived_bearings`).
     """
     row_direction, col_slope = _trace_params(bearing, max_denominator)
     coords: list[Coord] = []
@@ -134,7 +137,7 @@ def trace_route(
 
 
 def route_order(
-    direction: str,
+    direction: str | float,
     rows: int = ROWS,
     cols: int = COLS,
     max_denominator: int = 24,

@@ -74,9 +74,28 @@ def geography_priority_offsets() -> dict[str, int]:
     return offsets
 
 
+def geography_derived_bearings() -> dict[str, float]:
+    """Named compass bearings (degrees) derived from already-computed geography.
+
+    Brief item 12 — "combine geographic vectors with grid orientation": the
+    exact CIA HQ -> Berlin great-circle bearing (~44.4 deg, not snapped to a
+    named 16-point compass direction) used directly as a route bearing via
+    :func:`kryptos.k4.ene_routes.trace_route`, which already accepts a raw
+    float degree value. Reuses ``bearing_attack.CIA_BERLIN_BEARING_DEG``
+    rather than re-deriving it.
+    """
+    from .bearing_attack import CIA_BERLIN_BEARING_DEG
+
+    return {
+        "cia_berlin_bearing": CIA_BERLIN_BEARING_DEG,
+        "cia_berlin_bearing_reversed": (CIA_BERLIN_BEARING_DEG + 180.0) % 360.0,
+    }
+
+
 __all__ = [
     "BERLIN_LANGLEY_OFFSET_HOURS",
     "PRIORITY_OFFSETS",
+    "geography_derived_bearings",
     "geography_priority_offsets",
     "origin_from_hour",
     "rotate",
