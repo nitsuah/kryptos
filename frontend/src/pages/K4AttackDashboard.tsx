@@ -4,6 +4,7 @@ import AttackVectorGraph from "../components/AttackVectorGraph";
 import AttackRunPanel from "../components/AttackRunPanel";
 import BerlinClock from "../components/BerlinClock";
 import K4CipherVisualizer from "../components/K4CipherVisualizer";
+import PivotStatusPanel from "../components/PivotStatusPanel";
 import FormField from "../components/FormField";
 import { api, AttackVector, FrontierVector } from "../api";
 
@@ -84,6 +85,9 @@ export default function K4AttackDashboard() {
           </div>
         </div>
       </div>
+
+      {/* ── Physical/Geometric Pivot status (below the Berlin Clock hero) ── */}
+      <PivotStatusPanel />
 
       {/* ── Stats strip ── */}
       <div style={{ display: "flex", gap: "12px", marginBottom: "16px", flexWrap: "wrap" }}>
