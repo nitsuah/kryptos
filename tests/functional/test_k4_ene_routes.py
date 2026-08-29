@@ -68,6 +68,12 @@ class TestTraceRouteAndRouteOrder:
         assert reverse == list(reversed(forward))
         assert forward != reverse
 
+    @pytest.mark.parametrize("direction", ["ENE", "NE"])
+    def test_route_order_reversed_is_exact_full_order_reversal(self, direction):
+        forward = er.route_order(direction)
+        reverse = er.route_order(f"{direction}_REVERSED")
+        assert reverse == list(reversed(forward))
+
     @pytest.mark.parametrize(
         ("a", "b"),
         [("N", "S"), ("NE", "SW"), ("ENE", "WSW"), ("NNE", "SSW")],

@@ -147,9 +147,18 @@ def route_order(
     The result is a bijection over all ``rows * cols`` grid cells (see
     module docstring), so it can be used anywhere a
     :mod:`kryptos.k4.geometry24` fill order is used.
+
+    For a ``"_REVERSED"`` direction, both the ribbon order *and* each
+    ribbon's own internal order must flip for this to be the true reverse
+    of the forward route (``reversed(A + B + ... + Z) == reversed(Z) + ...
+    + reversed(A)``) — ``trace_route`` already reverses each ribbon
+    internally; iterating starting columns backward here supplies the other
+    half.
     """
     coords: list[Coord] = []
-    for start_col in range(cols):
+    reversed_ = isinstance(direction, str) and direction.endswith("_REVERSED")
+    start_columns = range(cols - 1, -1, -1) if reversed_ else range(cols)
+    for start_col in start_columns:
         coords.extend(trace_route(direction, start_col, rows, cols, max_denominator))
     return coords
 
