@@ -32,6 +32,11 @@ class TestOrderCoords:
         with pytest.raises(ValueError):
             g24.order_coords("nonsense")
 
+    def test_center_out_is_exact_reverse_of_outside_in(self):
+        outside_in = g24.order_coords("outside_in")
+        center_out = g24.order_coords("center_out")
+        assert center_out == list(reversed(outside_in))
+
 
 class TestRemainderModes:
     @pytest.mark.parametrize("mode", g24.REMAINDER_MODES)

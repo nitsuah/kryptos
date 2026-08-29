@@ -8,14 +8,26 @@ route can be traced across the 4x24 grid without floating-point angle drift
 floating constant (``tan(67.5 deg) ~= 2.414``); this module generalizes that
 idea to all 16 compass points and grounds it in exact rational arithmetic.
 
-For a fixed row ``r``, walking the grid at rational slope ``s`` from
+For a fixed step ``i``, walking the grid at rational column-slope ``s`` from
 starting column ``start_col`` lands on column
-``(start_col + floor(r * s)) % COLS`` — an integer modular translation of
-``start_col``. That makes each row's 24 starting columns a bijection onto
+``(start_col + floor(i * s)) % COLS`` — an integer modular translation of
+``start_col``. That makes each step's 24 starting columns a bijection onto
 the 24 grid columns, so the 24-ribbon family (one ribbon per starting
 column) tiles the whole 4x24 grid with no gaps or overlaps. That family is
 exposed as ``route_order`` so it can be used as an alternate grid "reader",
 interchangeable with :mod:`kryptos.k4.geometry24`'s fill orders.
+
+The row-per-step vertical component and the column-per-step slope are
+tracked *separately* (``_trace_params`` returns a signed row direction plus
+an unsigned-drow column slope), not collapsed into a single ``dcol/drow``
+ratio: that ratio is direction-blind whenever a bearing pair is 180 degrees
+apart (``sin``/``cos`` both flip sign, so the ratio — and therefore the
+route — would otherwise be identical for e.g. N/S or NE/SW). Pure E/W
+bearings have zero row progression and cannot be represented by this
+one-step-per-row model at all; ``trace_route``/``route_order`` raise for
+them rather than silently producing a degenerate route. ``rational_slope``
+itself (the plain ``dcol/drow`` ratio) is unaffected and still used directly
+for the informational sanity checks against ``tan(67.5)`` etc.
 """
 
 from __future__ import annotations
@@ -75,6 +87,25 @@ def rational_slope(bearing: str | float, max_denominator: int = 24) -> Fraction:
     return Fraction(dcol / drow).limit_denominator(max_denominator)
 
 
+def _trace_params(bearing: str | float, max_denominator: int = 24) -> tuple[int, Fraction]:
+    """Signed row direction and column-slope magnitude for tracing a bearing.
+
+    Unlike ``rational_slope`` (a plain ``dcol/drow`` ratio, which is the same
+    for opposite bearings whenever both components flip sign together), this
+    keeps the row direction as an explicit sign so N vs S, NE vs SW, etc.
+    trace genuinely different routes.
+    """
+    deg = _bearing_degrees(bearing)
+    theta = math.radians(deg)
+    drow = math.cos(theta)
+    dcol = math.sin(theta)
+    if abs(drow) < 1e-9:
+        raise ValueError(f"bearing {deg} has no row progression (due E/W); trace_route cannot represent it")
+    row_direction = 1 if drow > 0 else -1
+    col_slope = Fraction(dcol / abs(drow)).limit_denominator(max_denominator)
+    return row_direction, col_slope
+
+
 def trace_route(
     bearing: str,
     start_col: int,
@@ -84,19 +115,21 @@ def trace_route(
 ) -> list[Coord]:
     """Walk the grid one row at a time along a rational-slope compass bearing.
 
-    A ``"_REVERSED"``-suffixed bearing name negates the slope (reverse
-    traversal direction) while keeping the same underlying compass angle.
+    A ``"_REVERSED"``-suffixed bearing name traces the same underlying
+    compass angle and then reverses the resulting sequence (literally
+    retracing the path backward), i.e.
+    ``trace_route(f"{X}_REVERSED", c) == list(reversed(trace_route(X, c)))``.
     """
-    reversed_ = isinstance(bearing, str) and bearing.endswith("_REVERSED")
-    slope = rational_slope(bearing, max_denominator)
-    if reversed_:
-        slope = -slope
+    row_direction, col_slope = _trace_params(bearing, max_denominator)
     coords: list[Coord] = []
     col_accum = Fraction(start_col)
-    for r in range(rows):
+    for step in range(rows):
+        r = step if row_direction == 1 else (rows - 1 - step)
         c = math.floor(col_accum) % cols
         coords.append((r, c))
-        col_accum += slope
+        col_accum += col_slope
+    if isinstance(bearing, str) and bearing.endswith("_REVERSED"):
+        coords = list(reversed(coords))
     return coords
 
 

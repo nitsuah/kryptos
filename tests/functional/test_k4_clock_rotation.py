@@ -35,6 +35,11 @@ class TestRotate:
         assert cr.rotate(0, direction=-1) != cr.rotate(0, direction=1)
         assert sorted(cr.rotate(0, direction=-1)) == list(range(N))
 
+    def test_direction_reversed_exact_order(self):
+        # documented as "23 22 21 ... 0": c=0 maps to n-1 when offset=0
+        assert cr.rotate(0, direction=-1) == list(range(N - 1, -1, -1))
+        assert cr.rotated_column(0, offset=0, direction=-1) == N - 1
+
     def test_invalid_direction_raises(self):
         with pytest.raises(ValueError):
             cr.rotate(0, direction=0)

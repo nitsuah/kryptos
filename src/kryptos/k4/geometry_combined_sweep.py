@@ -10,17 +10,26 @@ research brief's "Combined Geometry Attack" section exactly::
        -> physical tableau keystream (reused from physical_grid, not reimplemented)
        -> Quagmire III decrypt (reused from quagmire, not reimplemented)
        -> positional_crib_hits / keyword_hits gate
-       -> EurekaSignal on threshold, else accumulate into best_candidates
+       -> EurekaSignal only if independently validated, else accumulate into best_candidates
 
 This is the permutation front-end that ``physical_grid.py`` never had: that
 module already showed varying only the *keystream* against the untouched
 K4 ordering is a null result. This module additionally varies the
 *ciphertext ordering itself* before the same tableau substitution step.
 
-Every candidate that crosses the eureka threshold is also run through
-:mod:`kryptos.k4.validation` (independent reproduction + overfitting-guard
-score) and recorded into the canonical hypothesis graph
-(:mod:`kryptos.k4.hypothesis_graph`); a null result updates the graph too.
+Every candidate that crosses the eureka *threshold* (>=3 positional cribs or
+a full keyword match) is run through :mod:`kryptos.k4.validation`
+(independent reproduction + overfitting-guard score) and recorded into the
+canonical hypothesis graph (:mod:`kryptos.k4.hypothesis_graph`). Only a
+candidate that *also* passes ``validate_candidate``'s ``promote`` gate (all
+4 cribs matched *and* independently reproduced from its own key_info) halts
+the sweep as a breakthrough; a threshold-level match that fails validation
+is recorded as ``partial_null`` and falls through to ``best_candidates``
+rather than being written to ``K4_BREAKTHROUGH_SNAPSHOT.md`` and raised as
+if confirmed. A null result updates the graph too — using
+``record_result_preserving_strongest`` throughout, so a later, narrower
+sweep can never silently downgrade an earlier genuine finding on the shared
+edge.
 """
 
 from __future__ import annotations
@@ -93,8 +102,10 @@ def run_geometry_combined_sweep(
     """Run the combined geometric-permutation + tableau-keystream sweep against K4.
 
     Returns a summary dict (status, run_params, best_candidates) and always
-    writes it to ``null_artifact_path``. Raises EurekaSignal on a crib
-    breakthrough (matching every other attack module's convention).
+    writes it to ``null_artifact_path``. Raises EurekaSignal only for a
+    candidate that passes strict validation (all 4 cribs + independent
+    reproduction, see :mod:`kryptos.k4.validation`) — a threshold-level
+    partial match is recorded but does not halt the sweep.
     """
     order_names = order_names if order_names is not None else DEFAULT_ORDER_NAMES
     reflection_names = reflection_names if reflection_names is not None else DEFAULT_REFLECTIONS
@@ -148,7 +159,7 @@ def run_geometry_combined_sweep(
                                     f"geometry_combined_sweep candidate "
                                     f"(crib_hits={pos_hits}, reproduced={check['reproduced']})"
                                 )
-                                hypothesis_graph.record_result(
+                                hypothesis_graph.record_result_preserving_strongest(
                                     graph,
                                     _TRANSFORM_EDGE,
                                     "eureka" if check["promote"] else "partial_null",
@@ -156,28 +167,36 @@ def run_geometry_combined_sweep(
                                 )
                                 hypothesis_graph.save(graph, graph_path)
 
-                                snap = write_breakthrough_snapshot(
-                                    candidate,
-                                    key_info,
-                                    extra={
-                                        "positional_crib_hits": pos_hits,
-                                        "keyword_hits": kw_hits,
-                                        "validation": check,
-                                        "sweep_ts": ts_start,
-                                    },
-                                    path=eureka_snapshot_path,
-                                )
-                                raise EurekaSignal(
-                                    snapshot_path=snap,
-                                    result={
-                                        "candidate_text": candidate,
-                                        "key_info": key_info,
-                                        "snapshot_path": snap,
-                                        "positional_crib_hits": pos_hits,
-                                        "keyword_hits": kw_hits,
-                                        "validation": check,
-                                    },
-                                )
+                                # Only a fully-validated candidate (all cribs +
+                                # independently reproduced) halts the sweep as a
+                                # breakthrough. A threshold-level partial match
+                                # that fails validation falls through to
+                                # best_candidates instead of being written to
+                                # K4_BREAKTHROUGH_SNAPSHOT.md and raised as if
+                                # confirmed.
+                                if check["promote"]:
+                                    snap = write_breakthrough_snapshot(
+                                        candidate,
+                                        key_info,
+                                        extra={
+                                            "positional_crib_hits": pos_hits,
+                                            "keyword_hits": kw_hits,
+                                            "validation": check,
+                                            "sweep_ts": ts_start,
+                                        },
+                                        path=eureka_snapshot_path,
+                                    )
+                                    raise EurekaSignal(
+                                        snapshot_path=snap,
+                                        result={
+                                            "candidate_text": candidate,
+                                            "key_info": key_info,
+                                            "snapshot_path": snap,
+                                            "positional_crib_hits": pos_hits,
+                                            "keyword_hits": kw_hits,
+                                            "validation": check,
+                                        },
+                                    )
 
                             if pos_hits > 0 or kw_hits > 0:
                                 best_candidates.append(
@@ -218,7 +237,9 @@ def run_geometry_combined_sweep(
     Path(null_artifact_path).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
 
     graph = hypothesis_graph.load(graph_path)
-    hypothesis_graph.record_result(graph, _TRANSFORM_EDGE, "null", evidence=str(Path(null_artifact_path).resolve()))
+    hypothesis_graph.record_result_preserving_strongest(
+        graph, _TRANSFORM_EDGE, "null", evidence=str(Path(null_artifact_path).resolve())
+    )
     hypothesis_graph.save(graph, graph_path)
 
     return summary

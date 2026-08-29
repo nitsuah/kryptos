@@ -38,7 +38,7 @@ def rotated_column(c: int, offset: int, direction: int = 1, n: int = N) -> int:
     if direction == 1:
         return (c + offset) % n
     if direction == -1:
-        return (-c + offset) % n
+        return (n - 1 - c + offset) % n
     raise ValueError(f"direction must be 1 or -1, got {direction!r}")
 
 

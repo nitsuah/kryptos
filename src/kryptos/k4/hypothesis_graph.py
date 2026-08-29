@@ -60,6 +60,9 @@ EDGES: list[tuple[str, str]] = [
 
 VALID_STATUSES = {"untested", "null", "partial_null", "confirmed", "eureka"}
 
+# Ordering used by record_result_preserving_strongest: higher wins.
+STATUS_PRIORITY: dict[str, int] = {"untested": 0, "null": 1, "partial_null": 2, "confirmed": 3, "eureka": 4}
+
 DEFAULT_GRAPH_PATH = "K4_HYPOTHESIS_GRAPH.json"
 
 # Seeded from results already recorded in docs/analysis/K4_ACTIVE_RESEARCH.md.
@@ -69,7 +72,16 @@ _SEED: dict[str, dict[str, str]] = {
         "evidence": "Sanborn-confirmed crib; kryptos.k4.keystream_validator.K4_CRIBS",
     },
     "GEOMETRIC_POSITIONAL_TRANSFORM->SUBSTITUTION_LAYER": {
-        "status": "partial_null",
+        # "null", not "partial_null": physical_grid.py reached a definitive
+        # null conclusion for the identity-permutation case it tested; the
+        # narrower *scope* (no permutation front-end) is a fact about what
+        # was tested, not a weaker/less-confident result. "partial_null"
+        # is reserved for geometry_combined_sweep's own, unrelated meaning:
+        # a threshold-crossing candidate that failed strict validation (a
+        # stronger signal than a clean null, ranked above it in
+        # STATUS_PRIORITY). Conflating the two previously caused this seed
+        # to incorrectly outrank and suppress a genuine fresh null result.
+        "status": "null",
         "evidence": (
             "kryptos.k4.physical_grid.run_physical_grid_attack — tableau-keystream "
             "substitution tested null, but without a geometric permutation front-end "
@@ -127,6 +139,31 @@ def record_result(
     return graph
 
 
+def record_result_preserving_strongest(
+    graph: dict[str, Any],
+    edge: tuple[str, str],
+    status: str,
+    evidence: str = "",
+) -> dict[str, Any]:
+    """Like record_result, but never downgrades an edge to a weaker status.
+
+    Guards against a later, narrower-scope null run silently erasing an
+    earlier genuine eureka/confirmed finding recorded on the same shared
+    edge (status priority: untested < null < partial_null < confirmed <
+    eureka). A same-or-stronger status still updates evidence/timestamp
+    normally.
+    """
+    if status not in VALID_STATUSES:
+        raise ValueError(f"Unknown status: {status!r} (expected one of {sorted(VALID_STATUSES)})")
+    key = _edge_key(edge)
+    if key not in graph["edges"]:
+        raise KeyError(f"Unknown edge: {edge!r}")
+    current_status = graph["edges"][key]["status"]
+    if STATUS_PRIORITY[status] < STATUS_PRIORITY[current_status]:
+        return graph
+    return record_result(graph, edge, status, evidence)
+
+
 def to_mermaid(graph: dict[str, Any]) -> str:
     """Render the graph as a Mermaid flowchart, styled by edge status."""
     status_arrow = {
@@ -160,10 +197,12 @@ __all__ = [
     "DEFAULT_GRAPH_PATH",
     "EDGES",
     "NODES",
+    "STATUS_PRIORITY",
     "VALID_STATUSES",
     "load",
     "new_graph",
     "record_result",
+    "record_result_preserving_strongest",
     "save",
     "to_markdown_table",
     "to_mermaid",

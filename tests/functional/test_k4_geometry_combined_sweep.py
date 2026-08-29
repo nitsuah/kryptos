@@ -13,12 +13,13 @@ from kryptos.k4.physical_grid import build_tableau
 from kryptos.k4.quagmire import quagmire3_encrypt
 
 
-def _planted_ciphertext() -> tuple[str, list[int]]:
+def _planted_ciphertext(*, all_four_cribs: bool = True) -> tuple[str, list[int]]:
     plaintext_chars = list("A" * 97)
     plaintext_chars[22:26] = "EAST"
     plaintext_chars[26:35] = "NORTHEAST"
     plaintext_chars[63:69] = "BERLIN"
-    plaintext_chars[69:74] = "CLOCK"
+    if all_four_cribs:
+        plaintext_chars[69:74] = "CLOCK"  # leave as filler "AAAAA" otherwise -> 3/4 cribs
     plaintext = "".join(plaintext_chars)
 
     keystream = "".join(build_tableau("KRYPTOS")[5])  # route row_05
@@ -121,3 +122,32 @@ class TestEurekaOnPlantedSolution:
         data = json.loads(graph_path.read_text(encoding="utf-8"))
         edge = data["edges"]["GEOMETRIC_POSITIONAL_TRANSFORM->SUBSTITUTION_LAYER"]
         assert edge["status"] == "eureka"
+
+
+class TestPartialMatchDoesNotHalt:
+    def test_threshold_crossing_without_full_match_does_not_raise(self, tmp_path):
+        # 3/4 cribs (no CLOCK) crosses positional_eureka_threshold=3 but must
+        # not be treated as a validated breakthrough: promote requires all 4.
+        planted_ct, _ = _planted_ciphertext(all_four_cribs=False)
+        graph_path = tmp_path / "graph.json"
+
+        summary = gcs.run_geometry_combined_sweep(
+            ciphertext=planted_ct,
+            order_names=["col_major"],
+            reflection_names=["flip_v"],
+            rotation_offsets=[6],
+            remainder_modes=["leading"],
+            null_artifact_path=tmp_path / "null.json",
+            graph_path=graph_path,
+            eureka_snapshot_path=tmp_path / "snap.md",
+        )
+
+        assert summary["status"] == "null_result"
+        assert any(c["positional_crib_hits"] == 3 for c in summary["best_candidates"])
+        assert not (tmp_path / "snap.md").exists()
+
+        data = json.loads(graph_path.read_text(encoding="utf-8"))
+        edge = data["edges"]["GEOMETRIC_POSITIONAL_TRANSFORM->SUBSTITUTION_LAYER"]
+        # partial_null (recorded when the threshold-crossing candidate failed
+        # promotion) must not be downgraded by the final "null" summary write.
+        assert edge["status"] == "partial_null"

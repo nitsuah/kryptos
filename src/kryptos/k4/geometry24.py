@@ -103,10 +103,16 @@ def _outside_in(rows: int = ROWS, cols: int = COLS) -> Coords:
 
 
 def _center_out(rows: int = ROWS, cols: int = COLS) -> Coords:
-    """Ring-by-ring perimeter walk, innermost ring first (reverse of outside_in)."""
+    """Ring-by-ring perimeter walk, innermost ring first (exact reverse of outside_in).
+
+    Both ring *order* and each ring's internal cell order must flip for this
+    to be the true reverse of ``_outside_in`` (``reversed(A + B) == reversed(B)
+    + reversed(A)``) — reversing only the ring order leaves each ring's cells
+    in the same clockwise sequence, which is not the reverse traversal.
+    """
     coords: Coords = []
     for k in reversed(range(_num_rings(rows, cols))):
-        coords.extend(_ring_cells(k, rows, cols))
+        coords.extend(reversed(_ring_cells(k, rows, cols)))
     return coords
 
 

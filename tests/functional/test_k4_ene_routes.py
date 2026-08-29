@@ -62,8 +62,31 @@ class TestTraceRouteAndRouteOrder:
         assert len(coords) == ROWS * COLS
         assert len(set(coords)) == ROWS * COLS
 
-    def test_reversed_negates_slope(self):
+    def test_reversed_is_exact_path_reversal(self):
         forward = er.trace_route("ENE", 0)
         reverse = er.trace_route("ENE_REVERSED", 0)
-        assert forward[0] == reverse[0]  # same starting cell
+        assert reverse == list(reversed(forward))
         assert forward != reverse
+
+    @pytest.mark.parametrize(
+        ("a", "b"),
+        [("N", "S"), ("NE", "SW"), ("ENE", "WSW"), ("NNE", "SSW")],
+    )
+    def test_opposite_bearings_produce_distinct_routes(self, a, b):
+        # Before the fix, dcol/drow was direction-blind for any 180-degree
+        # pair (both components flip sign, so the ratio doesn't change) —
+        # opposite bearings collapsed onto the identical route.
+        route_a = er.trace_route(a, 5)
+        route_b = er.trace_route(b, 5)
+        assert route_a != route_b
+
+    def test_north_south_route_order_is_row_reversal(self):
+        north = er.trace_route("N", 5)
+        south = er.trace_route("S", 5)
+        assert south == list(reversed(north))
+
+    def test_pure_east_west_trace_route_raises(self):
+        with pytest.raises(ValueError):
+            er.trace_route("E", 0)
+        with pytest.raises(ValueError):
+            er.trace_route("W", 0)

@@ -47,6 +47,44 @@ class TestRecordResult:
             hg.record_result(graph, ("NOPE", "ALSO_NOPE"), "null")
 
 
+class TestRecordResultPreservingStrongest:
+    def test_upgrade_applies(self):
+        graph = hg.new_graph()
+        edge = hg.EDGES[0]
+        hg.record_result(graph, edge, "null", evidence="first")
+        hg.record_result_preserving_strongest(graph, edge, "eureka", evidence="second")
+        info = graph["edges"][f"{edge[0]}->{edge[1]}"]
+        assert info["status"] == "eureka"
+        assert info["evidence"] == "second"
+
+    def test_downgrade_is_ignored(self):
+        graph = hg.new_graph()
+        edge = hg.EDGES[0]
+        hg.record_result(graph, edge, "eureka", evidence="found it")
+        hg.record_result_preserving_strongest(graph, edge, "null", evidence="a later narrower run")
+        info = graph["edges"][f"{edge[0]}->{edge[1]}"]
+        assert info["status"] == "eureka"
+        assert info["evidence"] == "found it"
+
+    def test_same_status_still_updates_evidence(self):
+        graph = hg.new_graph()
+        edge = hg.EDGES[0]
+        hg.record_result(graph, edge, "null", evidence="first null")
+        hg.record_result_preserving_strongest(graph, edge, "null", evidence="second null")
+        info = graph["edges"][f"{edge[0]}->{edge[1]}"]
+        assert info["evidence"] == "second null"
+
+    def test_invalid_status_raises(self):
+        graph = hg.new_graph()
+        with pytest.raises(ValueError):
+            hg.record_result_preserving_strongest(graph, hg.EDGES[0], "not_a_status")
+
+    def test_unknown_edge_raises(self):
+        graph = hg.new_graph()
+        with pytest.raises(KeyError):
+            hg.record_result_preserving_strongest(graph, ("NOPE", "ALSO_NOPE"), "null")
+
+
 class TestPersistence:
     def test_save_and_load_round_trip(self, tmp_path):
         path = tmp_path / "graph.json"
