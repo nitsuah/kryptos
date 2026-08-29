@@ -103,6 +103,35 @@ export interface FrontierVectorsResponse {
   vectors: FrontierVector[];
 }
 
+// --- Physical/Geometric Pivot status (v2 dashboard panel) ---
+
+export interface HypothesisGraphEdge {
+  status: "untested" | "null" | "partial_null" | "confirmed" | "eureka";
+  evidence: string;
+  updated?: string;
+}
+
+export interface HypothesisGraph {
+  nodes: string[];
+  edges: Record<string, HypothesisGraphEdge>;
+}
+
+export interface BearingInfo {
+  forward_azimuth_deg: number;
+  back_azimuth_deg: number | null;
+  distance_m: number;
+  distance_ft: number;
+  source: string;
+  note: string | null;
+}
+
+export interface PivotStatusResponse {
+  hypothesis_graph: HypothesisGraph;
+  hypothesis_graph_mermaid: string;
+  total_candidates_tested: number;
+  bearings: Record<string, BearingInfo>;
+}
+
 export interface RunAttackRequest {
   attack_id: string;
   priority_only?: boolean;
@@ -189,6 +218,7 @@ export const api = {
   vaultPeek: (token: string) => getJSON<VaultPeekResponse>(`/api/vault/${encodeURIComponent(token)}`),
   attackVectors: () => getJSON<AttackVectorsResponse>("/api/attack-vectors"),
   frontierVectors: () => getJSON<FrontierVectorsResponse>("/api/k4/attacks/frontier"),
+  pivotStatus: () => getJSON<PivotStatusResponse>("/api/k4/attacks/pivot-status"),
   runAttack: (req: RunAttackRequest) => postJSON<JobStatus>("/api/k4/attacks/run", req),
   jobStatus: (jobId: string) => getJSON<JobStatus>(`/api/k4/attacks/jobs/${jobId}`),
 };
