@@ -406,7 +406,7 @@ def _run_attack_worker(job_id: str, req: "RunAttackRequest") -> None:
                 )
                 for c in result.get("best_candidates", []):
                     c["mask_mode"] = meta["mode"]
-                    best.extend(result.get("best_candidates", []))
+                    best.append(c)
             except Exception:  # noqa: BLE001
                 pass
         best.sort(key=lambda r: (-r.get("keyword_hits", 0), -r.get("instructional_score", 0)))
