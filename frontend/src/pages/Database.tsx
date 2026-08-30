@@ -12,8 +12,10 @@ const TABLES = [
 ];
 
 export default function Database({ status }: { status: StatusResponse | null }) {
-  const enabled = status?.db_enabled ?? false;
+  const statusAvailable = status !== null;
+  const enabled = status?.db_enabled === true;
   const counts = status?.table_counts ?? {};
+  const connectionLabel = !statusAvailable ? "Status unavailable" : enabled ? "Neon connected" : "No database";
 
   return (
     <>
@@ -23,10 +25,16 @@ export default function Database({ status }: { status: StatusResponse | null }) 
           <div className="row" style={{ alignItems: "center" }}>
             <span className="pip">
               <span className={`dot ${enabled ? "green" : "grey"}`} />
-              {enabled ? "Neon connected" : "No database"}
+              {connectionLabel}
             </span>
           </div>
-          {!enabled && (
+          {!statusAvailable && (
+            <div className="banner" style={{ marginTop: 10 }}>
+              Database status is unavailable because the API status request did not complete. This does not indicate
+              whether Neon or its tables are configured.
+            </div>
+          )}
+          {statusAvailable && !enabled && (
             <div className="banner" style={{ marginTop: 10 }}>
               DATABASE_URL is not configured. Set it (e.g. a Neon connection string) and run{" "}
               <code>kryptos db-init</code> to create the tables.
@@ -50,7 +58,9 @@ export default function Database({ status }: { status: StatusResponse | null }) 
               {TABLES.map((t) => (
                 <tr key={t.name}>
                   <td>{t.name}</td>
-                  <td style={{ color: "var(--accent)" }}>{enabled ? (counts[t.name] ?? 0) : "—"}</td>
+                  <td style={{ color: "var(--accent)" }}>
+                    {!statusAvailable ? "Unavailable" : enabled ? (counts[t.name] ?? 0) : "—"}
+                  </td>
                   <td className="muted">{t.desc}</td>
                 </tr>
               ))}
