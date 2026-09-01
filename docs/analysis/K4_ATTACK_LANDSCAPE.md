@@ -2,11 +2,14 @@
 
 Breadcrumb: Home > Docs > Analysis > Attack Landscape
 
-**Generated:** 2026-08-12  
-**Framework:** Three-dimensional "pundit squad" model — Past / Present / Frontier  
+**Generated:** 2026-08-12
+**Last corrected:** 2026-08-30 — see note below
+**Framework:** Three-dimensional "pundit squad" model — Past / Present / Frontier
 **Purpose:** Give any session a complete orientational picture of where we stand and where to go next.
 
-> **Quick orientation:** K4 is a 97-character ciphertext carved in copper at CIA HQ, unsolved since 1990. Sculptor Jim Sanborn has confirmed four plaintext anchors and described "five or six techniques." The architecture is confirmed as **substitution → transposition → K4 ciphertext** (not transposition-first). All systematically-tested single-layer and 2-layer attack sweeps have returned null results — see §1.4 for the complete annotated list. The frontier is 3-layer composites, pre-cipher masking, and secondary-key derivation.
+> **⚠️ Staleness note (2026-08-30):** Section 3 below (P1–P10) was written 2026-08-12 and, until this correction, still described P1–P7 as untested despite all seven having complete implementations, real null results, and permanent artifacts by this date (P1/P3/P4/P7 recorded in an earlier session; P2/P5/P6 were wired into the dashboard API but never actually executed until this pass closed that gap — see `docs/analysis/K4_ACTIVE_RESEARCH.md`'s Phase 2/4 sections for full detail and artifact names). P8–P10 are also complete (a later session, item 14). Every priority section and the summary table below have been corrected in place; the original motivation text for each is preserved.
+
+> **Quick orientation:** K4 is a 97-character ciphertext carved in copper at CIA HQ, unsolved since 1990. Sculptor Jim Sanborn has confirmed four plaintext anchors and described "five or six techniques." The architecture is confirmed as **substitution → transposition → K4 ciphertext** (not transposition-first). All systematically-tested single-layer and 2-layer attack sweeps, and now all ten P1–P10 frontier directions below, have returned null results — see §1.4 and §3 for the complete annotated list. The genuine frontier now is: the parts of the Physical/Geometric Pivot's own search space that are built but not yet wired into the default sweep (the reflection module's transpose family), a fourth cipher layer (Sanborn's "five or six techniques" implies at least one more than the three-layer chains tested so far), and anything requiring physical/photographic access to the sculpture.
 
 ---
 
@@ -148,9 +151,11 @@ These interpretations require physical or photographic access to the sculptures 
 
 ## Dimension 3 — FRONTIER: Untested Directions (Priority-Ordered)
 
-### 🔴 P1 — 3-Layer Composite: Keyed-Alphabet → Clock-Vigenère → Columnar Transposition
+### ✅ P1 — 3-Layer Composite: Keyed-Alphabet → Clock-Vigenère → Columnar Transposition (COMPLETE — NULL RESULT)
 
-**Why this is the highest-priority untested vector:**
+**Result:** Implemented as `kryptos.k4.three_layer_composite.run_three_layer_composite`. CIA dedication timestamps tested first as priority states, then the full hourly sweep, 3 alphabets × grid widths `[7,8,10]` × brute-force columnar permutation. Null. Artifact: `K4_3LAYER_NULL.json`. A follow-on, `run_three_layer_composite_geometric`, swaps the columnar layer for the Physical/Geometric Pivot's named 24-column permutations — also null (`K4_3LAYER_GEOMETRIC_NULL.json`, `K4_3LAYER_GEOMETRIC_FULL_NULL.json`).
+
+**Why this was the highest-priority untested vector (original rationale, preserved):**
 - All components are already implemented in the codebase
 - It is the minimum extension of the K1–K3 pattern that reaches "five or six techniques"
 - The search space is ~51,840 combinations — trivial to exhaust in minutes
@@ -173,9 +178,11 @@ Reading routes: row-major, column-major, ENE diagonal, reverse row (6 routes)
 
 ---
 
-### 🔴 P2 — Shadow/Null Masking as Layer 0
+### ✅ P2 — Shadow/Null Masking as Layer 0 (COMPLETE — NULL RESULT)
 
-**Why this matters:**
+**Result:** All eight masking variants implemented in `kryptos.k4.masking_v2` (crib-position recalculation included) and wired into the dashboard as attack `p2_shadow_masking`, but never actually executed until 2026-08-30 — the API only ever ran it into an ephemeral in-memory job, so no permanent result existed. Run for real: 8 variants × 4 alphabets × 2 grids (7/8 cols) × 2 clock states (00:00/12:00) × 24 perms/grid × 2 routes = 6,144 candidates. 40 near-misses, all single-keyword coincidences (e.g. "EAST" appearing as a substring by chance), none positional or simultaneous. Null. Artifacts: `K4_MASK_*_NULL.json` (8 files).
+
+**Why this matters (original rationale, preserved):**
 If any K4 characters are nulls inserted by Sanborn as "physical shadows" (World Clock shadow theory), then the effective message is shorter than 97 characters. Every attack that assumes 97 solid message characters is attacking padded input, which explains why no substitution key fits cleanly.
 
 **Masking variants to test:**
@@ -195,9 +202,11 @@ If any K4 characters are nulls inserted by Sanborn as "physical shadows" (World 
 
 ---
 
-### 🟠 P3 — K2 Coordinate Digits as Clock State Selectors
+### ✅ P3 — K2 Coordinate Digits as Clock State Selectors (COMPLETE — NULL RESULT)
 
-**Motivation:** The K2 plaintext encodes a specific geographic location:
+**Result:** Isolated exactly these timestamps in `kryptos.k4.k2_clock_states.get_k2_clock_states`, wired into the dashboard as attack `p3_k2_coord_clock` — each state's clock-Vigenère shifts tested against all known keyed alphabets, then columnar transposition over widths 7, 8, and 10, capped at the first 120 permutations per width (not exhaustive — 7! = 5,040, 8! = 40,320, 10! = 3,628,800). Null (zero keyword hits across all states tested).
+
+**Motivation (original rationale, preserved):** The K2 plaintext encodes a specific geographic location:
 
 ```text
 THIRTY EIGHT DEGREES FIFTY SEVEN MINUTES SIX POINT FIVE SECONDS NORTH
@@ -218,9 +227,11 @@ Each of these timestamps should be used as the clock state for Hill 2×2 (if inv
 
 ---
 
-### 🟠 P4 — 6-Hour Timezone Offset as Cipher Modifier
+### ✅ P4 — 6-Hour Timezone Offset as Cipher Modifier (COMPLETE — NULL RESULT)
 
-**Motivation:** Berlin is UTC+1; CIA Langley, Virginia is UTC−5. The offset is 6 hours exactly. If Sanborn set the encryption clock at Berlin local time but the "read time" is CIA local time, then the nominal clock state is shifted by 6 hours from the Berlin reading.
+**Result:** `kryptos.k4.k2_clock_states.get_tz_offset_states` applies the ±6h offset to the CIA-dedication states, wired as attack `p4_timezone_offset`. Null. The Physical/Geometric Pivot separately tests the same 6-hour offset as a *positional* grid permutation (`clock_rotation.BERLIN_LANGLEY_OFFSET_HOURS`) rather than a Vigenère-key-index shift — also null.
+
+**Motivation (original rationale, preserved):** Berlin is UTC+1; CIA Langley, Virginia is UTC−5. The offset is 6 hours exactly. If Sanborn set the encryption clock at Berlin local time but the "read time" is CIA local time, then the nominal clock state is shifted by 6 hours from the Berlin reading.
 
 **Specific applications:**
 1. For each clock-state-based attack, also test the state shifted by ±6 hours (±360 minutes, ±360 mod 720 in the state index)
@@ -231,17 +242,21 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 
 ---
 
-### 🟡 P5 — BERLIN+CLOCK Partial Match Isolation
+### ✅ P5 — BERLIN+CLOCK Partial Match Isolation (COMPLETE — NULL RESULT)
 
-**Motivation:** The full sweep required simultaneous 4-crib hits (EAST + NORTHEAST + BERLIN + CLOCK). Requiring all four simultaneously may have suppressed candidates where the transposition was right for two of the four cribs but the substitution key was wrong.
+**Result:** Wired as attack `p5_two_crib_filter` (`run_three_layer_composite(keyword_eureka_threshold=2)`) but, like P2, never actually executed until 2026-08-30. Run for real against both the brute-force transposition (34,560 candidates) and, for the first time, the Physical/Geometric Pivot's geometric transposition (`run_three_layer_composite_geometric`, 69,120 candidates, full clock sweep). Zero near-misses either way — null on both.
+
+**Motivation (original rationale, preserved):** The full sweep required simultaneous 4-crib hits (EAST + NORTHEAST + BERLIN + CLOCK). Requiring all four simultaneously may have suppressed candidates where the transposition was right for two of the four cribs but the substitution key was wrong.
 
 **Approach:** Rerun the inverse transposition sweep with a 2-crib gate (BERLIN+CLOCK at positions 63–73 only). Log all candidates that satisfy even 1 of the 4 cribs. Sort by combined score. Manually inspect the top-10 near-misses — they may reveal the correct transposition geometry even without the full key.
 
 ---
 
-### 🟡 P6 — Running Key from K3 Plaintext
+### ✅ P6 — Running Key from K3 Plaintext (COMPLETE — NULL RESULT)
 
-**Motivation:** Sanborn said the sections build on each other. K3's plaintext is ~336 characters. The first 97 characters of K3's output could serve as a running Vigenère key for K4 — a "book cipher" where the book is the previous section.
+**Result:** Implemented as `kryptos.k4.running_key.run_k3_running_key_attack` (4 variants: standard/KRYPTOS alphabet × direct/reversed key) with full `EurekaSignal` wiring, but — like P2 and P5 — never actually executed until 2026-08-30. Zero keyword hits on any variant. Null. Artifact: `K4_P6_RUNNING_KEY_NULL.json`.
+
+**Motivation (original rationale, preserved):** Sanborn said the sections build on each other. K3's plaintext is ~336 characters. The first 97 characters of K3's output could serve as a running Vigenère key for K4 — a "book cipher" where the book is the previous section.
 
 **Implementation:** Extract first 97 chars of K3 decrypted plaintext. Apply as Vigenère key to K4 ciphertext (with and without keyed alphabet pre-substitution). Validate EAST+NORTHEAST cribs in the result.
 
@@ -250,9 +265,11 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 
 ---
 
-### 🟡 P7 — Gronsfeld Cipher (Numeric Key from K2 Coordinates)
+### ✅ P7 — Gronsfeld Cipher (Numeric Key from K2 Coordinates) (COMPLETE — NULL RESULT)
 
-**Motivation:** Gronsfeld is a Vigenère variant where the key is a sequence of decimal digits (0–9), making each key step a shift of 0–9 rather than 0–25. This drastically reduces the key space and is hand-encryptable. The K2 coordinate digits form natural numeric keys.
+**Result:** Implemented in `kryptos.k4.gronsfeld.run_gronsfeld_sweep` (was "not yet implemented" as of this doc's original writing — it is now). 5 K2-coordinate-derived digit keys tested. Null. Wired as attack `p7_gronsfeld`.
+
+**Motivation (original rationale, preserved):** Gronsfeld is a Vigenère variant where the key is a sequence of decimal digits (0–9), making each key step a shift of 0–9 rather than 0–25. This drastically reduces the key space and is hand-encryptable. The K2 coordinate digits form natural numeric keys.
 
 **Candidate keys:**
 - `385765` (38°57'6.5"N, truncated to 6 digits)
@@ -260,74 +277,78 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 - `385706577` (full N coordinate)
 - `3857` (hour and minute of one K2 reading)
 
-**Not yet implemented.** Requires a `gronsfeld_decrypt(ciphertext, digit_key)` function and a sweep integrated with the 4-crib gate.
+*(Historical rationale, at original writing: required a `gronsfeld_decrypt(ciphertext, digit_key)` function and a sweep integrated with the 4-crib gate — both now exist; see Result above.)*
 
 ---
 
-### 🔵 P8 — Myszkowski Transposition Variant
+### ✅ P8 — Myszkowski Transposition Variant (COMPLETE — NULL RESULT)
 
-**Motivation:** Myszkowski transposition uses a repeated-letter keyword to determine column reading order. Columns under the same letter are read together, left-to-right. This is an edge case of columnar transposition not yet tested in isolation. Keywords with repeated letters — for example ABSCISSA (A×2, S×2) or PALIMPSEST (P×2, S×2, T×2) — produce non-standard columnar groupings that the general columnar solver does not enumerate. KRYPTOS itself (K, R, Y, P, T, O, S) has no repeated letters and cannot demonstrate Myszkowski behavior; none of the Kryptos-family repeated-letter keywords have been specifically tested with the Myszkowski algorithm.
+**Result:** Implemented as `kryptos.k4.myszkowski.run_myszkowski_attack`. ABSCISSA and PALIMPSEST (the two Kryptos keys with repeated letters) × decrypt/encrypt direction = 4 candidates. Null. Artifact: `K4_MYSZKOWSKI_NULL.json`.
 
----
-
-### 🔵 P9 — Trifid Cipher
-
-**Motivation:** Trifid extends Bifid to a 27-letter cube (adding a period or null character). It fractionates and interleaves triples rather than pairs. If K4 contains exactly 97 characters and the plaintext is ~32 "real" characters with interleaved fractionation, the effective message could be much shorter. Not implemented; medium-low probability given K1–K3 progression doesn't use Trifid.
+**Motivation (original rationale, preserved):** Myszkowski transposition uses a repeated-letter keyword to determine column reading order. Columns under the same letter are read together, left-to-right. This is an edge case of columnar transposition not yet tested in isolation. Keywords with repeated letters — for example ABSCISSA (A×2, S×2) or PALIMPSEST (P×2, S×2, T×2) — produce non-standard columnar groupings that the general columnar solver does not enumerate. KRYPTOS itself (K, R, Y, P, T, O, S) has no repeated letters and cannot demonstrate Myszkowski behavior; none of the Kryptos-family repeated-letter keywords have been specifically tested with the Myszkowski algorithm.
 
 ---
 
-### ⬜ P10 — Straddle Checkerboard
+### ✅ P9 — Trifid Cipher (COMPLETE — NULL RESULT)
 
-**Motivation:** Used by Soviet-era agents (Cold War theme matches Kryptos). The straddle checkerboard assigns variable-length codes to letters (high-frequency letters get 1 digit, others get 2), producing a compressed representation. If K4's 97 ciphertext characters came from a 60-character plaintext via checkerboard expansion, the effective message density would be different from what scoring assumes. Not yet implemented.
+**Result:** Implemented as `kryptos.k4.trifid.run_trifid_attack`. 6 keyword candidates × 13 period lengths (3–97) = 78 candidates. Null. Caught and fixed a real bug during implementation: naive `isalpha()` cleaning silently stripped the cube's 27th filler symbol, corrupting decrypt block boundaries. Artifact: `K4_TRIFID_NULL.json`.
+
+**Motivation (original rationale, preserved):** Trifid extends Bifid to a 27-letter cube (adding a period or null character). It fractionates and interleaves triples rather than pairs. If K4 contains exactly 97 characters and the plaintext is ~32 "real" characters with interleaved fractionation, the effective message could be much shorter. *(Historical rationale, at original writing: not yet implemented; medium-low probability given K1–K3 progression doesn't use Trifid — now implemented and tested null; see Result above.)*
+
+---
+
+### ✅ P10 — Straddle Checkerboard (COMPLETE — NULL RESULT)
+
+**Result:** Implemented as `kryptos.k4.straddling_checkerboard.run_straddling_checkerboard_attack`, wired as attack `p15_straddling_checkerboard`. Null.
+
+**Motivation (original rationale, preserved):** Used by Soviet-era agents (Cold War theme matches Kryptos). The straddle checkerboard assigns variable-length codes to letters (high-frequency letters get 1 digit, others get 2), producing a compressed representation. If K4's 97 ciphertext characters came from a 60-character plaintext via checkerboard expansion, the effective message density would be different from what scoring assumes. *(Historical rationale, at original writing: not yet implemented — now implemented and tested null; see Result above.)*
 
 ---
 
 ## Attack Gap Summary Table
 
-> **Scope:** 10 total frontier directions — **P1–P7 active** (implement in order), **P8–P10 deferred** (lower estimated information gain; implement after P1–P7 exhausted).
+> **Scope:** 10 total frontier directions. All ten are now complete with null results (corrected 2026-08-30 — see the staleness note at the top of this document). "Estimated Combos"/"Expected Runtime" columns are left as originally written (pre-implementation estimates); actual figures are in each priority's Result note above and in `docs/analysis/K4_ACTIVE_RESEARCH.md`'s Ruled Out table.
 
 | Vector | Priority | Status | Estimated Combos | Expected Runtime |
 |--------|----------|--------|-----------------|-----------------|
-| 3-layer: keyed-alphabet → Vigenère → columnar | 🔴 P1 | NOT RUN | ~51,840 | < 1 min |
-| Shadow/null masking as Layer 0 | 🔴 P2 | NOT RUN | ~12 variants × full sweep | < 5 min |
-| K2 coordinate digits as clock timestamps | 🟠 P3 | NOT RUN | 5–8 specific states | Seconds |
-| 6-hour timezone offset modifier | 🟠 P4 | NOT RUN | 2× any clock sweep | Negligible |
-| BERLIN+CLOCK 2-crib soft filter | 🟡 P5 | NOT RUN | Full transposition space | < 5 min |
-| Running key from K3 plaintext | 🟡 P6 | NOT RUN | 2–4 combinations | Seconds |
-| Gronsfeld numeric key cipher | 🟡 P7 | NOT IMPLEMENTED | ~4 keys | After implementation |
-| Myszkowski transposition variant | 🔵 P8 | DEFERRED | ~few keywords | After P1–P7 |
-| Trifid cipher | 🔵 P9 | DEFERRED | — | After P1–P7 |
-| Straddle Checkerboard | ⬜ P10 | DEFERRED | — | After P1–P7 |
+| 3-layer: keyed-alphabet → Vigenère → columnar | P1 | ✅ COMPLETE — NULL | ~51,840 | < 1 min |
+| Shadow/null masking as Layer 0 | P2 | ✅ COMPLETE — NULL | ~12 variants × full sweep | < 5 min |
+| K2 coordinate digits as clock timestamps | P3 | ✅ COMPLETE — NULL | 5–8 specific states | Seconds |
+| 6-hour timezone offset modifier | P4 | ✅ COMPLETE — NULL | 2× any clock sweep | Negligible |
+| BERLIN+CLOCK 2-crib soft filter | P5 | ✅ COMPLETE — NULL | Full transposition space | < 5 min |
+| Running key from K3 plaintext | P6 | ✅ COMPLETE — NULL | 2–4 combinations | Seconds |
+| Gronsfeld numeric key cipher | P7 | ✅ COMPLETE — NULL | ~4 keys | After implementation |
+| Myszkowski transposition variant | P8 | ✅ COMPLETE — NULL | ~few keywords | After P1–P7 |
+| Trifid cipher | P9 | ✅ COMPLETE — NULL | — | After P1–P7 |
+| Straddle Checkerboard | P10 | ✅ COMPLETE — NULL | — | After P1–P7 |
 
 ---
 
 ## Implementation Checklist for Next Session
 
+*(Obsolete as of 2026-08-30 — all seven items below were completed across two sessions; kept for historical reference only. See `docs/analysis/K4_ACTIVE_RESEARCH.md`'s Physical/Geometric Pivot section for what to work on next, and the "K4 Field Notes" plan published 2026-08-29 for the currently-active checklist.)*
+
 ```text
-[ ] 1. Implement `CompositeChainExecutor.keyed_alphabet_then_vigenere_then_transposition()`
-        - Wire Eureka gate at final stage
-        - Test at CIA dedication timestamp (13:00 CIA local / 19:00 Berlin local) first as priority single state
-        - Then run all 720 × 3 alphabets × 4 column variants × 6 routes
+[x] 1. Implement `CompositeChainExecutor.keyed_alphabet_then_vigenere_then_transposition()`
+        -> kryptos.k4.three_layer_composite.run_three_layer_composite (+ _geometric variant)
 
-[ ] 2. Implement `make_masking_stage_v2(mode)` with 6 masking variants
-        - Add positional crib recalculation for the masked residue
-        - Feed each residue into the existing 2-layer composite sweep
+[x] 2. Implement `make_masking_stage_v2(mode)` with 6 masking variants
+        -> kryptos.k4.masking_v2, run 2026-08-30
 
-[ ] 3. Isolate K2 coordinate timestamps (14:57, 06:05, 17:08, 08:44)
-        - Test each as clock state for Hill 2×2 (if invertible) + Vigenère
-        - Log results with timestamp metadata
+[x] 3. Isolate K2 coordinate timestamps (14:57, 06:05, 17:08, 08:44)
+        -> kryptos.k4.k2_clock_states.get_k2_clock_states
 
-[ ] 4. Add ±6-hour offset variants to all clock-based sweep parameters
+[x] 4. Add ±6-hour offset variants to all clock-based sweep parameters
+        -> kryptos.k4.k2_clock_states.get_tz_offset_states + clock_rotation.BERLIN_LANGLEY_OFFSET_HOURS
 
-[ ] 5. Implement `gronsfeld_decrypt(ciphertext, digit_key)` in `kryptos.k4.gronsfeld`
-        - Test with K2 coordinate digit keys
-        - Add to public API
+[x] 5. Implement `gronsfeld_decrypt(ciphertext, digit_key)` in `kryptos.k4.gronsfeld`
+        -> kryptos.k4.gronsfeld.run_gronsfeld_sweep
 
-[ ] 6. Rerun inverse transposition sweep with BERLIN+CLOCK-only 2-crib gate
-        - Log all 1-crib and 2-crib near-misses
-        - Generate near-miss artifact for manual review
+[x] 6. Rerun inverse transposition sweep with BERLIN+CLOCK-only 2-crib gate
+        -> run 2026-08-30, both brute-force and geometric transposition
 
-[ ] 7. Test running-key attack: first 97 chars of K3 plaintext as Vigenère key for K4
+[x] 7. Test running-key attack: first 97 chars of K3 plaintext as Vigenère key for K4
+        -> kryptos.k4.running_key.run_k3_running_key_attack, run 2026-08-30
 ```
 
 ---

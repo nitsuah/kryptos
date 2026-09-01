@@ -90,3 +90,43 @@ class TestGeographyDerivedBearings:
 
         bearings = cr.geography_derived_bearings()
         assert bearings["cia_berlin_bearing"] == CIA_BERLIN_BEARING_DEG
+
+    def test_includes_mengenlehreuhr_weltzeituhr(self):
+        bearings = cr.geography_derived_bearings()
+        assert "mengenlehreuhr_weltzeituhr_1990" in bearings
+        assert "mengenlehreuhr_weltzeituhr_current" in bearings
+
+
+class TestMengenlehreuhrWeltzeituhrBearings:
+    def test_four_named_bearings(self):
+        b = cr.mengenlehreuhr_weltzeituhr_bearings()
+        assert set(b) == {
+            "mengenlehreuhr_weltzeituhr_1990",
+            "mengenlehreuhr_weltzeituhr_1990_reversed",
+            "mengenlehreuhr_weltzeituhr_current",
+            "mengenlehreuhr_weltzeituhr_current_reversed",
+        }
+
+    def test_close_to_ene(self):
+        # Exact ENE is 67.5 deg. Both the 1990 (Sanborn-era) and current
+        # Mengenlehreuhr locations should land within a few degrees of it —
+        # this is the whole point of the hypothesis.
+        b = cr.mengenlehreuhr_weltzeituhr_bearings()
+        assert abs(b["mengenlehreuhr_weltzeituhr_1990"] - 67.5) < 5.0
+        assert abs(b["mengenlehreuhr_weltzeituhr_current"] - 67.5) < 5.0
+
+    def test_reversed_pairs_are_opposite(self):
+        b = cr.mengenlehreuhr_weltzeituhr_bearings()
+        assert b["mengenlehreuhr_weltzeituhr_1990_reversed"] == pytest.approx(
+            (b["mengenlehreuhr_weltzeituhr_1990"] + 180.0) % 360.0
+        )
+        assert b["mengenlehreuhr_weltzeituhr_current_reversed"] == pytest.approx(
+            (b["mengenlehreuhr_weltzeituhr_current"] + 180.0) % 360.0
+        )
+
+    def test_1990_and_current_differ(self):
+        # Different physical locations (pre/post 1996 move) must give a
+        # different bearing -- otherwise the period-accuracy correction in
+        # this module's docstring would be pointless.
+        b = cr.mengenlehreuhr_weltzeituhr_bearings()
+        assert b["mengenlehreuhr_weltzeituhr_1990"] != b["mengenlehreuhr_weltzeituhr_current"]

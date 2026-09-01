@@ -86,17 +86,70 @@ def geography_derived_bearings() -> dict[str, float]:
     """
     from .bearing_attack import CIA_BERLIN_BEARING_DEG
 
-    return {
+    bearings = {
         "cia_berlin_bearing": CIA_BERLIN_BEARING_DEG,
         "cia_berlin_bearing_reversed": (CIA_BERLIN_BEARING_DEG + 180.0) % 360.0,
+    }
+    bearings.update(mengenlehreuhr_weltzeituhr_bearings())
+    return bearings
+
+
+# Weltzeituhr (World Clock), Alexanderplatz — unmoved since 1969.
+# https://en.wikipedia.org/wiki/World_Clock_(Alexanderplatz)
+WELTZEITUHR_LAT, WELTZEITUHR_LON = 52.5211, 13.4133
+
+# Mengenlehreuhr (Berlin Clock / Set Theory Clock).
+# Current site (Europa-Center, since 1996 — six years AFTER Kryptos was
+# dedicated in Nov 1990): https://latitude.to/articles-by-country/de/germany/37064/mengenlehreuhr
+MENGENLEHREUHR_CURRENT_LAT, MENGENLEHREUHR_CURRENT_LON = 52.5032, 13.3367
+# 1975-1995 site (Kurfurstendamm/Uhlandstrasse corner) — the location during
+# Sanborn's entire design window. Approximate: nearest documented
+# cross-street, not the exact historical pedestal — expect a few tenths of a
+# degree of slack from this coordinate alone.
+MENGENLEHREUHR_1990_LAT, MENGENLEHREUHR_1990_LON = 52.50250, 13.32556
+
+
+def mengenlehreuhr_weltzeituhr_bearings() -> dict[str, float]:
+    """Bearing from the Berlin Clock to the World Clock — both real locations.
+
+    ``docs/sources/CLOCK.md`` claims a line from the Mengenlehreuhr heading
+    ENE reaches the Weltzeituhr, but cites no source and uses the clock's
+    *current* location. The Mengenlehreuhr didn't move to Europa-Center
+    until 1996 — six years after Kryptos was dedicated. This computes the
+    precise geodesic bearing from both the current site and the 1990
+    (Sanborn-era) site, so the period-accurate figure is available alongside
+    the easier-to-source current one rather than silently substituted for it.
+    """
+    from .geodesy import geodesic_bearing_distance
+
+    current = geodesic_bearing_distance(
+        MENGENLEHREUHR_CURRENT_LAT, MENGENLEHREUHR_CURRENT_LON, WELTZEITUHR_LAT, WELTZEITUHR_LON
+    )
+    historic = geodesic_bearing_distance(
+        MENGENLEHREUHR_1990_LAT, MENGENLEHREUHR_1990_LON, WELTZEITUHR_LAT, WELTZEITUHR_LON
+    )
+    fwd_current = current["forward_azimuth_deg"]
+    fwd_historic = historic["forward_azimuth_deg"]
+    return {
+        "mengenlehreuhr_weltzeituhr_1990": fwd_historic,
+        "mengenlehreuhr_weltzeituhr_1990_reversed": (fwd_historic + 180.0) % 360.0,
+        "mengenlehreuhr_weltzeituhr_current": fwd_current,
+        "mengenlehreuhr_weltzeituhr_current_reversed": (fwd_current + 180.0) % 360.0,
     }
 
 
 __all__ = [
     "BERLIN_LANGLEY_OFFSET_HOURS",
+    "MENGENLEHREUHR_1990_LAT",
+    "MENGENLEHREUHR_1990_LON",
+    "MENGENLEHREUHR_CURRENT_LAT",
+    "MENGENLEHREUHR_CURRENT_LON",
     "PRIORITY_OFFSETS",
+    "WELTZEITUHR_LAT",
+    "WELTZEITUHR_LON",
     "geography_derived_bearings",
     "geography_priority_offsets",
+    "mengenlehreuhr_weltzeituhr_bearings",
     "origin_from_hour",
     "rotate",
     "rotated_column",

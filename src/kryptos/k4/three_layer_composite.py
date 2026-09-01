@@ -52,6 +52,24 @@ _EUREKA_WORDS: frozenset[str] = frozenset({"EAST", "NORTHEAST", "BERLIN", "CLOCK
 # CIA dedication timestamp clock states (tested before the full sweep).
 CIA_PRIORITY_TIMES = ["13:00:00", "19:00:00"]
 
+# Fall of the Berlin Wall, Nov 9 1989 — the event docs/sources/CLOCK.md cites
+# as most influential on Sanborn's design, but never previously tested as a
+# clock state. Three sourced Berlin-local (CET) moments from that evening
+# (Schabowski's key statement — including his "sofort, unverzüglich"
+# ["as of now, immediately"] answer, both at 18:53; the AP flash reporting
+# the border opening; and ARD's lead broadcast — see
+# docs/analysis/K4_ACTIVE_RESEARCH.md for citations), plus their EST
+# equivalents (-6h), mirroring how CIA_PRIORITY_TIMES tests both timezone
+# framings of the same event rather than arbitrarily picking one.
+BERLIN_WALL_PRIORITY_TIMES = [
+    "18:53:00",  # Schabowski's statement + "as of now, immediately!" answer (Berlin/CET)
+    "19:05:00",  # AP flash report: border opening (Berlin/CET)
+    "20:00:00",  # ARD lead broadcast (Berlin/CET)
+    "12:53:00",  # same moments, CIA/EST (-6h)
+    "13:05:00",
+    "14:00:00",
+]
+
 
 def _mono_subst_decrypt(text: str, alphabet: str) -> str:
     """Undo a monoalphabetic substitution that encrypted standard→alphabet."""
@@ -497,12 +515,13 @@ def run_three_layer_composite_geometric(
 
 
 __all__ = [
-    "K4",
+    "BERLIN_WALL_PRIORITY_TIMES",
     "CIA_PRIORITY_TIMES",
-    "run_three_layer_composite",
-    "run_three_layer_composite_geometric",
-    "_mono_subst_decrypt",
-    "_vigenere_decrypt_std",
+    "K4",
     "_decrypt_three_layer",
     "_decrypt_three_layer_geometric",
+    "_mono_subst_decrypt",
+    "_vigenere_decrypt_std",
+    "run_three_layer_composite",
+    "run_three_layer_composite_geometric",
 ]

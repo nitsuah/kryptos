@@ -15,6 +15,7 @@ from kryptos.k4.eureka import EurekaSignal
 from kryptos.k4.geometry24 import apply_forward
 from kryptos.k4.geometry_combined_sweep import composed_flat_indices
 from kryptos.k4.three_layer_composite import (
+    BERLIN_WALL_PRIORITY_TIMES,
     CIA_PRIORITY_TIMES,
     _build_clock_sequence,
     run_three_layer_composite_geometric,
@@ -52,6 +53,35 @@ def _planted_ciphertext() -> tuple[str, dict]:
     flat_idx = composed_flat_indices("col_major", "flip_v", 6, "leading")
     planted_ct = apply_forward(step_b, flat_idx)
     return planted_ct, {"clock_time": clock_time, "alphabet": alphabet}
+
+
+class TestBerlinWallPriorityTimes:
+    def test_six_sourced_times(self):
+        assert len(BERLIN_WALL_PRIORITY_TIMES) == 6
+        assert "18:53:00" in BERLIN_WALL_PRIORITY_TIMES  # Schabowski's key statement
+        assert "19:05:00" in BERLIN_WALL_PRIORITY_TIMES  # AP flash: border opening
+        assert "20:00:00" in BERLIN_WALL_PRIORITY_TIMES  # ARD lead broadcast
+
+    def test_includes_est_equivalents(self):
+        # Each CET time has a -6h EST counterpart, mirroring how
+        # CIA_PRIORITY_TIMES tests both timezone framings of one event.
+        assert "12:53:00" in BERLIN_WALL_PRIORITY_TIMES
+        assert "13:05:00" in BERLIN_WALL_PRIORITY_TIMES
+        assert "14:00:00" in BERLIN_WALL_PRIORITY_TIMES
+
+    def test_usable_as_priority_clock_times(self, tmp_path):
+        summary = run_three_layer_composite_geometric(
+            subst_alphabets={"KRYPTOS": KNOWN_KEYED_ALPHABETS["KRYPTOS"]},
+            order_names=["row_major"],
+            reflection_names=["identity"],
+            rotation_offsets=[0],
+            remainder_modes=["trailing"],
+            priority_clock_times=BERLIN_WALL_PRIORITY_TIMES,
+            null_artifact_path=tmp_path / "null.json",
+            graph_path=tmp_path / "graph.json",
+            eureka_snapshot_path=tmp_path / "snap.md",
+        )
+        assert summary["run_params"]["clock_states_tested"] == BERLIN_WALL_PRIORITY_TIMES
 
 
 class TestNullResultArtifact:
