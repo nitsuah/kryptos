@@ -180,7 +180,7 @@ Reading routes: row-major, column-major, ENE diagonal, reverse row (6 routes)
 
 ### ✅ P2 — Shadow/Null Masking as Layer 0 (COMPLETE — NULL RESULT)
 
-**Result:** All six masking variants implemented in `kryptos.k4.masking_v2` (crib-position recalculation included) and wired into the dashboard as attack `p2_shadow_masking`, but never actually executed until 2026-08-30 — the API only ever ran it into an ephemeral in-memory job, so no permanent result existed. Run for real: 8 variants × 3 alphabets × 3 grids × 24 hourly states × 500 perms = 2,304,000 candidates. 40 near-misses, all single-keyword coincidences (e.g. "EAST" appearing as a substring by chance), none positional or simultaneous. Null. Artifacts: `K4_MASK_*_NULL.json` (8 files).
+**Result:** All eight masking variants implemented in `kryptos.k4.masking_v2` (crib-position recalculation included) and wired into the dashboard as attack `p2_shadow_masking`, but never actually executed until 2026-08-30 — the API only ever ran it into an ephemeral in-memory job, so no permanent result existed. Run for real: 8 variants × 4 alphabets × 2 grids (7/8 cols) × 2 clock states (00:00/12:00) × 24 perms/grid × 2 routes = 6,144 candidates. 40 near-misses, all single-keyword coincidences (e.g. "EAST" appearing as a substring by chance), none positional or simultaneous. Null. Artifacts: `K4_MASK_*_NULL.json` (8 files).
 
 **Why this matters (original rationale, preserved):**
 If any K4 characters are nulls inserted by Sanborn as "physical shadows" (World Clock shadow theory), then the effective message is shorter than 97 characters. Every attack that assumes 97 solid message characters is attacking padded input, which explains why no substitution key fits cleanly.
@@ -204,7 +204,7 @@ If any K4 characters are nulls inserted by Sanborn as "physical shadows" (World 
 
 ### ✅ P3 — K2 Coordinate Digits as Clock State Selectors (COMPLETE — NULL RESULT)
 
-**Result:** Isolated exactly these timestamps in `kryptos.k4.k2_clock_states.get_k2_clock_states`, wired into the dashboard as attack `p3_k2_coord_clock` — each state's clock-Vigenère shifts tested against all known keyed alphabets, then brute-force columnar transposition. Null (zero keyword hits across all states).
+**Result:** Isolated exactly these timestamps in `kryptos.k4.k2_clock_states.get_k2_clock_states`, wired into the dashboard as attack `p3_k2_coord_clock` — each state's clock-Vigenère shifts tested against all known keyed alphabets, then columnar transposition over widths 7, 8, and 10, capped at the first 120 permutations per width (not exhaustive — 7! = 5,040, 8! = 40,320, 10! = 3,628,800). Null (zero keyword hits across all states tested).
 
 **Motivation (original rationale, preserved):** The K2 plaintext encodes a specific geographic location:
 
@@ -277,7 +277,7 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 - `385706577` (full N coordinate)
 - `3857` (hour and minute of one K2 reading)
 
-**Not yet implemented.** Requires a `gronsfeld_decrypt(ciphertext, digit_key)` function and a sweep integrated with the 4-crib gate.
+*(Historical rationale, at original writing: required a `gronsfeld_decrypt(ciphertext, digit_key)` function and a sweep integrated with the 4-crib gate — both now exist; see Result above.)*
 
 ---
 
@@ -293,7 +293,7 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 
 **Result:** Implemented as `kryptos.k4.trifid.run_trifid_attack`. 6 keyword candidates × 13 period lengths (3–97) = 78 candidates. Null. Caught and fixed a real bug during implementation: naive `isalpha()` cleaning silently stripped the cube's 27th filler symbol, corrupting decrypt block boundaries. Artifact: `K4_TRIFID_NULL.json`.
 
-**Motivation (original rationale, preserved):** Trifid extends Bifid to a 27-letter cube (adding a period or null character). It fractionates and interleaves triples rather than pairs. If K4 contains exactly 97 characters and the plaintext is ~32 "real" characters with interleaved fractionation, the effective message could be much shorter. Not implemented; medium-low probability given K1–K3 progression doesn't use Trifid.
+**Motivation (original rationale, preserved):** Trifid extends Bifid to a 27-letter cube (adding a period or null character). It fractionates and interleaves triples rather than pairs. If K4 contains exactly 97 characters and the plaintext is ~32 "real" characters with interleaved fractionation, the effective message could be much shorter. *(Historical rationale, at original writing: not yet implemented; medium-low probability given K1–K3 progression doesn't use Trifid — now implemented and tested null; see Result above.)*
 
 ---
 
@@ -301,7 +301,7 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 
 **Result:** Implemented as `kryptos.k4.straddling_checkerboard.run_straddling_checkerboard_attack`, wired as attack `p15_straddling_checkerboard`. Null.
 
-**Motivation (original rationale, preserved):** Used by Soviet-era agents (Cold War theme matches Kryptos). The straddle checkerboard assigns variable-length codes to letters (high-frequency letters get 1 digit, others get 2), producing a compressed representation. If K4's 97 ciphertext characters came from a 60-character plaintext via checkerboard expansion, the effective message density would be different from what scoring assumes. Not yet implemented.
+**Motivation (original rationale, preserved):** Used by Soviet-era agents (Cold War theme matches Kryptos). The straddle checkerboard assigns variable-length codes to letters (high-frequency letters get 1 digit, others get 2), producing a compressed representation. If K4's 97 ciphertext characters came from a 60-character plaintext via checkerboard expansion, the effective message density would be different from what scoring assumes. *(Historical rationale, at original writing: not yet implemented — now implemented and tested null; see Result above.)*
 
 ---
 

@@ -59,7 +59,7 @@ class TestBerlinWallPriorityTimes:
     def test_six_sourced_times(self):
         assert len(BERLIN_WALL_PRIORITY_TIMES) == 6
         assert "18:53:00" in BERLIN_WALL_PRIORITY_TIMES  # Schabowski's key statement
-        assert "19:05:00" in BERLIN_WALL_PRIORITY_TIMES  # "as of now; immediately!"
+        assert "19:05:00" in BERLIN_WALL_PRIORITY_TIMES  # AP flash: border opening
         assert "20:00:00" in BERLIN_WALL_PRIORITY_TIMES  # ARD lead broadcast
 
     def test_includes_est_equivalents(self):
