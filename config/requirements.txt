@@ -14,4 +14,4 @@ turbovec  # Compressed vector index for kryptos.rag (RAG over artifacts/)
 fastapi>=0.141.1  # `kryptos serve` API
 uvicorn[standard]>=0.52.4  # ASGI server for `kryptos serve`
 psycopg2-binary>=2.9.12  # PostgreSQL driver for kryptos.db (DATABASE_URL / Neon storage)
-geographiclib>=2.0  # WGS84 geodesic bearing/distance for kryptos.k4.geodesy (pure-Python, no compiled deps)
+geographiclib>=2.1  # WGS84 geodesic bearing/distance for kryptos.k4.geodesy (pure-Python, no compiled deps)
