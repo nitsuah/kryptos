@@ -42,7 +42,7 @@ All single-layer and 2-layer composite vectors exhausted. Each produced a docume
 
 | Vector | Module | Status | Notes |
 |--------|--------|--------|-------|
-| P1 — 3-Layer Composite | `three_layer_composite.py` | ✅ done | CIA timestamps priority-tested; full 720-state sweep pending |
+| P1 — 3-Layer Composite | `three_layer_composite.py` | ✅ done | CIA timestamps priority-tested, then a full 24-state hourly sweep — both executed, both null |
 | P2 — Shadow/Null Masking | `masking_v2.py` | ✅ done | 8 variants, crib positions recalculated |
 | P3 — K2 Coordinate Clocks | `k2_clock_states.py` | ✅ done | 5 K2-derived HH:MM timestamps |
 | P4 — ±6h Timezone Offset | `k2_clock_states.py` | ✅ done | Doubles any clock sweep |
@@ -108,8 +108,8 @@ The null-result sweeps produced thousands of candidate texts that were discarded
 
 | Vector | Result |
 |--------|--------|
-| 24-column geometric permutation front-end (16 fill orders × 4 shape-preserving reflections × 3 rotation offsets × 3 remainder modes) combined with the 108-route physical tableau | Null — 155,520 candidates |
-| Same, with geography-derived rotation offsets (CIA→Berlin bearing mod 24, K2-coordinate hours, magnetic declination) | Null — 311,040 candidates |
+| 24-column geometric permutation front-end (20 fill-orders/routes × 4 shape-preserving reflections × 3 rotation offsets × 3 remainder modes × 108-route physical tableau × 2 indicator bases) | Null — 155,520 candidates |
+| Same, with `rotation_offsets` replaced by 6 geography-derived values (CIA→Berlin bearing mod 24, K2-coordinate hours, magnetic declination) | Null — 311,040 candidates |
 | Same, using the exact (unsnapped) CIA→Berlin geodesic bearing as a route direction | Null — 15,552 candidates |
 | Mengenlehreuhr → Weltzeituhr precise geodesic bearing (both current and 1990/Sanborn-era clock locations, both within 1.5–3.3° of exact ENE) as route direction | Null — 46,656 candidates |
 | November 9 1989 (Berlin Wall fall) as a priority clock state, sourced to three specific CET moments that evening | Null — 17,280 candidates |
