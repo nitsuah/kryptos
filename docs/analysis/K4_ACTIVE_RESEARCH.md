@@ -3,7 +3,7 @@
 Breadcrumb: Home > Docs > Analysis > K4 Active Research
 
 
-**Last Updated:** 2026-08-29
+**Last Updated:** 2026-09-01
 **Status:** Living document — update after each meaningful run or finding
 
 This document tracks what is currently known, what has been tested and ruled out, and the active attack queue for K4 cryptanalysis.
@@ -138,16 +138,15 @@ See [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](K4_ATTACK_LANDSCAPE.md) for the ful
 
 Implemented in `kryptos.k4.three_layer_composite.run_three_layer_composite` — chains (1) keyed-alphabet mono-substitution, (2) clock-derived Vigenère (CIA-dedication-timestamp states prioritized, then a full hourly sweep), and (3) brute-force columnar transposition at grid widths `[7, 8, 10]` (`K4_GRID_GEOMETRIES`), gated on all 4 confirmed cribs. **Null result.** Artifact: `K4_3LAYER_NULL.json`. Also wired into the API as `p1_three_layer` and, with a relaxed 2-crib gate, as `p5_two_crib_filter`. See the Physical/Geometric Pivot's `run_three_layer_composite_geometric` for the follow-on that swaps the brute-force columnar layer for the Pivot's 24-column named geometric permutations — a distinct search space (`K4_GRID_GEOMETRIES` never includes width 24), not a duplicate of this entry.
 
-### 🔴 Priority 2 (OPEN): Shadow/Null Masking as Layer 0
+### ✅ Priority 2 (COMPLETE — NULL RESULT): Shadow/Null Masking as Layer 0
+
+*(Entry stale since 2026-08-12 — listed OPEN after it had already been implemented and, as of Phase 4/v2.1 below, executed; corrected 2026-09-01.)*
 
 The World Clock source material describes "the secret is the shadow of the word" — a physical position-masking theory where some K4 characters are null inserts (clock-shadow positions), and the real 64–88 character message is the remainder. If a masking layer preceded the cipher layers, every 2-layer attack on the full 97-char sequence is attacking padded input.
 
-Specific variants to test:
-- Remove every N-th character (N=2,3,4) → decrypt the residue
-- Remove characters at positions corresponding to the clock-shadow angle at a specific timestamp (clock hand position → arc fraction × 97)
-- Remove characters whose index is a clock-lamp-off position
+Implemented in `kryptos.k4.masking_v2` (8 variants: stride-2/3/4, block-8, clock-shadow×2, arc-fraction×2, crib positions recalculated per residue) and wired into the API as `p2_shadow_masking`. Executed for real in Phase 4/v2.1 (below) against `composite_sweep`: **6,144 candidates, null** — 40 near-misses, all single-keyword coincidences. Artifacts: `K4_MASK_*_NULL.json` (8 files).
 
-**Estimated search space:** ~12 masking variants × full composite sweep. Each variant produces a shorter text; crib positions must be recalculated.
+Note: this closes the *masking-as-a-preprocessing-step* reading of "the secret is the shadow of the word." A separate, physically-literal reading — a real or mechanical shadow determining a transposition order rather than a null-removal mask — is still open; see Phase 7 in `docs/ROADMAP.md`.
 
 ### ✅ Priority 3 (COMPLETE — NULL RESULT): K2 Coordinate Digits as Clock State Selectors
 
@@ -161,13 +160,21 @@ Specific variants to test:
 
 `kryptos.k4.k2_clock_states.get_tz_offset_states` applies the ±6-hour offset to the CIA-dedication clock states, wired into the API as `p4_timezone_offset` — same clock-Vigenère + columnar-transposition pipeline as Priority 3. **Null result.** The Physical/Geometric Pivot's `clock_rotation.py` (`BERLIN_LANGLEY_OFFSET_HOURS`, `PRIORITY_OFFSETS`) separately tests this same 6-hour offset as a *positional* permutation of the 24-column grid rather than a Vigenère-key-index shift — also null (see `docs/analysis/K4_ACTIVE_RESEARCH.md`'s Physical/Geometric Pivot section).
 
-### 🟡 Priority 5 (OPEN): BERLIN+CLOCK Partial Match Isolation
+### ✅ Priority 5 (COMPLETE — NULL RESULT): BERLIN+CLOCK Partial Match Isolation
+
+*(Entry stale since 2026-08-12 — listed OPEN after it had already been wired and, as of Phase 4/v2.1 below, executed; corrected 2026-09-01.)*
 
 The full sweep validated all 4 cribs simultaneously. Relaxing to 2-crib validation (BERLIN+CLOCK only at positions 63–73) with a wider transposition search may surface partial-solution candidates that the strict 4-crib gate rejected. This is a softer filter that widens the search net.
 
-### 🟡 Priority 6 (OPEN): Running Key from K3 Plaintext
+Wired as `p5_two_crib_filter` (`run_three_layer_composite(keyword_eureka_threshold=2)`). Executed for real in Phase 4/v2.1 (below) against both the brute-force transposition (**34,560 candidates**) and, for the first time, the Physical/Geometric Pivot's own geometric transposition (**69,120 candidates**, full clock sweep). **Null both ways** — zero near-misses. Artifacts: `K4_P5_2CRIB_NULL.json`, `K4_P5_GEOMETRIC_2CRIB_NULL.json`.
+
+### ✅ Priority 6 (COMPLETE — NULL RESULT): Running Key from K3 Plaintext
+
+*(Entry stale since 2026-08-12 — listed OPEN after it had already been implemented and, as of Phase 4/v2.1 below, executed; corrected 2026-09-01.)*
 
 K3's plaintext is approximately 336 characters. Using the first 97 characters of K3's decrypted plaintext as a running Vigenère key for K4 has never been attempted. Sanborn called K4 the "last layer" — if the sections are chained, earlier plaintext may be the key material for the next section.
+
+Implemented in `kryptos.k4.running_key.run_k3_running_key_attack` (4 variants: standard/KRYPTOS alphabet × direct/reversed key). Executed for real in Phase 4/v2.1 (below): **4 candidates, null** — zero keyword hits on any variant. Artifact: `K4_P6_RUNNING_KEY_NULL.json`.
 
 ### ✅ Priority 7 (COMPLETE — NULL RESULT): Gronsfeld Cipher (Numeric Key from K2 Coordinates)
 
@@ -402,6 +409,10 @@ Artifacts: `K4_MASK_*_NULL.json` (8 files), `K4_P5_2CRIB_NULL.json`, `K4_P5_GEOM
 **Bug fixed in passing**: the P2 API handler in `k4_attack_routes.py` aggregated near-miss candidates with `best.extend(result.get("best_candidates", []))` *inside* the per-candidate loop instead of `best.append(c)` — an O(n²) duplication that corrupted the dashboard's near-miss reporting for this attack specifically (did not affect the null/non-null verdict itself). Fixed.
 
 **Still open, not attempted this round** (see the "K4 Field Notes" artifact for full detail): `reflection.py`'s shape-changing transpose family was fully built in Phase 1 but `geometry_combined_sweep.DEFAULT_REFLECTIONS` only ever exercises the shape-preserving four — the single largest untested slice of the pivot's own search space. Deferred to keep this round scoped.
+
+### Phase 7 (opened 2026-09-01): next steps
+
+With the pivot's 15 items plus P2/P5/P6 all executed and null, the open threads are: (1) the shape-changing transpose family noted directly above, (2) a re-examined "shadow of the word" hypothesis — the Alexanderplatz World Clock topper's rotation turns out to be mechanically deterministic (fixed 1 rev/min, decoupled from real solar position) rather than requiring physical site access, which makes it and a literal Langley sunlight-shadow reading both computationally tractable, and (3) the World Clock's ~148-city list as an untested keyword source. Full detail and priority order: `docs/ROADMAP.md` Phase 7, `docs/TASKS.md` Active.
 
 ---
 

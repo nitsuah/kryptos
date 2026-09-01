@@ -113,6 +113,21 @@ then convert back.
 
 ## Recent Updates
 
+### K4 Physical/Geometric Pivot Complete (August–September 2026)
+
+**All 15 items of the "Physical/Geometric Pivot" research brief implemented and executed, plus three loops closed that were wired but never run — every result null:**
+
+- 24-column geometric permutation front-end (16 fill orders) composed with reflections, rotations, and remainder modes, combined with the 108-route physical tableau — up to 311,040 candidates per run
+- Precise WGS84 geodesy (`geographiclib`) computing the Mengenlehreuhr → Weltzeituhr bearing at both the clock's current and 1990/Sanborn-era locations (both land within 1.5–3.3° of exact ENE)
+- November 9 1989 (Berlin Wall fall) added as a sourced priority clock state
+- Myszkowski transposition, Trifid cipher, and a simulated-annealing substitution-key search behind the geometric front-end
+- P2 shadow/null masking, P5's 2-crib relaxed gate (against both transposition families), and P6's K3-running-key attack — all wired in earlier phases but executed for real for the first time
+- New dashboard Pivot Status panel showing the hypothesis graph and geodesy figures
+
+**Next up (Phase 7)**: wire `reflection.py`'s untested shape-changing transpose family into a sweep, and a re-examined "shadow of the word" hypothesis — the World Clock topper's rotation turns out to be mechanically deterministic rather than requiring physical site access, making it computationally modelable. See `docs/ROADMAP.md` Phase 7 and `docs/TASKS.md`.
+
+---
+
 ### K4 Phase 2 Frontier Open (August 2026)
 
 **P1–P7 attacks implemented, tested, and live in Docker dashboard:**
@@ -166,11 +181,10 @@ to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
-- **Status**: Unsolved. All single-layer, 2-layer, and initial 3-layer composite sweeps have returned null results (75 tests passing, all attacks instrumented). Phase 2 frontier is open: alternative alphabet keywords, aggressive coordinate exploitation, and candidate-text pattern mining.
+- **Status**: Unsolved. Every attack vector attempted so far is null — single-layer, 2-layer, 3-layer composite, all 20 frontier vectors (P1–P20), and the full 15-item Physical/Geometric Pivot (24-column geometric permutations, reflections, precise-geodesy bearings, historical clock states). 1200+ tests passing, all attacks instrumented with permanent provenance artifacts.
 - **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first definitively ruled out)
 - **Confirmed cribs** (0-indexed): EAST@22–25, NORTHEAST@26–34, BERLIN@63–68, CLOCK@69–73
-- **Active frontier (P1–P7)**: All implemented and runnable from the K4 dashboard. Priority full-sweep (720 clock states × all permutations) is the highest-value pending run.
-- **Phase 2 directions** (P11–P20): Alternative alphabet keywords (SANBORN, SCHEIDT, LANGLEY, NORTHEAST, SHADOW); magnetic declination clock offset; CIA→Berlin bearing as cipher parameter; candidate corpus fragment mining; QQ/SS bigram constraints; repeating-key CSP over 22 known shift values.
+- **Next up (Phase 7)**: `reflection.py`'s untested shape-changing transpose family (largest untested slice of the pivot's own search space); a computationally-modeled "shadow of the word" hypothesis (World Clock topper rotation + real solar position at Langley, both tractable without site access); World Clock city-list keyword research.
 - **Attack Landscape**: `docs/analysis/K4_ATTACK_LANDSCAPE.md` — 3D fingerprint with evidence basis and implementation plans.
 - **Live dashboard**: `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 → K4 Dashboard
 
@@ -368,6 +382,7 @@ The index is stored under `data/turbovec/` (gitignored, derived from `artifacts/
 
 ## Recent Changes
 
+- **2026-09-01**: K4 Physical/Geometric Pivot complete — all 15 brief items plus P2/P5/P6 loop closures executed, all null (1200+ tests passing). ROADMAP/TASKS refreshed for Phase 7 (shape-changing transpose family, computationally-modeled shadow hypothesis, World Clock city-list research).
 - **2026-08-12**: Documentation refresh — created `docs/analysis/K4_ATTACK_LANDSCAPE.md` (3D fingerprint of all completed null-result vectors and 10 frontier directions: P1–P7 active, P8–P10 deferred); updated ROADMAP, TASKS, GOVERN, METRICS, K4_ACTIVE_RESEARCH, K4_KEYSTREAM_ANALYSIS, and INDEX for accuracy
 - **2026-06-01**: src/ audit baseline — 829 tests passing (0 failures); Quagmire I–IV, physical-grid tableau walk, SA columnar seeding, early-crib locking verified; all clock-based attack variants complete
 - **2026-05-25**: All K4-ATTACK-1 through K4-ATTACK-7 complete; 3-layer composite chain (S→T→S), ADFGVX, Nihilist, Beaufort, Quagmire implementations added
