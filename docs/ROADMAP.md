@@ -9,9 +9,9 @@ Next Review: 2026-09-15
 
 ## Current Status
 
-**K4 attack phase:** Phase 6 (Physical/Geometric Pivot) complete — all 15 items from the pivot research brief plus P2/P5/P6 loop closures are implemented, executed, and null. Phase 7 (next) is open: the one deliberately-deferred slice of the pivot's own search space (`reflection.py`'s shape-changing transpose family), a computationally-modelable take on the "shadow of the word" hypothesis, and World Clock city-list keyword research.
+**K4 attack phase:** Phases 6 and 7 (Physical/Geometric Pivot, then the shape-changing transpose family + shadow-angle primitives + city-list keywords + cross-vector consensus scoring) are both complete — every direction identified so far, including the shape-changing transpose family and both readings of the "shadow of the word" hypothesis, has been implemented, executed against real K4, and returned null. No further code-only directions are currently queued; see "Ideas — not yet scheduled" below for what would unblock new ones.
 
-**Architecture:** Confirmed substitution → transposition → K4. The substitution key is not derivable from any standard Berlin Clock row value (shifts at EAST/NORTHEAST reach 17, 20, 25 — exceeding the maximum clock row output of 11). The transposition is not a standard rectangular grid in any simple reading order, including the 24-column/reflection/rotation geometric family added in Phase 6. At minimum one un-parameterized step remains — most likely either the shape-changing transpose (untested), or a genuinely physical parameter (shadow angle, city-list ordering) this repo has not yet modeled.
+**Architecture:** Confirmed substitution → transposition → K4. The substitution key is not derivable from any standard Berlin Clock row value (shifts at EAST/NORTHEAST reach 17, 20, 25 — exceeding the maximum clock row output of 11). The transposition is not a standard rectangular grid in any simple reading order, including both the shape-preserving and shape-changing 24-column geometric families. At minimum one un-parameterized step remains — the most concrete remaining candidates are genuinely physical/archival facts this repo cannot source on its own (a complete World Clock city list, a precisely-timed historical moment, photographic documentation of the Kryptos compass rose's exact bearing).
 
 ---
 
@@ -128,28 +128,44 @@ The null-result sweeps produced thousands of candidate texts that were discarded
 
 ---
 
-## Phase 7 — Shape-Changing Transposition + Physically-Modeled Shadow Hypothesis (Active — opened 2026-09-01)
+## Phase 7 — Shape-Changing Transposition + Physically-Modeled Shadow Hypothesis ✅ (Complete — 2026-09-01)
 
-### Quick win: wire the shape-changing transpose family into a sweep
+> All items below were implemented and executed against real K4 in the same pass they were planned. Full detail, sourcing, and exact candidate counts: `docs/analysis/K4_ACTIVE_RESEARCH.md`'s Phase 7 section — this is a summary.
 
-`reflection.SHAPE_CHANGING` (4 transforms) turns a 4×24 grid into a 24×4 grid — `geometry_combined_sweep` was built only for shape-preserving transforms, so this needs a small variant (or extension) that re-derives `composed_flat_indices` for the transposed shape rather than assuming the fill order and reflection share one grid. Bounded scope: 16 fill orders × 4 shape-changing reflections × 3 rotation offsets × 3 remainder modes × 108 tableau routes × 2 indicator bases — same order of magnitude as Phase 6's shape-preserving runs (~155K candidates).
+### Shape-changing transpose family, wired
+
+`composed_flat_indices` (`geometry_combined_sweep.py`) now correctly handles `reflection.SHAPE_CHANGING`'s four transpose-family transforms (4×24 grid → 24×4): the column-rotation step rotates mod the *current* axis size, and the flat-index formula uses the transposed grid's own row-major numbering. Verified as a valid bijection and correct `apply_forward`/`apply_inverse` round-trip before running at scale; shape-preserving reflections are byte-identical to before (regression-tested). Three runs, all null: default scope (155,520 candidates), geography-derived offsets (414,720), and via `run_three_layer_composite_geometric` (69,120).
 
 ### Physically-modeled "shadow of the word" hypothesis
 
-Sanborn: *"the secret is the shadow of the word"* and *"who says it is even a math solution?"* — previously flagged in `K4_ATTACK_LANDSCAPE.md` as out of scope because it seemed to require physical/photographic site access. Re-examined 2026-08-31: both plausible readings are actually computable without site access.
+Previously flagged out of scope (requires physical/photographic site access) — re-examined and found tractable. New module `kryptos.k4.solar_geometry`:
 
-- **A — World Clock (Weltzeituhr) topper rotation.** The rotating solar-system sculpture atop the Alexanderplatz World Clock turns at a fixed, documented rate (1 revolution/minute) *decoupled from real solar position* — so its orientation at any moment is a deterministic function of elapsed time from a reference timestamp, not an ephemeris lookup. Model as `angle(t) = (seconds_since_reference / 60 * 360) mod 360`; sweep the one genuinely free parameter (the reference timestamp) anchored to the already-computed ENE compass-rose bearing (Phase 6: 67.5–70.8°) rather than treating it as unconstrained.
-- **B — Real sunlight shadow at CIA HQ, Langley.** A literal shadow cast by the Kryptos courtyard sculpture's own copper panel needs true solar azimuth/elevation at a given lat/lon/date/time (standard solar-position algorithm, e.g. NOAA SPA) — tractable with the CIA HQ coordinates and `geodesy.py` infrastructure already in the repo.
-- Both hypotheses reduce to: compute a candidate shadow angle, map it to a transposition order or clock-offset parameter, and run it through the existing `geometry_combined_sweep` / `three_layer_composite_geometric` infrastructure. No new attack pipeline needed — only a new parameter-derivation module (proposed: `kryptos.k4.solar_geometry`).
+- **A — World Clock topper rotation.** Confirmed via Wikipedia: the topper rotates once per minute, decoupled from real solar position. Every sourced historical timestamp is whole-minute precision, and since the period is exactly 60 seconds, any two whole-minute timestamps are *always* co-phased (0° apart) — verified in code, not assumed. Rather than fabricate sub-minute precision that doesn't exist, this honestly tests the full 0–23 rotation-offset range instead (1,244,160 candidates, null) — a slice no prior sweep covered exhaustively.
+- **B — Real solar position at CIA HQ, Langley.** Implemented a standard NOAA/Meeus solar-position algorithm, verified against known reference points (Greenwich solstice noon, equator equinox noon). Real solar azimuth at CIA HQ, at the same already-sourced historical moments, wired into `clock_rotation.geography_derived_bearings()` exactly like the Mengenlehreuhr bearing — flows into `GEO_BEARING_ORDER_NAMES` automatically. 108,864 candidates, null.
 
-### Research: World Clock city-list as a keyword source
+### World Clock city-list keywords
 
-The Weltzeituhr's rotating drum lists ~148 world cities. Untested as a keyed-alphabet seed source (city names, city count mod 26, alphabetical-position-of-Berlin-in-the-list, etc.) — same category of research as P11/P19's keyword expansion, just a source not yet mined.
+Sourced: 148 cities across 24 segments (24 matching this project's own grid column count). A complete list isn't available from any source checked — rather than fabricate the missing ~139 names, `kryptos.k4.world_clock_cities` tests only the 9 individually-confirmed city names (New Delhi, Saint Petersburg/Leningrad, Almaty/Alma Ata, Kyiv, Tel Aviv, Cape Town, Seoul) as keyed alphabets (9,720 candidates, null) plus the two sourced structural counts as rotation offsets (103,680 candidates, null).
 
-### Carried over — not yet scheduled
+### Cross-vector consensus scoring, built
 
-- **Cross-vector consensus scoring** — idea from 2026-08-28, still open: a fragment that surfaces at the same position across *multiple, independently-derived* attack vectors (P1–P20 plus the Phase 6 geometric family) is a far stronger signal than a repeated fragment within one vector's own sweep. Worth building once there's enough corpus volume across vectors to compare.
-- **Scheduled overnight full sweeps** — idea from 2026-08-28, still open: several full sweeps (P1's 720-state sweep, Phase 6's geometric variants) are sub-minute-to-low-minutes runtime but still require someone to remember to click "run." A scheduled/batch runner would close this out.
+`kryptos.k4.cross_vector_consensus` groups every null-artifact's candidates by *source attack vector* (unlike P16's merged-pool count) and flags a fragment only if it appears across ≥3 distinct vectors. Run against 30 accumulated artifacts (11 with extractable candidates): zero consensus anchors — no accidental cross-vector agreement.
+
+### Scheduled overnight sweep runner, built
+
+`kryptos.k4.overnight_runner.run_all_pending_sweeps` (invoked via `scripts/run_k4_overnight_sweeps.py`) runs every registered full-scope sweep in sequence, halting immediately on a `EurekaSignal` breakthrough rather than continuing past it. Closes the "someone has to remember to click it" gap.
+
+**Grand total across Phase 7's real-K4 sweeps: 2,105,784 candidates, zero breakthroughs, zero cross-vector consensus.**
+
+---
+
+## Ideas — not yet scheduled
+
+Everything code-derivable from current sourcing has been tried (Phases 1-7). What's left needs new source material, not new code:
+
+- **A complete World Clock city list.** `kryptos.k4.world_clock_cities.CONFIRMED_CITIES` currently holds only the 9 names individually named in accessible sources, out of 148 total. If a complete, sourced list (photographic documentation, an archival plan of the 1969 installation, etc.) is ever obtained, extend that list — do not fabricate the remainder.
+- **A precisely-timed (sub-minute) historical moment.** `solar_geometry.topper_shadow_offsets()` had to fall back to an exhaustive 0-23 sweep because every sourced timestamp is whole-minute precision and the topper's 60-second period makes any two such timestamps trivially co-phased. A source giving an exact second (a press-conference recording timestamp, a news-wire filing time to the second) would make hypothesis A's hoped-for single derived angle actually computable.
+- **Photographic documentation of the Kryptos compass-rose stone's exact bearing.** Per `elonka.com`'s own wishlist (cited in the Phase 2 addendum above), "which way exactly is the needle pointing" remains an open, unanswered community question — the single most direct physical fact this whole pivot has been reasoning around indirectly.
 
 ---
 

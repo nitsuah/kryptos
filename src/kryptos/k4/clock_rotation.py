@@ -85,12 +85,14 @@ def geography_derived_bearings() -> dict[str, float]:
     rather than re-deriving it.
     """
     from .bearing_attack import CIA_BERLIN_BEARING_DEG
+    from .solar_geometry import solar_shadow_bearings
 
     bearings = {
         "cia_berlin_bearing": CIA_BERLIN_BEARING_DEG,
         "cia_berlin_bearing_reversed": (CIA_BERLIN_BEARING_DEG + 180.0) % 360.0,
     }
     bearings.update(mengenlehreuhr_weltzeituhr_bearings())
+    bearings.update(solar_shadow_bearings())
     return bearings
 
 

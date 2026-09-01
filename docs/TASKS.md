@@ -8,19 +8,21 @@ Last Updated: 2026-09-01
 
 ## Active
 
-### Physical/Geometric Pivot — Phase 7 (NEW — 2026-09-01)
-
-> Phase 6 (24-column geometric permutation front-end, reflections, geodesy-derived bearings, Nov 9 1989 clock state, P2/P5/P6 loop closures) is complete — see `docs/ROADMAP.md` Phase 6 and `docs/analysis/K4_ACTIVE_RESEARCH.md`. These are the next items, in priority order.
-
-- [ ] **Wire `reflection.SHAPE_CHANGING` into a geometric sweep** — `geometry_combined_sweep.DEFAULT_REFLECTIONS` only exercises the 4 shape-preserving transforms (`identity`/`flip_h`/`flip_v`/`rotate_180`); the 4 shape-changing ones (`transpose`/`anti_transpose`/`flip_h_then_transpose`/`flip_v_then_transpose`, in `kryptos.k4.reflection.SHAPE_CHANGING`) turn the 4×24 grid into 24×4 and were never wired into a runnable sweep. Needs a sweep variant (or `composed_flat_indices` extension) that re-derives flat indices for the transposed shape. Highest-value pending item — the single largest untested slice of the pivot's own search space.
-- [ ] **Solar-position primitive for the "shadow of the word" hypothesis** — Sanborn: "the secret is the shadow of the word." Two computationally-tractable readings (neither requires physical/photographic site access, correcting the prior "out of scope" assessment in `K4_ATTACK_LANDSCAPE.md`): (A) the Alexanderplatz World Clock's rotating topper turns at a fixed, documented 1 rev/min rate decoupled from real solar position — model as a deterministic function of elapsed time from a reference timestamp; (B) a literal sunlight shadow cast by the Kryptos courtyard sculpture at CIA HQ Langley — needs true solar azimuth/elevation via a standard solar-position algorithm (e.g. NOAA SPA) applied to the already-known CIA HQ coordinates. Build as `kryptos.k4.solar_geometry`; feed derived angles into the existing `geometry_combined_sweep`/`three_layer_composite_geometric` sweeps as a transposition-order or clock-offset parameter — no new attack pipeline needed.
-- [ ] **World Clock city-list as keyword source** — the Weltzeituhr's rotating drum lists ~148 world cities, untested as a keyed-alphabet seed (city names, city count mod 26, list position of Berlin, etc.) — same category as P11/P19's keyword-expansion research, a source not yet mined.
-- [ ] **Cross-vector consensus scoring** (carried over from 2026-08-28) — a candidate fragment appearing at the same position across *multiple, independently-derived* attack vectors (P1–P20 plus the Phase 6/7 geometric family) is a stronger signal than a repeated fragment within one vector's own sweep. Needs enough corpus volume across vectors before it's worth building.
-- [ ] **Scheduled overnight full-sweep runner** (carried over from 2026-08-28) — several full sweeps are sub-minute-to-low-minutes runtime but still require someone to remember to click "run" in the dashboard; a scheduled/batch job would close this out.
+Nothing code-derivable from current sourcing remains queued — Phases 1-7 have all been implemented, executed against real K4, and returned null. See `docs/ROADMAP.md`'s "Ideas — not yet scheduled" for what would unblock new directions (a complete World Clock city list, a sub-minute-precision historical timestamp, or photographic documentation of the Kryptos compass rose's exact bearing) — none of these can be sourced from inside this repo.
 
 ---
 
 ## Done
+
+### Physical/Geometric Pivot — Phase 7 (2026-09-01, all null)
+
+> Full detail: `docs/ROADMAP.md` Phase 7, `docs/analysis/K4_ACTIVE_RESEARCH.md`'s Phase 7 section.
+
+- [x] **Wired `reflection.SHAPE_CHANGING` into a geometric sweep** — extended `composed_flat_indices` to correctly handle the 4×24→24×4 transpose family (verified bijection + round-trip; shape-preserving reflections unchanged). 3 runs: default scope (155,520), geography-derived offsets (414,720), via `run_three_layer_composite_geometric` (69,120). All null.
+- [x] **Solar-position primitive for the "shadow of the word" hypothesis** — `kryptos.k4.solar_geometry`. Hypothesis A (World Clock topper, confirmed 1 rev/min via Wikipedia) honestly reduced to a full 0-23 rotation-offset sweep after finding every sourced timestamp pair vacuously co-phased (1,244,160 candidates, null). Hypothesis B (real solar azimuth at CIA HQ via a verified NOAA/Meeus algorithm) wired into `clock_rotation.geography_derived_bearings()` (108,864 candidates, null).
+- [x] **World Clock city-list as keyword source** — `kryptos.k4.world_clock_cities`. 9 individually-sourced city names as keyed alphabets (9,720 candidates, null) plus 2 sourced structural counts (148 cities, 24 segments) as rotation offsets (103,680 candidates, null). Complete list unavailable from any source checked — not fabricated.
+- [x] **Cross-vector consensus scoring** — `kryptos.k4.cross_vector_consensus`. Groups candidates by source attack vector (unlike P16's merged-pool count); flags fragments in ≥3 distinct vectors. Scanned 30 artifacts, 11 with candidates: zero consensus anchors.
+- [x] **Scheduled overnight full-sweep runner** — `kryptos.k4.overnight_runner.run_all_pending_sweeps` + `scripts/run_k4_overnight_sweeps.py`. Runs every registered full-scope sweep in sequence, halts immediately on `EurekaSignal`.
 
 ### Physical/Geometric Pivot — Phase 6 (2026-08-29 to 2026-09-01, all null)
 

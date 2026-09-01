@@ -75,11 +75,26 @@ def composed_flat_indices(
     rotation_offset: int,
     remainder_mode: str,
 ) -> list[int]:
-    """Compose fill-order/route -> reflection -> column rotation into flat source indices."""
+    """Compose fill-order/route -> reflection -> column rotation into flat source indices.
+
+    For the four shape-preserving reflections (identity/flip_h/flip_v/rotate_180)
+    coordinates stay within the original 4x24 grid and this is the same
+    computation as always. For the four shape-changing (transpose-family)
+    reflections in :data:`kryptos.k4.reflection.SHAPE_CHANGING`, the grid
+    becomes 24x4 (rows<->cols swapped) -- so the "column" axis being rotated
+    is now the size-4 axis (originally 4 rows), and the flat-index formula
+    must use the transposed grid's own row-major numbering (rows=COLS,
+    cols=ROWS) rather than the original 4x24 numbering, or the resulting
+    indices would fall outside the valid 0..95 range.
+    """
     coords = _order_coords(order_name)
     reflect_fn = reflection.TRANSFORMS[reflection_name]
     coords = [reflect_fn(r, c) for (r, c) in coords]
-    coords = [(r, clock_rotation.rotated_column(c, rotation_offset)) for (r, c) in coords]
+    shape_changing = reflection_name in reflection.SHAPE_CHANGING
+    col_axis_size = geometry24.ROWS if shape_changing else geometry24.COLS
+    coords = [(r, clock_rotation.rotated_column(c, rotation_offset, n=col_axis_size)) for (r, c) in coords]
+    if shape_changing:
+        return geometry24.coords_to_flat(coords, remainder_mode, rows=geometry24.COLS, cols=geometry24.ROWS)
     return geometry24.coords_to_flat(coords, remainder_mode)
 
 
