@@ -23,26 +23,40 @@ A complete, authoritative city-by-city list is **not available from any
 text source** checked -- neither Wikipedia edition, nor any other page
 fetched, reproduces the full name list as text. But the clock is a public
 sculpture, permanently photographed from every angle: this session read
-the engraved plates directly off seven Wikimedia Commons photographs
+the engraved plates directly off Wikimedia Commons photographs,
+transcribing every legible plate rather than relying on a secondary
+description. Where two photos covered the same segment, both were read
+and cross-checked (this caught and corrected one misread on a first pass
+-- see the Middle East/North Africa segment below).
+
+**2026-09-02 update:** the originally-missing Japan/Korea, Australia/NZ,
+and Pacific/Hawaii segments were closed this session by finding
+additional photographs taken at different rotations of the clock's
+cylinder (the sculpture rotates hourly, so which cities are legible in a
+given photo depends on when it was taken, not just camera angle) --
+``2019-08-06_Alexanderplatz_(Berlin-Mitte)_1.jpg`` (PJOENGJANG, TOKYO,
+SEOUL now plate-confirmed; DATUMSGRENZE, WELLINGTON, APIA, MARQUESAS) and
+``Alexanderplatz_and_the_Urania_World_Clock.jpg`` (MAGADAN, SACHALIN,
+KAMTSCHATKA, KAPDESCHNEW, HONOLULU). Two adjacent hour segments in the
+first of those photos show no legible plate text at all -- recorded as
+"not found," not fabricated as either present or confirmed-blank, since a
+different photo could still reveal text there.
+
+Combined with the original seven-photo pass
 (``Weltzeituhr_Detail_Alexanderplatz.jpg``, ``Weltzeituhr.jpg``,
 ``Die_Urania-Weltzeituhr_am_Alexanderplatz.jpg``,
 ``DSC_3226_Urania-Weltzeituhr_Berlin_I.jpg``,
 ``Weltzeituhr,_Berlin_(15910006062).jpg``,
 ``2009-04-07_Berlin_506.jpg``, and ``2009-04-07_Berlin_508.jpg`` -- all
-public domain / CC, checked 2026-09-02), transcribing every legible plate
-rather than relying on a secondary description. Where two photos covered
-the same segment, both were read and cross-checked (this caught and
-corrected one misread on a first pass -- see the Middle East/North Africa
-segment below). This covers roughly 20 of the 24 segments (119
-individually confirmed names, counting both the photographed set and a
-handful of pre-/post-1997 name variants sourced from Wikipedia text
-rather than a plate) -- still not the complete 146, but a large,
-directly-verified jump from the 9 names available from text sources
-alone. The remaining ~4 segments (Japan/Korea, Australia/NZ, and the
-Pacific/Hawaii zones) were not found legibly photographed in this pass.
-If a complete, sourced city list
-is ever obtained, extend ``CONFIRMED_CITIES`` -- do not invent entries
-for the remaining segments.
+public domain / CC), this now covers essentially the full 24-segment ring
+(**130 individually confirmed names**, counting both the photographed set
+and a handful of pre-/post-1997 name variants sourced from Wikipedia text
+rather than a plate) -- up from 119, and from 9 at the start of this
+project's research. Still short of the complete 146 (some names may
+belong to the two blank-in-photo segments above, or to minor plates not
+yet found in any photo checked). If a complete, sourced city list is ever
+obtained, extend ``CONFIRMED_CITIES`` -- do not invent entries for the
+remaining gap.
 """
 
 from __future__ import annotations
@@ -154,6 +168,39 @@ CONFIRMED_CITIES: list[str] = [
     "HONGKONG",
     "KUALALUMPUR",
     "SINGAPUR",
+    # -- Segment: PJOENGJANG / TOKYO / SEOUL -- read 2026-09-02 from a second
+    # photo (2019-08-06_Alexanderplatz_(Berlin-Mitte)_1.jpg) taken at a
+    # different rotation of the cylinder than the seven photos in the
+    # docstring above, closing part of the "~4 segments not photographed"
+    # gap. SEOUL was already in this list (added-1997, Wikipedia-text
+    # sourced); now also directly plate-confirmed here.
+    "PJOENGJANG",  # Pyongyang; the clock's own German transliteration (o-umlaut -> oe, as with KOPENHAGEN/BRUESSEL)
+    "TOKYO",
+    # -- Two adjacent hour segments in this same photo (immediately after
+    # PJOENGJANG/TOKYO/SEOUL, immediately before DATUMSGRENZE below) show no
+    # legible plate text at all -- not misread, genuinely blank in this
+    # photo. Not recorded as a confirmed absence (a different angle/lighting
+    # could still reveal text); just not fabricated as present either.
+    # -- Segment: DATUMSGRENZE / WELLINGTON / APIA / MARQUESAS I. -- same
+    # photo as PJOENGJANG/TOKYO/SEOUL above. DATUMSGRENZE ("date line") is
+    # the clock's +1 International Date Line marker itself (TOTAL_PLATE_ENTRIES
+    # below), not one of the 146 city names -- included here anyway since the
+    # keyed-alphabet sweep tests every plate string regardless of category.
+    "DATUMSGRENZE",
+    "WELLINGTON",
+    "APIA",
+    "MARQUESAS",  # plate reads "MARQUESAS I." (Marquesas Islands); "I." dropped, as with other bare place names here
+    # -- Segment: MAGADAN / SACHALIN -- read 2026-09-02 from
+    # Alexanderplatz_and_the_Urania_World_Clock.jpg, a different photo again
+    # (a third rotation), closing more of the same gap.
+    "MAGADAN",
+    "SACHALIN",
+    # -- Segment: KAMTSCHATKA (same photo)
+    "KAMTSCHATKA",
+    # -- Segment: KAP DESCHNEW (same photo)
+    "KAPDESCHNEW",  # Kap Deschnew / Cape Dezhnev, Russia's easternmost point
+    # -- Segment: HONOLULU (same photo)
+    "HONOLULU",
     # -- Segment: NOME / FAIRBANKS / ANCHORAGE
     "NOME",
     "FAIRBANKS",

@@ -32,8 +32,8 @@ class TestWorldClockRotationOffsets:
 
 class TestRunWorldClockCitySweep:
     def test_null_result_artifact(self, tmp_path):
-        # Small scope for a fast structural check -- the full 119-city
-        # production sweep (128,520 candidates, ~40s) was already run for
+        # Small scope for a fast structural check -- the full 130-city
+        # production sweep (140,400 candidates) was already run for
         # real and is recorded in K4_WORLD_CLOCK_CITIES_NULL.json /
         # docs/analysis/K4_ACTIVE_RESEARCH.md, not re-run on every test pass.
         artifact = tmp_path / "null.json"
