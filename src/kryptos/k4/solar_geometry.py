@@ -56,11 +56,35 @@ BERLIN_WALL_ARD_UTC = datetime(1989, 11, 9, 19, 0, 0, tzinfo=timezone.utc)  # 20
 # separately from the Kryptos-side dates above.
 WELTZEITUHR_DEDICATION_UTC = datetime(1969, 9, 30, 12, 0, 0, tzinfo=timezone.utc)
 
+# Sub-minute-precision timestamps, sourced 2026-09-02 from
+# chronik-der-mauer.de's word-for-word transcript of Hans-Hermann Hertle's
+# own camera/audio recording of the press conference (citing Hertle, "Die
+# Berliner Mauer. Biografie eines Bauwerks", 2nd ed. 2015, p. 194-195) --
+# the single most authoritative timing source found for this event. The
+# transcript excerpt containing the "sofort ... unverzuglich" exchange
+# opens at 18:52:40 CET and the press conference itself ends at 19:00:54
+# CET ("Ende der Pressekonferenz: 19:00:54 Uhr") -- the exact quote falls
+# somewhere within this ~8m14s window, but both bounds are themselves
+# genuine, non-round, sourced moments (unlike every other timestamp this
+# project has used for K4, which are all whole-minute approximations).
+BERLIN_WALL_PRESSER_START_UTC = datetime(1989, 11, 9, 17, 52, 40, tzinfo=timezone.utc)  # 18:52:40 CET
+BERLIN_WALL_PRESSER_END_UTC = datetime(1989, 11, 9, 18, 0, 54, tzinfo=timezone.utc)  # 19:00:54 CET
+
 QUERY_MOMENTS: dict[str, datetime] = {
     "cia_dedication": CIA_DEDICATION_UTC,
     "berlin_wall_schabowski": BERLIN_WALL_SCHABOWSKI_UTC,
     "berlin_wall_ap_flash": BERLIN_WALL_AP_FLASH_UTC,
     "berlin_wall_ard": BERLIN_WALL_ARD_UTC,
+    "berlin_wall_presser_start": BERLIN_WALL_PRESSER_START_UTC,
+    "berlin_wall_presser_end": BERLIN_WALL_PRESSER_END_UTC,
+}
+
+# The two precise (non-whole-minute) moments only -- these are what makes
+# hypothesis A's topper-angle computation non-vacuous (see
+# precise_topper_shadow_offsets below).
+PRECISE_QUERY_MOMENTS: dict[str, datetime] = {
+    "berlin_wall_presser_start": BERLIN_WALL_PRESSER_START_UTC,
+    "berlin_wall_presser_end": BERLIN_WALL_PRESSER_END_UTC,
 }
 
 REFERENCE_EPOCHS: dict[str, datetime] = {
@@ -83,36 +107,64 @@ def topper_rotation_angle_deg(query_dt_utc: datetime, reference_dt_utc: datetime
 
 
 def topper_shadow_offsets() -> dict[str, int]:
-    """Named rotation-offset (mod 24) candidates from hypothesis A.
+    """Named rotation-offset (mod 24) candidates from hypothesis A (whole-minute sources only).
 
-    Every historical timestamp this project has sourced (CIA dedication,
-    the three Berlin Wall moments, the World Clock's own dedication) is
-    reported only to whole-minute precision. Because the topper's period is
-    exactly 60 seconds, ``topper_rotation_angle_deg`` between *any* two
-    whole-minute moments is always 0 modulo 360 (their difference is
-    always a whole number of minutes) -- verified directly below, not
-    assumed. A single "derived" offset from this pairing would therefore be
-    vacuous, not a genuine finding, no matter which sourced pair is chosen.
+    Every *whole-minute* historical timestamp this project has sourced (CIA
+    dedication, the three original Berlin Wall moments, the World Clock's
+    own dedication) is reported only to whole-minute precision. Because the
+    topper's period is exactly 60 seconds, ``topper_rotation_angle_deg``
+    between *any* two whole-minute moments is always 0 modulo 360 (their
+    difference is always a whole number of minutes) -- verified directly
+    below, not assumed. A single "derived" offset from this pairing would
+    therefore be vacuous, not a genuine finding, no matter which sourced
+    pair is chosen.
 
     Rather than fabricate precision that doesn't exist (or silently ship a
     parameter that always evaluates to the same trivial value), this
     operationalizes hypothesis A honestly as: since the topper's phase is
-    genuinely unconstrained by any source available, test its full 0-23
-    rotation-offset space exhaustively -- a slice Phase 6 never covered
-    (its sweeps used only {0,+6,-6} or a handful of geography-derived
-    values, never the complete range).
+    genuinely unconstrained by any whole-minute-only source, test its full
+    0-23 rotation-offset space exhaustively -- a slice Phase 6 never
+    covered (its sweeps used only {0,+6,-6} or a handful of
+    geography-derived values, never the complete range).
+
+    See :func:`precise_topper_shadow_offsets` for the two sub-minute-
+    precision timestamps sourced 2026-09-02 (excluded from this function's
+    vacuity check -- they are the point of that function, not this one).
     """
+    whole_minute_moments = {k: v for k, v in QUERY_MOMENTS.items() if k not in PRECISE_QUERY_MOMENTS}
     all_pairs_vacuous = all(
         topper_rotation_angle_deg(query_dt, ref_dt) == 0.0
         for ref_dt in REFERENCE_EPOCHS.values()
-        for query_dt in QUERY_MOMENTS.values()
+        for query_dt in whole_minute_moments.values()
     )
     if not all_pairs_vacuous:
         raise RuntimeError(
-            "a sourced timestamp pair now differs by a non-whole-minute amount -- "
+            "a whole-minute-labeled timestamp pair now differs by a non-whole-minute amount -- "
             "topper_shadow_offsets' vacuity finding no longer holds and should be revisited"
         )
     return {f"topper_full_rotation_{i}": i for i in range(N)}
+
+
+def precise_topper_shadow_offsets() -> dict[str, int]:
+    """Named rotation-offset (mod 24) candidates from the two sub-minute-precision timestamps.
+
+    Unlike every other timestamp this project has sourced,
+    :data:`BERLIN_WALL_PRESSER_START_UTC` (18:52:40 CET) and
+    :data:`BERLIN_WALL_PRESSER_END_UTC` (19:00:54 CET) carry genuine,
+    non-zero, sourced second values -- so the topper's angle *within its
+    own minute* (``seconds/60*360``, no reference epoch needed: for a
+    fixed 1-rev/min rotation, the position at second S past any minute is
+    the same regardless of which minute) is a real, non-vacuous
+    computation for these two moments specifically. This assumes the
+    mechanism's phase-zero aligns with the top of each minute -- a
+    reasonable default for a synchronized public clock display, but an
+    assumption, not a verified fact; labeled as such rather than presented
+    as certain.
+    """
+    return {
+        f"topper_precise_{name}": round((dt.second + dt.microsecond / 1e6) / 60.0 * N) % N
+        for name, dt in PRECISE_QUERY_MOMENTS.items()
+    }
 
 
 def solar_position(lat_deg: float, lon_deg: float, dt_utc: datetime) -> dict[str, float]:
@@ -209,13 +261,17 @@ def solar_shadow_bearings() -> dict[str, float]:
 __all__ = [
     "BERLIN_WALL_AP_FLASH_UTC",
     "BERLIN_WALL_ARD_UTC",
+    "BERLIN_WALL_PRESSER_END_UTC",
+    "BERLIN_WALL_PRESSER_START_UTC",
     "BERLIN_WALL_SCHABOWSKI_UTC",
     "CIA_DEDICATION_UTC",
     "CIA_LAT",
     "CIA_LON",
+    "PRECISE_QUERY_MOMENTS",
     "QUERY_MOMENTS",
     "REFERENCE_EPOCHS",
     "WELTZEITUHR_DEDICATION_UTC",
+    "precise_topper_shadow_offsets",
     "solar_position",
     "solar_shadow_bearings",
     "topper_rotation_angle_deg",

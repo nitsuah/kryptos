@@ -26,18 +26,42 @@ class TestTopperRotationAngle:
 
 
 class TestTopperShadowOffsets:
-    def test_all_sourced_historical_pairs_are_vacuous(self):
-        # Documents the actual finding: every sourced timestamp is
-        # whole-minute precision, and the topper's 60s period means any
-        # two whole-minute moments are always co-phased (angle 0).
+    def test_whole_minute_historical_pairs_are_vacuous(self):
+        # Documents the actual finding: every *whole-minute* sourced
+        # timestamp (i.e. excluding the two sub-minute-precision moments
+        # in PRECISE_QUERY_MOMENTS) is co-phased with any other, since the
+        # topper's 60s period means any two whole-minute moments always
+        # produce angle 0.
+        whole_minute = {k: v for k, v in sg.QUERY_MOMENTS.items() if k not in sg.PRECISE_QUERY_MOMENTS}
         for ref_dt in sg.REFERENCE_EPOCHS.values():
-            for query_dt in sg.QUERY_MOMENTS.values():
+            for query_dt in whole_minute.values():
                 assert sg.topper_rotation_angle_deg(query_dt, ref_dt) == 0.0
 
     def test_returns_full_24_value_range(self):
         offsets = sg.topper_shadow_offsets()
         assert sorted(offsets.values()) == list(range(24))
         assert len(offsets) == 24
+
+
+class TestPreciseTopperShadowOffsets:
+    def test_returns_nonzero_distinct_offsets(self):
+        # Unlike the whole-minute case, these two sourced timestamps carry
+        # genuine non-zero seconds (:40 and :54), so this must NOT be
+        # vacuous -- verifies the actual motivation for this function.
+        offsets = sg.precise_topper_shadow_offsets()
+        assert len(offsets) == 2
+        assert len(set(offsets.values())) == 2  # distinct, not all collapsed
+
+    def test_matches_hand_computed_values(self):
+        # 18:52:40 CET -> 40s past the minute -> 40/60*360 = 240deg -> round(240/360*24)=16
+        # 19:00:54 CET -> 54s past the minute -> 54/60*360 = 324deg -> round(324/360*24)=22
+        offsets = sg.precise_topper_shadow_offsets()
+        assert offsets["topper_precise_berlin_wall_presser_start"] == 16
+        assert offsets["topper_precise_berlin_wall_presser_end"] == 22
+
+    def test_sourced_timestamps_have_nonzero_seconds(self):
+        for dt in sg.PRECISE_QUERY_MOMENTS.values():
+            assert dt.second != 0
 
 
 class TestSolarPosition:
