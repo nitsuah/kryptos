@@ -502,6 +502,6 @@ Per `elonka.com/kryptos/wishlist.html`, "which way exactly is the needle on the 
 - [`docs/archive/K4-FRONTEND.md`](../archive/K4-FRONTEND.md) — Frontend spec describing a SQLite schema that was never built (actual: Neon/Postgres)
 
 ## Vault Links
-- [[repos/kryptos/docs/analysis/K4-FRONTEND|K4-FRONTEND]] — frontend specification
+- [[repos/kryptos/docs/archive/K4-FRONTEND|K4-FRONTEND]] — frontend specification (archived, superseded)
 - [[repos/kryptos/docs/archive/AUDIT_2026-06-01|AUDIT_2026-06-01]] — most recent src/ audit
 - [[repos/kryptos|kryptos runbook]] — repo context
