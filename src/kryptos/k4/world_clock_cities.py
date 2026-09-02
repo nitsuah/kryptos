@@ -23,20 +23,24 @@ A complete, authoritative city-by-city list is **not available from any
 text source** checked -- neither Wikipedia edition, nor any other page
 fetched, reproduces the full name list as text. But the clock is a public
 sculpture, permanently photographed from every angle: this session read
-the engraved plates directly off five Wikimedia Commons photographs
+the engraved plates directly off seven Wikimedia Commons photographs
 (``Weltzeituhr_Detail_Alexanderplatz.jpg``, ``Weltzeituhr.jpg``,
 ``Die_Urania-Weltzeituhr_am_Alexanderplatz.jpg``,
-``DSC_3226_Urania-Weltzeituhr_Berlin_I.jpg``, and
-``Weltzeituhr,_Berlin_(15910006062).jpg`` -- all public domain / CC,
-checked 2026-09-02), transcribing every legible plate rather than relying
-on a secondary description. This covers roughly 17 of the 24 segments (104 individually confirmed
-names, counting both the photographed set and a handful of pre-/post-1997
-name variants sourced from Wikipedia text rather than a plate) -- still
-not the complete 146, but a large, directly-verified jump from the 9
-names available from text sources alone. The remaining ~7 segments
-(roughly: Japan/Korea/Australia/NZ, the Pacific/Hawaii zones, and one
-Middle East/North Africa gap) were not found legibly photographed in this
-pass. If a complete, sourced city list
+``DSC_3226_Urania-Weltzeituhr_Berlin_I.jpg``,
+``Weltzeituhr,_Berlin_(15910006062).jpg``,
+``2009-04-07_Berlin_506.jpg``, and ``2009-04-07_Berlin_508.jpg`` -- all
+public domain / CC, checked 2026-09-02), transcribing every legible plate
+rather than relying on a secondary description. Where two photos covered
+the same segment, both were read and cross-checked (this caught and
+corrected one misread on a first pass -- see the Middle East/North Africa
+segment below). This covers roughly 20 of the 24 segments (119
+individually confirmed names, counting both the photographed set and a
+handful of pre-/post-1997 name variants sourced from Wikipedia text
+rather than a plate) -- still not the complete 146, but a large,
+directly-verified jump from the 9 names available from text sources
+alone. The remaining ~4 segments (Japan/Korea, Australia/NZ, and the
+Pacific/Hawaii zones) were not found legibly photographed in this pass.
+If a complete, sourced city list
 is ever obtained, extend ``CONFIRMED_CITIES`` -- do not invent entries
 for the remaining segments.
 """
@@ -110,6 +114,27 @@ CONFIRMED_CITIES: list[str] = [
     "TASCHKENT",
     "NOWOSIBIRSK",
     "KRASNOJARSK",
+    # -- Segment: ANKARA / ISTANBUL / ATHEN / TEL AVIV / JERUSALEM / BEIRUT / DAMASKUS
+    # (read from a second, sharper photo after an initial pass misread this
+    # segment; TELAVIV/JERUSALEM already listed above from Wikipedia text,
+    # confirmed here as plate-engraved too)
+    "ANKARA",
+    "ISTANBUL",
+    "ATHEN",
+    "BEIRUT",
+    "DAMASKUS",
+    # -- Segment: TEHERAN +30' / BAGDAD / ADEN / SANAA / ADDIS ABEBA / MOGADISCHU / DAR ES SALAAM / ANTANANARIVO
+    "TEHERAN",
+    "BAGDAD",
+    "ADEN",
+    "SANAA",
+    "ADDISABEBA",
+    "MOGADISCHU",
+    "DARESSALAM",
+    "ANTANANARIVO",
+    # -- Segment: KABUL +30' / MAURITIUS
+    "KABUL",
+    "MAURITIUS",
     # -- Segment: NEW DELHI / KARACHI / COLOMBO / RANGUN / DHAKA
     "NEWDELHI",
     "KARACHI",
