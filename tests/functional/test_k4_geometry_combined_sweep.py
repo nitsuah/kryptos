@@ -8,12 +8,20 @@ import pytest
 
 from kryptos.k4 import geometry24
 from kryptos.k4 import geometry_combined_sweep as gcs
+from kryptos.k4 import reflection
 from kryptos.k4.eureka import EurekaSignal
 from kryptos.k4.physical_grid import build_tableau
 from kryptos.k4.quagmire import quagmire3_encrypt
 
 
-def _planted_ciphertext(*, all_four_cribs: bool = True) -> tuple[str, list[int]]:
+def _planted_ciphertext(
+    *,
+    all_four_cribs: bool = True,
+    order: str = "col_major",
+    refl: str = "flip_v",
+    offset: int = 6,
+    mode: str = "leading",
+) -> tuple[str, list[int]]:
     plaintext_chars = list("A" * 97)
     plaintext_chars[22:26] = "EAST"
     plaintext_chars[26:35] = "NORTHEAST"
@@ -25,7 +33,7 @@ def _planted_ciphertext(*, all_four_cribs: bool = True) -> tuple[str, list[int]]
     keystream = "".join(build_tableau("KRYPTOS")[5])  # route row_05
     presubst_ct = quagmire3_encrypt(plaintext, keystream, "KRYPTOS")
 
-    flat_idx = gcs.composed_flat_indices("col_major", "flip_v", 6, "leading")
+    flat_idx = gcs.composed_flat_indices(order, refl, offset, mode)
     planted_ct = geometry24.apply_forward(presubst_ct, flat_idx)
     return planted_ct, flat_idx
 
@@ -56,6 +64,34 @@ class TestComposedFlatIndices:
         expected = ene_routes.route_order(bearing)
         actual = gcs._order_coords("route_cia_berlin_bearing")
         assert actual == expected
+
+
+class TestComposedFlatIndicesShapeChanging:
+    """The 4x24 -> 24x4 transpose-family reflections (item: Phase 7 shape-changing wiring)."""
+
+    @pytest.mark.parametrize("order_name", ["row_major", "col_major", "boustrophedon", "spiral"])
+    @pytest.mark.parametrize("refl", reflection.SHAPE_CHANGING)
+    @pytest.mark.parametrize("offset", [0, 6, -6])
+    @pytest.mark.parametrize("mode", geometry24.REMAINDER_MODES)
+    def test_is_a_valid_permutation(self, order_name, refl, offset, mode):
+        flat = gcs.composed_flat_indices(order_name, refl, offset, mode)
+        expected_len = geometry24.CORE_LEN if mode == "drop" else geometry24.CORE_LEN + 1
+        assert sorted(flat) == list(range(expected_len))
+
+    def test_round_trips_through_apply_forward_and_inverse(self):
+        flat = gcs.composed_flat_indices("col_major", "transpose", 6, "leading")
+        text = "".join(chr(65 + (i % 26)) for i in range(97))
+        forward = geometry24.apply_forward(text, flat)
+        assert geometry24.apply_inverse(forward, flat) == text
+
+    def test_shape_preserving_reflections_unaffected(self):
+        # Regression guard: adding shape-changing support must not alter
+        # behavior for the four shape-preserving names that Phase 6's
+        # already-null results depend on -- known fixed points/outputs.
+        assert gcs.composed_flat_indices("row_major", "identity", 0, "trailing") == list(range(97))
+        for refl in reflection.SHAPE_PRESERVING:
+            flat = gcs.composed_flat_indices("col_major", refl, 6, "trailing")
+            assert sorted(flat) == list(range(97))
 
 
 class TestNullResultArtifact:
@@ -136,6 +172,29 @@ class TestEurekaOnPlantedSolution:
         data = json.loads(graph_path.read_text(encoding="utf-8"))
         edge = data["edges"]["GEOMETRIC_POSITIONAL_TRANSFORM->SUBSTITUTION_LAYER"]
         assert edge["status"] == "eureka"
+
+
+class TestEurekaOnPlantedSolutionShapeChanging:
+    def test_eureka_via_transpose_family(self, tmp_path):
+        planted_ct, _ = _planted_ciphertext(order="col_major", refl="transpose", offset=6, mode="leading")
+
+        with pytest.raises(EurekaSignal) as excinfo:
+            gcs.run_geometry_combined_sweep(
+                ciphertext=planted_ct,
+                order_names=["col_major"],
+                reflection_names=["transpose"],
+                rotation_offsets=[6],
+                remainder_modes=["leading"],
+                null_artifact_path=tmp_path / "null.json",
+                graph_path=tmp_path / "graph.json",
+                eureka_snapshot_path=tmp_path / "snap.md",
+            )
+
+        result = excinfo.value.result
+        assert result["positional_crib_hits"] == 4
+        assert result["key_info"]["reflection"] == "transpose"
+        assert result["validation"]["promote"] is True
+        assert result["validation"]["reproduced"] is True
 
 
 class TestPartialMatchDoesNotHalt:

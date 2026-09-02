@@ -1,5 +1,7 @@
 # Frontend design spec
 
+> **Archived 2026-09-01.** This spec's database design (SQLite at `/data/kryptos.db`) does not match what was actually built — the current dashboard persists to Neon (Postgres): `campaign_runs` + `candidates` + `strategy_kb` tables, per `docs/TASKS.md`'s Done section. Kept for historical reference only; do not treat its schema or stack description as current.
+
 Breadcrumb: Home > Docs > Analysis > Frontend
 
 ## Summary

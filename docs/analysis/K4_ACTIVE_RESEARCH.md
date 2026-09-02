@@ -3,7 +3,7 @@
 Breadcrumb: Home > Docs > Analysis > K4 Active Research
 
 
-**Last Updated:** 2026-08-29
+**Last Updated:** 2026-09-01
 **Status:** Living document — update after each meaningful run or finding
 
 This document tracks what is currently known, what has been tested and ruled out, and the active attack queue for K4 cryptanalysis.
@@ -55,6 +55,10 @@ This document tracks what is currently known, what has been tested and ruled out
 | P2 shadow/null masking, thorough scope (already wired, never previously executed) | NULL RESULT | 8 masking variants × 4 alphabets × 2 grids (7/8 cols) × 2 clock states (00:00/12:00) × 24 perms/grid × 2 routes = **6,144 candidates**. 40 near-misses, all single-keyword coincidences, none positional or simultaneous. Artifacts: `K4_MASK_*_NULL.json` (8 files). |
 | P5 BERLIN+CLOCK 2-crib relaxed gate — both brute-force and Phase-1 geometric transposition (already wired, never previously executed) | NULL RESULT | `run_three_layer_composite(keyword_eureka_threshold=2)` (34,560 candidates) and, for the first time, the same relaxed gate against `run_three_layer_composite_geometric` (69,120 candidates, full clock sweep). Zero near-misses either way. Artifacts: `K4_P5_2CRIB_NULL.json`, `K4_P5_GEOMETRIC_2CRIB_NULL.json`. |
 | P6 K3 plaintext as running Vigenère key (already wired, never previously executed) | NULL RESULT | 4 variants (standard/KRYPTOS alphabet × direct/reversed key) = **4 candidates**, zero keyword hits. Artifact: `K4_P6_RUNNING_KEY_NULL.json`. |
+| `reflection.py` shape-changing transpose family, wired into a sweep (Phase 7) | NULL RESULT | `composed_flat_indices` extended to handle the 4×24→24×4 transpose family correctly (verified bijection + round-trip). 3 runs: default scope (**155,520**), geography-derived offsets (**414,720**), and via `run_three_layer_composite_geometric` (**69,120**). Zero positional or keyword hits any way. Artifacts: `K4_GEOMETRY_COMBINED_SHAPECHANGING_NULL.json`, `K4_GEOMETRY_COMBINED_SHAPECHANGING_GEO_NULL.json`, `K4_3LAYER_GEOMETRIC_SHAPECHANGING_NULL.json`. |
+| "Shadow of the word" as a computed shadow angle — World Clock topper rotation (full 0-23 sweep, then a resolved precise-angle sweep) and real solar azimuth at CIA HQ (Phase 7) | NULL RESULT | `kryptos.k4.solar_geometry` — solar-position algorithm verified against known reference points; topper-rotation hypothesis honestly reduced to a full-range sweep after finding every *whole-minute* sourced timestamp pair vacuously co-phased, then resolved for two sub-minute-precision timestamps sourced from Hertle's own press-conference transcript (18:52:40/19:00:54 CET). **1,244,160 + 103,680 candidates** (topper, full-range then precise) + **108,864 → 139,968 candidates** (solar bearing route directions, expanded with the precise timestamps). Zero hits. Artifacts: `K4_GEOMETRY_COMBINED_TOPPER_ROTATION_NULL.json`, `K4_GEOMETRY_COMBINED_TOPPER_PRECISE_NULL.json`, `K4_GEOMETRY_COMBINED_SOLAR_BEARING_NULL.json`. |
+| World Clock's 146-city list as keyed-alphabet/numeric-offset source (Phase 7) | NULL RESULT | `kryptos.k4.world_clock_cities` — 119 individually-sourced city names (read directly off the sculpture's plates via 7 Wikimedia Commons photographs, ~20 of 24 segments; complete 146-name list still unavailable) as keyed alphabets (**9,720 → 112,320 → 128,520 candidates** across three passes, text-sourced then photograph-expanded twice) plus 3 sourced structural counts (146/147/24) as rotation offsets (**155,520 candidates**). Zero hits. Artifacts: `K4_WORLD_CLOCK_CITIES_NULL.json`, `K4_GEOMETRY_COMBINED_WORLDCLOCK_NULL.json`. |
+| Cross-vector consensus scoring across every null-result artifact (Phase 7) | NULL RESULT | `kryptos.k4.cross_vector_consensus` — groups candidates by source attack vector (unlike P16's merged-pool count) and flags fragments appearing in ≥3 *distinct* vectors. Scanned 30 artifacts, 11 with extractable candidates: **zero cross-vector consensus anchors**. Artifact: `K4_CROSS_VECTOR_CONSENSUS_NULL.json`. |
 
 ---
 
@@ -130,7 +134,7 @@ Rows 1–3 and 6–14 are cipher-attack sweeps that returned null results. Rows 
 
 Every clean 2-layer composite and every direct clock-keying variant has now returned null. The frontier shifts to: (a) 3-layer composites, (b) pre-cipher masking/null removal, and (c) clock key derivation approaches that treat K2 coordinates or timezone offsets as secondary inputs.
 
-See [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](K4_ATTACK_LANDSCAPE.md) for the full 3D fingerprint (past / present / frontier).
+*(This section's own P1–P10 entries below are the current record — the separate 3D-fingerprint document this line used to point to was archived 2026-09-01 as fully superseded; see [`docs/archive/K4_ATTACK_LANDSCAPE.md`](../archive/K4_ATTACK_LANDSCAPE.md) for its historical evidence-basis narrative only.)*
 
 ### ✅ Priority 1 (COMPLETE — NULL RESULT): 3-Layer Composite — Keyed-Alphabet → Clock-Vigenère → Columnar Transposition
 
@@ -138,16 +142,15 @@ See [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](K4_ATTACK_LANDSCAPE.md) for the ful
 
 Implemented in `kryptos.k4.three_layer_composite.run_three_layer_composite` — chains (1) keyed-alphabet mono-substitution, (2) clock-derived Vigenère (CIA-dedication-timestamp states prioritized, then a full hourly sweep), and (3) brute-force columnar transposition at grid widths `[7, 8, 10]` (`K4_GRID_GEOMETRIES`), gated on all 4 confirmed cribs. **Null result.** Artifact: `K4_3LAYER_NULL.json`. Also wired into the API as `p1_three_layer` and, with a relaxed 2-crib gate, as `p5_two_crib_filter`. See the Physical/Geometric Pivot's `run_three_layer_composite_geometric` for the follow-on that swaps the brute-force columnar layer for the Pivot's 24-column named geometric permutations — a distinct search space (`K4_GRID_GEOMETRIES` never includes width 24), not a duplicate of this entry.
 
-### 🔴 Priority 2 (OPEN): Shadow/Null Masking as Layer 0
+### ✅ Priority 2 (COMPLETE — NULL RESULT): Shadow/Null Masking as Layer 0
+
+*(Entry stale since 2026-08-12 — listed OPEN after it had already been implemented and, as of Phase 4/v2.1 below, executed; corrected 2026-09-01.)*
 
 The World Clock source material describes "the secret is the shadow of the word" — a physical position-masking theory where some K4 characters are null inserts (clock-shadow positions), and the real 64–88 character message is the remainder. If a masking layer preceded the cipher layers, every 2-layer attack on the full 97-char sequence is attacking padded input.
 
-Specific variants to test:
-- Remove every N-th character (N=2,3,4) → decrypt the residue
-- Remove characters at positions corresponding to the clock-shadow angle at a specific timestamp (clock hand position → arc fraction × 97)
-- Remove characters whose index is a clock-lamp-off position
+Implemented in `kryptos.k4.masking_v2` (8 variants: stride-2/3/4, block-8, clock-shadow×2, arc-fraction×2, crib positions recalculated per residue) and wired into the API as `p2_shadow_masking`. Executed for real in Phase 4/v2.1 (below) against `composite_sweep`: **6,144 candidates, null** — 40 near-misses, all single-keyword coincidences. Artifacts: `K4_MASK_*_NULL.json` (8 files).
 
-**Estimated search space:** ~12 masking variants × full composite sweep. Each variant produces a shorter text; crib positions must be recalculated.
+Note: this closes the *masking-as-a-preprocessing-step* reading of "the secret is the shadow of the word." A separate, physically-literal reading — a real or mechanical shadow determining a transposition order rather than a null-removal mask — is still open; see Phase 7 in `docs/ROADMAP.md`.
 
 ### ✅ Priority 3 (COMPLETE — NULL RESULT): K2 Coordinate Digits as Clock State Selectors
 
@@ -161,13 +164,21 @@ Specific variants to test:
 
 `kryptos.k4.k2_clock_states.get_tz_offset_states` applies the ±6-hour offset to the CIA-dedication clock states, wired into the API as `p4_timezone_offset` — same clock-Vigenère + columnar-transposition pipeline as Priority 3. **Null result.** The Physical/Geometric Pivot's `clock_rotation.py` (`BERLIN_LANGLEY_OFFSET_HOURS`, `PRIORITY_OFFSETS`) separately tests this same 6-hour offset as a *positional* permutation of the 24-column grid rather than a Vigenère-key-index shift — also null (see `docs/analysis/K4_ACTIVE_RESEARCH.md`'s Physical/Geometric Pivot section).
 
-### 🟡 Priority 5 (OPEN): BERLIN+CLOCK Partial Match Isolation
+### ✅ Priority 5 (COMPLETE — NULL RESULT): BERLIN+CLOCK Partial Match Isolation
+
+*(Entry stale since 2026-08-12 — listed OPEN after it had already been wired and, as of Phase 4/v2.1 below, executed; corrected 2026-09-01.)*
 
 The full sweep validated all 4 cribs simultaneously. Relaxing to 2-crib validation (BERLIN+CLOCK only at positions 63–73) with a wider transposition search may surface partial-solution candidates that the strict 4-crib gate rejected. This is a softer filter that widens the search net.
 
-### 🟡 Priority 6 (OPEN): Running Key from K3 Plaintext
+Wired as `p5_two_crib_filter` (`run_three_layer_composite(keyword_eureka_threshold=2)`). Executed for real in Phase 4/v2.1 (below) against both the brute-force transposition (**34,560 candidates**) and, for the first time, the Physical/Geometric Pivot's own geometric transposition (**69,120 candidates**, full clock sweep). **Null both ways** — zero near-misses. Artifacts: `K4_P5_2CRIB_NULL.json`, `K4_P5_GEOMETRIC_2CRIB_NULL.json`.
+
+### ✅ Priority 6 (COMPLETE — NULL RESULT): Running Key from K3 Plaintext
+
+*(Entry stale since 2026-08-12 — listed OPEN after it had already been implemented and, as of Phase 4/v2.1 below, executed; corrected 2026-09-01.)*
 
 K3's plaintext is approximately 336 characters. Using the first 97 characters of K3's decrypted plaintext as a running Vigenère key for K4 has never been attempted. Sanborn called K4 the "last layer" — if the sections are chained, earlier plaintext may be the key material for the next section.
+
+Implemented in `kryptos.k4.running_key.run_k3_running_key_attack` (4 variants: standard/KRYPTOS alphabet × direct/reversed key). Executed for real in Phase 4/v2.1 (below): **4 candidates, null** — zero keyword hits on any variant. Artifact: `K4_P6_RUNNING_KEY_NULL.json`.
 
 ### ✅ Priority 7 (COMPLETE — NULL RESULT): Gronsfeld Cipher (Numeric Key from K2 Coordinates)
 
@@ -270,7 +281,7 @@ Position  73: K   ← end of CLOCK
 |------|-------|---------------|
 | `CONTRIBUTING.md` | `'NORTHEAST': [25]` in positional_cribs | Should be `[26]` |
 | `CONTRIBUTING.md` | `'BERLIN': [64]` in positional_cribs | Should be `[63]` |
-| `docs/analysis/K4-CLOCKS.html` | States NYPVTTMZF at "positions 26–34" | NYPVTTMZF is at 0-indexed 63–71; cipher at 26–34 is QPRNGKSSO |
+| `docs/archive/K4-CLOCKS.html` (archived) | States NYPVTTMZF at "positions 26–34" | NYPVTTMZF is at 0-indexed 63–71; cipher at 26–34 is QPRNGKSSO |
 
 ---
 
@@ -403,20 +414,103 @@ Artifacts: `K4_MASK_*_NULL.json` (8 files), `K4_P5_2CRIB_NULL.json`, `K4_P5_GEOM
 
 **Still open, not attempted this round** (see the "K4 Field Notes" artifact for full detail): `reflection.py`'s shape-changing transpose family was fully built in Phase 1 but `geometry_combined_sweep.DEFAULT_REFLECTIONS` only ever exercises the shape-preserving four — the single largest untested slice of the pivot's own search space. Deferred to keep this round scoped.
 
+### Phase 7 (2026-09-01): shape-changing transpose, shadow-angle primitives, city-list keywords, cross-vector consensus
+
+With the pivot's 13 code-executable items (of 15 — items 10-11 were historical/archival research satisfied via sourced documentation, not code; see the Phase 2 addendum above) plus P2/P5/P6 all executed and null, three concrete new directions were opened and closed in this pass, plus a standing cross-vector scoring capability and a batch-runner to remove "someone has to remember to click it" from future full sweeps.
+
+**Shape-changing transpose family, wired.** `composed_flat_indices` (in `geometry_combined_sweep.py`) now correctly handles `reflection.SHAPE_CHANGING`'s four transpose-family transforms: after a transpose, the grid becomes 24×4 rather than 4×24, so the column-rotation step now rotates mod the *current* axis size (4, not 24) and the flat-index formula uses the transposed grid's own row-major numbering (`rows=COLS, cols=ROWS`) rather than the original 4×24 numbering — verified as a valid bijection and a correct `apply_forward`/`apply_inverse` round-trip before running anything at scale. Shape-preserving reflections are byte-identical to before (regression-tested). Both `geometry_combined_sweep` and `three_layer_composite_geometric` pick this up automatically since both already accept `reflection_names` as a parameter — no new sweep function needed.
+
+**Re-examined "shadow of the word."** Previously flagged in `K4_ATTACK_LANDSCAPE.md` as out of scope, requiring physical/photographic site access. That turns out to be wrong for two independently-computable readings, both implemented in the new `kryptos.k4.solar_geometry`:
+
+- **Hypothesis A — World Clock topper rotation.** Confirmed via Wikipedia (checked 2026-09-01): *"Once per minute, an artistic sculptural rendering of the Solar System made of steel rings and spheres rotates."* — a fixed, documented rate, decoupled from real solar position. However, every historical timestamp this project has sourced (CIA dedication, the three Berlin Wall moments, the World Clock's own 1969 dedication) is reported only to whole-minute precision, and since the topper's period is exactly 60 seconds, any two whole-minute timestamps are *always* co-phased (0° apart) — verified directly in code, not assumed. A single "derived" offset from a sourced pair would therefore be vacuous. Rather than fabricate sub-minute precision that doesn't exist, this operationalizes the hypothesis honestly: exhaustively test the full 0–23 rotation-offset range, a slice no prior sweep (Phase 6 included) ever covered exhaustively (those used only `{0,+6,-6}` or a handful of geography-derived values).
+- **Hypothesis B — real solar position at CIA HQ, Langley.** Implemented a standard NOAA/Meeus solar-position algorithm (`solar_geometry.solar_position`; verified against known reference points — Greenwich summer-solstice noon gives elevation ≈61.9°, matching the textbook value; equator/equinox noon gives elevation ≈90°). Computed real solar azimuth at CIA HQ (`bearing_attack.py`'s existing coordinates) at each of the same already-sourced historical moments, wired into `clock_rotation.geography_derived_bearings()` exactly like the Mengenlehreuhr bearing before it — flows into `geometry_combined_sweep.GEO_BEARING_ORDER_NAMES` automatically, no sweep-side change needed.
+
+**Update 2026-09-02 — the vacuity is resolved for two moments.** A follow-up dig (same "Primary Sources Needed" research pass that expanded the World Clock city list) found `chronik-der-mauer.de`'s word-for-word transcript of Hans-Hermann Hertle's own camera/audio recording of the press conference (citing Hertle, *Die Berliner Mauer. Biografie eines Bauwerks*, 2nd ed. 2015, p. 194–195) — a genuinely authoritative source, unlike any timestamp this project had sourced before. It gives **sub-minute precision**: the transcript excerpt containing the "sofort … unverzüglich" exchange opens at **18:52:40 CET**, and the press conference itself ends at **19:00:54 CET** ("Ende der Pressekonferenz: 19:00:54 Uhr"). Both carry genuine non-zero seconds — unlike every other sourced timestamp, these are *not* vacuous inputs to hypothesis A. `solar_geometry.precise_topper_shadow_offsets()` computes the topper's angle within its own minute directly from these two moments (`seconds/60×360`, no reference epoch needed for a fixed-period rotation) — offsets 16 and 22. The same two precise timestamps also feed hypothesis B (`solar_shadow_bearings()`), giving two more real solar-azimuth bearings than the whole-minute versions could.
+
+| Run | Scope | Candidates | Result |
+|-----|-------|-----------|--------|
+| Shape-changing transpose family, default scope | 20 fill-orders/routes × 4 shape-changing reflections × 3 rotation offsets × 3 remainder modes × 108 tableau routes × 2 bases | 155,520 | Null |
+| Shape-changing transpose family, geography-derived offsets | Same, 8 geography-derived rotation offsets | 414,720 | Null |
+| Shape-changing transpose family, via `three_layer_composite_geometric` | Full clock sweep | 69,120 | Null |
+| Solar-azimuth (hypothesis B) route directions | `order_names=GEO_BEARING_ORDER_NAMES` (4 whole-minute solar-shadow bearing pairs) | 108,864 | Null |
+| Topper full-rotation sweep (hypothesis A) | `rotation_offsets=range(24)` (full axis, not just priority values) | 1,244,160 | Null |
+| Topper angle from precise timestamps (hypothesis A, resolved) | `rotation_offsets={16, 22}` from `precise_topper_shadow_offsets()` | 103,680 | Null |
+| Solar-azimuth from precise timestamps + whole-minute (hypothesis B, expanded) | `order_names=GEO_BEARING_ORDER_NAMES` (now 6 solar-shadow bearing pairs, 2 precise) | 139,968 | Null |
+
+Artifacts: `K4_GEOMETRY_COMBINED_SHAPECHANGING_NULL.json`, `K4_GEOMETRY_COMBINED_SHAPECHANGING_GEO_NULL.json`, `K4_3LAYER_GEOMETRIC_SHAPECHANGING_NULL.json`, `K4_GEOMETRY_COMBINED_SOLAR_BEARING_NULL.json`, `K4_GEOMETRY_COMBINED_TOPPER_ROTATION_NULL.json`, `K4_GEOMETRY_COMBINED_TOPPER_PRECISE_NULL.json`.
+
+**World Clock city-list keywords — expanded 2026-09-02 via direct photograph reading.** Originally sourced only from Wikipedia text (9 individually-named cities out of 148 claimed). Two things changed on a follow-up pass:
+
+- **Count resolved.** German Wikipedia's "Weltzeituhr (Alexanderplatz)" article (checked 2026-09-02) quotes its own primary text: *"Sie enthaelt auf ihrer metallenen Rotunde die Namen von 146 Orten sowie einen zusaetzlichen Eintrag zur Datumsgrenze"* — 146 city names plus one distinct International Date Line marker (147 total plate entries). This matches this document's own earlier item-11 research exactly (independently, on an earlier pass) and disagrees with the English-secondary-source-derived 148 this session had briefly used. Two independent-language primary sources agreeing with each other is stronger evidence than a single-language secondary-source count — `TOTAL_CITY_COUNT` is now 146 (`TOTAL_PLATE_ENTRIES` 147), both tested as rotation offsets.
+- **List massively expanded via direct primary-source reading, not a text summary.** The clock is a permanently-photographed public sculpture — rather than accept "no source lists all the names," seven Wikimedia Commons photographs of the actual engraved plates (`Weltzeituhr_Detail_Alexanderplatz.jpg`, `Weltzeituhr.jpg`, `Die_Urania-Weltzeituhr_am_Alexanderplatz.jpg`, `DSC_3226_Urania-Weltzeituhr_Berlin_I.jpg`, `Weltzeituhr,_Berlin_(15910006062).jpg`, `2009-04-07_Berlin_506.jpg`, `2009-04-07_Berlin_508.jpg`) were opened directly in-browser and read visually, transcribing every legible plate rather than relying on any secondary description — including cross-checking one segment across two photos, which caught and corrected a misread from the first, blurrier one (the Middle East/North Africa segment: `BEIRUT` not the initially-misread `KAIRO`/`KAPSTADT`/`KUWAIT`). This covers roughly 20 of the 24 segments — **119 individually confirmed names** in `kryptos.k4.world_clock_cities.CONFIRMED_CITIES`, up from 9. Still not the complete 146 (Japan/Korea, Australia/NZ, and the Pacific/Hawaii zones weren't found legibly photographed), but a large, directly-verified jump rather than a stalled "no source available."
+
+This is the same discipline as everywhere else in this project (verify before recommending, don't fabricate what isn't sourced) applied to actually *finding* a source rather than declaring the search exhausted after one text-only pass.
+
+| Run | Scope | Candidates | Result |
+|-----|-------|-----------|--------|
+| Confirmed city names as keyed alphabets (initial, text-sourced) | 9 confirmed names × 3 grid widths (7/8/10) × 3 clock states (2 CIA-priority + 1 from the day-loop's `00:00:00`) × 120 perms/grid | 9,720 | Null |
+| Confirmed city names as keyed alphabets (expanded, 5-photo pass) | Same scope, 104 confirmed names | 112,320 | Null |
+| Confirmed city names as keyed alphabets (expanded further, 7-photo pass) | Same scope, 119 confirmed names | 128,520 | Null |
+| Sourced structural counts as rotation offsets | Full `geometry_combined_sweep` default scope (20 fill-orders/routes × 4 shape-preserving reflections × 3 remainder modes × 108 tableau routes × 2 indicator bases = 51,840) × 3 offsets `{146 mod 24, 147 mod 24, 24 mod 24}` = `{2, 3, 0}` | 155,520 | Null |
+
+Artifacts: `K4_WORLD_CLOCK_CITIES_NULL.json`, `K4_GEOMETRY_COMBINED_WORLDCLOCK_NULL.json`.
+
+**Cross-vector consensus scoring, built.** `kryptos.k4.cross_vector_consensus` re-scans every `K4_*_NULL.json` artifact this project has ever produced, groups candidates by *source vector* (not just merged into one pool the way P16's `corpus_miner` does), and flags a positional n-gram fragment only if it appears across `min_distinct_vectors` (default 3) *separate* attack vectors — a repeat within one vector's own large sweep no longer masquerades as cross-model agreement. Run against the 30 artifacts accumulated by this point (11 with extractable candidates): **zero consensus anchors found** — no accidental cross-vector agreement, consistent with everything being null. Artifact: `K4_CROSS_VECTOR_CONSENSUS_NULL.json`.
+
+**Scheduled overnight sweep runner, built.** `kryptos.k4.overnight_runner.run_all_pending_sweeps` (invoked via `scripts/run_k4_overnight_sweeps.py`) runs every registered full-scope sweep — including this phase's five new ones — in sequence; the moment any one raises `EurekaSignal`, it's caught, recorded as the returned summary's breakthrough result, and the remaining queued sweeps are skipped rather than run past an unvalidated breakthrough. `cross_vector_consensus` is registered last since it depends on every other sweep's artifact. Closes the "someone has to remember to click it" gap noted in the 2026-08-28 idea list.
+
+**Grand total across Phase 7's real-K4 sweeps: 2,420,928 candidates (plus the 30-artifact, 11-vector cross-scan), zero breakthroughs, zero cross-vector consensus.**
+
+---
+
+## Primary Sources Needed (researched 2026-09-01)
+
+Phases 1-7 have exhausted what's *inferable* from already-sourced material. What's left needs new primary source material this repo cannot generate on its own — code alone won't move these three forward. This section records concrete leads found by digging (not just "someone should go look"), so the next session doesn't have to re-research from scratch. See `docs/TASKS.md`'s Active section for these as tracked tasks.
+
+### 1. A complete World Clock (Weltzeituhr) city list
+
+`kryptos.k4.world_clock_cities.CONFIRMED_CITIES` holds only 9 of 148 names — every source checked describes the *count* but not the full list. Leads, in order of promise:
+
+- **Wikimedia Commons, `Category:Urania-Weltzeituhr` → `Details of Urania-Weltzeituhr` subcategory (27 files)** — includes close-up shots (e.g. `Weltzeituhr Detail Alexanderplatz.jpg`) that may show individual city-name plates legibly. Worth visual inspection/OCR of each file, segment by segment, to reconstruct the list photographically rather than from a secondary description.
+- **German Wikipedia** (`de.wikipedia.org/wiki/Weltzeituhr_(Alexanderplatz)`) — not yet fetched directly in this project; German-language sources on a German landmark are plausibly more detailed than the English article already checked.
+- **Patent DE2515102A1** ("World clock with globe display") — found via search, not yet read; patents for this kind of mechanism sometimes include technical drawings that enumerate segments.
+- **360cities.net panorama** (`360cities.net/en/image/weltzeituhr-alexanderplatz-berlin-mitte-2`) — a high-resolution 360° panorama might allow reading plate text directly at zoom, unlike a handful of static tourist photos.
+
+### 2. A sub-minute-precision timestamp for a Nov 9 1989 moment
+
+`solar_geometry.topper_shadow_offsets()` had to fall back to an exhaustive 0-23 sweep because every sourced timestamp (Schabowski's statement, the AP flash, ARD's broadcast) is whole-minute precision, and the topper's 60-second rotation period makes any two such timestamps vacuously co-phased. A precise-to-the-second source would make hypothesis A's originally-intended single derived angle actually computable. Leads:
+
+- **`chronik-der-mauer.de`** — published jointly by the Bundeszentrale für politische Bildung (Germany's Federal Agency for Civic Education) and the Robert-Havemann-Gesellschaft, a serious historical archive. Has a dedicated dated article by historian Hans-Hermann Hertle: *"9. November 1989, 18.00 Uhr: Schabowskis Auftritt"* (`chronik-der-mauer.de/material/180368/...`). **Blocked this session by bot-detection (HTTP 403 on automated fetch)** — needs a manual visit, but is the single most promising lead found: an academic archive with a title suggesting minute-level (possibly finer) precision already.
+- **Hans-Hermann Hertle's books** — *"Chronik des Mauerfalls"* and *"Sofort, unverzüglich"* (Ch. Links Verlag) are the definitive academic accounts of that evening; a library/archive copy would likely carry more precision than any web summary.
+- **Original AP wire filing** — wire services timestamp internally to the minute or second; the Associated Press Corporate Archives (or contemporary newspaper microfilm carrying the wire timestamp) could source the AP-flash moment precisely.
+- **ARD/rbb broadcast archives (Deutsches Rundfunkarchiv)** — the actual press-conference video/audio, if timestamped or synchronized against a known broadcast clock, would fix Schabowski's exact statement moment.
+
+### 3. The Kryptos compass rose's actual measured bearing
+
+Per `elonka.com/kryptos/wishlist.html`, "which way exactly is the needle on the compass rose pointing?" remains an **open, unanswered community question** — this is the single most direct physical fact this entire pivot has been reasoning around indirectly (via Berlin-side ENE bearings) rather than measuring at the source. Leads:
+
+- **`elonka.com/kryptos/KryptosAerial.html`** ("Kryptos - The Bird's Eye View") — already gives a partial, explicitly-uncertain secondary estimate: *"one report is that the 'north' direction on the compass rose is pointing roughly south-southwest (around 220 degrees) but this is not exact."* This is a different measurement than the lodestone-deflection bearing this project's `K4_ACTIVE_RESEARCH.md` history already flags as unmeasured — worth distinguishing the two ("which way does the rose's own N mark point" vs. "which way does the needle deflect toward the lodestone") in any future write-up. The page explicitly invites reader submissions/corrections.
+- **FOIA request to the CIA** — Kryptos is publicly documented on the CIA's own legacy site; the agency has engaged with Kryptos researchers before (per its own published materials). A FOIA request or public-affairs inquiry asking for a measured bearing or a high-resolution overhead photo of the compass-rose/lodestone slab is a legitimate, concrete next step.
+- **Contact Elonka Dunin directly** — the maintainer of the wishlist above is the community's most active liaison to Sanborn and CIA contacts; she may already have unpublished measurements or know who to ask.
+- **Satellite/overhead imagery inspection** — Google Earth/Maps imagery of the CIA New Headquarters Building courtyard was not inspected visually in this pass (text search only); a session with image-reading capability pointed at the exact courtyard coordinates could potentially resolve the stone slab's orientation directly, resolution permitting.
+
 ---
 
 ## Related Documents
 
-- [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](K4_ATTACK_LANDSCAPE.md) — **3D attack fingerprint: past / present / frontier** (generated 2026-08-12)
 - [`docs/analysis/K4_KEYSTREAM_ANALYSIS.md`](K4_KEYSTREAM_ANALYSIS.md) — Detailed keystream derivation and what it rules out
-- [`docs/analysis/K4-T1.md`](K4-T1.md) — Physical-geometric composite pipeline specification with toggle matrix
-- [`docs/analysis/K4-CLOCKS.html`](K4-CLOCKS.html) — Interactive clock theory framework (note: NORTHEAST position labels in that doc are incorrect; see K4_KEYSTREAM_ANALYSIS.md §1)
 - [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](30_YEAR_GAP_COVERAGE.md) — Classical cipher technique coverage map
-- [`docs/analysis/K4-FRONTEND.md`](K4-FRONTEND.md) — React/FastAPI frontend for campaign orchestration
-- [`docs/TASKS.md`](../../docs/TASKS.md) — Implementation backlog
-- [`docs/ROADMAP.md`](../../docs/ROADMAP.md) — Phase milestones
+- [`docs/TASKS.md`](../TASKS.md) — Implementation backlog
+- [`docs/ROADMAP.md`](../ROADMAP.md) — Phase milestones
+
+**Archived (2026-09-01, superseded by this document):**
+
+- [`docs/archive/K4_ATTACK_LANDSCAPE.md`](../archive/K4_ATTACK_LANDSCAPE.md) — 3D attack fingerprint; historical evidence-basis narrative only
+- [`docs/archive/K4-T1.md`](../archive/K4-T1.md) — Physical-geometric composite pipeline spec; **carries an unverified/likely-fabricated "Smithsonian Archive"/"K5" claim, do not treat as fact**
+- [`docs/archive/K4-CLOCKS.html`](../archive/K4-CLOCKS.html) — Interactive clock theory artifact; NORTHEAST position labels known incorrect (see K4_KEYSTREAM_ANALYSIS.md §1)
+- [`docs/archive/K4-FRONTEND.md`](../archive/K4-FRONTEND.md) — Frontend spec describing a SQLite schema that was never built (actual: Neon/Postgres)
 
 ## Vault Links
-- [[repos/kryptos/docs/analysis/K4-FRONTEND|K4-FRONTEND]] — frontend specification
+- [[repos/kryptos/docs/archive/K4-FRONTEND|K4-FRONTEND]] — frontend specification (archived, superseded)
 - [[repos/kryptos/docs/archive/AUDIT_2026-06-01|AUDIT_2026-06-01]] — most recent src/ audit
 - [[repos/kryptos|kryptos runbook]] — repo context

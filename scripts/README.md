@@ -11,6 +11,11 @@ Status: active and intentionally small.
 	- `autofix_unused_vars.py`: optional unused-variable helper.
 - `scripts/testing/`
 	- Testing convenience artifacts and notes.
+- `run_k4_overnight_sweeps.py`: thin CLI entry point for
+	`kryptos.k4.overnight_runner.run_all_pending_sweeps` — runs every
+	registered K4 full-scope attack sweep in order, halting on a
+	EurekaSignal breakthrough. Reusable logic (the sweep registry, the
+	run/halt behavior) lives in `src/kryptos/k4/overnight_runner.py`.
 
 ## Principles
 
@@ -38,6 +43,9 @@ pytest tests/ -v
 
 # Fast-only suite used for rapid iteration
 pytest tests/ -m "not slow" -v
+
+# Run every registered K4 full-scope attack sweep in order
+python scripts/run_k4_overnight_sweeps.py
 ```
 
 ## References

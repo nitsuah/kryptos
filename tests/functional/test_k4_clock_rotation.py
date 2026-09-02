@@ -96,6 +96,10 @@ class TestGeographyDerivedBearings:
         assert "mengenlehreuhr_weltzeituhr_1990" in bearings
         assert "mengenlehreuhr_weltzeituhr_current" in bearings
 
+    def test_includes_solar_shadow_bearings(self):
+        bearings = cr.geography_derived_bearings()
+        assert "solar_shadow_cia_dedication" in bearings
+
 
 class TestMengenlehreuhrWeltzeituhrBearings:
     def test_four_named_bearings(self):

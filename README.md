@@ -113,6 +113,23 @@ then convert back.
 
 ## Recent Updates
 
+### K4 Physical/Geometric Pivot + Phase 7 Complete (August–September 2026)
+
+**All 13 code-executable items of the "Physical/Geometric Pivot" research brief (of 15 — items 10-11 were historical/archival research, satisfied via sourced documentation rather than code), plus a follow-on Phase 7, implemented and executed against real K4 — every result null (2.6M+ candidates total across the two phases):**
+
+- 24-column geometric permutation front-end (20 fill-orders/routes) composed with reflections (both shape-preserving *and* shape-changing transpose families), rotations, and remainder modes, combined with the 108-route physical tableau — up to 414,720 candidates per run
+- Precise WGS84 geodesy (`geographiclib`) computing the Mengenlehreuhr → Weltzeituhr bearing at both the clock's current and 1990/Sanborn-era locations (both land within 1.5–3.3° of exact ENE)
+- November 9 1989 (Berlin Wall fall) added as a sourced priority clock state
+- Myszkowski transposition, Trifid cipher, and a simulated-annealing substitution-key search behind the geometric front-end
+- P2 shadow/null masking, P5's 2-crib relaxed gate (against both transposition families), and P6's K3-running-key attack — all wired in earlier phases but executed for real for the first time
+- A re-examined, computationally-modeled "shadow of the word" hypothesis: the World Clock topper's rotation (verified 1 rev/min, mechanically deterministic) and real solar position at CIA HQ — both tractable without physical site access, correcting an earlier "out of scope" call
+- World Clock city-list keyword research, cross-vector consensus scoring across every null-result artifact, and a scheduled overnight full-sweep runner
+- New dashboard Pivot Status panel showing the hypothesis graph and geodesy figures
+
+**What's left needs new source material, not new code** — a complete World Clock city list, a sub-minute-precision historical timestamp, or photographic documentation of the Kryptos compass rose's exact bearing. See `docs/ROADMAP.md`'s "Ideas — not yet scheduled" section.
+
+---
+
 ### K4 Phase 2 Frontier Open (August 2026)
 
 **P1–P7 attacks implemented, tested, and live in Docker dashboard:**
@@ -166,12 +183,11 @@ to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
-- **Status**: Unsolved. All single-layer, 2-layer, and initial 3-layer composite sweeps have returned null results (75 tests passing, all attacks instrumented). Phase 2 frontier is open: alternative alphabet keywords, aggressive coordinate exploitation, and candidate-text pattern mining.
+- **Status**: Unsolved. Every attack vector attempted so far is null — single-layer, 2-layer, 3-layer composite, all 20 frontier vectors (P1–P20), the full 15-item Physical/Geometric Pivot, and Phase 7's shape-changing transpose family + shadow-angle primitives + city-list keywords. 1400+ tests passing, all attacks instrumented with permanent provenance artifacts.
 - **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first definitively ruled out)
 - **Confirmed cribs** (0-indexed): EAST@22–25, NORTHEAST@26–34, BERLIN@63–68, CLOCK@69–73
-- **Active frontier (P1–P7)**: All implemented and runnable from the K4 dashboard. Priority full-sweep (720 clock states × all permutations) is the highest-value pending run.
-- **Phase 2 directions** (P11–P20): Alternative alphabet keywords (SANBORN, SCHEIDT, LANGLEY, NORTHEAST, SHADOW); magnetic declination clock offset; CIA→Berlin bearing as cipher parameter; candidate corpus fragment mining; QQ/SS bigram constraints; repeating-key CSP over 22 known shift values.
-- **Attack Landscape**: `docs/analysis/K4_ATTACK_LANDSCAPE.md` — 3D fingerprint with evidence basis and implementation plans.
+- **What's left**: needs new source material, not new code — a complete World Clock city list, a sub-minute-precision historical timestamp, or photographic documentation of the Kryptos compass rose's exact bearing. See `docs/ROADMAP.md`'s "Ideas — not yet scheduled."
+- **Current status**: `docs/analysis/K4_ACTIVE_RESEARCH.md` — the single source of truth for confirmed facts, ruled-out hypotheses, and Phase 1-7 results (older per-vector "3D fingerprint" analysis is archived at `docs/archive/K4_ATTACK_LANDSCAPE.md`).
 - **Live dashboard**: `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 → K4 Dashboard
 
 ## Deliberate Misspellings / Anomalies
@@ -368,6 +384,7 @@ The index is stored under `data/turbovec/` (gitignored, derived from `artifacts/
 
 ## Recent Changes
 
+- **2026-09-01**: K4 Physical/Geometric Pivot (Phase 6) and its Phase 7 follow-on both complete — shape-changing transpose family wired, "shadow of the word" computationally modeled (World Clock topper rotation + real solar position), World Clock city-list keywords tested, cross-vector consensus scoring built, scheduled overnight sweep runner built. 2.6M+ candidates across both phases, all null. ROADMAP/TASKS refreshed.
 - **2026-08-12**: Documentation refresh — created `docs/analysis/K4_ATTACK_LANDSCAPE.md` (3D fingerprint of all completed null-result vectors and 10 frontier directions: P1–P7 active, P8–P10 deferred); updated ROADMAP, TASKS, GOVERN, METRICS, K4_ACTIVE_RESEARCH, K4_KEYSTREAM_ANALYSIS, and INDEX for accuracy
 - **2026-06-01**: src/ audit baseline — 829 tests passing (0 failures); Quagmire I–IV, physical-grid tableau walk, SA columnar seeding, early-crib locking verified; all clock-based attack variants complete
 - **2026-05-25**: All K4-ATTACK-1 through K4-ATTACK-7 complete; 3-layer composite chain (S→T→S), ADFGVX, Nihilist, Beaufort, Quagmire implementations added
