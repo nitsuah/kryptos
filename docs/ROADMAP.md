@@ -2,7 +2,7 @@
 
 Breadcrumb: [Docs](INDEX.md) > Roadmap
 
-Last Updated: 2026-09-01
+Last Updated: 2026-09-02
 Next Review: 2026-09-15
 
 ---
@@ -165,9 +165,11 @@ Everything code-derivable from current sourcing has been tried (Phases 1-7, all 
 
 - **The remaining ~4 of 24 segments of the World Clock city list** (119 of 146 confirmed as of 2026-09-02, up from 9 — count also resolved to 146+1 IDL=147, not 148, via convergent German+English Wikipedia; both closed by directly reading 7 Wikimedia Commons plate photographs, not a text summary). Missing: Japan/Korea, Australia/NZ, Pacific/Hawaii. Next: more Commons photos, the 360cities.net panorama. (Patent DE2515102A1 was checked and is unrelated.)
 - ~~A sub-minute-precision Nov 9 1989 timestamp~~ — **resolved 2026-09-02**: `chronik-der-mauer.de`'s transcript of Hertle's own recording gives 18:52:40/19:00:54 CET, both non-vacuous. See Phase 7 above.
-- **The Kryptos compass rose's actual measured bearing.** Confirmed via `elonka.com`'s own wishlist to be a still-open *community-wide* question, not just a gap in this repo. One uncertain secondary estimate exists (~220°, explicitly flagged inexact). 2026-09-02: satellite imagery of the CIA courtyard was inspected directly (Google Maps, unblurred) and ruled out — resolution is building/lot-scale, not fine enough for a ground-level stone engraving. Remaining leads: a CIA FOIA/public-affairs request, or contacting Elonka Dunin directly.
+- **The Kryptos compass rose's actual measured bearing.** Confirmed via `elonka.com`'s own wishlist to be a still-open *community-wide* question, not just a gap in this repo. One uncertain secondary estimate exists (~220°, explicitly flagged inexact). 2026-09-02: satellite imagery of the CIA courtyard was inspected directly (Google Maps, unblurred) and ruled out — resolution is building/lot-scale, not fine enough for a ground-level stone engraving. Remaining leads: a CIA FOIA/public-affairs request, or contacting Elonka Dunin directly. Outreach drafts for both (the questions to ask Elonka, and the FOIA request text) are ready — see `docs/TASKS.md`.
 
 If none of these surface, this is genuinely paused — inventing more sweep variants over the same structural assumptions (grids, reflections, rotations, clock states) is not expected to move this forward; see the cross-vector consensus scan's zero-agreement result in Phase 7.
+
+**External developments, 2026-09-02:** real-world events since this phase opened change its context, not its task list. Sanborn's own 1990 archival papers were found by independent researchers in September 2025 (not a cryptographic solve, by their own explicit statement); a real, Sanborn-confirmed K5 exists and will be released once K4 is cryptographically solved; and a third-party reconstruction (solvekryptos.com) claiming the actual cipher mechanism was checked against this repo's own confirmed crib positions — two of four anchors land exactly right, two are off by exactly one position in a way that self-corrects by the third anchor, a specific and as-yet-unexplained discrepancy. Full detail and sourcing: `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "External Developments (2025–2026)" section. This doesn't close or reprioritize either open lead above — if anything, the recovered plaintext's own opening line ("THE COMPASS ROSE IS HERE") is independent, external confirmation that the compass-rose bearing lead is worth the FOIA/Elonka outreach.
 
 ---
 

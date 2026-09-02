@@ -41,7 +41,7 @@ This is the traversal map for humans and AI agents.
 - [docs/archive/AUDIT_2026-05-24.md](archive/AUDIT_2026-05-24.md)
 - [docs/archive/AUDIT_2025-10-26.md](archive/AUDIT_2025-10-26.md)
 - [docs/archive/K4_ATTACK_LANDSCAPE.md](archive/K4_ATTACK_LANDSCAPE.md) - Superseded 2026-09-01 by K4_ACTIVE_RESEARCH.md; kept for historical evidence-basis narrative
-- [docs/archive/K4-T1.md](archive/K4-T1.md) - Superseded 2026-09-01; also carries an **unverified/likely-fabricated** "2025 Smithsonian Archive"/"K5" claim — do not treat as fact
+- [docs/archive/K4-T1.md](archive/K4-T1.md) - Superseded 2026-09-01. Its "2025 Smithsonian Archive"/"K5" premise was flagged unverified/likely-fabricated as of that date — **that flag was wrong**; both are real (see K4_ACTIVE_RESEARCH.md's External Developments section). Its specific mechanism (RIS, ENE routing, Hill 2×2) is still null as originally noted
 - [docs/archive/K4-CLOCKS.html](archive/K4-CLOCKS.html) - Superseded 2026-09-01; NORTHEAST position labels are known incorrect (see K4_KEYSTREAM_ANALYSIS.md §1)
 - [docs/archive/K4-FRONTEND.md](archive/K4-FRONTEND.md) - Superseded 2026-09-01; describes a SQLite schema that was never built (actual: Neon/Postgres)
 

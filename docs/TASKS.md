@@ -2,18 +2,22 @@
 
 Breadcrumb: [Docs](INDEX.md) > Tasks
 
-Last Updated: 2026-09-01
+Last Updated: 2026-09-02
 
 ---
 
 ## Active
 
-Two of the three primary-source gaps opened 2026-09-01 remain open; the timestamp one closed 2026-09-02 (see Done below). See `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "Primary Sources Needed" section for full detail and sourcing rationale.
+Two of the three primary-source gaps opened 2026-09-01 remain open; the timestamp one closed 2026-09-02 (see Done below). See `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "Primary Sources Needed" and "External Developments (2025–2026)" sections for full detail and sourcing rationale. Action items below are split by who actually has to do them — Claude's automatable queue vs. the two sends that genuinely need a human.
 
 ### Primary-source sourcing (opened 2026-09-01)
 
-- [ ] **Source the remaining ~4 segments of the World Clock's 146-city list** (2026-09-02 update: count resolved at 146+1 IDL=147 via convergent German+English Wikipedia; 119 of 146 names now confirmed by directly reading 7 Wikimedia Commons photographs of the actual plates, cross-checking overlapping segments — see `kryptos.k4.world_clock_cities.CONFIRMED_CITIES` and `K4_ACTIVE_RESEARCH.md`'s Phase 7 update). Still missing: Japan/Korea, Australia/NZ, and the Pacific/Hawaii zones. Try, in order: (1) more Wikimedia Commons photos from `Category:Urania-Weltzeituhr` — read directly (this is what closed 20 of 24 segments so far, not OCR/secondary-source guessing); (2) the 360cities.net panorama, rotated to the missing angles. (Patent DE2515102A1 was checked and is unrelated — don't re-check it.) Extend `CONFIRMED_CITIES` if the remaining segments are found — do not fabricate entries.
-- [ ] **Source the Kryptos compass rose's actual measured bearing** — per `elonka.com/kryptos/wishlist.html`, this is a still-open community question, not just gapped in this repo. `elonka.com/kryptos/KryptosAerial.html` already has one uncertain secondary estimate (~220°, explicitly flagged "not exact"). 2026-09-02 update: satellite/overhead imagery of the CIA New Headquarters Building courtyard was inspected directly (Google Maps, unblurred) — confirmed insufficient resolution for ground-level engraving detail (building/lot-scale only), ruling out that specific lead. Remaining: a FOIA request or CIA public-affairs inquiry for a measured bearing or high-res overhead photo; contacting Elonka Dunin directly (active community liaison to Sanborn/CIA contacts).
+- [ ] **Source the remaining ~4 segments of the World Clock's 146-city list** (2026-09-02 update: count resolved at 146+1 IDL=147 via convergent German+English Wikipedia; 119 of 146 names now confirmed by directly reading 7 Wikimedia Commons photographs of the actual plates, cross-checking overlapping segments — see `kryptos.k4.world_clock_cities.CONFIRMED_CITIES` and `K4_ACTIVE_RESEARCH.md`'s Phase 7 update). Still missing: Japan/Korea, Australia/NZ, and the Pacific/Hawaii zones. **[Claude — automatable]** Try, in order: (1) more Wikimedia Commons photos from `Category:Urania-Weltzeituhr` — read directly (this is what closed 20 of 24 segments so far, not OCR/secondary-source guessing); (2) the 360cities.net panorama, rotated to the missing angles. (Patent DE2515102A1 was checked and is unrelated — don't re-check it.) Extend `CONFIRMED_CITIES` if the remaining segments are found — do not fabricate entries.
+- [ ] **Source the Kryptos compass rose's actual measured bearing** — per `elonka.com/kryptos/wishlist.html`, this is a still-open community question, not just gapped in this repo. `elonka.com/kryptos/KryptosAerial.html` already has one uncertain secondary estimate (~220°, explicitly flagged "not exact"). 2026-09-02 update: satellite/overhead imagery of the CIA New Headquarters Building courtyard was inspected directly (Google Maps, unblurred) — confirmed insufficient resolution for ground-level engraving detail (building/lot-scale only), ruling out that specific lead. External-plaintext note: Sanborn's own recovered opening line reads "THE COMPASS ROSE IS HERE," independent confirmation this lead is worth pursuing, not a stretch. **[You — the only send]** A FOIA request to CIA (foia.cia.gov) or contacting Elonka Dunin directly (active community liaison to Sanborn/CIA contacts) — both drafted in full and ready to send, see [Three Open Leads](https://claude.ai/code/artifact/7e689fa1-c66d-49b1-abdb-3fc17a866c84) §4.
+
+### External developments follow-up (opened 2026-09-02)
+
+- [ ] **[Optional, low-priority]** Explain the single-character discrepancy in `solvekryptos.com`'s claimed K4 plaintext. `kryptos.k4.validation.benchmark_external_candidate("solvekryptos_field_guide")` shows `EAST`/`NORTHEAST` landing exactly one position early (21/25 vs. confirmed 22/26) while `BERLIN`/`CLOCK` land exactly right (63/69, zero offset) — meaning the claimed opening line `"THE COMPASS ROSE IS HERE X"` is exactly one character short of what's needed, and something in the ~29-character stretch between `NORTHEAST` and `BERLIN` makes up the difference. Not attempted here — a specific, well-posed question worth asking Elonka or the solvekryptos.com maintainers directly rather than guessing at. See `K4_ACTIVE_RESEARCH.md`'s External Developments section.
 
 ---
 
