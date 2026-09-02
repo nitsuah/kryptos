@@ -20,15 +20,24 @@ class TestConfirmedCities:
 class TestWorldClockRotationOffsets:
     def test_derived_from_sourced_counts(self):
         offsets = wcc.world_clock_rotation_offsets()
-        assert offsets["world_clock_total_cities_mod24"] == wcc.TOTAL_CITY_COUNT % wcc.TOTAL_SEGMENTS
+        assert offsets["world_clock_city_count_mod24"] == wcc.TOTAL_CITY_COUNT % wcc.TOTAL_SEGMENTS
+        assert offsets["world_clock_plate_entries_mod24"] == wcc.TOTAL_PLATE_ENTRIES % wcc.TOTAL_SEGMENTS
         for v in offsets.values():
             assert 0 <= v < wcc.TOTAL_SEGMENTS
+
+    def test_city_count_and_plate_entries_differ_by_one(self):
+        # 146 city names + 1 distinct International Date Line marker.
+        assert wcc.TOTAL_PLATE_ENTRIES == wcc.TOTAL_CITY_COUNT + 1
 
 
 class TestRunWorldClockCitySweep:
     def test_null_result_artifact(self, tmp_path):
+        # Small scope for a fast structural check -- the full 104-city
+        # production sweep (112,320 candidates, ~40s) was already run for
+        # real and is recorded in K4_WORLD_CLOCK_CITIES_NULL.json /
+        # docs/analysis/K4_ACTIVE_RESEARCH.md, not re-run on every test pass.
         artifact = tmp_path / "null.json"
-        summary = wcc.run_world_clock_city_sweep(null_artifact_path=str(artifact))
+        summary = wcc.run_world_clock_city_sweep(grid_sizes=[7], max_perms_per_grid=5, null_artifact_path=str(artifact))
         assert summary["status"] == "null_result"
         data = json.loads(artifact.read_text(encoding="utf-8"))
         assert data["run_params"]["attack"] == "P1_three_layer_composite"
