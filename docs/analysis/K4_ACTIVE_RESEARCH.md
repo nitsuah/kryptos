@@ -134,7 +134,7 @@ Rows 1–3 and 6–14 are cipher-attack sweeps that returned null results. Rows 
 
 Every clean 2-layer composite and every direct clock-keying variant has now returned null. The frontier shifts to: (a) 3-layer composites, (b) pre-cipher masking/null removal, and (c) clock key derivation approaches that treat K2 coordinates or timezone offsets as secondary inputs.
 
-See [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](K4_ATTACK_LANDSCAPE.md) for the full 3D fingerprint (past / present / frontier).
+*(This section's own P1–P10 entries below are the current record — the separate 3D-fingerprint document this line used to point to was archived 2026-09-01 as fully superseded; see [`docs/archive/K4_ATTACK_LANDSCAPE.md`](../archive/K4_ATTACK_LANDSCAPE.md) for its historical evidence-basis narrative only.)*
 
 ### ✅ Priority 1 (COMPLETE — NULL RESULT): 3-Layer Composite — Keyed-Alphabet → Clock-Vigenère → Columnar Transposition
 
@@ -281,7 +281,7 @@ Position  73: K   ← end of CLOCK
 |------|-------|---------------|
 | `CONTRIBUTING.md` | `'NORTHEAST': [25]` in positional_cribs | Should be `[26]` |
 | `CONTRIBUTING.md` | `'BERLIN': [64]` in positional_cribs | Should be `[63]` |
-| `docs/analysis/K4-CLOCKS.html` | States NYPVTTMZF at "positions 26–34" | NYPVTTMZF is at 0-indexed 63–71; cipher at 26–34 is QPRNGKSSO |
+| `docs/archive/K4-CLOCKS.html` (archived) | States NYPVTTMZF at "positions 26–34" | NYPVTTMZF is at 0-indexed 63–71; cipher at 26–34 is QPRNGKSSO |
 
 ---
 
@@ -416,7 +416,7 @@ Artifacts: `K4_MASK_*_NULL.json` (8 files), `K4_P5_2CRIB_NULL.json`, `K4_P5_GEOM
 
 ### Phase 7 (2026-09-01): shape-changing transpose, shadow-angle primitives, city-list keywords, cross-vector consensus
 
-With the pivot's 15 items plus P2/P5/P6 all executed and null, three concrete new directions were opened and closed in this pass, plus a standing cross-vector scoring capability and a batch-runner to remove "someone has to remember to click it" from future full sweeps.
+With the pivot's 13 code-executable items (of 15 — items 10-11 were historical/archival research satisfied via sourced documentation, not code; see the Phase 2 addendum above) plus P2/P5/P6 all executed and null, three concrete new directions were opened and closed in this pass, plus a standing cross-vector scoring capability and a batch-runner to remove "someone has to remember to click it" from future full sweeps.
 
 **Shape-changing transpose family, wired.** `composed_flat_indices` (in `geometry_combined_sweep.py`) now correctly handles `reflection.SHAPE_CHANGING`'s four transpose-family transforms: after a transpose, the grid becomes 24×4 rather than 4×24, so the column-rotation step now rotates mod the *current* axis size (4, not 24) and the flat-index formula uses the transposed grid's own row-major numbering (`rows=COLS, cols=ROWS`) rather than the original 4×24 numbering — verified as a valid bijection and a correct `apply_forward`/`apply_inverse` round-trip before running anything at scale. Shape-preserving reflections are byte-identical to before (regression-tested). Both `geometry_combined_sweep` and `three_layer_composite_geometric` pick this up automatically since both already accept `reflection_names` as a parameter — no new sweep function needed.
 
@@ -437,6 +437,8 @@ Artifacts: `K4_GEOMETRY_COMBINED_SHAPECHANGING_NULL.json`, `K4_GEOMETRY_COMBINED
 
 **World Clock city-list keywords.** Sourced (Wikipedia, checked 2026-09-01): the clock displays 148 city names across its 24 time-zone segments — 24 matching this project's own grid column count, a genuine structural echo worth testing. A complete city-by-city list is **not available** from any source checked; only a handful of individual names are named directly (New Delhi, Saint Petersburg/Leningrad, Almaty/Alma Ata, Kyiv, Tel Aviv, Cape Town, Seoul — the last five added in the 1997 restoration). Rather than fabricate the missing ~139 names, `kryptos.k4.world_clock_cities` tests only these confirmed names as keyed-alphabet seeds, plus the two sourced structural counts (148, 24) as numeric rotation-offset parameters.
 
+**Count discrepancy, flagged not resolved:** the earlier item-11 research above (Phase 2 addendum) recorded a *different* figure — "146 city/location names plus one additional, distinct entry specifically for the International Date Line" (147 total plate entries), sourced from the same Wikipedia article on a different research pass. `TOTAL_CITY_COUNT = 148` matches the figure most commonly repeated across secondary sources (and CodeRabbit's own independent web check found sources ranging 146-148), but neither 147 nor 148 is more authoritative than the other from anything checked so far — this is itself part of item 1 in "Primary Sources Needed" below (a complete, sourced list would resolve the exact count along with the missing names), not a bug to silently pick a winner on.
+
 | Run | Scope | Candidates | Result |
 |-----|-------|-----------|--------|
 | Confirmed city names as keyed alphabets | 9 confirmed names × 3 grid widths × 2 priority clock states | 9,720 | Null |
@@ -446,22 +448,58 @@ Artifacts: `K4_WORLD_CLOCK_CITIES_NULL.json`, `K4_GEOMETRY_COMBINED_WORLDCLOCK_N
 
 **Cross-vector consensus scoring, built.** `kryptos.k4.cross_vector_consensus` re-scans every `K4_*_NULL.json` artifact this project has ever produced, groups candidates by *source vector* (not just merged into one pool the way P16's `corpus_miner` does), and flags a positional n-gram fragment only if it appears across `min_distinct_vectors` (default 3) *separate* attack vectors — a repeat within one vector's own large sweep no longer masquerades as cross-model agreement. Run against the 30 artifacts accumulated by this point (11 with extractable candidates): **zero consensus anchors found** — no accidental cross-vector agreement, consistent with everything being null. Artifact: `K4_CROSS_VECTOR_CONSENSUS_NULL.json`.
 
-**Scheduled overnight sweep runner, built.** `kryptos.k4.overnight_runner.run_all_pending_sweeps` (invoked via `scripts/run_k4_overnight_sweeps.py`) runs every registered full-scope sweep — including this phase's five new ones — in sequence, halting immediately (not swallowing the exception) if any raises `EurekaSignal`, with `cross_vector_consensus` registered last since it depends on every other sweep's artifact. Closes the "someone has to remember to click it" gap noted in the 2026-08-28 idea list.
+**Scheduled overnight sweep runner, built.** `kryptos.k4.overnight_runner.run_all_pending_sweeps` (invoked via `scripts/run_k4_overnight_sweeps.py`) runs every registered full-scope sweep — including this phase's five new ones — in sequence; the moment any one raises `EurekaSignal`, it's caught, recorded as the returned summary's breakthrough result, and the remaining queued sweeps are skipped rather than run past an unvalidated breakthrough. `cross_vector_consensus` is registered last since it depends on every other sweep's artifact. Closes the "someone has to remember to click it" gap noted in the 2026-08-28 idea list.
 
 **Grand total across Phase 7's real-K4 sweeps: 2,105,784 candidates (plus the 30-artifact, 11-vector cross-scan), zero breakthroughs, zero cross-vector consensus.**
 
 ---
 
+## Primary Sources Needed (researched 2026-09-01)
+
+Phases 1-7 have exhausted what's *inferable* from already-sourced material. What's left needs new primary source material this repo cannot generate on its own — code alone won't move these three forward. This section records concrete leads found by digging (not just "someone should go look"), so the next session doesn't have to re-research from scratch. See `docs/TASKS.md`'s Active section for these as tracked tasks.
+
+### 1. A complete World Clock (Weltzeituhr) city list
+
+`kryptos.k4.world_clock_cities.CONFIRMED_CITIES` holds only 9 of 148 names — every source checked describes the *count* but not the full list. Leads, in order of promise:
+
+- **Wikimedia Commons, `Category:Urania-Weltzeituhr` → `Details of Urania-Weltzeituhr` subcategory (27 files)** — includes close-up shots (e.g. `Weltzeituhr Detail Alexanderplatz.jpg`) that may show individual city-name plates legibly. Worth visual inspection/OCR of each file, segment by segment, to reconstruct the list photographically rather than from a secondary description.
+- **German Wikipedia** (`de.wikipedia.org/wiki/Weltzeituhr_(Alexanderplatz)`) — not yet fetched directly in this project; German-language sources on a German landmark are plausibly more detailed than the English article already checked.
+- **Patent DE2515102A1** ("World clock with globe display") — found via search, not yet read; patents for this kind of mechanism sometimes include technical drawings that enumerate segments.
+- **360cities.net panorama** (`360cities.net/en/image/weltzeituhr-alexanderplatz-berlin-mitte-2`) — a high-resolution 360° panorama might allow reading plate text directly at zoom, unlike a handful of static tourist photos.
+
+### 2. A sub-minute-precision timestamp for a Nov 9 1989 moment
+
+`solar_geometry.topper_shadow_offsets()` had to fall back to an exhaustive 0-23 sweep because every sourced timestamp (Schabowski's statement, the AP flash, ARD's broadcast) is whole-minute precision, and the topper's 60-second rotation period makes any two such timestamps vacuously co-phased. A precise-to-the-second source would make hypothesis A's originally-intended single derived angle actually computable. Leads:
+
+- **`chronik-der-mauer.de`** — published jointly by the Bundeszentrale für politische Bildung (Germany's Federal Agency for Civic Education) and the Robert-Havemann-Gesellschaft, a serious historical archive. Has a dedicated dated article by historian Hans-Hermann Hertle: *"9. November 1989, 18.00 Uhr: Schabowskis Auftritt"* (`chronik-der-mauer.de/material/180368/...`). **Blocked this session by bot-detection (HTTP 403 on automated fetch)** — needs a manual visit, but is the single most promising lead found: an academic archive with a title suggesting minute-level (possibly finer) precision already.
+- **Hans-Hermann Hertle's books** — *"Chronik des Mauerfalls"* and *"Sofort, unverzüglich"* (Ch. Links Verlag) are the definitive academic accounts of that evening; a library/archive copy would likely carry more precision than any web summary.
+- **Original AP wire filing** — wire services timestamp internally to the minute or second; the Associated Press Corporate Archives (or contemporary newspaper microfilm carrying the wire timestamp) could source the AP-flash moment precisely.
+- **ARD/rbb broadcast archives (Deutsches Rundfunkarchiv)** — the actual press-conference video/audio, if timestamped or synchronized against a known broadcast clock, would fix Schabowski's exact statement moment.
+
+### 3. The Kryptos compass rose's actual measured bearing
+
+Per `elonka.com/kryptos/wishlist.html`, "which way exactly is the needle on the compass rose pointing?" remains an **open, unanswered community question** — this is the single most direct physical fact this entire pivot has been reasoning around indirectly (via Berlin-side ENE bearings) rather than measuring at the source. Leads:
+
+- **`elonka.com/kryptos/KryptosAerial.html`** ("Kryptos - The Bird's Eye View") — already gives a partial, explicitly-uncertain secondary estimate: *"one report is that the 'north' direction on the compass rose is pointing roughly south-southwest (around 220 degrees) but this is not exact."* This is a different measurement than the lodestone-deflection bearing this project's `K4_ACTIVE_RESEARCH.md` history already flags as unmeasured — worth distinguishing the two ("which way does the rose's own N mark point" vs. "which way does the needle deflect toward the lodestone") in any future write-up. The page explicitly invites reader submissions/corrections.
+- **FOIA request to the CIA** — Kryptos is publicly documented on the CIA's own legacy site; the agency has engaged with Kryptos researchers before (per its own published materials). A FOIA request or public-affairs inquiry asking for a measured bearing or a high-resolution overhead photo of the compass-rose/lodestone slab is a legitimate, concrete next step.
+- **Contact Elonka Dunin directly** — the maintainer of the wishlist above is the community's most active liaison to Sanborn and CIA contacts; she may already have unpublished measurements or know who to ask.
+- **Satellite/overhead imagery inspection** — Google Earth/Maps imagery of the CIA New Headquarters Building courtyard was not inspected visually in this pass (text search only); a session with image-reading capability pointed at the exact courtyard coordinates could potentially resolve the stone slab's orientation directly, resolution permitting.
+
+---
+
 ## Related Documents
 
-- [`docs/analysis/K4_ATTACK_LANDSCAPE.md`](K4_ATTACK_LANDSCAPE.md) — **3D attack fingerprint: past / present / frontier** (generated 2026-08-12)
 - [`docs/analysis/K4_KEYSTREAM_ANALYSIS.md`](K4_KEYSTREAM_ANALYSIS.md) — Detailed keystream derivation and what it rules out
-- [`docs/analysis/K4-T1.md`](K4-T1.md) — Physical-geometric composite pipeline specification with toggle matrix
-- [`docs/analysis/K4-CLOCKS.html`](K4-CLOCKS.html) — Interactive clock theory framework (note: NORTHEAST position labels in that doc are incorrect; see K4_KEYSTREAM_ANALYSIS.md §1)
 - [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](30_YEAR_GAP_COVERAGE.md) — Classical cipher technique coverage map
-- [`docs/analysis/K4-FRONTEND.md`](K4-FRONTEND.md) — React/FastAPI frontend for campaign orchestration
-- [`docs/TASKS.md`](../../docs/TASKS.md) — Implementation backlog
-- [`docs/ROADMAP.md`](../../docs/ROADMAP.md) — Phase milestones
+- [`docs/TASKS.md`](../TASKS.md) — Implementation backlog
+- [`docs/ROADMAP.md`](../ROADMAP.md) — Phase milestones
+
+**Archived (2026-09-01, superseded by this document):**
+
+- [`docs/archive/K4_ATTACK_LANDSCAPE.md`](../archive/K4_ATTACK_LANDSCAPE.md) — 3D attack fingerprint; historical evidence-basis narrative only
+- [`docs/archive/K4-T1.md`](../archive/K4-T1.md) — Physical-geometric composite pipeline spec; **carries an unverified/likely-fabricated "Smithsonian Archive"/"K5" claim, do not treat as fact**
+- [`docs/archive/K4-CLOCKS.html`](../archive/K4-CLOCKS.html) — Interactive clock theory artifact; NORTHEAST position labels known incorrect (see K4_KEYSTREAM_ANALYSIS.md §1)
+- [`docs/archive/K4-FRONTEND.md`](../archive/K4-FRONTEND.md) — Frontend spec describing a SQLite schema that was never built (actual: Neon/Postgres)
 
 ## Vault Links
 - [[repos/kryptos/docs/analysis/K4-FRONTEND|K4-FRONTEND]] — frontend specification

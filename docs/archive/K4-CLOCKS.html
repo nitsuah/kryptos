@@ -1,4 +1,11 @@
 
+<!--
+  ARCHIVED 2026-09-01. Superseded by docs/analysis/K4_ACTIVE_RESEARCH.md,
+  the single current source of truth for K4 status. This artifact's
+  NORTHEAST/position labels are known incorrect (see
+  K4_KEYSTREAM_ANALYSIS.md Section 1) and its theories have since been
+  implemented and tested null. Kept for historical reference only.
+-->
 <style>
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
 .section-label{font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin:1.5rem 0 .5rem}
@@ -57,7 +64,7 @@
   1-hr row:  [R][R][R][0]  → 3 × 1 = 13 → hours = 13
   5-min row: [Y][Y][Y][Y][Y][Y][0][0][0][0][0] → 6×5=30
   1-min row: [Y][0][0][0]  → 1 min → 13:31
-  
+
   Lamp binary string: 1|1100|1110|110000000000|1000
   → decimal digits:  1,2,3,6,1 → key candidate "BCDFB"
   → or map lamps→A-Z by position → 26-char key</div>
@@ -135,7 +142,7 @@ N=3:  every 3rd    → 65 chars
 Shadow-at-angle:  positions where clock hand points
       → 24-hour clock: angle at 13:00 = 195°
       → 195° / 360° × 97 = position ~52
-      
+
 Positions 26-34: NYPVTTMZF (known = NORTHEAST after decryption)
       → these 9 positions were NOT nulled</div>
       This is why the community hasn't solved it: if masking/null insertion happened <em>before</em> the other layers, every attack that assumes a 97-char solid message is attacking the wrong input. The actual enciphered text may be shorter — perhaps 64 or 88 characters, padded to 97 with shadow nulls.
@@ -205,7 +212,7 @@ Combined as Vigenère key (read lamp ON=1,OFF=0, L→R):
 
 Alternative: treat each row as one letter:
   5-hr count  (0-4)  → A-E
-  1-hr count  (0-4)  → A-E  
+  1-hr count  (0-4)  → A-E
   5-min count (0-11) → A-K
   1-min count (0-4)  → A-E
   → 4-char key from any clock reading</div>
@@ -230,7 +237,7 @@ If grid = 10 cols × 10 rows (100 cells, 3 null):
   Standard read: row-by-row
   ENE diagonal read: read cells where (col - row × tan(67.5°)) = const
   tan(67.5°) ≈ 2.414
-  
+
 Reading order shifts by ~2.4 columns per row:
   Row 0: col 0,1,2...
   Row 1: start at col 2 (shift 2.414 → floor 2)
@@ -238,7 +245,7 @@ Reading order shifts by ~2.4 columns per row:
   Row 3: start at col 7
   Row 4: wrap to col 0 (mod 10)
 
-This produces a non-standard route transposition — 
+This produces a non-standard route transposition —
 never systematically tested against K4.</div>
       The 6-hour timezone offset (Berlin UTC+1 → CIA HQ UTC-5 = 6 hours) maps to 6 columnar positions or a Caesar shift of 6. If the Vigenère key is shifted by 6 from its Berlin derivation value, this single parameter changes everything.
       <button class="send-btn" onclick="sendPrompt('Implement ENE diagonal route transposition on K4 using a 10x10 grid read at 67.5 degrees, then apply Vigenère with BERLIN timezone offset of 6')">Test ENE diagonal route ↗</button>
@@ -318,7 +325,7 @@ Also test null-removal variants:
   7×14 = 98 (1 null)  → tan(67.5°) ≈ 2.4 → shift 2-3/row
   10×10 = 100 (3 null)
   97×1 = trivial
-  
+
 Reading order at angle θ = 67.5°:
   position = row × 10 + ((row × 2.414) % 10)
   → produces permutation P of 1..97
@@ -350,7 +357,7 @@ Difference sequence: 0, 10, -2, 2, 12, 15, 12, 7, 12
 
 If Vigenère: these ARE the key letters at those positions
   → key chars at pos 26-34: A, K, Y, C, M, P, M, H, M
-  
+
 If keyed-alphabet first, then Vigenère:
   → key chars shift by alphabet permutation first
   → deconvolve to find both layers simultaneously

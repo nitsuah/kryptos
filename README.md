@@ -115,7 +115,7 @@ then convert back.
 
 ### K4 Physical/Geometric Pivot + Phase 7 Complete (August–September 2026)
 
-**All 15 items of the "Physical/Geometric Pivot" research brief, plus a follow-on Phase 7, implemented and executed against real K4 — every result null (2.6M+ candidates total across the two phases):**
+**All 13 code-executable items of the "Physical/Geometric Pivot" research brief (of 15 — items 10-11 were historical/archival research, satisfied via sourced documentation rather than code), plus a follow-on Phase 7, implemented and executed against real K4 — every result null (2.6M+ candidates total across the two phases):**
 
 - 24-column geometric permutation front-end (20 fill-orders/routes) composed with reflections (both shape-preserving *and* shape-changing transpose families), rotations, and remainder modes, combined with the 108-route physical tableau — up to 414,720 candidates per run
 - Precise WGS84 geodesy (`geographiclib`) computing the Mengenlehreuhr → Weltzeituhr bearing at both the clock's current and 1990/Sanborn-era locations (both land within 1.5–3.3° of exact ENE)
@@ -187,7 +187,7 @@ to `IQLUSION` in K1).
 - **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first definitively ruled out)
 - **Confirmed cribs** (0-indexed): EAST@22–25, NORTHEAST@26–34, BERLIN@63–68, CLOCK@69–73
 - **What's left**: needs new source material, not new code — a complete World Clock city list, a sub-minute-precision historical timestamp, or photographic documentation of the Kryptos compass rose's exact bearing. See `docs/ROADMAP.md`'s "Ideas — not yet scheduled."
-- **Attack Landscape**: `docs/analysis/K4_ATTACK_LANDSCAPE.md` — 3D fingerprint with evidence basis and implementation plans.
+- **Current status**: `docs/analysis/K4_ACTIVE_RESEARCH.md` — the single source of truth for confirmed facts, ruled-out hypotheses, and Phase 1-7 results (older per-vector "3D fingerprint" analysis is archived at `docs/archive/K4_ATTACK_LANDSCAPE.md`).
 - **Live dashboard**: `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 → K4 Dashboard
 
 ## Deliberate Misspellings / Anomalies

@@ -9,7 +9,7 @@ Next Review: 2026-09-15
 
 ## Current Status
 
-**K4 attack phase:** Phases 6 and 7 (Physical/Geometric Pivot, then the shape-changing transpose family + shadow-angle primitives + city-list keywords + cross-vector consensus scoring) are both complete — every direction identified so far, including the shape-changing transpose family and both readings of the "shadow of the word" hypothesis, has been implemented, executed against real K4, and returned null. No further code-only directions are currently queued; see "Ideas — not yet scheduled" below for what would unblock new ones.
+**K4 attack phase:** Phases 6 and 7 (Physical/Geometric Pivot, then the shape-changing transpose family + shadow-angle primitives + city-list keywords + cross-vector consensus scoring) are both complete — every code-executable direction identified so far, including the shape-changing transpose family and both readings of the "shadow of the word" hypothesis, has been implemented, executed against real K4, and returned null. Phase 8 (active) is sourcing three primary-source gaps that no further code can close on its own — see below.
 
 **Architecture:** Confirmed substitution → transposition → K4. The substitution key is not derivable from any standard Berlin Clock row value (shifts at EAST/NORTHEAST reach 17, 20, 25 — exceeding the maximum clock row output of 11). The transposition is not a standard rectangular grid in any simple reading order, including both the shape-preserving and shape-changing 24-column geometric families. At minimum one un-parameterized step remains — the most concrete remaining candidates are genuinely physical/archival facts this repo cannot source on its own (a complete World Clock city list, a precisely-timed historical moment, photographic documentation of the Kryptos compass rose's exact bearing).
 
@@ -54,9 +54,9 @@ All single-layer and 2-layer composite vectors exhausted. Each produced a docume
 
 ---
 
-## Phase 3 — Frontier Phase 2: 10 New Directions ✅ (Implemented — see TASKS.md)
+## Phase 3 — Frontier Phase 2: 10 New Directions ✅ (Complete — all null; see TASKS.md Done)
 
-> P11–P20 are all implemented (see `docs/TASKS.md` Active section for per-vector detail and module names). "Implemented" here means the attack code exists and is unit-tested, not that every vector has been exhaustively run to a null/positive result — P16's corpus mining, in particular, is scanning a still-partial corpus (only priority-clock-time P1–P7 runs, not the full 720-state sweep).
+> *(Stale since 2026-08-14 — this section originally described P11–P20 as proposed/untested directions and was never updated after they were actually implemented and executed; corrected 2026-09-02.)* P11–P20 are all implemented, executed against real K4, and null — see `docs/TASKS.md`'s Done section for per-vector results, module names, and artifact references. The individual vector descriptions below are preserved as the **original scoping rationale** (hence present-tense "untested"/"never tested" language) — treat them as historical motivation, not current status. P16's corpus mining specifically found no anchor fragment above its 3% threshold when finally run.
 
 ### P11–P12 — Alphabet Keyword Expansion
 
@@ -104,7 +104,7 @@ The null-result sweeps produced thousands of candidate texts that were discarded
 
 ## Phase 6 — Physical/Geometric Pivot ✅ (Complete — 2026-09-01)
 
-> Implemented and executed all 15 items from the "K4 Physical/Geometric Pivot" research brief across PRs [#192](https://github.com/nitsuah/kryptos/pull/192), [#193](https://github.com/nitsuah/kryptos/pull/193), [#194](https://github.com/nitsuah/kryptos/pull/194), and [#196](https://github.com/nitsuah/kryptos/pull/196), plus closed three loops (P2/P5/P6) that were wired in Phase 2/3 but never actually executed. See `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "Physical/Geometric Pivot" and "Phase 4 / v2.1" sections for full detail — this is a summary.
+> Implemented and executed all 13 code-executable items from the "K4 Physical/Geometric Pivot" research brief (of 15 — items 10-11 were historical/archival research satisfied via sourced documentation, not code) across PRs [#192](https://github.com/nitsuah/kryptos/pull/192), [#193](https://github.com/nitsuah/kryptos/pull/193), [#194](https://github.com/nitsuah/kryptos/pull/194), and [#196](https://github.com/nitsuah/kryptos/pull/196), plus closed three loops (P2/P5/P6) that were wired in Phase 2/3 but never actually executed. See `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "Physical/Geometric Pivot" and "Phase 4 / v2.1" sections for full detail — this is a summary.
 
 | Vector | Result |
 |--------|--------|
@@ -159,13 +159,15 @@ Sourced: 148 cities across 24 segments (24 matching this project's own grid colu
 
 ---
 
-## Ideas — not yet scheduled
+## Phase 8 — Primary-Source Sourcing (Active — opened 2026-09-01)
 
-Everything code-derivable from current sourcing has been tried (Phases 1-7). What's left needs new source material, not new code:
+Everything code-derivable from current sourcing has been tried (Phases 1-7, all null). What's left needs new source material, not new code — three specific gaps, each with concrete leads found by direct research (not just "someone should look"). Tracked as tasks in `docs/TASKS.md`; full sourcing detail and rationale in `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "Primary Sources Needed" section.
 
-- **A complete World Clock city list.** `kryptos.k4.world_clock_cities.CONFIRMED_CITIES` currently holds only the 9 names individually named in accessible sources, out of 148 total. If a complete, sourced list (photographic documentation, an archival plan of the 1969 installation, etc.) is ever obtained, extend that list — do not fabricate the remainder.
-- **A precisely-timed (sub-minute) historical moment.** `solar_geometry.topper_shadow_offsets()` had to fall back to an exhaustive 0-23 sweep because every sourced timestamp is whole-minute precision and the topper's 60-second period makes any two such timestamps trivially co-phased. A source giving an exact second (a press-conference recording timestamp, a news-wire filing time to the second) would make hypothesis A's hoped-for single derived angle actually computable.
-- **Photographic documentation of the Kryptos compass-rose stone's exact bearing.** Per `elonka.com`'s own wishlist (cited in the Phase 2 addendum above), "which way exactly is the needle pointing" remains an open, unanswered community question — the single most direct physical fact this whole pivot has been reasoning around indirectly.
+- **A complete World Clock city list** (9 of 148 confirmed). Leads: Wikimedia Commons' "Details of Urania-Weltzeituhr" close-up photos (unread this pass), German Wikipedia (not yet checked), patent DE2515102A1, a 360° panorama at 360cities.net.
+- **A sub-minute-precision Nov 9 1989 timestamp.** Every sourced moment is whole-minute precision, which forced `solar_geometry.topper_shadow_offsets()` into an exhaustive fallback sweep instead of a single derived value. Top lead: `chronik-der-mauer.de`'s dedicated Hertle article (blocked by bot-detection on automated fetch — needs a manual visit); also Hertle's books, AP wire archives, ARD/rbb broadcast archives.
+- **The Kryptos compass rose's actual measured bearing.** Confirmed via `elonka.com`'s own wishlist to be a still-open *community-wide* question, not just a gap in this repo. One uncertain secondary estimate exists (~220°, explicitly flagged inexact). Leads: a CIA FOIA/public-affairs request, contacting Elonka Dunin directly, or a follow-up session with image-reading capability inspecting satellite imagery of the CIA courtyard.
+
+If none of these surface, this is genuinely paused — inventing more sweep variants over the same structural assumptions (grids, reflections, rotations, clock states) is not expected to move this forward; see the cross-vector consensus scan's zero-agreement result in Phase 7.
 
 ---
 
@@ -181,7 +183,7 @@ Everything code-derivable from current sourcing has been tried (Phases 1-7). Wha
 
 | Document | Purpose |
 |----------|---------|
-| `docs/analysis/K4_ATTACK_LANDSCAPE.md` | Full 3D fingerprint: past/present/frontier with evidence basis |
+| `docs/archive/K4_ATTACK_LANDSCAPE.md` | Archived — full 3D fingerprint with evidence basis, historical reference only |
 | `docs/analysis/K4_ACTIVE_RESEARCH.md` | Living null-result log and confirmed facts |
 | `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` | Derived shift sequences at all 4 crib windows |
 | `docs/TASKS.md` | Implementation backlog with specific next steps |

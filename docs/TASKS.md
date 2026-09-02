@@ -8,7 +8,13 @@ Last Updated: 2026-09-01
 
 ## Active
 
-Nothing code-derivable from current sourcing remains queued — Phases 1-7 have all been implemented, executed against real K4, and returned null. See `docs/ROADMAP.md`'s "Ideas — not yet scheduled" for what would unblock new directions (a complete World Clock city list, a sub-minute-precision historical timestamp, or photographic documentation of the Kryptos compass rose's exact bearing) — none of these can be sourced from inside this repo.
+Nothing *code-derivable* from current sourcing remains queued — Phases 1-7 have all been implemented, executed against real K4, and returned null. What's next is sourcing three specific primary-source gaps (research done 2026-09-01, concrete leads below — see `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "Primary Sources Needed" section for full detail and sourcing rationale on each). None of these are things this repo can generate on its own.
+
+### Primary-source sourcing (NEW — 2026-09-01)
+
+- [ ] **Source a complete World Clock (148-)city list** — currently only 9 of 148 names are confirmed. Try, in order: (1) visually inspect/OCR the Wikimedia Commons `Category:Urania-Weltzeituhr` → "Details of Urania-Weltzeituhr" subcategory (27 close-up files) for legible plate text; (2) fetch German Wikipedia's `Weltzeituhr_(Alexanderplatz)` article (not yet checked, only English was); (3) read patent DE2515102A1 ("World clock with globe display") for a segment enumeration; (4) zoom into the 360cities.net panorama of the clock. Extend `kryptos.k4.world_clock_cities.CONFIRMED_CITIES` if a list is found — do not fabricate entries.
+- [ ] **Source a sub-minute-precision Nov 9 1989 timestamp** — every sourced moment (Schabowski's statement, AP flash, ARD broadcast) is whole-minute precision, which made `solar_geometry.topper_shadow_offsets()` fall back to an exhaustive sweep rather than a single derived value. Top lead: `chronik-der-mauer.de`'s dedicated Hertle article "9. November 1989, 18.00 Uhr: Schabowskis Auftritt" (blocked by bot-detection on automated fetch this session — needs a manual visit). Also: Hertle's books *Chronik des Mauerfalls* / *Sofort, unverzüglich*; the original AP wire filing's internal timestamp; ARD/rbb (Deutsches Rundfunkarchiv) broadcast archives.
+- [ ] **Source the Kryptos compass rose's actual measured bearing** — per `elonka.com/kryptos/wishlist.html`, this is a still-open community question, not just gapped in this repo. `elonka.com/kryptos/KryptosAerial.html` already has one uncertain secondary estimate (~220°, explicitly flagged "not exact"). Next steps: a FOIA request or CIA public-affairs inquiry for a measured bearing or high-res overhead photo; contacting Elonka Dunin directly (active community liaison to Sanborn/CIA contacts); a follow-up session with image-reading capability inspecting satellite/overhead imagery of the CIA New Headquarters Building courtyard directly.
 
 ---
 
@@ -42,7 +48,7 @@ Nothing code-derivable from current sourcing remains queued — Phases 1-7 have 
 
 ### Alphabet keyword expansion, coordinate deep-dive, candidate-text analysis — Phase 2/3 (P11–P20, 2026-08-14)
 
-> All implemented and tested; several (P13, P14, P19) subsequently superseded or extended by Phase 6's precise geodesy and geography-derived route directions. See `docs/analysis/K4_ATTACK_LANDSCAPE.md` for full parameter detail per vector.
+> All implemented and tested; several (P13, P14, P19) subsequently superseded or extended by Phase 6's precise geodesy and geography-derived route directions. See `docs/analysis/K4_ACTIVE_RESEARCH.md` for full current-state detail per vector.
 
 - [x] **P11 — Alternative keyed-alphabet keywords** — SANBORN, LANGLEY, WENDELL, NORTHEAST, BERLIN, CLOCK, SHADOW, BETWEEN, COMPASS, DIGETAL tested in the full 3-layer composite sweep. Null.
 - [x] **P12 — Misspelling-derived substitution** — K1's IQLUSION / K3's DESPARATLY swapped-letter pairs modeled as a partial keyed-alphabet definition. Null.

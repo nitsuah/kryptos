@@ -24,7 +24,9 @@ def _progress(name: str, status: str) -> None:
 def main() -> int:
     result = run_all_pending_sweeps(progress_cb=_progress)
     if result["status"] == "breakthrough":
-        print(f"\n*** BREAKTHROUGH in sweep '{result['breakthrough_sweep']}' -- see snapshot path above ***")
+        sweep = result["breakthrough_sweep"]
+        snapshot_path = result["results"][sweep]["snapshot_path"]
+        print(f"\n*** BREAKTHROUGH in sweep '{sweep}' -- snapshot: {snapshot_path} ***")
         return 1
     print(f"\nAll {len(result['sweeps_run'])} sweeps complete, all null.")
     return 0
