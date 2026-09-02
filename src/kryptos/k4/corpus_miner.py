@@ -2,7 +2,10 @@
 
 Every P1-P7 sweep writes *_NULL.json artifacts. This module loads them all,
 extracts best_candidates[].candidate_text, and runs a sliding-window n-gram
-frequency analysis over positions 0-21 (before the EAST crib at position 22).
+frequency analysis over positions 0-21 (before the EAST crib at position 21;
+see keystream_validator.K4_CRIBS's 2026-09-02 fix note -- this module's own
+ANCHOR_WINDOW already used the correct boundary, only this docstring was off
+by one).
 
 Any English fragment appearing in >3% of candidates at a consistent position
 across multiple attack types is treated as a partial-plaintext anchor.
@@ -18,26 +21,93 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-NGRAM_RANGE = (4, 6)     # n-gram sizes to analyze
+NGRAM_RANGE = (4, 6)  # n-gram sizes to analyze
 ANCHOR_WINDOW = (0, 21)  # positions to analyze (before EAST crib)
 MIN_FREQUENCY_PCT = 3.0  # minimum % of candidates to flag as anchor
 
-ENGLISH_WORDS_4_PLUS = frozenset({
-    "EAST", "WEST", "NORTH", "SOUTH", "NORT", "SOUT",
-    "LOOK", "FIND", "SEEK", "TURN", "WALK", "MOVE", "STEP",
-    "FEET", "YARD", "MILE", "INCH", "METER", "DEEP",
-    "CLUE", "CODE", "HINT", "SIGN", "MARK",
-    "DARK", "LIGHT", "SHADOW", "BELOW", "ABOVE", "UNDER",
-    "GOLD", "STONE", "ROCK", "SAND", "DUST", "DIRT",
-    "DOOR", "GATE", "WALL", "ROOM", "HALL", "ARCH",
-    "TIME", "DATE", "YEAR", "HOUR", "NOON", "DAWN",
-    "LAND", "AREA", "ZONE", "SITE", "SPOT",
-    "NEAR", "JUST", "THEN", "FROM", "INTO", "WITH",
-    "THAT", "THIS", "THEY", "HAVE", "BEEN", "WERE",
-    "WHEN", "WHERE", "WHAT", "HERE", "THERE",
-    "BETWEEN", "BURIED", "HIDDEN", "LOCATED", "FOUND",
-    "IQLUSION", "DIGETAL", "SANBORN", "LANGLEY",
-})
+ENGLISH_WORDS_4_PLUS = frozenset(
+    {
+        "EAST",
+        "WEST",
+        "NORTH",
+        "SOUTH",
+        "NORT",
+        "SOUT",
+        "LOOK",
+        "FIND",
+        "SEEK",
+        "TURN",
+        "WALK",
+        "MOVE",
+        "STEP",
+        "FEET",
+        "YARD",
+        "MILE",
+        "INCH",
+        "METER",
+        "DEEP",
+        "CLUE",
+        "CODE",
+        "HINT",
+        "SIGN",
+        "MARK",
+        "DARK",
+        "LIGHT",
+        "SHADOW",
+        "BELOW",
+        "ABOVE",
+        "UNDER",
+        "GOLD",
+        "STONE",
+        "ROCK",
+        "SAND",
+        "DUST",
+        "DIRT",
+        "DOOR",
+        "GATE",
+        "WALL",
+        "ROOM",
+        "HALL",
+        "ARCH",
+        "TIME",
+        "DATE",
+        "YEAR",
+        "HOUR",
+        "NOON",
+        "DAWN",
+        "LAND",
+        "AREA",
+        "ZONE",
+        "SITE",
+        "SPOT",
+        "NEAR",
+        "JUST",
+        "THEN",
+        "FROM",
+        "INTO",
+        "WITH",
+        "THAT",
+        "THIS",
+        "THEY",
+        "HAVE",
+        "BEEN",
+        "WERE",
+        "WHEN",
+        "WHERE",
+        "WHAT",
+        "HERE",
+        "THERE",
+        "BETWEEN",
+        "BURIED",
+        "HIDDEN",
+        "LOCATED",
+        "FOUND",
+        "IQLUSION",
+        "DIGETAL",
+        "SANBORN",
+        "LANGLEY",
+    }
+)
 
 
 def _load_artifact(path: Path) -> dict[str, Any] | None:
@@ -77,11 +147,13 @@ def mine_candidate_corpus(
     if search_dir:
         search_dirs.append(Path(search_dir))
     else:
-        search_dirs.extend([
-            Path("."),
-            Path("artifacts"),
-            Path("../artifacts"),
-        ])
+        search_dirs.extend(
+            [
+                Path("."),
+                Path("artifacts"),
+                Path("../artifacts"),
+            ]
+        )
 
     artifact_files: list[Path] = []
     for d in search_dirs:
@@ -125,7 +197,7 @@ def mine_candidate_corpus(
                     ngram_counts[key] = ngram_counts.get(key, 0) + 1
 
     min_count = max(1, math.ceil(n_candidates * MIN_FREQUENCY_PCT / 100))
-    frequent_grams = [
+    frequent_grams: list[dict[str, Any]] = [
         {
             "position": pos,
             "ngram": gram,
@@ -172,6 +244,7 @@ def run_corpus_miner_attack(
 
     try:
         from pathlib import Path as _Path
+
         _Path(null_artifact_path).write_text(json.dumps(result, indent=2))
     except Exception:  # noqa: BLE001
         pass

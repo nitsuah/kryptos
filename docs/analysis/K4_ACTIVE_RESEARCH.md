@@ -15,8 +15,8 @@ This document tracks what is currently known, what has been tested and ruled out
 | Fact | Evidence | Source |
 |------|----------|--------|
 | K4 is 97 chars: `OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR` | Sculpture transcription | Community |
-| Plaintext at 0-indexed 22–25 = EAST | Sanborn confirmed | 2023 |
-| Plaintext at 0-indexed 26–34 = NORTHEAST | Sanborn confirmed | 2020 |
+| Plaintext at 0-indexed 21–24 = EAST | Sanborn confirmed | 2023 |
+| Plaintext at 0-indexed 25–33 = NORTHEAST | Sanborn confirmed | 2020 |
 | Plaintext contains BERLIN | Sanborn confirmed | 2010 |
 | Plaintext contains CLOCK (follows BERLIN) | Sanborn confirmed | 2014 |
 | BERLIN ciphertext = NYPVTT at 0-indexed 63–68 | Deduced from community position | Community |
@@ -90,15 +90,17 @@ substituted-but-not-transposed text
 plaintext
 ```
 
-**Key insight:** The 13 characters at K4 positions 22–34 (LRVQQPRNGKSSO) that produce EASTNORTHEAST under some key were NOT contiguous in the pre-transposition text. The transposition pulled them from scattered positions. Reversing the transposition first is the prerequisite for clean substitution key recovery.
+**Key insight:** The 13 characters at K4 positions 21–33 (FLRVQQPRNGKSS) that produce EASTNORTHEAST under some key were NOT contiguous in the pre-transposition text. The transposition pulled them from scattered positions. Reversing the transposition first is the prerequisite for clean substitution key recovery.
+
+*(2026-09-02: this section previously read positions 22–34/LRVQQPRNGKSSO and a different keystream — that was the same one-position-high bug fixed in `keystream_validator.K4_CRIBS`; see "External Developments" below. Values below are corrected.)*
 
 ### Derived Keystreams (Vigenère-equivalent per-position shifts)
 
 Assuming pure Vigenère at the substitution layer (before transposition):
 
 ```
-EAST (pos 22–25):      keystream = HRDX  (shifts: 7, 17, 3, 23)
-NORTHEAST (pos 26–34): keystream = DBAUZGSAV  (shifts: 3, 1, 0, 20, 25, 6, 18, 0, 21)
+EAST (pos 21–24):      keystream = BLZC  (shifts: 1, 11, 25, 2)
+NORTHEAST (pos 25–33):  keystream = DCYYGCKAZ  (shifts: 3, 2, 24, 24, 6, 2, 10, 0, 25)
 BERLIN (pos 63–68):    keystream = MUYKLG  (shifts: 12, 20, 24, 10, 11, 6)
 CLOCK (pos 69–73):     keystream = KORNA  (shifts: 10, 14, 17, 13, 0)
 ```
@@ -243,22 +245,24 @@ These three directions are structurally distinct but lower-probability given the
 
 ## Position Reference Quick Table
 
-All 0-indexed within K4 string starting with `OBKRUOXO...`:
+All 0-indexed within K4 string starting with `OBKRUOXO...`.
+
+**2026-09-02 correction:** this table previously marked position 22 as the start of the `EAST` window and 26 as the start of `NORTHEAST` — both one position too high. That error was not just in this table; it was the same bug live in `keystream_validator.K4_CRIBS` and duplicated in `key_csp.py`/`clock_hill_attack.py`, now fixed everywhere (see "External Developments" below). Corrected below.
 
 ```
-Position  22: L   ← start of EAST crib window
+Position  21: F   ← start of EAST crib window
+Position  22: L
 Position  23: R
-Position  24: V
-Position  25: Q   ← end of EAST
-Position  26: Q   ← start of NORTHEAST crib window
+Position  24: V   ← end of EAST
+Position  25: Q   ← start of NORTHEAST crib window
+Position  26: Q
 Position  27: P
 Position  28: R
 Position  29: N
 Position  30: G
 Position  31: K
 Position  32: S
-Position  33: S
-Position  34: O   ← end of NORTHEAST
+Position  33: S   ← end of NORTHEAST
 ...
 Position  63: N   ← start of BERLIN (1-indexed 64)
 Position  64: Y
@@ -279,9 +283,9 @@ Position  73: K   ← end of CLOCK
 
 | File | Issue | Correct Value |
 |------|-------|---------------|
-| `CONTRIBUTING.md` | `'NORTHEAST': [25]` in positional_cribs | Should be `[26]` |
-| `CONTRIBUTING.md` | `'BERLIN': [64]` in positional_cribs | Should be `[63]` |
-| `docs/archive/K4-CLOCKS.html` (archived) | States NYPVTTMZF at "positions 26–34" | NYPVTTMZF is at 0-indexed 63–71; cipher at 26–34 is QPRNGKSSO |
+| `CONTRIBUTING.md` (no longer exists in this repo) | `'NORTHEAST': [25]` in positional_cribs | **Correction, 2026-09-02:** `[25]` was actually right; this table's own "should be `[26]`" was itself wrong — see the position-table fix above and `keystream_validator.K4_CRIBS`'s 2026-09-02 note. Kept here only as a historical record of the confusion, not a live issue (the file is gone). |
+| `CONTRIBUTING.md` (no longer exists in this repo) | `'BERLIN': [64]` in positional_cribs | This one *was* a real fix — `[63]` is correct, confirmed again by the same 2026-09-02 investigation. |
+| `docs/archive/K4-CLOCKS.html` (archived) | States NYPVTTMZF at "positions 26–34" | NYPVTTMZF is BERLIN+CLOCK's ciphertext, at 0-indexed 63–73 (BERLIN 63–68, CLOCK 69–73); cipher at 25–33 is QQPRNGKSS (NORTHEAST) |
 
 ---
 
@@ -320,7 +324,7 @@ The `GEOMETRIC_POSITIONAL_TRANSFORM -> SUBSTITUTION_LAYER` edge is what the comb
 
 Two external sources were checked independently — neither is accepted on the source's own say-so:
 
-- **solvekryptos.com/fieldguide** claims a complete K4 plaintext (`"THE COMPASS ROSE IS HERE X EAST NORTHEAST THIS IS YOUR POSITION X COMMISSION BERLIN CLOCK WHICH IS NORTHEAST OF HERE X"`) via an undisclosed Quagmire-III-variant (f-table/g-table values not published, so the mechanism itself isn't independently reproducible here). Checked against the confirmed crib positions with `X` counted as a literal character — the only way the claim reaches K4's exact 97-character length: **`BERLIN` and `CLOCK` land exactly at the confirmed positions (63, 69), but `EAST` and `NORTHEAST` are off by exactly one position** (found at 21/25, not 22/26). Verdict: **fails strict positional validation at 2 of 4 confirmed anchors** — reproducible via `kryptos.k4.validation.benchmark_external_candidate("solvekryptos_field_guide")`. This is a partial, specific disagreement (not a clean match, not a clean miss) and is recorded as such rather than as either an endorsement or a dismissal.
+- **solvekryptos.com/fieldguide** claims a complete K4 plaintext (`"THE COMPASS ROSE IS HERE X EAST NORTHEAST THIS IS YOUR POSITION X COMMISSION BERLIN CLOCK WHICH IS NORTHEAST OF HERE X"`) via an undisclosed Quagmire-III-variant (f-table/g-table values not published, so the mechanism itself isn't independently reproducible here). Checked against the confirmed crib positions with `X` counted as a literal character — the only way the claim reaches K4's exact 97-character length: **all four anchors — `EAST`, `NORTHEAST`, `BERLIN`, `CLOCK` — land exactly at the confirmed positions (21, 25, 63, 69), zero offset.** Verdict: **passes strict positional validation at all 4 confirmed anchors** — reproducible via `kryptos.k4.validation.benchmark_external_candidate("solvekryptos_field_guide")`. (2026-09-02: this previously reported `EAST`/`NORTHEAST` as off by one position — that was a real bug in this repo's own `keystream_validator.K4_CRIBS`, not a discrepancy in the candidate; see "External Developments" below for the full story.) A clean anchor match validates the claimed *plaintext's* positional alignment only — it says nothing about the claimed *mechanism* (Quagmire III, physical tableau keystream, one-bit gate), which remains unpublished in enough detail to reproduce independently.
 - **kryptosbot.com/findings** proposes no candidate plaintext (13,302 audited candidates, zero survive verification per the source) — used as a corroborating negative-result cross-reference (its eliminated cipher families overlap heavily with the Ruled Out table above) and as the source of two structural diagnostics now available for future candidates: `check_w_delimiter_pattern` and `check_stehle_anomaly`. Run against real K4: five `W` characters at 0-indexed positions `[20, 36, 48, 58, 74]` (matches the source's "five W characters" description); the letter-to-letter shift sequence in the ciphertext window at positions 55–63 (`DIAWINFB`) is `[5, 18, 22, 12, 5, 18, 22]` — **not constant, but period-4** (indices 0–2 repeat exactly at indices 4–6). Neither diagnostic asserts a theory is true; both are reusable, honest observations pending a precise definition of kryptosbot's own methodology (not available from the page fetched).
 
 ### External Developments (2025–2026)
@@ -329,9 +333,9 @@ Real-world events since this document's last update materially change the contex
 
 - **Sanborn's own 1990 archival papers were found, September 2025.** Researchers Jarett Kobek and Richard Byrne located Jim Sanborn's working materials — sentence strips he'd cut up and taped out of order for CIA verification — in the Smithsonian's Archives of American Art, and pieced together what they believe is K4's complete plaintext by cross-referencing the fragments against Sanborn's public clues. Both are explicit this is **not a cryptographic solve**: "There's no way on earth that this is a cryptographic solve, and we have not claimed that" (Kobek). Sourced: [Scientific American](https://www.scientificamerican.com/article/how-the-cias-kryptos-sculpture-gave-up-its-final-secret/), [RR Auction's own account](https://content.rrauction.com/kryptos-k4-discovered-not-solved-heres-what-actually-happened/).
 - **A real, Sanborn-confirmed K5 exists.** Publicized via the November 2025 auction of Sanborn's archive materials: a second 97-character message, thematically cued by K2's own line ("it's buried out there somewhere"), to be released once K4 is *cryptographically* — not archivally — solved. This directly corrects the old K4-T1.md archive banner and the line above; see [Washington Post](https://www.washingtonpost.com/entertainment/art/2025/11/01/kryptos-code-jim-sanborn-k5-auction/).
-- **Paradigm (a crypto firm) won the November 2025 auction** and now runs a verification/escrow program: it holds the recovered plaintext privately and lets independent submissions be checked via one-way cryptographic functions without revealing the answer. Sourced: [paradigm.xyz/writing/kryptos](https://www.paradigm.xyz/writing/kryptos).
-- **The `solvekryptos_field_guide` benchmark above already found a real, specific discrepancy worth re-stating precisely**, now cross-checked by hand against the site's own claimed mechanism (Quagmire III, KRYPTOS-keyed, physical tableau keystream, one-bit gate — [solvekryptos.com/solution](https://solvekryptos.com/solution)): `EAST` and `NORTHEAST` are both found exactly **one position early** (21/25 vs. the confirmed 22/26), while `BERLIN` and `CLOCK` land exactly on the confirmed positions (63/69) with zero offset. That means the claimed plaintext's opening segment — `"THE COMPASS ROSE IS HERE X"` (21 characters, X counted literally) — is exactly **one character short** of the 22 characters needed to put `EAST` at its confirmed position, and something in the ~29-character middle stretch between `NORTHEAST` and `BERLIN` (`"THIS IS YOUR POSITION X COMMISSION"`) makes up the missing character before `BERLIN`, since that anchor and `CLOCK` land exactly right. This is a specific, well-defined, checkable gap — not a vague mismatch — and is exactly the kind of thing worth putting to Elonka Dunin or the solvekryptos.com maintainers directly rather than guessing at. No fix is proposed here; the discrepancy is recorded, not resolved.
-- **Net effect on this project:** the archival plaintext recovery, even if fully correct, does not by itself explain *how* K4 encrypts to that plaintext — the cryptographic mechanism remains the open question this project exists to answer, and Sanborn's own confirmed plaintext opens with "THE COMPASS ROSE IS HERE" and closes with "WHICH IS NORTHEAST OF HERE" — read literally, this is external, independent corroboration that the compass-rose bearing (Phase 8's second open primary-source gap, below) is not a speculative angle but the sculpture's own stated subject.
+- **Paradigm (a crypto firm) won the November 2025 auction** and now runs an automated verifier over the recovered plaintext — but does not hold the plaintext itself. Per Paradigm's own account: Sanborn entered the plaintext on a dedicated device, "the plaintext never left the device, and we wiped the laptop afterward"; only a SHA-256 hash of it, and an HMAC generated from that hash via Google Cloud KMS, ever reached Paradigm. Submissions are checked against those cryptographic commitments — "an automated system that verifies submissions without us ever seeing the answer." Not an escrow (Paradigm never possesses the answer to escrow). Sourced: [paradigm.xyz/writing/kryptos](https://www.paradigm.xyz/writing/kryptos).
+- **A real bug in this repo's own crib database, found and fixed 2026-09-02.** The `solvekryptos_field_guide` benchmark above previously reported `EAST`/`NORTHEAST` as landing one position early against this project's own confirmed crib positions. Investigating that claim (prompted by a CodeRabbit review comment questioning it) found the *claim* was right and this repo's own `keystream_validator.K4_CRIBS` was wrong: `EAST` and `NORTHEAST` had been stored at positions 22/26 since this constant's introduction, one higher than their real 0-indexed ciphertext positions (21/25) — confirmed three independent ways: direct `K4.find()` search against the real ciphertext substrings (`FLRV`, `QQPRNGKSS`), the project's own `annotate_cribs()` utility, and an already-existing (but previously unenforced) independent test in `test_k4_cribs.py`. `BERLIN`/`CLOCK` (63/69) were already correct. `K4_CRIBS` is the gating predicate `validation.py` itself calls "for all structural attack strategies" — the bug was also independently duplicated in `key_csp.py`'s `CRIB_SHIFTS` and `clock_hill_attack.py`'s positional gate, both now fixed alongside it, plus stale position references in `corpus_miner.py`, `alt_keywords.py`, `quagmire_sweep.py`, and every test that plants a synthetic full-match candidate. Practically, this almost certainly changed no sweep's null verdict (achieving all 4 cribs by chance is vanishingly unlikely regardless of a 1-position shift, and no historical sweep came close), but it was checking the wrong ciphertext index for 2 of the 4 gating cribs this whole project's history — worth knowing, not worth re-running the old sweeps over.
+- **Net effect on this project:** the archival plaintext recovery, even if fully correct, does not by itself explain *how* K4 encrypts to that plaintext — the cryptographic mechanism remains the open question this project exists to answer. `solvekryptos.com`'s claimed mechanism is still unpublished in enough detail to reproduce (see the benchmark note above); only its plaintext's positional alignment is now confirmed clean. Sanborn's own confirmed plaintext opens with "THE COMPASS ROSE IS HERE" and closes with "WHICH IS NORTHEAST OF HERE" — read literally, this is external, independent corroboration that the compass-rose bearing (Phase 8's second open primary-source gap, below) is not a speculative angle but the sculpture's own stated subject.
 
 ### Combined sweep results
 

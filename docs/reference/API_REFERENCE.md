@@ -240,7 +240,7 @@ from kryptos.k4.keystream_validator import (
 )
 ```
 
-Confirmed crib positions (0-indexed): EAST 22–25, NORTHEAST 26–34, BERLIN 63–68, CLOCK 69–73.
+Confirmed crib positions (0-indexed): EAST 21–24, NORTHEAST 25–33, BERLIN 63–68, CLOCK 69–73.
 
 ---
 

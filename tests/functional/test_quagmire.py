@@ -117,8 +117,8 @@ class TestRoundTrips:
 class TestPositionalCribHits:
     def test_full_match(self):
         plaintext = list("X" * 97)
-        plaintext[22:26] = "EAST"
-        plaintext[26:35] = "NORTHEAST"
+        plaintext[21:25] = "EAST"
+        plaintext[25:34] = "NORTHEAST"
         plaintext[63:69] = "BERLIN"
         plaintext[69:74] = "CLOCK"
         assert positional_crib_hits("".join(plaintext)) == 4
@@ -156,8 +156,8 @@ class TestQuagmireSweep:
 
     def test_eureka_on_planted_solution(self, tmp_path):
         plaintext = list("A" * 97)
-        plaintext[22:26] = "EAST"
-        plaintext[26:35] = "NORTHEAST"
+        plaintext[21:25] = "EAST"
+        plaintext[25:34] = "NORTHEAST"
         plaintext[63:69] = "BERLIN"
         plaintext[69:74] = "CLOCK"
         planted_ct = quagmire3_encrypt("".join(plaintext), "BERLIN", "KRYPTOS")

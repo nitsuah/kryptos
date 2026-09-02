@@ -8,8 +8,8 @@ from kryptos.k4.physical_grid import K4
 
 def _planted_text() -> str:
     text = list("A" * 97)
-    text[22:26] = "EAST"
-    text[26:35] = "NORTHEAST"
+    text[21:25] = "EAST"
+    text[25:34] = "NORTHEAST"
     text[63:69] = "BERLIN"
     text[69:74] = "CLOCK"
     return "".join(text)
@@ -69,20 +69,21 @@ class TestExternalCandidateBenchmark:
     def test_field_guide_registered(self):
         assert "solvekryptos_field_guide" in v.EXTERNAL_CANDIDATES
 
-    def test_field_guide_fails_strict_validation(self):
+    def test_field_guide_passes_strict_validation(self):
+        # 2026-09-02: this candidate was reported as failing 2 of 4 anchors
+        # (EAST/NORTHEAST off by one), which held only because K4_CRIBS
+        # itself stored those two positions one too high -- a bug fixed the
+        # same day (see keystream_validator.K4_CRIBS's fix note). Once the
+        # canonical positions were corrected, this candidate passes cleanly.
         result = v.benchmark_external_candidate("solvekryptos_field_guide")
-        assert result["verdict"] == "fails_strict_validation"
-        assert result["exact_positional_hits"] == 2
+        assert result["verdict"] == "passes_strict_validation"
+        assert result["exact_positional_hits"] == 4
 
-    def test_field_guide_berlin_and_clock_exact(self):
+    def test_field_guide_all_anchors_exact(self):
         result = v.benchmark_external_candidate("solvekryptos_field_guide")
-        assert result["per_crib"]["BERLIN"]["exact_match"] is True
-        assert result["per_crib"]["CLOCK"]["exact_match"] is True
-
-    def test_field_guide_east_northeast_off_by_one(self):
-        result = v.benchmark_external_candidate("solvekryptos_field_guide")
-        assert result["per_crib"]["EAST"]["offset_from_expected"] == -1
-        assert result["per_crib"]["NORTHEAST"]["offset_from_expected"] == -1
+        for label in ("EAST", "NORTHEAST", "BERLIN", "CLOCK"):
+            assert result["per_crib"][label]["exact_match"] is True
+            assert result["per_crib"][label]["offset_from_expected"] == 0
 
     def test_normalized_length_matches_k4(self):
         result = v.benchmark_external_candidate("solvekryptos_field_guide")

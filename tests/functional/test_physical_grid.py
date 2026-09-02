@@ -85,8 +85,8 @@ class TestPhysicalGridAttack:
         # Plant a solution encrypted with a known tableau row as the keystream
         keystream = "".join(build_tableau("KRYPTOS")[5])  # route row_05
         plaintext = list("A" * 97)
-        plaintext[22:26] = "EAST"
-        plaintext[26:35] = "NORTHEAST"
+        plaintext[21:25] = "EAST"
+        plaintext[25:34] = "NORTHEAST"
         plaintext[63:69] = "BERLIN"
         plaintext[69:74] = "CLOCK"
         planted_ct = quagmire3_encrypt("".join(plaintext), keystream, "KRYPTOS")

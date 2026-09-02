@@ -4,8 +4,10 @@ Breadcrumb: Home > Docs > Analysis > Keystream
 
 
 **Status:** Active research finding
-**Last Updated:** 2026-09-01
+**Last Updated:** 2026-09-02
 **Evidence Level:** High — derived directly from Sanborn's confirmed cribs against the K4 ciphertext
+
+**2026-09-02 correction:** this document's EAST/NORTHEAST positions and every keystream derived from them were wrong by one position throughout — the same bug fixed in `keystream_validator.K4_CRIBS` and traced to independent duplicates in `key_csp.py` and `clock_hill_attack.py` (see `K4_ACTIVE_RESEARCH.md`'s "External Developments (2025–2026)" section for the full story of how this was found). BERLIN/CLOCK were already correct throughout. All values below are corrected and re-verified directly against the real K4 ciphertext.
 
 ---
 
@@ -23,12 +25,12 @@ Sanborn's publicly confirmed plaintext anchors (0-indexed within K4):
 
 | Position (0-idx) | Cipher | Plain     | Source / Date        |
 |------------------|--------|-----------|----------------------|
-| 22–25            | LRVQ   | EAST      | Sanborn clue, 2023   |
-| 26–34            | QPRNGKSSO | NORTHEAST | Sanborn clue, 2020  |
+| 21–24            | FLRV   | EAST      | Sanborn clue, 2023   |
+| 25–33            | QQPRNGKSS | NORTHEAST | Sanborn clue, 2020  |
 | 63–68            | NYPVTT | BERLIN    | Sanborn clue, 2010   |
 | 69–73            | MZFPK  | CLOCK     | Sanborn clue, 2014   |
 
-> **Index note:** Community sources and some docs in this repo label these positions as 1-indexed (26–34 → 1-indexed 27–35, etc.). The values above use Python 0-indexed convention consistently.  The K4-CLOCKS.html document incorrectly labels NYPVTTMZF as being at "positions 26–34"; the actual 0-indexed location of that ciphertext is 63–71.  The CONTRIBUTING.md quick-start code lists `'NORTHEAST': [25]` and `'BERLIN': [64]` which are off by one; the correct 0-indexed starts are **26** and **63** respectively.
+> **Index note:** Community sources and some docs in this repo label these positions as 1-indexed (25–33 → 1-indexed 26–34, etc.). The values above use Python 0-indexed convention consistently. The K4-CLOCKS.html document incorrectly labels NYPVTTMZF as being at "positions 26–34"; NYPVTTMZF is BERLIN+CLOCK's ciphertext, actually at 0-indexed 63–73. The old CONTRIBUTING.md quick-start code (no longer in this repo) listed `'NORTHEAST': [25]` and `'BERLIN': [64]`; **`[25]` for NORTHEAST was correct all along** (this document's own table above previously said otherwise — see the 2026-09-02 correction note up top), and `[64]` for BERLIN was genuinely wrong, correct 0-indexed start is **63**.
 
 ---
 
@@ -40,45 +42,45 @@ If any substitution layer in K4 operates like Vigenère (cipher = plain + key mo
 key[i] = (cipher_ord[i] - plain_ord[i]) mod 26
 ```
 
-### EAST window (positions 22–25)
+### EAST window (positions 21–24)
 
 | Pos | Cipher | Plain | key = (C−P) mod 26 | Key letter |
 |-----|--------|-------|--------------------|------------|
-| 22  | L (11) | E (4) | 7                  | H          |
-| 23  | R (17) | A (0) | 17                 | R          |
-| 24  | V (21) | S (18)| 3                  | D          |
-| 25  | Q (16) | T (19)| 23                 | X          |
+| 21  | F (5)  | E (4) | 1                  | B          |
+| 22  | L (11) | A (0) | 11                 | L          |
+| 23  | R (17) | S (18)| 25                 | Z          |
+| 24  | V (21) | T (19)| 2                  | C          |
 
-**EAST keystream: `HRDX` → shifts [7, 17, 3, 23]**
+**EAST keystream: `BLZC` → shifts [1, 11, 25, 2]**
 
-### NORTHEAST window (positions 26–34)
+### NORTHEAST window (positions 25–33)
 
 | Pos | Cipher | Plain | key = (C−P) mod 26 | Key letter |
 |-----|--------|-------|--------------------|------------|
-| 26  | Q (16) | N (13)| 3                  | D          |
-| 27  | P (15) | O (14)| 1                  | B          |
-| 28  | R (17) | R (17)| 0                  | A          |
-| 29  | N (13) | T (19)| 20                 | U          |
-| 30  | G (6)  | H (7) | 25                 | Z          |
-| 31  | K (10) | E (4) | 6                  | G          |
-| 32  | S (18) | A (0) | 18                 | S          |
-| 33  | S (18) | S (18)| 0                  | A          |
-| 34  | O (14) | T (19)| 21                 | V          |
+| 25  | Q (16) | N (13)| 3                  | D          |
+| 26  | Q (16) | O (14)| 2                  | C          |
+| 27  | P (15) | R (17)| 24                 | Y          |
+| 28  | R (17) | T (19)| 24                 | Y          |
+| 29  | N (13) | H (7) | 6                  | G          |
+| 30  | G (6)  | E (4) | 2                  | C          |
+| 31  | K (10) | A (0) | 10                 | K          |
+| 32  | S (18) | S (18)| 0                  | A          |
+| 33  | S (18) | T (19)| 25                 | Z          |
 
-**NORTHEAST keystream: `DBAUZGSAV` → shifts [3, 1, 0, 20, 25, 6, 18, 0, 21]**
+**NORTHEAST keystream: `DCYYGCKAZ` → shifts [3, 2, 24, 24, 6, 2, 10, 0, 25]**
 
-### Combined 13-character window (positions 22–34)
+### Combined 13-character window (positions 21–33)
 
 Reading EAST first, then NORTHEAST:
 ```
-Keystream: H R D X D B A U Z G S A V
-Shifts:   [7,17,3,23,3,1,0,20,25,6,18,0,21]
+Keystream: B L Z C D C Y Y G C K A Z
+Shifts:   [1,11,25,2,3,2,24,24,6,2,10,0,25]
 ```
 
 Reading in the order the other agent analysis presented (NORTHEAST then EAST):
 ```
-Keystream: D B A U Z G S A V H R D X
-Shifts:   [3,1,0,20,25,6,18,0,21,7,17,3,23]
+Keystream: D C Y Y G C K A Z B L Z C
+Shifts:   [3,2,24,24,6,2,10,0,25,1,11,25,2]
 ```
 
 ---
@@ -87,7 +89,7 @@ Shifts:   [3,1,0,20,25,6,18,0,21,7,17,3,23]
 
 ### 3.1 Single-layer repeating Vigenère
 
-Running `DBAUZGSAVHRDX` (or any rotation of the 13-char window) as a repeating Vigenère key against the full 97-char K4 ciphertext does **not** produce English plaintext outside the crib window. A real Vigenère key that repeats would produce consistently English-like output everywhere. Negative result is confirmed.
+Running `DCYYGCKAZBLZC` (or any rotation of the corrected 13-char window) as a repeating Vigenère key against the full 97-char K4 ciphertext does **not** produce English plaintext outside the crib window. A real Vigenère key that repeats would produce consistently English-like output everywhere. Negative result is confirmed — and was already guaranteed by the Phase 1 exhaustive sweep of every repeating-key length 1–20 (see `docs/ROADMAP.md`'s Phase 1), which covers length-13 keys generally, not just this specific derived string.
 
 ### 3.2 Direct Berlin Clock keying
 
@@ -97,7 +99,7 @@ The Berlin Clock rows produce values bounded by:
 - 5-minute row: 0–11
 - 1-minute row: 0–4
 
-The observed keystream shifts [7, 17, 3, 23, 3, 1, 0, 20, 25, 6, 18, 0, 21] include values of 7, 17, 20, 25, 18, 21 that **exceed the maximum Berlin Clock row value of 11**. No direct mapping of a single clock reading to these shifts is possible. Enumeration of all 720 clock states (12 hr × 60 min) as Vigenère keys against K4 was run; no state produces EAST or NORTHEAST at the confirmed positions.
+The observed keystream shifts [1, 11, 25, 2, 3, 2, 24, 24, 6, 2, 10, 0, 25] include values of 25, 24, 24, 25 that **exceed the maximum Berlin Clock row value of 11**. No direct mapping of a single clock reading to these shifts is possible. Enumeration of all 720 clock states (12 hr × 60 min) as Vigenère keys against K4 was run; no state produces EAST or NORTHEAST at the confirmed positions.
 
 ### 3.3 Clock-shifted or scaled values
 
@@ -132,7 +134,7 @@ plaintext → [substitution layer] → [transposition layer] → K4 ciphertext
 1. A substitution (polyalphabetic or matrix) applied to the plaintext
 2. A transposition applied to the substituted text to produce the ciphertext
 
-The EASTNORTHEAST window (positions 22–34 of the ciphertext) contains characters that were pulled from **different, non-contiguous positions** of the pre-transposition text by the transposition step. This means the 13-char keystream HRDXDBAUZGSAV encodes the substitution shifts of characters that were originally scattered across the pre-transposition plaintext/substituted-text, not adjacent.
+The EASTNORTHEAST window (positions 21–33 of the ciphertext) contains characters that were pulled from **different, non-contiguous positions** of the pre-transposition text by the transposition step. This means the 13-char keystream BLZCDCYYGCKAZ encodes the substitution shifts of characters that were originally scattered across the pre-transposition plaintext/substituted-text, not adjacent.
 
 **Consequence for search:** Brute-forcing the substitution key against the raw ciphertext and validating EAST/NORTHEAST is valid IF the transposition is applied after. But recovering the substitution key from the crib requires first undoing the transposition.
 
@@ -146,7 +148,7 @@ The core attack strategy: if we can identify the correct transposition permutati
 - The keystream at those positions in the pre-transposition text reveals the **actual substitution key pattern**
 - If the key is a recognizable word/phrase or a Berlin Clock reading, we solve K4
 
-**Target:** Find the transposition permutation P such that after inverting it, the keystream at EAST+NORTHEAST positions collapses from high-entropy HRDXDBAUZGSAV into a recognizable key structure (a word, a clock state, a keyed-alphabet output).
+**Target:** Find the transposition permutation P such that after inverting it, the keystream at EAST+NORTHEAST positions collapses from high-entropy BLZCDCYYGCKAZ into a recognizable key structure (a word, a clock state, a keyed-alphabet output).
 
 ---
 
@@ -158,7 +160,7 @@ The core attack strategy: if we can identify the correct transposition permutati
 
 ### ✅ 7.2 Keyed Alphabet Realignment — COMPLETE, NULL RESULT
 
-`check_keyed_alphabet_realignment` tested KRYPTOS, PALIMPSEST, and ABSCISSA alphabets. The effective keystream at positions 22–34 does not resolve to a recognizable pattern (clock state, keyword, or bounded-value vector) under any of them.
+`check_keyed_alphabet_realignment` tested KRYPTOS, PALIMPSEST, and ABSCISSA alphabets. The effective keystream at positions 21–33 does not resolve to a recognizable pattern (clock state, keyword, or bounded-value vector) under any of them.
 
 ### ✅ 7.3 InstructionalScorer — COMPLETE
 

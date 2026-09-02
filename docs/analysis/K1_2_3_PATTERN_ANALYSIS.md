@@ -11,7 +11,7 @@ Analyzed 13 patterns across K1, K2, and K3. These patterns inform our K4 attack 
 
 ## CIPHER PATTERNS
 
-### 'NORTHEAST' clue (2020) - characters 26-34
+### 'NORTHEAST' clue (2020) - characters 25-33
 
 **Confidence:** 1.00
 
@@ -19,7 +19,7 @@ Analyzed 13 patterns across K1, K2, and K3. These patterns inform our K4 attack 
 
 - Sanborn confirmed 'NORTHEAST' appears in K4
 
-**K4 Hypothesis:** Known plaintext: chars 26-34 = 'NORTHEAST'. This gives us a known-plaintext attack anchor point. Combined with 'BERLIN' theme from K3, suggests Cold War espionage angle. Try ciphers where we can lock in NORTHEAST and work outward.
+**K4 Hypothesis:** Known plaintext: chars 25-33 = 'NORTHEAST'. This gives us a known-plaintext attack anchor point. Combined with 'BERLIN' theme from K3, suggests Cold War espionage angle. Try ciphers where we can lock in NORTHEAST and work outward.
 
 ### Increasing cipher complexity across sections
 
@@ -189,7 +189,7 @@ Analyzed 13 patterns across K1, K2, and K3. These patterns inform our K4 attack 
 
 Based on K1-K3 analysis, prioritize:
 
-1. **Known-plaintext attacks** using 'NORTHEAST' (chars 26-34)
+1. **Known-plaintext attacks** using 'NORTHEAST' (chars 25-33)
 2. **Spelling-aware search** - expect Q↔I, U↔O substitutions
 3. **Thematic cribs** - Try 'BERLIN', 'CLOCK', Cold War terms
 4. **Poetry/artistic validation** - SPY NLP to detect Sanborn's style

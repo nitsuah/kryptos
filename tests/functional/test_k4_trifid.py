@@ -67,8 +67,8 @@ class TestNullResultArtifact:
 class TestEurekaOnPlantedSolution:
     def test_eureka_on_planted_solution(self, tmp_path):
         plaintext_chars = list("A" * 97)
-        plaintext_chars[22:26] = "EAST"
-        plaintext_chars[26:35] = "NORTHEAST"
+        plaintext_chars[21:25] = "EAST"
+        plaintext_chars[25:34] = "NORTHEAST"
         plaintext_chars[63:69] = "BERLIN"
         plaintext_chars[69:74] = "CLOCK"
         plaintext = "".join(plaintext_chars)

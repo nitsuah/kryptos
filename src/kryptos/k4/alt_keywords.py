@@ -8,7 +8,7 @@ Candidate rationale:
   LANGLEY   — CIA HQ location (appears in K2 plaintext)
   SCHEIDT   — Ed Scheidt, CIA cryptographer who designed K4 with Sanborn
   WENDELL   — Sanborn's middle name; used in some Kryptos analyses
-  NORTHEAST — confirmed K4 crib at positions 26-34
+  NORTHEAST — confirmed K4 crib at positions 25-33
   BERLIN    — confirmed K4 crib at positions 63-68
   CLOCK     — confirmed K4 crib at positions 69-73
   SHADOW    — public Sanborn clue: "go between the lines" / shadow direction

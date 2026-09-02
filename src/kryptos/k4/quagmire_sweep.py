@@ -9,8 +9,8 @@ sweep tests all four Quagmire variants against K4 directly with:
   the lamp-row values [5h, 1h, 5m, 1m, sec] to tableau letters)
 - both indicator-base conventions (Kryptos first-letter and ACA ``A``)
 
-Candidates are gated on the four confirmed positional cribs (EAST@22,
-NORTHEAST@26, BERLIN@63, CLOCK@69). A null-result artifact is always written
+Candidates are gated on the four confirmed positional cribs (EAST@21,
+NORTHEAST@25, BERLIN@63, CLOCK@69). A null-result artifact is always written
 so the run is fully provenance-tracked; >=3 positional cribs or >=4 keywords
 anywhere raises EurekaSignal with a breakthrough snapshot.
 """

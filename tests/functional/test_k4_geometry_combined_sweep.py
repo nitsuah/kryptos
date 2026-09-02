@@ -23,8 +23,8 @@ def _planted_ciphertext(
     mode: str = "leading",
 ) -> tuple[str, list[int]]:
     plaintext_chars = list("A" * 97)
-    plaintext_chars[22:26] = "EAST"
-    plaintext_chars[26:35] = "NORTHEAST"
+    plaintext_chars[21:25] = "EAST"
+    plaintext_chars[25:34] = "NORTHEAST"
     plaintext_chars[63:69] = "BERLIN"
     if all_four_cribs:
         plaintext_chars[69:74] = "CLOCK"  # leave as filler "AAAAA" otherwise -> 3/4 cribs
