@@ -4,7 +4,7 @@ Breadcrumb: Home > Docs > Analysis > Keystream
 
 
 **Status:** Active research finding
-**Last Updated:** 2026-08-12
+**Last Updated:** 2026-09-01
 **Evidence Level:** High — derived directly from Sanborn's confirmed cribs against the K4 ciphertext
 
 ---

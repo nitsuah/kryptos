@@ -9,9 +9,10 @@ overnight" logic (a thin CLI/script -- see ``scripts/run_k4_overnight_sweeps.py`
 Each registered sweep is a zero-argument callable that follows this
 project's own convention: returns a summary dict on a null result, or
 raises :class:`kryptos.k4.eureka.EurekaSignal` on a genuine breakthrough.
-:func:`run_all_pending_sweeps` runs every registered sweep in order and,
-the moment any one of them raises, catches it, records it as the returned
-summary's breakthrough result, and returns immediately without running
+:func:`run_all_pending_sweeps` runs every registered sweep in order; when a
+sweep raises ``EurekaSignal`` (other exceptions are not caught and
+propagate normally), it's caught, recorded as the returned summary's
+breakthrough result, and the function returns immediately without running
 the remaining queued sweeps -- a breakthrough needs a human to look at the
 snapshot next, not another sweep started on top of it.
 """

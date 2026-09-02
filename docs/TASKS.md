@@ -48,7 +48,7 @@ Two of the three primary-source gaps opened 2026-09-01 remain open; the timestam
 
 ### Alphabet keyword expansion, coordinate deep-dive, candidate-text analysis — Phase 2/3 (P11–P20, 2026-08-14)
 
-> All implemented and tested; several (P13, P14, P19) subsequently superseded or extended by Phase 6's precise geodesy and geography-derived route directions. See `docs/analysis/K4_ACTIVE_RESEARCH.md` for full current-state detail per vector.
+> All implemented and tested; two (P13, P14 — the geodesy-related vectors) subsequently superseded or extended by Phase 6's precise geodesy and geography-derived route directions. See `docs/analysis/K4_ACTIVE_RESEARCH.md` for full current-state detail per vector.
 
 - [x] **P11 — Alternative keyed-alphabet keywords** — SANBORN, LANGLEY, WENDELL, NORTHEAST, BERLIN, CLOCK, SHADOW, BETWEEN, COMPASS, DIGETAL tested in the full 3-layer composite sweep. Null.
 - [x] **P12 — Misspelling-derived substitution** — K1's IQLUSION / K3's DESPARATLY swapped-letter pairs modeled as a partial keyed-alphabet definition. Null.

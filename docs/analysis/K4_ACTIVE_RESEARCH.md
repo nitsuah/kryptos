@@ -448,10 +448,10 @@ This is the same discipline as everywhere else in this project (verify before re
 
 | Run | Scope | Candidates | Result |
 |-----|-------|-----------|--------|
-| Confirmed city names as keyed alphabets (initial, text-sourced) | 9 confirmed names × 3 grid widths × 2 priority clock states | 9,720 | Null |
-| Confirmed city names as keyed alphabets (expanded, 5-photo pass) | 104 confirmed names × 3 grid widths × 2 priority clock states | 112,320 | Null |
-| Confirmed city names as keyed alphabets (expanded further, 7-photo pass) | 119 confirmed names × 3 grid widths × 2 priority clock states | 128,520 | Null |
-| Sourced structural counts as rotation offsets | `{146 mod 24, 147 mod 24, 24 mod 24}` = `{2, 3, 0}` | 155,520 | Null |
+| Confirmed city names as keyed alphabets (initial, text-sourced) | 9 confirmed names × 3 grid widths (7/8/10) × 3 clock states (2 CIA-priority + 1 from the day-loop's `00:00:00`) × 120 perms/grid | 9,720 | Null |
+| Confirmed city names as keyed alphabets (expanded, 5-photo pass) | Same scope, 104 confirmed names | 112,320 | Null |
+| Confirmed city names as keyed alphabets (expanded further, 7-photo pass) | Same scope, 119 confirmed names | 128,520 | Null |
+| Sourced structural counts as rotation offsets | Full `geometry_combined_sweep` default scope (20 fill-orders/routes × 4 shape-preserving reflections × 3 remainder modes × 108 tableau routes × 2 indicator bases = 51,840) × 3 offsets `{146 mod 24, 147 mod 24, 24 mod 24}` = `{2, 3, 0}` | 155,520 | Null |
 
 Artifacts: `K4_WORLD_CLOCK_CITIES_NULL.json`, `K4_GEOMETRY_COMBINED_WORLDCLOCK_NULL.json`.
 
