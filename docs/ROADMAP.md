@@ -193,6 +193,7 @@ If none of these surface, this is genuinely paused — inventing more sweep vari
 |----------|---------|
 | `docs/archive/K4_ATTACK_LANDSCAPE.md` | Archived — full 3D fingerprint with evidence basis, historical reference only |
 | `docs/analysis/K4_ACTIVE_RESEARCH.md` | Living null-result log and confirmed facts |
+| `docs/analysis/K4_CAPABILITY_TABLE.md` | Every attack vector/component, status, real candidate count — one scannable table |
 | `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` | Derived shift sequences at all 4 crib windows |
 | `docs/TASKS.md` | Implementation backlog with specific next steps |
 | `frontend/` + Docker | `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 |
