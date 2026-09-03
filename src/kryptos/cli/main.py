@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 from pathlib import Path
 
 from kryptos import autopilot as autopilot_mod
@@ -302,7 +303,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp_serve = sub.add_parser("serve", help="Run the Kryptos FastAPI server (turbovec RAG search over artifacts/)")
     sp_serve.add_argument("--host", type=str, default="0.0.0.0", help="Bind host (default: 0.0.0.0)")
-    sp_serve.add_argument("--port", type=int, default=8000, help="Bind port (default: 8000)")
+    sp_serve.add_argument(
+        "--port", type=int, default=int(os.environ.get("PORT", "8000")), help="Bind port (default: $PORT or 8000)"
+    )
     sp_serve.add_argument("--reload", action="store_true", help="Enable auto-reload (development)")
     sp_serve.set_defaults(func=cmd_serve)
 
@@ -315,7 +318,6 @@ def build_parser() -> argparse.ArgumentParser:
         "--out-dir", type=str, default="benchmarks", help="Output directory (default: benchmarks)"
     )
     sp_benchmark.set_defaults(func=cmd_benchmark)
-
 
     return parser
 
@@ -486,7 +488,6 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     print(format_results_table(rows))
     print(f"\nResults written to {args.out_dir}/results.json and {args.out_dir}/results.csv")
     return 0
-
 
 
 def cmd_keyspace_stats(args: argparse.Namespace) -> int:

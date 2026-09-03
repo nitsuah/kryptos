@@ -8,6 +8,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -52,6 +53,19 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
     install_log_streaming()
 
     app = FastAPI(title="Kryptos API", version="0.1.0")
+
+    # CORS: allow the Netlify-hosted SPA to call this backend cross-origin.
+    # Configure via KRYPTOS_CORS_ORIGINS (comma-separated); defaults to the
+    # production Netlify site. "*" disables origin checks (dev only).
+    cors_origins = os.environ.get("KRYPTOS_CORS_ORIGINS", "https://kryptos-k4.netlify.app")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[o.strip() for o in cors_origins.split(",") if o.strip()],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     app.include_router(create_dashboard_router())
     app.include_router(create_vault_router())
     app.include_router(create_k4_attack_router())

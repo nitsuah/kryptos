@@ -78,5 +78,5 @@ USER appuser
 # HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 #   CMD curl --fail http://localhost:5000/health || exit 1 # TODO: Adjust health check URL
 
-# Start the application
-CMD ["python", "-m", "kryptos.cli.main"]
+# Start the application (serve subcommand runs the FastAPI server)
+CMD ["python", "-m", "kryptos.cli.main", "serve"]
