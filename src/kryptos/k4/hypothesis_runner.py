@@ -12,9 +12,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from kryptos.k4.physical_grid import K4 as K4_CIPHERTEXT
 from kryptos.paths import get_artifacts_root
-
-K4_CIPHERTEXT = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK"
 
 
 def run_hypothesis_search(
@@ -68,8 +67,8 @@ def run_hypothesis_search(
         with open(baseline_files[-1]) as f:
             baseline = json.load(f)
 
-        mean = baseline['statistics']['mean']
-        stddev = baseline['statistics']['stddev']
+        mean = baseline["statistics"]["mean"]
+        stddev = baseline["statistics"]["stddev"]
         threshold_2sigma = mean + 2 * stddev
         threshold_3sigma = mean + 3 * stddev
 
@@ -82,7 +81,7 @@ def run_hypothesis_search(
         print(f"3σ threshold (99.7% confidence): {threshold_3sigma:.2f}")
         print()
 
-        best_score = candidates[0].score if candidates else float('-inf')
+        best_score = candidates[0].score if candidates else float("-inf")
         if best_score > threshold_3sigma:
             print(f"✓ STRONG SIGNAL: Best score ({best_score:.2f}) > 3σ ({threshold_3sigma:.2f})")
             print("  This is statistically significant!")
@@ -106,31 +105,31 @@ def run_hypothesis_search(
     output_file = artifacts_dir / f"search_{timestamp}.json"
 
     results = {
-        'timestamp': timestamp,
-        'hypothesis': hypothesis_name,
-        'ciphertext': ciphertext,
-        'num_candidates': len(candidates),
-        'elapsed_seconds': elapsed,
-        'candidates': [
+        "timestamp": timestamp,
+        "hypothesis": hypothesis_name,
+        "ciphertext": ciphertext,
+        "num_candidates": len(candidates),
+        "elapsed_seconds": elapsed,
+        "candidates": [
             {
-                'rank': i + 1,
-                'id': c.id,
-                'plaintext': c.plaintext,
-                'key_info': c.key_info,
-                'score': c.score,
+                "rank": i + 1,
+                "id": c.id,
+                "plaintext": c.plaintext,
+                "key_info": c.key_info,
+                "score": c.score,
             }
             for i, c in enumerate(candidates)
         ],
     }
 
-    if hasattr(hypothesis_instance, '__dict__'):
-        results['parameters'] = {
+    if hasattr(hypothesis_instance, "__dict__"):
+        results["parameters"] = {
             k: v
             for k, v in hypothesis_instance.__dict__.items()
-            if not k.startswith('_') and isinstance(v, (str, int, float, list, dict, bool))
+            if not k.startswith("_") and isinstance(v, (str, int, float, list, dict, bool))
         }
 
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         json.dump(results, f, indent=2)
 
     print(f"Results saved to: {output_file}")
