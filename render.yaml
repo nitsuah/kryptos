@@ -1,0 +1,20 @@
+# Render blueprint — deploys the full Kryptos stack (FastAPI backend + built SPA)
+# as a single Docker web service. One URL serves both the API and the frontend,
+# so no VITE_API_BASE_URL / CORS split is needed.
+services:
+  - type: web
+    name: kryptos
+    runtime: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: KRYPTOS_FRONTEND_DIST
+        value: /app/frontend/dist
+      - key: HF_HOME
+        value: /tmp/hf_cache
+      # Optional: set DATABASE_URL to a Neon/Postgres connection string to enable
+      # the dashboard DB features. Leave unset for db_enabled:false (graceful).
+      # - key: DATABASE_URL
+      #   sync: false
