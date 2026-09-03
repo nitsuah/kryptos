@@ -310,7 +310,7 @@ WORLD_CLOCK_SEGMENT_HOUR: dict[str, int] = {
     "KAPDESCHNEW": 21,
     "HONOLULU": 22,
     "NOME_FAIRBANKS_ANCHORAGE": 23,
-    "VANCOUVER_DAWSON_SANFRANCISCO_LOSANGELES": 24,  # plate spans the 24|1 boundary
+    "VANCOUVER_DAWSON_SANFRANCISCO_LOSANGELES": 0,  # printed plate spans 24|1; normalized to 0-23 (24 mod 24 = 0)
 }
 
 

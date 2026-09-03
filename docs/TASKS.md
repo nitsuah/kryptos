@@ -131,5 +131,5 @@ One of the three primary-source gaps opened 2026-09-01 remains open; the timesta
 
 ### Misc
 
-- [x] Fix off-by-one position labels: `NORTHEAST: [25]` → `[26]`, `BERLIN: [64]` → `[63]` in attack landscape doc
+- [x] Fix off-by-one position labels in attack landscape doc: `BERLIN: [64]` → `[63]` (a real fix, confirmed correct). `NORTHEAST: [25]` → `[26]` was **also applied at the time but was itself wrong** — `[25]` was the correct 0-indexed position all along; this repo's own `keystream_validator.K4_CRIBS` carried the same wrong `[26]` value until it was found and fixed 2026-09-02 (see `K4_ACTIVE_RESEARCH.md`'s External Developments section). Left here as the historical record rather than silently rewritten.
 - [x] `.gitignore` entries for `K4_*_NULL.json`, `K4_BREAKTHROUGH_SNAPSHOT.md`, `*_EUREKA.md`

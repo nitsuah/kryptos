@@ -39,12 +39,15 @@ def _recalc_cribs(residue_indices: list[int]) -> dict[str, int | None]:
     """
     idx_map = {orig: new for new, orig in enumerate(residue_indices)}
     result: dict[str, int | None] = {}
-    for crib, (plain, orig_pos) in K4_CRIBS.items():
-        new_positions = [idx_map.get(orig_pos + i) for i in range(len(crib))]
+    for label, (plain, orig_pos) in K4_CRIBS.items():
+        # Span must come from the plaintext word's own length, not the dict
+        # key -- label and plain happen to be identical strings for all 4
+        # current cribs, which hid this until it mattered.
+        new_positions = [idx_map.get(orig_pos + i) for i in range(len(plain))]
         if None in new_positions:
-            result[crib] = None  # masked out
+            result[label] = None  # masked out
         else:
-            result[crib] = new_positions[0]  # type: ignore[assignment]
+            result[label] = new_positions[0]  # type: ignore[assignment]
     return result
 
 

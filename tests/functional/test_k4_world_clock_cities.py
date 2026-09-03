@@ -54,7 +54,7 @@ class TestRunWorldClockSectorSweep:
         summary = wcc.run_world_clock_sector_sweep(null_artifact_path=str(artifact))
         assert summary["status"] == "null_result"
         data = json.loads(artifact.read_text(encoding="utf-8"))
-        assert set(data["run_params"]["rotation_offsets"]) == set(wcc.world_clock_sector_offsets().values())
+        assert data["run_params"]["rotation_offsets"] == list(wcc.world_clock_sector_offsets().values())
 
 
 class TestRunWorldClockCitySweep:

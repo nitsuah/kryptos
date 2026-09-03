@@ -36,10 +36,13 @@ class TestCurrentGeometry:
         assert not pg.CURRENT.lodestone.deflection.is_known
 
     def test_tableau_reading_direction_is_confirmed(self):
-        # This one genuinely is known -- CIA's own page.
+        # This one genuinely is known -- CIA's own page. Checks the exact
+        # citation path rather than a bare "cia.gov" substring (CodeQL:
+        # incomplete URL substring sanitization -- a naked domain check
+        # would also match an unrelated "cia.gov.example.com").
         assert pg.CURRENT.tableau.measured
         assert pg.CURRENT.tableau.reading_direction == "back"
-        assert "cia.gov" in pg.CURRENT.tableau.source
+        assert pg.CURRENT.tableau.source.startswith("cia.gov/legacy/headquarters/kryptos-sculpture")
 
 
 class TestKnownAndUnmeasured:

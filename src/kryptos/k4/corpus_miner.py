@@ -2,10 +2,11 @@
 
 Every P1-P7 sweep writes *_NULL.json artifacts. This module loads them all,
 extracts best_candidates[].candidate_text, and runs a sliding-window n-gram
-frequency analysis over positions 0-21 (before the EAST crib at position 21;
-see keystream_validator.K4_CRIBS's 2026-09-02 fix note -- this module's own
-ANCHOR_WINDOW already used the correct boundary, only this docstring was off
-by one).
+frequency analysis over positions 0-20 (range(0, 21), which excludes 21 --
+i.e. everything before the EAST crib at position 21; see
+keystream_validator.K4_CRIBS's 2026-09-02 fix note. This module's own
+ANCHOR_WINDOW already used the correct boundary; only this docstring's
+prose was imprecise).
 
 Any English fragment appearing in >3% of candidates at a consistent position
 across multiple attack types is treated as a partial-plaintext anchor.
