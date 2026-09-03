@@ -30,6 +30,33 @@ class TestWorldClockRotationOffsets:
         assert wcc.TOTAL_PLATE_ENTRIES == wcc.TOTAL_CITY_COUNT + 1
 
 
+class TestWorldClockSectorOffsets:
+    def test_kamtschatka_hour_matches_segment_table(self):
+        offsets = wcc.world_clock_sector_offsets()
+        assert offsets["kamtschatka_hour_mod24"] == wcc.WORLD_CLOCK_SEGMENT_HOUR["KAMTSCHATKA"] % wcc.TOTAL_SEGMENTS
+
+    def test_all_offsets_in_range(self):
+        for v in wcc.world_clock_sector_offsets().values():
+            assert 0 <= v < wcc.TOTAL_SEGMENTS
+
+    def test_segment_hours_are_distinct_and_sequential(self):
+        # 15-24 in order, confirming the sourced ring position of each
+        # segment (two of them genuinely blank, not a gap in the table).
+        hours = wcc.WORLD_CLOCK_SEGMENT_HOUR
+        assert hours["KAMTSCHATKA"] == hours["MAGADAN_SACHALIN"] + 1
+        assert hours["KAPDESCHNEW"] == hours["KAMTSCHATKA"] + 1
+        assert hours["HONOLULU"] == hours["KAPDESCHNEW"] + 1
+
+
+class TestRunWorldClockSectorSweep:
+    def test_null_result_artifact(self, tmp_path):
+        artifact = tmp_path / "sector_null.json"
+        summary = wcc.run_world_clock_sector_sweep(null_artifact_path=str(artifact))
+        assert summary["status"] == "null_result"
+        data = json.loads(artifact.read_text(encoding="utf-8"))
+        assert set(data["run_params"]["rotation_offsets"]) == set(wcc.world_clock_sector_offsets().values())
+
+
 class TestRunWorldClockCitySweep:
     def test_null_result_artifact(self, tmp_path):
         # Small scope for a fast structural check -- the full 130-city

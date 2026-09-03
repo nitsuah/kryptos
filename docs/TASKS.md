@@ -2,7 +2,7 @@
 
 Breadcrumb: [Docs](INDEX.md) > Tasks
 
-Last Updated: 2026-09-02
+Last Updated: 2026-09-03
 
 ---
 
@@ -13,6 +13,18 @@ One of the three primary-source gaps opened 2026-09-01 remains open; the timesta
 ### Primary-source sourcing (opened 2026-09-01)
 
 - [ ] **Source the Kryptos compass rose's actual measured bearing** — per `elonka.com/kryptos/wishlist.html`, this is a still-open community question, not just gapped in this repo. `elonka.com/kryptos/KryptosAerial.html` already has one uncertain secondary estimate (~220°, explicitly flagged "not exact"). 2026-09-02 update: satellite/overhead imagery of the CIA New Headquarters Building courtyard was inspected directly (Google Maps, unblurred) — confirmed insufficient resolution for ground-level engraving detail (building/lot-scale only), ruling out that specific lead; the underlying reason is resolution physics, not a one-off check — resolving a thin engraved line on a ~1m stone to a useful few degrees needs sub-centimeter, near-nadir imagery of that one feature, and no public satellite/aerial/lidar source gets close (best commercial imagery is ~15-30cm/px). A physical on-site GPS/compass measurement isn't a viable alternative either: the courtyard is inside the CIA's secured grounds, not publicly accessible, and a consumer phone compass is only accurate to roughly ±5-10° regardless. External-plaintext note: Sanborn's own recovered opening line reads "THE COMPASS ROSE IS HERE," independent confirmation this lead is worth pursuing, not a stretch. **[You — the only send]** A FOIA request to CIA (foia.cia.gov) or contacting Elonka Dunin directly (active community liaison to Sanborn/CIA contacts) — both drafted in full and ready to send, see [Three Open Leads](https://claude.ai/code/artifact/7e689fa1-c66d-49b1-abdb-3fc17a866c84) §4. The FOIA draft specifically asks for the original 1990 landscape/installation architectural drawing (which may already have the bearing annotated), not just a photo — a drawing is far more likely to exist and to actually answer the question than commissioning new imagery.
+- [ ] **Ask CIA Public Affairs whether an authorized research visit exists** — 2026-09-03, checked directly against CIA's own FAQ (`cia.gov/faqs`): public tours are refused ("Security considerations prevent such tours"), but "CIA provides an extremely limited number of visits annually for approved academic and civic groups." Not a gate loophole, not "can I sneak in" — a narrow, honest question to the Office of Public Affairs (CIA's own named public-facing contact point, `cia.gov/about/organization/public-affairs`) about whether an independent researcher studying the publicly documented Kryptos puzzle can be included in an approved visit, or otherwise get authorized escorted access for non-sensitive observation/measurement. **[You — the only send.]** Draft:
+  > Subject: Research inquiry — authorized visit access for Kryptos sculpture research
+  >
+  > Hello,
+  >
+  > I'm an independent researcher studying the publicly documented Kryptos sculpture at CIA Headquarters — specifically the still-unsolved K4 passage, which is public information CIA itself has written about. I understand Headquarters doesn't offer public tours, but I've read that a limited number of visits happen each year for approved academic and civic groups.
+  >
+  > Is there an existing mechanism for an independent researcher to be included in one of those visits, or to otherwise request brief, escorted, non-sensitive access to observe and measure the Kryptos sculpture's compass rose for research purposes? Happy to provide more detail on the specific research question if useful.
+  >
+  > Thank you for your time.
+  >
+  > [Your name and contact information]
 
 ### External developments follow-up (opened 2026-09-02, resolved 2026-09-02)
 
@@ -21,6 +33,15 @@ One of the three primary-source gaps opened 2026-09-01 remains open; the timesta
 ---
 
 ## Done
+
+### External review follow-up (2026-09-03, all null)
+
+> Full detail: `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "External developments, follow-up (2026-09-03)" section.
+
+- [x] **Fixed two IC/methodology overclaims** in the Ruled Out table — "IC rules out monoalphabetic substitution" and "non-uniform local IC proves substitution-then-transposition" were both overstated. The monoalphabetic row now rests on a sharper, code-verified argument instead: 8 of 9 repeated plaintext letters in the 24 confirmed crib characters map to different ciphertext letters at each occurrence, which no fixed 1:1 substitution can produce.
+- [x] **Built `kryptos.k4.plaintext_evidence`** — a confidence-tiered plaintext data structure distinguishing the 24 Sanborn-CONFIRMED crib characters from solvekryptos.com's 73-character RECONSTRUCTED guess (explicitly not Sanborn's unpublished archival text). `candidate_repeating_periods()` tested the reconstructed text's full implied keystream for a repeating-key period 2-20: none found. Exploratory diagnostic only, never used to gate a candidate.
+- [x] **Checked the Kamchatka Cold War hunch geodesically** — the CIA→Berlin bearing does not continue toward Kamchatka (curves southeast past Berlin; a fresh bearing restarted at Berlin points closer to Vladivostok than Kamchatka or Magadan). Reframed around the real anchor instead: KAMTSCHATKA is a specific node on K4's own named "BERLIN CLOCK." Added `world_clock_cities.WORLD_CLOCK_SEGMENT_HOUR` (sourced hour-index per segment, read directly off the photos) and `run_world_clock_sector_sweep` — 207,360 candidates, null.
+- [x] **Verified two claims from an external review before acting on them** — CIA's own Kryptos page confirms the Vigenère tableau was "intentionally flipped so it can only be read from the back" (checked directly, not assumed); CIA's own FAQ confirms limited academic/civic-group visits exist. Corrected one claim from that review before it entered this repo's docs — the November 2025 auction buyer is Paradigm, publicly self-identified, not "anonymous."
 
 ### Physical/Geometric Pivot — Phase 7 (2026-09-01, all null)
 

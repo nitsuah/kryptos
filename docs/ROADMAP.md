@@ -2,7 +2,7 @@
 
 Breadcrumb: [Docs](INDEX.md) > Roadmap
 
-Last Updated: 2026-09-02
+Last Updated: 2026-09-03
 Next Review: 2026-09-15
 
 ---
@@ -170,6 +170,8 @@ Everything code-derivable from current sourcing has been tried (Phases 1-7, all 
 If none of these surface, this is genuinely paused — inventing more sweep variants over the same structural assumptions (grids, reflections, rotations, clock states) is not expected to move this forward; see the cross-vector consensus scan's zero-agreement result in Phase 7.
 
 **External developments, 2026-09-02:** real-world events since this phase opened change its context, not its task list. Sanborn's own 1990 archival papers were found by independent researchers in September 2025 (not a cryptographic solve, by their own explicit statement); a real, Sanborn-confirmed K5 exists and will be released once K4 is cryptographically solved; and a third-party reconstruction (solvekryptos.com) claiming the actual cipher mechanism was checked against this repo's own confirmed crib positions — all four anchors land exactly right, zero offset. (An earlier pass here reported two anchors as off by exactly one position; that turned out to be a real bug in this repo's own `keystream_validator.K4_CRIBS`, found and fixed the same day — see the doc section below for the full account. The candidate's *mechanism* is still unpublished in enough detail to independently reproduce; only its plaintext's positional alignment is confirmed.) Full detail and sourcing: `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "External Developments (2025–2026)" section. This doesn't close or reprioritize the one remaining open lead above — if anything, the recovered plaintext's own opening line ("THE COMPASS ROSE IS HERE") is independent, external confirmation that the compass-rose bearing lead is worth the FOIA/Elonka outreach.
+
+**2026-09-03 follow-up:** a confidence-tiered plaintext data structure (`kryptos.k4.plaintext_evidence` — 24 CONFIRMED vs. 73 RECONSTRUCTED-and-unverified), two doc methodology fixes (IC/monoalphabetic overclaims), and a real geodesic/geometric test of a Cold War Kamchatka hunch (not on the CIA→Berlin bearing; is a specific World Clock sector, tested as rotation offsets — 207,360 candidates, null) — plus a third outreach draft (CIA Public Affairs, a verified-real limited-visit mechanism). Full detail: `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "External developments, follow-up (2026-09-03)" section.
 
 ---
 

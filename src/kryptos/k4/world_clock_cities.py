@@ -283,6 +283,74 @@ def world_clock_rotation_offsets() -> dict[str, int]:
     }
 
 
+# Segment -> hour index (0-23), read directly off the sculpture's own
+# printed hour numbers in the same photos that sourced CONFIRMED_CITIES
+# (2026-09-03) -- not inferred from city order, the actual "19", "20",
+# "21"... plates visible immediately above each segment in
+# Alexanderplatz_and_the_Urania_World_Clock.jpg (hours 19-24/1) and
+# 2019-08-06_Alexanderplatz_(Berlin-Mitte)_1.jpg (hours 16-18). Two
+# adjacent hour segments (16, 17) show no legible city text in the photo
+# checked -- recorded as such, not omitted or guessed at.
+#
+# This exists because a Cold War-era user hunch (Kamchatka as a Cold War
+# military/submarine hub) turned out to have a real, sourced anchor: the
+# geographic bearing from CIA through Berlin does *not* continue toward
+# Kamchatka (checked directly via geodesics -- it curves southeast, not
+# northeast), but KAMTSCHATKA genuinely is one specific, physically
+# located node on the World Clock K4 itself names via BERLIN CLOCK. That
+# makes its position on the clock -- not the city name as a keyword,
+# already tested and null -- worth testing directly.
+WORLD_CLOCK_SEGMENT_HOUR: dict[str, int] = {
+    "PJOENGJANG_TOKYO_SEOUL": 15,  # inferred from sequence position, not read with its own number visible
+    "BLANK_1": 16,  # no legible plate text found
+    "BLANK_2": 17,  # no legible plate text found
+    "DATUMSGRENZE_WELLINGTON_APIA_MARQUESAS": 18,
+    "MAGADAN_SACHALIN": 19,
+    "KAMTSCHATKA": 20,
+    "KAPDESCHNEW": 21,
+    "HONOLULU": 22,
+    "NOME_FAIRBANKS_ANCHORAGE": 23,
+    "VANCOUVER_DAWSON_SANFRANCISCO_LOSANGELES": 24,  # plate spans the 24|1 boundary
+}
+
+
+def world_clock_sector_offsets() -> dict[str, int]:
+    """KAMTSCHATKA's own hour index, and its immediate neighbors, as rotation offsets.
+
+    Distinct from `world_clock_rotation_offsets()` above (which tests the
+    clock's *structural counts* -- 146/147/24 -- as offsets): this tests
+    the specific hour position of the segment the Cold War hunch actually
+    points at, sourced from `WORLD_CLOCK_SEGMENT_HOUR` above, mod the
+    grid's own 24 columns (already how every other geography-derived
+    offset in this project is treated).
+    """
+    return {
+        "kamtschatka_hour_mod24": WORLD_CLOCK_SEGMENT_HOUR["KAMTSCHATKA"] % TOTAL_SEGMENTS,
+        "kapdeschnew_hour_mod24": WORLD_CLOCK_SEGMENT_HOUR["KAPDESCHNEW"] % TOTAL_SEGMENTS,
+        "magadan_sachalin_hour_mod24": WORLD_CLOCK_SEGMENT_HOUR["MAGADAN_SACHALIN"] % TOTAL_SEGMENTS,
+        "datumsgrenze_hour_mod24": WORLD_CLOCK_SEGMENT_HOUR["DATUMSGRENZE_WELLINGTON_APIA_MARQUESAS"] % TOTAL_SEGMENTS,
+    }
+
+
+def run_world_clock_sector_sweep(
+    null_artifact_path: str = "K4_WORLD_CLOCK_SECTOR_NULL.json",
+) -> dict[str, Any]:
+    """Test the World Clock's sourced hour-index offsets (not city keywords) as route directions.
+
+    Reuses `geometry_combined_sweep`'s default scope exactly like
+    `clock_rotation.geography_priority_offsets()` already does for other
+    geography-derived numbers -- this is the same kind of test, just with
+    a newly-sourced set of offsets.
+    """
+    from .geometry_combined_sweep import run_geometry_combined_sweep
+
+    offsets = list(world_clock_sector_offsets().values())
+    return run_geometry_combined_sweep(
+        rotation_offsets=offsets,
+        null_artifact_path=null_artifact_path,
+    )
+
+
 def run_world_clock_city_sweep(
     grid_sizes: list[int] | None = None,
     clock_step_seconds: int = 86400,
@@ -317,6 +385,9 @@ __all__ = [
     "TOTAL_PLATE_ENTRIES",
     "TOTAL_SEGMENTS",
     "WORLD_CLOCK_KEYED_ALPHABETS",
+    "WORLD_CLOCK_SEGMENT_HOUR",
     "run_world_clock_city_sweep",
+    "run_world_clock_sector_sweep",
     "world_clock_rotation_offsets",
+    "world_clock_sector_offsets",
 ]
