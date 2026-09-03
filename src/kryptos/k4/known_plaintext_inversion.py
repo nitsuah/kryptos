@@ -102,26 +102,49 @@ def _is_consistent_substitution(pre_transposition: str, plaintext: str) -> bool:
 
     not just a Caesar shift) turn ``plaintext`` into ``pre_transposition``?
     True only if every ciphertext-side letter maps to exactly one
-    plaintext-side letter everywhere it occurs -- the same test this
-    project already used to *disprove* monoalphabetic substitution on the
-    24 confirmed crib characters (see K4_ACTIVE_RESEARCH.md's Ruled Out
-    table), now run against the full reconstructed text under each
-    transposition hypothesis. Broader than `_consistent_periods` with
-    period=1 (a fixed shift): this allows any bijection, not just addition
-    mod 26.
+    plaintext-side letter everywhere it occurs, AND that mapping is a true
+    bijection (no two distinct ciphertext letters collapse onto the same
+    plaintext letter) -- a monoalphabetic substitution cipher must be
+    invertible in both directions, or it isn't a valid substitution at all.
+    The forward-only check originally here would have accepted "AB"/"NN" as
+    consistent, which no real substitution cipher can produce (found via
+    CodeRabbit review on PR #203, verified against current code before
+    fixing) -- the same test this project already used to *disprove*
+    monoalphabetic substitution on the 24 confirmed crib characters (see
+    K4_ACTIVE_RESEARCH.md's Ruled Out table), now run against the full
+    reconstructed text under each transposition hypothesis. Broader than
+    `_consistent_periods` with period=1 (a fixed shift): this allows any
+    bijection, not just addition mod 26.
     """
     mapping: dict[str, str] = {}
+    reverse_mapping: dict[str, str] = {}
     for c, p in zip(pre_transposition, plaintext, strict=False):
         if c in mapping and mapping[c] != p:
             return False
+        if p in reverse_mapping and reverse_mapping[p] != c:
+            return False
         mapping[c] = p
+        reverse_mapping[p] = c
     return True
 
 
 def _consistent_periods(shifts: list[int], period_range: range) -> list[int]:
-    """Which periods in ``period_range`` are consistent with ``shifts`` (same shift at every position mod L)?"""
+    """Which periods in ``period_range`` are consistent with ``shifts`` (same shift at every position mod L)?
+
+    Only periods in ``1 <= period < len(shifts)`` are evaluated: ``period ==
+    0`` would raise ``ZeroDivisionError`` on ``pos % period``, and any period
+    at or beyond ``len(shifts)`` puts every position in its own singleton
+    slot, making it *trivially* "consistent" regardless of the actual shift
+    sequence -- a false hypothesis, not a real repeating-key signal (found
+    via CodeRabbit review on PR #203, verified against current code before
+    fixing; a default `period_range=range(2, 21)` against this project's
+    ~97-character shift sequences never triggered this, but the function
+    must not silently accept an out-of-range period from any caller).
+    """
     consistent: list[int] = []
     for period in period_range:
+        if not (0 < period < len(shifts)):
+            continue
         by_slot: dict[int, set[int]] = {}
         for pos, shift in enumerate(shifts):
             by_slot.setdefault(pos % period, set()).add(shift)

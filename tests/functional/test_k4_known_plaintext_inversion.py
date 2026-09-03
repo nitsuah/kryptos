@@ -94,8 +94,44 @@ class TestIsConsistentSubstitution:
         plaintext = "NM"
         assert kpi._is_consistent_substitution(pre_transposition, plaintext) is False
 
+    def test_false_when_two_ciphertext_letters_collapse_onto_one_plaintext_letter(self):
+        # "AB" -> "NN": A maps to N and B also maps to N. The forward-only
+        # check alone would accept this (each ciphertext letter still maps
+        # to exactly one plaintext letter), but a real monoalphabetic
+        # substitution cipher must be invertible in both directions -- two
+        # distinct ciphertext letters can never collapse onto the same
+        # plaintext letter. Regression case from CodeRabbit review on
+        # PR #203.
+        assert kpi._is_consistent_substitution("AB", "NN") is False
+
     def test_empty_strings_are_vacuously_consistent(self):
         assert kpi._is_consistent_substitution("", "") is True
+
+
+class TestConsistentPeriods:
+    def test_rejects_period_zero_instead_of_raising(self):
+        # period=0 would previously raise ZeroDivisionError on `pos % period`.
+        # shifts=[1, 2, 1] is genuinely period-2 consistent (slot 0 -> {1},
+        # slot 1 -> {2}); period 0 must be skipped rather than raising, and
+        # period 1 correctly fails (slot 0 would need {1, 2, 1} to collapse
+        # to one value, which it doesn't).
+        assert kpi._consistent_periods([1, 2, 1], range(0, 3)) == [2]
+
+    def test_rejects_periods_at_or_beyond_shift_length_as_trivial(self):
+        # A period >= len(shifts) puts every position in its own singleton
+        # slot -- trivially "consistent" for any shift sequence, a false
+        # hypothesis rather than a real repeating-key signal. Regression
+        # case from CodeRabbit review on PR #203: previously a caller-given
+        # period_range far beyond len(shifts) (e.g. range(100, 101) against
+        # a ~10-element shift list) would report every such period as
+        # consistent.
+        shifts = [1, 2, 3, 4, 5]
+        assert kpi._consistent_periods(shifts, range(100, 101)) == []
+        assert kpi._consistent_periods(shifts, range(len(shifts), len(shifts) + 5)) == []
+
+    def test_still_finds_a_genuine_in_range_period(self):
+        shifts = [1, 2, 1, 2, 1, 2]
+        assert 2 in kpi._consistent_periods(shifts, range(1, 4))
 
 
 class TestImpliedShiftsRectangular:

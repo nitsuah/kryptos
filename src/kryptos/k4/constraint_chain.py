@@ -42,13 +42,23 @@ def _crib_layer(candidate_text: str) -> dict[str, Any]:
 
 
 def _keyword_layer(candidate_text: str) -> dict[str, Any]:
+    """Sanborn-hint keyword evidence, independent of the confirmed-crib layer.
+
+    Excludes the four confirmed crib words (EAST/NORTHEAST/BERLIN/CLOCK):
+    the crib layer already covers them, and NORTHEAST/BERLIN/CLOCK are also
+    literally in `P11_KEYWORDS`, so without this exclusion any candidate
+    that satisfies the crib layer would trivially satisfy this one too --
+    not actually independent evidence, defeating the point of a multi-layer
+    evaluator (found via CodeRabbit review on PR #203, verified against
+    current code before fixing).
+    """
     upper = candidate_text.upper()
-    core_hits = sum(1 for w in _EUREKA_WORDS if w in upper)
-    hint_hits = [w for w in P11_KEYWORDS if w in upper]
-    satisfied = core_hits >= 4 or len(hint_hits) >= 3
+    independent_hints = [w for w in P11_KEYWORDS if w not in _EUREKA_WORDS]
+    hint_hits = [w for w in independent_hints if w in upper]
+    satisfied = len(hint_hits) >= 3
     return {
         "satisfied": satisfied,
-        "detail": f"{core_hits}/4 core crib words as substrings; hint keywords present: {hint_hits}",
+        "detail": f"independent hint keywords present (excludes confirmed cribs): {hint_hits}",
     }
 
 
@@ -106,7 +116,9 @@ def _geometry_layer(key_info: dict[str, Any] | None) -> dict[str, Any]:
     bearing = physical_geometry.CURRENT.compass_rose.true_bearing
     if not bearing.is_known or key_info is None:
         return {"satisfied": False, "detail": "not yet applicable -- no measured compass bearing sourced (Phase 8)"}
-    candidate_bearing = key_info.get("rotation_offset") or key_info.get("bearing")
+    candidate_bearing = key_info.get("rotation_offset")
+    if candidate_bearing is None:
+        candidate_bearing = key_info.get("bearing")
     satisfied = (
         candidate_bearing is not None and bearing.value is not None and abs(candidate_bearing - bearing.value) < 1.0
     )
