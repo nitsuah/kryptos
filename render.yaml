@@ -20,3 +20,9 @@ services:
       # the dashboard DB features. Leave unset for db_enabled:false (graceful).
       # - key: DATABASE_URL
       #   sync: false
+      # Optional: LLM providers for the ops director. Falls back to rule-based
+      # logic when unset.
+      # - key: OPENAI_API_KEY
+      #   sync: false
+      # - key: ANTHROPIC_API_KEY
+      #   sync: false
