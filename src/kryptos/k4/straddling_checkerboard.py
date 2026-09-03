@@ -27,9 +27,10 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from .physical_grid import K4
+
 logger = logging.getLogger(__name__)
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 KRYPTOS_ALPHA = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
 ETAOIN = "ETAOINSHRDLUCMFWYPVBGKJQXZ"
@@ -108,6 +109,7 @@ class StruddlingCheckerboard:
         i = 0
         while i < len(digits):
             d = digits[i]
+            key: tuple[int, ...]
             if d == self.r1 or d == self.r2:
                 if i + 1 < len(digits):
                     key = (d, digits[i + 1])
@@ -142,9 +144,7 @@ def _keyword_hits(text: str) -> int:
     return sum(1 for w in EUREKA_WORDS if w in upper)
 
 
-def build_checkerboard(
-    alphabet_order: str, r1: int, r2: int
-) -> StruddlingCheckerboard:
+def build_checkerboard(alphabet_order: str, r1: int, r2: int) -> StruddlingCheckerboard:
     return StruddlingCheckerboard(alphabet_order, r1, r2)
 
 
@@ -183,17 +183,17 @@ def run_straddling_checkerboard_attack(
             encoded = board.encode_text(ct)
             if encoded:
                 encoded_str = "".join(map(str, encoded))
-                results.append({
-                    "test": "k4_encoding_check",
-                    "r1": r1,
-                    "r2": r2,
-                    "ordering": ord_name,
-                    "encoded_length": len(encoded),
-                    "digit_distribution": {
-                        str(d): encoded.count(d) for d in range(10)
-                    },
-                    "encoded_digits": encoded_str[:40],
-                })
+                results.append(
+                    {
+                        "test": "k4_encoding_check",
+                        "r1": r1,
+                        "r2": r2,
+                        "ordering": ord_name,
+                        "encoded_length": len(encoded),
+                        "digit_distribution": {str(d): encoded.count(d) for d in range(10)},
+                        "encoded_digits": encoded_str[:40],
+                    }
+                )
 
             # Test decoding: convert K4 letters → digits → decode through board
             for conv_name, converter in converters:
@@ -202,16 +202,18 @@ def run_straddling_checkerboard_attack(
                 combos_tested += 1
                 hits = _keyword_hits(decoded)
                 if hits > 0 or len(decoded) > 40:
-                    results.append({
-                        "test": "k4_decoding",
-                        "r1": r1,
-                        "r2": r2,
-                        "ordering": ord_name,
-                        "converter": conv_name,
-                        "decoded_text": decoded,
-                        "decoded_length": len(decoded),
-                        "keyword_hits": hits,
-                    })
+                    results.append(
+                        {
+                            "test": "k4_decoding",
+                            "r1": r1,
+                            "r2": r2,
+                            "ordering": ord_name,
+                            "converter": conv_name,
+                            "decoded_text": decoded,
+                            "decoded_length": len(decoded),
+                            "keyword_hits": hits,
+                        }
+                    )
 
     # Sort by keyword_hits descending for decoding tests
     decoding_results = [r for r in results if r.get("test") == "k4_decoding"]
@@ -231,6 +233,7 @@ def run_straddling_checkerboard_attack(
     try:
         import json
         from pathlib import Path
+
         Path(null_artifact_path).write_text(json.dumps(summary, indent=2))
     except Exception:  # noqa: BLE001
         pass

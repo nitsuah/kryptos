@@ -47,6 +47,35 @@ DEFAULT_ROTATION_OFFSETS: list[int] = list(range(geometry24.COLS))  # full 0-23,
 DEFAULT_REMAINDER_MODES: list[str] = list(geometry24.REMAINDER_MODES)
 
 
+def _aligned_pre_transposition(
+    order_name: str,
+    reflection_name: str,
+    rotation_offset: int,
+    remainder_mode: str,
+    candidate_name: str,
+) -> tuple[str, str] | None:
+    """(pre_transposition_text, reconstructed_plaintext), both position-aligned. None if unavailable."""
+    plaintext = reconstructed_plaintext(candidate_name)
+    if plaintext is None:
+        return None
+    flat_idx = composed_flat_indices(order_name, reflection_name, rotation_offset, remainder_mode)
+    ct_source = K4 if remainder_mode != "drop" else K4[: geometry24.CORE_LEN]
+    if len(ct_source) != len(flat_idx):
+        return None
+    pre_transposition = geometry24.apply_inverse(ct_source, flat_idx)
+    n = min(len(pre_transposition), len(plaintext))
+    return pre_transposition[:n], plaintext[:n]
+
+
+def _shifts_from_pair(pre_transposition: str, plaintext: str, alphabet: str) -> list[int]:
+    shifts: list[int] = []
+    for c, p in zip(pre_transposition, plaintext, strict=True):
+        if p not in alphabet or c not in alphabet:
+            continue
+        shifts.append((alphabet.index(c) - alphabet.index(p)) % len(alphabet))
+    return shifts
+
+
 def implied_shifts(
     order_name: str,
     reflection_name: str,
@@ -62,22 +91,31 @@ def implied_shifts(
     plaintext isn't available or lengths don't align after a "drop"
     remainder mode.
     """
-    plaintext = reconstructed_plaintext(candidate_name)
-    if plaintext is None:
+    pair = _aligned_pre_transposition(order_name, reflection_name, rotation_offset, remainder_mode, candidate_name)
+    if pair is None:
         return None
-    flat_idx = composed_flat_indices(order_name, reflection_name, rotation_offset, remainder_mode)
-    ct_source = K4 if remainder_mode != "drop" else K4[: geometry24.CORE_LEN]
-    if len(ct_source) != len(flat_idx):
-        return None
-    pre_transposition = geometry24.apply_inverse(ct_source, flat_idx)
-    n = min(len(pre_transposition), len(plaintext))
-    shifts: list[int] = []
-    for i in range(n):
-        p, c = plaintext[i], pre_transposition[i]
-        if p not in alphabet or c not in alphabet:
-            continue
-        shifts.append((alphabet.index(c) - alphabet.index(p)) % len(alphabet))
-    return shifts
+    return _shifts_from_pair(*pair, alphabet)
+
+
+def _is_consistent_substitution(pre_transposition: str, plaintext: str) -> bool:
+    """Would a single, fixed monoalphabetic substitution (any 26-letter mapping,
+
+    not just a Caesar shift) turn ``plaintext`` into ``pre_transposition``?
+    True only if every ciphertext-side letter maps to exactly one
+    plaintext-side letter everywhere it occurs -- the same test this
+    project already used to *disprove* monoalphabetic substitution on the
+    24 confirmed crib characters (see K4_ACTIVE_RESEARCH.md's Ruled Out
+    table), now run against the full reconstructed text under each
+    transposition hypothesis. Broader than `_consistent_periods` with
+    period=1 (a fixed shift): this allows any bijection, not just addition
+    mod 26.
+    """
+    mapping: dict[str, str] = {}
+    for c, p in zip(pre_transposition, plaintext, strict=False):
+        if c in mapping and mapping[c] != p:
+            return False
+        mapping[c] = p
+    return True
 
 
 def _consistent_periods(shifts: list[int], period_range: range) -> list[int]:
@@ -121,14 +159,16 @@ def scan_transpositions(
         for reflection_name in reflection_names:
             for rotation_offset in rotation_offsets:
                 for remainder_mode in remainder_modes:
-                    shifts = implied_shifts(
+                    pair = _aligned_pre_transposition(
                         order_name, reflection_name, rotation_offset, remainder_mode, candidate_name
                     )
-                    if not shifts:
+                    if pair is None:
                         continue
                     total_tested += 1
-                    periods = _consistent_periods(shifts, period_range)
-                    if periods:
+                    shifts = _shifts_from_pair(*pair, STANDARD_ALPHABET)
+                    periods = _consistent_periods(shifts, period_range) if shifts else []
+                    is_substitution = _is_consistent_substitution(*pair)
+                    if periods or is_substitution:
                         hits.append(
                             {
                                 "order": order_name,
@@ -136,6 +176,7 @@ def scan_transpositions(
                                 "rotation_offset": rotation_offset,
                                 "remainder_mode": remainder_mode,
                                 "consistent_periods": periods,
+                                "consistent_monoalphabetic_substitution": is_substitution,
                             }
                         )
 
@@ -149,10 +190,104 @@ def scan_transpositions(
     }
 
 
+def _aligned_pre_transposition_rectangular(
+    n_cols: int,
+    permutation: tuple[int, ...],
+    candidate_name: str,
+) -> tuple[str, str] | None:
+    """Same as `_aligned_pre_transposition`, for the rectangular-grid family.
+
+    `apply_columnar_permutation_reverse` already returns text ordered by
+    original (pre-transposition) position, exactly like
+    `geometry24.apply_inverse` -- same semantics, different primitive.
+    """
+    from .transposition_analysis import apply_columnar_permutation_reverse
+
+    plaintext = reconstructed_plaintext(candidate_name)
+    if plaintext is None:
+        return None
+    pre_transposition = apply_columnar_permutation_reverse(K4, n_cols, list(permutation))
+    n = min(len(pre_transposition), len(plaintext))
+    return pre_transposition[:n], plaintext[:n]
+
+
+def implied_shifts_rectangular(
+    n_cols: int,
+    permutation: tuple[int, ...],
+    candidate_name: str = "solvekryptos_field_guide",
+    alphabet: str = STANDARD_ALPHABET,
+) -> list[int] | None:
+    """Same idea as ``implied_shifts``, for the *other* transposition family this project
+
+    has tested (`inverse_transposition_sweep.py`'s 10x10/7x14/8x13 rectangular
+    grids with an arbitrary column permutation) rather than the 24-column
+    geometry family.
+    """
+    pair = _aligned_pre_transposition_rectangular(n_cols, permutation, candidate_name)
+    if pair is None:
+        return None
+    return _shifts_from_pair(*pair, alphabet)
+
+
+def scan_rectangular_transpositions(
+    grid_sizes: list[int] | None = None,
+    candidate_name: str = "solvekryptos_field_guide",
+    period_range: range = range(2, 21),
+) -> dict[str, Any]:
+    """Exhaustive known-plaintext scan over the rectangular-grid transposition family.
+
+    This is the K4-T1 physical-geometric spec's original grid set
+    (`inverse_transposition_sweep.K4_GRID_GEOMETRIES`), tested here the
+    known-plaintext way for the first time -- every one of that module's
+    own sweeps scored candidates by crib/language match, never by directly
+    solving for the implied substitution shift the way this does. Genuinely
+    exhaustive for all three grid widths (7! = 5,040, 8! = 40,320,
+    10! = 3,628,800 permutations -- all enumerated, no sampling).
+    """
+    from itertools import permutations
+
+    from .inverse_transposition_sweep import K4_GRID_GEOMETRIES
+
+    grid_sizes = grid_sizes if grid_sizes is not None else K4_GRID_GEOMETRIES
+    total_tested = 0
+    hits: list[dict[str, Any]] = []
+
+    for n_cols in grid_sizes:
+        for perm in permutations(range(n_cols)):
+            pair = _aligned_pre_transposition_rectangular(n_cols, perm, candidate_name)
+            if pair is None:
+                continue
+            total_tested += 1
+            shifts = _shifts_from_pair(*pair, STANDARD_ALPHABET)
+            periods = _consistent_periods(shifts, period_range) if shifts else []
+            is_substitution = _is_consistent_substitution(*pair)
+            if periods or is_substitution:
+                hits.append(
+                    {
+                        "n_cols": n_cols,
+                        "permutation": perm,
+                        "consistent_periods": periods,
+                        "consistent_monoalphabetic_substitution": is_substitution,
+                    }
+                )
+
+    return {
+        "attack": "known_plaintext_rectangular_inversion",
+        "candidate_name": candidate_name,
+        "grid_sizes": grid_sizes,
+        "total_tested": total_tested,
+        "period_range": [period_range.start, period_range.stop],
+        "hits": hits,
+        "status": "hypothesis_found" if hits else "null_result",
+    }
+
+
 __all__ = [
     "DEFAULT_REFLECTION_NAMES",
     "DEFAULT_ROTATION_OFFSETS",
     "DEFAULT_REMAINDER_MODES",
     "implied_shifts",
+    "implied_shifts_rectangular",
     "scan_transpositions",
+    "scan_rectangular_transpositions",
 ]

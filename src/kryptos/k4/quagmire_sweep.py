@@ -28,6 +28,11 @@ from .eureka import DEFAULT_SNAPSHOT_PATH, EurekaSignal, write_breakthrough_snap
 from .keystream_validator import K4_CRIBS
 from .quagmire import keyword_alphabet, quagmire1_decrypt, quagmire2_decrypt, quagmire3_decrypt, quagmire4_decrypt
 
+# Not imported from physical_grid.K4 (the canonical source used by the other
+# 15 modules that had their own copy of this literal, consolidated
+# 2026-09-03): physical_grid.py imports _keyword_hits/positional_crib_hits
+# from *this* module, so the reverse import would be circular. Kept as its
+# own literal deliberately, not an oversight.
 K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
 WORD_KEYS = [

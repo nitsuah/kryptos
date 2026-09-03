@@ -36,6 +36,7 @@ from .hypothesis_graph import load as load_graph
 from .hypothesis_graph import record_result_preserving_strongest
 from .hypothesis_graph import save as save_graph
 from .inverse_transposition_sweep import K4_GRID_GEOMETRIES
+from .physical_grid import K4
 from .quagmire_sweep import positional_crib_hits
 from .scoring_instructional import combined_instructional_score
 from .transposition_analysis import apply_columnar_permutation_reverse
@@ -43,8 +44,6 @@ from .validation import validate_candidate
 from .vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
 
 logger = logging.getLogger(__name__)
-
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 _NULL_ARTIFACT_PATH = "K4_3LAYER_NULL.json"
 _EUREKA_WORDS: frozenset[str] = frozenset({"EAST", "NORTHEAST", "BERLIN", "CLOCK"})

@@ -18,8 +18,7 @@ from datetime import time
 
 from .berlin_clock import full_clock_state
 from .keystream_validator import K4_CRIBS
-
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
+from .physical_grid import K4
 
 # Original crib positions (0-indexed in the 97-char K4).
 #

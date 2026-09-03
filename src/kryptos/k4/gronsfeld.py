@@ -12,20 +12,17 @@ Candidate keys are derived from the K2 coordinate digits:
 
 from __future__ import annotations
 
-from itertools import product
-
-from .eureka import check_eureka
+from .physical_grid import K4
 from .scoring_instructional import combined_instructional_score
 
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
 # K2 coordinate digit keys (decimal only, per the landscape doc)
 K2_COORDINATE_KEYS: list[str] = [
-    "385765",   # 38°57'6.5"N truncated to 6 digits
-    "770844",   # 77°8'44"W
+    "385765",  # 38°57'6.5"N truncated to 6 digits
+    "770844",  # 77°8'44"W
     "385706577",  # full N coordinate string
-    "3857",     # hour + minute from one K2 reading
+    "3857",  # hour + minute from one K2 reading
     "3857065770844",  # all K2 digits concatenated
 ]
 
@@ -118,9 +115,20 @@ def run_gronsfeld_sweep(
                 if hits >= keyword_eureka_threshold:
                     key_info = {"key": key_str, "alpha_name": alpha_name}
                     snap = write_breakthrough_snapshot(candidate, key_info)
-                    raise EurekaSignal(snapshot_path=snap, result={"candidate_text": candidate, "key_info": key_info, "keyword_hits": hits})
+                    raise EurekaSignal(
+                        snapshot_path=snap,
+                        result={"candidate_text": candidate, "key_info": key_info, "keyword_hits": hits},
+                    )
                 if hits > 0 or score > 0.5:
-                    best.append({"candidate_text": candidate, "key": key_str, "alpha_name": alpha_name, "keyword_hits": hits, "instructional_score": score})
+                    best.append(
+                        {
+                            "candidate_text": candidate,
+                            "key": key_str,
+                            "alpha_name": alpha_name,
+                            "keyword_hits": hits,
+                            "instructional_score": score,
+                        }
+                    )
     except EurekaSignal:
         raise
 

@@ -168,12 +168,67 @@ def candidate_repeating_periods(
     return result
 
 
+# Words from the reconstructed plaintext not already covered by this
+# project's existing keyword sweeps (P11's SANBORN/LANGLEY/SCHEIDT/WENDELL/
+# NORTHEAST/BERLIN/CLOCK/SHADOW/BETWEEN/COMPASS/DIGETAL -- EAST, NORTHEAST,
+# BERLIN, CLOCK, COMPASS already tested there; excluded here). If the
+# reconstruction is right, these are the sculpture's own words, not a
+# guess -- a natural, well-motivated keyword source that hasn't existed
+# until now. THE/IS/HERE/THIS/YOUR/OF are excluded as function words too
+# short/common to be a meaningful keyed-alphabet seed.
+RECONSTRUCTED_PLAINTEXT_KEYWORDS: list[str] = [
+    "ROSE",
+    "POSITION",
+    "COMMISSION",
+    "WHICH",
+]
+
+
+def reconstructed_plaintext_keyed_alphabets() -> dict[str, str]:
+    """Keyed alphabets built from `RECONSTRUCTED_PLAINTEXT_KEYWORDS`, same convention as advisory_keywords.py."""
+    from .advisory_keywords import build_keyed_alphabet
+
+    return {kw: build_keyed_alphabet(kw) for kw in RECONSTRUCTED_PLAINTEXT_KEYWORDS}
+
+
+def run_reconstructed_plaintext_keyword_sweep(
+    grid_sizes: list[int] | None = None,
+    clock_step_seconds: int = 3600,
+    max_perms_per_grid: int = 120,
+    priority_only: bool = True,
+    progress_cb: Any = None,
+    null_artifact_path: str = "K4_RECONSTRUCTED_KEYWORD_NULL.json",
+) -> dict[str, Any]:
+    """Run the 3-layer composite with reconstructed-plaintext-derived keyed alphabets.
+
+    Mirrors `advisory_keywords.run_advisory_keyword_sweep` and
+    `world_clock_cities.run_world_clock_city_sweep` exactly -- same
+    composite pipeline, only the keyword source differs.
+    """
+    from .three_layer_composite import CIA_PRIORITY_TIMES, run_three_layer_composite
+
+    clock_step = 86400 if priority_only else clock_step_seconds
+    return run_three_layer_composite(
+        subst_alphabets=reconstructed_plaintext_keyed_alphabets(),
+        grid_sizes=grid_sizes or [7, 8, 10],
+        clock_step_seconds=clock_step,
+        priority_clock_times=CIA_PRIORITY_TIMES,
+        max_perms_per_grid=max_perms_per_grid,
+        progress_cb=progress_cb,
+        null_artifact_path=null_artifact_path,
+        eureka_snapshot_path="K4_RECONSTRUCTED_KEYWORD_EUREKA.md",
+    )
+
+
 __all__ = [
     "CONFIRMED",
     "RECONSTRUCTED",
     "UNKNOWN",
+    "RECONSTRUCTED_PLAINTEXT_KEYWORDS",
     "confirmed_plaintext",
     "reconstructed_plaintext",
+    "reconstructed_plaintext_keyed_alphabets",
+    "run_reconstructed_plaintext_keyword_sweep",
     "evidence_map",
     "confidence_counts",
     "derived_shifts",

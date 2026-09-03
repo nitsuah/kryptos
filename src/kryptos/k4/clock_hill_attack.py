@@ -24,8 +24,8 @@ from .berlin_clock import enumerate_clock_shift_sequences, full_clock_state
 from .eureka import DEFAULT_SNAPSHOT_PATH, EurekaSignal, write_breakthrough_snapshot
 from .hill_cipher import hill_decrypt, matrix_inv_mod
 from .keystream_validator import crib_hit_count
+from .physical_grid import K4
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 _EUREKA_WORDS = frozenset({"EAST", "NORTHEAST", "BERLIN", "CLOCK"})
 

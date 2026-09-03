@@ -29,9 +29,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-logger = logging.getLogger(__name__)
+from .physical_grid import K4
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
+logger = logging.getLogger(__name__)
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 CRIB_SHIFTS: list[tuple[int, int]] = [

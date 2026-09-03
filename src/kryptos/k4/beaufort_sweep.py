@@ -18,8 +18,8 @@ from typing import Any
 
 from .eureka import DEFAULT_SNAPSHOT_PATH, EurekaSignal, write_breakthrough_snapshot
 from .keystream_validator import crib_hit_count
+from .physical_grid import K4
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 STANDARD_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
 
@@ -55,10 +55,7 @@ def beaufort_decrypt_alphabet(ciphertext: str, key: str, alphabet: str) -> str:
         return ""
     n = len(alphabet)
     ki = len(key_chars)
-    return "".join(
-        alphabet[(alphabet.index(key_chars[i % ki]) - alphabet.index(c)) % n]
-        for i, c in enumerate(ct)
-    )
+    return "".join(alphabet[(alphabet.index(key_chars[i % ki]) - alphabet.index(c)) % n] for i, c in enumerate(ct))
 
 
 def run_beaufort_sweep(
@@ -161,9 +158,7 @@ def run_beaufort_sweep(
         "best_candidates": best_candidates[:10],
         "null_artifact_path": str(Path(null_artifact_path).resolve()),
     }
-    Path(null_artifact_path).write_text(
-        json.dumps(summary, indent=2, default=str), encoding="utf-8"
-    )
+    Path(null_artifact_path).write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     return summary
 
 

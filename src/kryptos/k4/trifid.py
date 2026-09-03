@@ -35,11 +35,10 @@ from pathlib import Path
 from typing import Any
 
 from .eureka import EurekaSignal, write_breakthrough_snapshot
+from .physical_grid import K4
 from .quagmire import keyword_alphabet
 from .quagmire_sweep import _keyword_hits, positional_crib_hits
 from .validation import validate_candidate
-
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
 # 27th cube symbol — never appears in alpha-only plaintext/ciphertext, so it
 # only ever shows up (harmlessly) as a byproduct of decrypting an
