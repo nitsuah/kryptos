@@ -8,7 +8,7 @@ Last Updated: 2026-09-03
 
 ## Active
 
-One of the three primary-source gaps opened 2026-09-01 remains open; the timestamp one closed 2026-09-02, and the World Clock city list closed 2026-09-02 too (see Done below). See `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "Primary Sources Needed" and "External Developments (2025–2026)" sections for full detail and sourcing rationale. Action items below are split by who actually has to do them — Claude's automatable queue vs. the send that genuinely needs a human.
+One of the three primary-source gaps opened 2026-09-01 remains open; the timestamp one closed 2026-09-02, and the World Clock *segment*-sourcing gap (the ~4 of 24 segments with no legible photo) closed 2026-09-02 too — not the complete 146-name city list itself, which stands at 130/146 confirmed (see Done below). See `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "Primary Sources Needed" and "External Developments (2025–2026)" sections for full detail and sourcing rationale. Action items below are split by who actually has to do them — Claude's automatable queue vs. the send that genuinely needs a human.
 
 ### Primary-source sourcing (opened 2026-09-01)
 
