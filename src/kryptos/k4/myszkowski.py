@@ -37,10 +37,9 @@ from pathlib import Path
 from typing import Any
 
 from .eureka import EurekaSignal, write_breakthrough_snapshot
+from .physical_grid import K4
 from .quagmire_sweep import _keyword_hits, positional_crib_hits
 from .validation import validate_candidate
-
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
 # K1 and K2's own keys are the only Kryptos-relevant keywords with repeated
 # letters (KRYPTOS has none, so it can't demonstrate Myszkowski behaviour).

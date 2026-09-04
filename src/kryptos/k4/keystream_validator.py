@@ -13,19 +13,29 @@ from __future__ import annotations
 STANDARD_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 # Confirmed K4 crib positions (0-indexed): label -> (plaintext_word, start_in_ciphertext)
+#
+# 2026-09-02: EAST and NORTHEAST were previously stored one position too high
+# (22, 26) -- an old, self-consistent bug where the derived keystreams below
+# were computed from the *wrong* ciphertext slice (K4[22:26]="LRVQ" instead of
+# the real EAST ciphertext "FLRV" at K4[21:25]), so nothing internally caught
+# it. Corrected against the real K4 ciphertext: K4.find("FLRV")==21,
+# K4.find("QQPRNGKSS")==25, both independently confirmed via this project's
+# own `annotate_cribs()` (see tests/functional/test_k4_cribs.py, which
+# already asserted NORTHEAST==25 -- keystream_validator.K4_CRIBS just never
+# agreed with it). BERLIN (63) and CLOCK (69) were already correct.
 K4_CRIBS: dict[str, tuple[str, int]] = {
-    "EAST":      ("EAST",      22),
-    "NORTHEAST": ("NORTHEAST", 26),
-    "BERLIN":    ("BERLIN",    63),
-    "CLOCK":     ("CLOCK",     69),
+    "EAST": ("EAST", 21),
+    "NORTHEAST": ("NORTHEAST", 25),
+    "BERLIN": ("BERLIN", 63),
+    "CLOCK": ("CLOCK", 69),
 }
 
 # Derived expected keystreams (shifts mod 26 under standard alphabet)
 K4_EXPECTED_KEYSTREAMS: dict[str, list[int]] = {
-    "EAST":      [7, 17, 3, 23],
-    "NORTHEAST": [3, 1, 0, 20, 25, 6, 18, 0, 21],
-    "BERLIN":    [12, 20, 24, 10, 11, 6],
-    "CLOCK":     [10, 14, 17, 13, 0],
+    "EAST": [1, 11, 25, 2],
+    "NORTHEAST": [3, 2, 24, 24, 6, 2, 10, 0, 25],
+    "BERLIN": [12, 20, 24, 10, 11, 6],
+    "CLOCK": [10, 14, 17, 13, 0],
 }
 
 
@@ -71,10 +81,7 @@ def validate_keystreams(
 
     Returns dict of label -> True if exact match, False otherwise.
     """
-    return {
-        label: observed.get(label) == expected.get(label)
-        for label in expected
-    }
+    return {label: observed.get(label) == expected.get(label) for label in expected}
 
 
 def validate_k4_cribs(

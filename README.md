@@ -185,7 +185,7 @@ to `IQLUSION` in K1).
 
 - **Status**: Unsolved. Every attack vector attempted so far is null — single-layer, 2-layer, 3-layer composite, all 20 frontier vectors (P1–P20), the full 15-item Physical/Geometric Pivot, and Phase 7's shape-changing transpose family + shadow-angle primitives + city-list keywords. 1400+ tests passing, all attacks instrumented with permanent provenance artifacts.
 - **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first definitively ruled out)
-- **Confirmed cribs** (0-indexed): EAST@22–25, NORTHEAST@26–34, BERLIN@63–68, CLOCK@69–73
+- **Confirmed cribs** (0-indexed): EAST@21–24, NORTHEAST@25–33, BERLIN@63–68, CLOCK@69–73
 - **What's left**: needs new source material, not new code — a complete World Clock city list, a sub-minute-precision historical timestamp, or photographic documentation of the Kryptos compass rose's exact bearing. See `docs/ROADMAP.md`'s "Ideas — not yet scheduled."
 - **Current status**: `docs/analysis/K4_ACTIVE_RESEARCH.md` — the single source of truth for confirmed facts, ruled-out hypotheses, and Phase 1-7 results (older per-vector "3D fingerprint" analysis is archived at `docs/archive/K4_ATTACK_LANDSCAPE.md`).
 - **Live dashboard**: `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 → K4 Dashboard

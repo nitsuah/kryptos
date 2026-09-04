@@ -29,11 +29,11 @@ from .berlin_clock import enumerate_clock_shift_sequences
 from .eureka import DEFAULT_SNAPSHOT_PATH, EurekaSignal, write_breakthrough_snapshot
 from .inverse_transposition_sweep import K4_GRID_GEOMETRIES, SWEEP_ROUTES, invert_permutation
 from .keystream_validator import K4_CRIBS
+from .physical_grid import K4
 from .scoring_instructional import combined_instructional_score
 from .transposition_analysis import apply_columnar_permutation_reverse
 from .vigenere_key_recovery import KNOWN_KEYED_ALPHABETS, check_keyed_alphabet_realignment
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 _NULL_ARTIFACT_PATH = "K4_COMPOSITE_SWEEP_NULL.json"
 _EUREKA_WORDS: frozenset[str] = frozenset({"EAST", "NORTHEAST", "BERLIN", "CLOCK"})
 

@@ -3,10 +3,14 @@
 The four confirmed K4 cribs yield 24 known (ciphertext_position, Vigenère_shift)
 pairs (under standard alphabet, no transposition assumption):
 
-    EAST      @ positions 22-25  → shifts [7, 17, 3, 23]
-    NORTHEAST @ positions 26-34  → shifts [3, 1, 0, 20, 25, 6, 18, 0, 21]
+    EAST      @ positions 21-24  → shifts [1, 11, 25, 2]
+    NORTHEAST @ positions 25-33  → shifts [3, 2, 24, 24, 6, 2, 10, 0, 25]
     BERLIN    @ positions 63-68  → shifts [12, 20, 24, 10, 11, 6]
     CLOCK     @ positions 69-73  → shifts [10, 14, 17, 13, 0]
+
+2026-09-02: EAST/NORTHEAST were previously one position too high (22-25,
+26-34), the same bug fixed in ``keystream_validator.K4_CRIBS`` -- see that
+module for the full explanation. BERLIN/CLOCK were already correct.
 
 For a repeating Vigenère key of period L, any two ciphertext positions that are
 ≡ mod L must share the same key letter (same shift). This CSP is purely structural:
@@ -25,28 +29,28 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-logger = logging.getLogger(__name__)
+from .physical_grid import K4
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
+logger = logging.getLogger(__name__)
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 CRIB_SHIFTS: list[tuple[int, int]] = [
     # (ciphertext_position_0indexed, vigenere_shift_mod_26)
-    # EAST @ 22-25   ciphertext LRVQ  plaintext EAST
-    (22, 7),
-    (23, 17),
-    (24, 3),
-    (25, 23),
-    # NORTHEAST @ 26-34   ciphertext QPRNGKSSO  plaintext NORTHEAST
-    (26, 3),
-    (27, 1),
-    (28, 0),
-    (29, 20),
-    (30, 25),
-    (31, 6),
-    (32, 18),
-    (33, 0),
-    (34, 21),
+    # EAST @ 21-24   ciphertext FLRV  plaintext EAST
+    (21, 1),
+    (22, 11),
+    (23, 25),
+    (24, 2),
+    # NORTHEAST @ 25-33   ciphertext QQPRNGKSS  plaintext NORTHEAST
+    (25, 3),
+    (26, 2),
+    (27, 24),
+    (28, 24),
+    (29, 6),
+    (30, 2),
+    (31, 10),
+    (32, 0),
+    (33, 25),
     # BERLIN @ 63-68   ciphertext NYPVTT  plaintext BERLIN
     (63, 12),
     (64, 20),
@@ -120,7 +124,6 @@ def complete_partial_key(partial_key: list[int | None], ciphertext: str = K4) ->
     """
     from .scoring_instructional import combined_instructional_score
 
-    known_slots = {i: s for i, s in enumerate(partial_key) if s is not None}
     unknown_slots = [i for i, s in enumerate(partial_key) if s is None]
     L = len(partial_key)
     ct = [c for c in ciphertext.upper() if c.isalpha()]
@@ -128,7 +131,8 @@ def complete_partial_key(partial_key: list[int | None], ciphertext: str = K4) ->
 
     # If all slots known, decrypt directly
     if not unknown_slots:
-        candidate = "".join(STANDARD[(STANDARD.index(c) - partial_key[i % L]) % 26] for i, c in enumerate(ct))
+        full_key: list[int] = [s for s in partial_key if s is not None]
+        candidate = "".join(STANDARD[(STANDARD.index(c) - full_key[i % L]) % 26] for i, c in enumerate(ct))
         hits = sum(1 for w in eureka_words if w in candidate)
         return [{"candidate_text": candidate, "key": partial_key[:], "keyword_hits": hits}]
 
@@ -141,20 +145,22 @@ def complete_partial_key(partial_key: list[int | None], ciphertext: str = K4) ->
     from itertools import product
 
     for vals in product(range(26), repeat=len(unknown_slots)):
-        key = list(partial_key)
+        key: list[int] = [s if s is not None else 0 for s in partial_key]
         for slot, val in zip(unknown_slots, vals):
             key[slot] = val
         candidate = "".join(STANDARD[(STANDARD.index(c) - key[i % L]) % 26] for i, c in enumerate(ct))
         hits = sum(1 for w in eureka_words if w in candidate)
         if hits > 0:
             score = combined_instructional_score(candidate)
-            results.append({
-                "candidate_text": candidate,
-                "keyword_hits": hits,
-                "instructional_score": score,
-                "key": key,
-                "key_str": "".join(STANDARD[s] for s in key),
-            })
+            results.append(
+                {
+                    "candidate_text": candidate,
+                    "keyword_hits": hits,
+                    "instructional_score": score,
+                    "key": key,
+                    "key_str": "".join(STANDARD[s] for s in key),
+                }
+            )
 
     results.sort(key=lambda r: (-r["keyword_hits"], -r["instructional_score"]))
     return results[:50]
@@ -185,13 +191,15 @@ def run_key_csp_attack(
         logger.info("  L=%d: %d/%d slots constrained — partial key %s", L, filled, L, "".join(letter_key))
 
         candidates = complete_partial_key(partial_key)
-        csp_results.append({
-            "key_length": L,
-            "partial_key": letter_key,
-            "constrained_slots": filled,
-            "total_slots": L,
-            "candidates_with_hits": len(candidates),
-        })
+        csp_results.append(
+            {
+                "key_length": L,
+                "partial_key": letter_key,
+                "constrained_slots": filled,
+                "total_slots": L,
+                "candidates_with_hits": len(candidates),
+            }
+        )
         all_candidates.extend(candidates)
 
     all_candidates.sort(key=lambda r: (-r["keyword_hits"], -r.get("instructional_score", 0)))
@@ -208,8 +216,8 @@ def run_key_csp_attack(
     }
 
     try:
-        import json
         from pathlib import Path
+
         Path(null_artifact_path).write_text(json.dumps(summary, indent=2))
         logger.info("P18: null artifact written to %s", null_artifact_path)
     except Exception:  # noqa: BLE001

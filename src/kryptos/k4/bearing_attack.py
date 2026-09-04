@@ -14,9 +14,10 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from .physical_grid import K4  # single source of truth, see physical_grid.py
+
 logger = logging.getLogger(__name__)
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 EUREKA_WORDS = frozenset({"EAST", "NORTHEAST", "BERLIN", "CLOCK"})
 
@@ -53,9 +54,9 @@ def run_bearing_attack(null_artifact_path: str = "K4_P14_BEARING_NULL.json") -> 
     Returns:
         Summary dict with attack results and best candidates.
     """
-    from .vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
-    from .k2_clock_states import offset_time_minutes, clock_state_for_time, CIA_TIMESTAMP_TIMES
+    from .k2_clock_states import CIA_TIMESTAMP_TIMES, clock_state_for_time, offset_time_minutes
     from .scoring_instructional import combined_instructional_score
+    from .vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
 
     bearing = CIA_BERLIN_BEARING_DEG
     bearing_int = CIA_BERLIN_BEARING_INT
@@ -70,14 +71,16 @@ def run_bearing_attack(null_artifact_path: str = "K4_P14_BEARING_NULL.json") -> 
         candidate = "".join(alpha[(alpha.index(c) - shift) % 26] if c in alpha else c for c in ct)
         hits = _keyword_hits(candidate)
         if hits > 0:
-            results.append({
-                "test": "caesar_shift",
-                "shift": shift,
-                "alpha": alpha_name,
-                "keyword_hits": hits,
-                "candidate_text": candidate,
-                "instructional_score": combined_instructional_score(candidate),
-            })
+            results.append(
+                {
+                    "test": "caesar_shift",
+                    "shift": shift,
+                    "alpha": alpha_name,
+                    "keyword_hits": hits,
+                    "candidate_text": candidate,
+                    "instructional_score": combined_instructional_score(candidate),
+                }
+            )
 
     # ── Test 2: Clock-offset timestamps ────────────────────────────────────────
     # bearing_int degrees of a 12-hour clock = bearing_int / 360 * 720 ≈ 102 min
@@ -91,9 +94,11 @@ def run_bearing_attack(null_artifact_path: str = "K4_P14_BEARING_NULL.json") -> 
             state = clock_state_for_time(new_time)
             bearing_clock_times.append((state, f"{label} ±{clock_offset_min}min bearing"))
 
-    from .composite_sweep import _vigenere_decrypt, _keyword_hits as _kh
-    from .transposition_analysis import apply_columnar_permutation_reverse
     from itertools import permutations
+
+    from .composite_sweep import _keyword_hits as _kh
+    from .composite_sweep import _vigenere_decrypt
+    from .transposition_analysis import apply_columnar_permutation_reverse
 
     for state, label in bearing_clock_times:
         for alpha_name, alpha in KNOWN_KEYED_ALPHABETS.items():
@@ -103,21 +108,24 @@ def run_bearing_attack(null_artifact_path: str = "K4_P14_BEARING_NULL.json") -> 
                     candidate = apply_columnar_permutation_reverse(stripped, n_cols, list(perm))
                     hits = _kh(candidate)
                     if hits > 0:
-                        results.append({
-                            "test": "bearing_clock_offset",
-                            "clock_time": state["time"],
-                            "alpha": alpha_name,
-                            "keyword_hits": hits,
-                            "candidate_text": candidate,
-                            "instructional_score": combined_instructional_score(candidate),
-                            "source": label,
-                        })
+                        results.append(
+                            {
+                                "test": "bearing_clock_offset",
+                                "clock_time": state["time"],
+                                "alpha": alpha_name,
+                                "keyword_hits": hits,
+                                "candidate_text": candidate,
+                                "instructional_score": combined_instructional_score(candidate),
+                                "source": label,
+                            }
+                        )
 
     # ── Test 3: Vigenère key index offset by bearing ───────────────────────────
     # Shift the key cycle start to position bearing_int, so key[i] = repeating_key[(i+44)%L]
     logger.info("P14 Test 3: Vigenère key offset by %d positions", bearing_int)
-    from .berlin_clock import full_berlin_clock_shifts
     from datetime import time as dtime
+
+    from .berlin_clock import full_berlin_clock_shifts
 
     for hhmm, label in CIA_TIMESTAMP_TIMES:
         h, m = int(hhmm[:2]), int(hhmm[3:5])
@@ -131,15 +139,17 @@ def run_bearing_attack(null_artifact_path: str = "K4_P14_BEARING_NULL.json") -> 
                     candidate = apply_columnar_permutation_reverse(stripped, n_cols, list(perm))
                     hits = _kh(candidate)
                     if hits > 0:
-                        results.append({
-                            "test": "vigenere_key_offset",
-                            "clock_time": hhmm,
-                            "alpha": alpha_name,
-                            "keyword_hits": hits,
-                            "candidate_text": candidate,
-                            "instructional_score": combined_instructional_score(candidate),
-                            "bearing_offset": bearing_int,
-                        })
+                        results.append(
+                            {
+                                "test": "vigenere_key_offset",
+                                "clock_time": hhmm,
+                                "alpha": alpha_name,
+                                "keyword_hits": hits,
+                                "candidate_text": candidate,
+                                "instructional_score": combined_instructional_score(candidate),
+                                "bearing_offset": bearing_int,
+                            }
+                        )
 
     results.sort(key=lambda r: (-r["keyword_hits"], -r.get("instructional_score", 0)))
 
@@ -156,6 +166,7 @@ def run_bearing_attack(null_artifact_path: str = "K4_P14_BEARING_NULL.json") -> 
     try:
         import json
         from pathlib import Path
+
         Path(null_artifact_path).write_text(json.dumps(summary, indent=2))
     except Exception:  # noqa: BLE001
         pass

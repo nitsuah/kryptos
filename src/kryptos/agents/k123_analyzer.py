@@ -232,9 +232,9 @@ class K123Analyzer:
         patterns.append(
             SanbornPattern(
                 category="cipher",
-                description="'NORTHEAST' clue (2020) - characters 26-34",
+                description="'NORTHEAST' clue (2020) - characters 25-33",
                 evidence=["Sanborn confirmed 'NORTHEAST' appears in K4"],
-                k4_hypothesis="Known plaintext: chars 26-34 = 'NORTHEAST'. "
+                k4_hypothesis="Known plaintext: chars 25-33 = 'NORTHEAST'. "
                 "This gives us a known-plaintext attack anchor point. "
                 "Combined with 'BERLIN' theme from K3, suggests Cold War espionage angle. "
                 "Try ciphers where we can lock in NORTHEAST and work outward.",
@@ -258,7 +258,7 @@ class K123Analyzer:
             "",
         ]
 
-        by_category = {}
+        by_category: dict[str, list[SanbornPattern]] = {}
         for pattern in sorted(self.patterns, key=lambda p: p.confidence, reverse=True):
             if pattern.category not in by_category:
                 by_category[pattern.category] = []
@@ -287,7 +287,7 @@ class K123Analyzer:
                 "",
                 "Based on K1-K3 analysis, prioritize:",
                 "",
-                "1. **Known-plaintext attacks** using 'NORTHEAST' (chars 26-34)",
+                "1. **Known-plaintext attacks** using 'NORTHEAST' (chars 25-33)",
                 "2. **Spelling-aware search** - expect Q↔I, U↔O substitutions",
                 "3. **Thematic cribs** - Try 'BERLIN', 'CLOCK', Cold War terms",
                 "4. **Poetry/artistic validation** - SPY NLP to detect Sanborn's style",

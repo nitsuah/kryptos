@@ -9,8 +9,8 @@ sweep tests all four Quagmire variants against K4 directly with:
   the lamp-row values [5h, 1h, 5m, 1m, sec] to tableau letters)
 - both indicator-base conventions (Kryptos first-letter and ACA ``A``)
 
-Candidates are gated on the four confirmed positional cribs (EAST@22,
-NORTHEAST@26, BERLIN@63, CLOCK@69). A null-result artifact is always written
+Candidates are gated on the four confirmed positional cribs (EAST@21,
+NORTHEAST@25, BERLIN@63, CLOCK@69). A null-result artifact is always written
 so the run is fully provenance-tracked; >=3 positional cribs or >=4 keywords
 anywhere raises EurekaSignal with a breakthrough snapshot.
 """
@@ -28,6 +28,11 @@ from .eureka import DEFAULT_SNAPSHOT_PATH, EurekaSignal, write_breakthrough_snap
 from .keystream_validator import K4_CRIBS
 from .quagmire import keyword_alphabet, quagmire1_decrypt, quagmire2_decrypt, quagmire3_decrypt, quagmire4_decrypt
 
+# Not imported from physical_grid.K4 (the canonical source used by the other
+# 15 modules that had their own copy of this literal, consolidated
+# 2026-09-03): physical_grid.py imports _keyword_hits/positional_crib_hits
+# from *this* module, so the reverse import would be circular. Kept as its
+# own literal deliberately, not an oversight.
 K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
 WORD_KEYS = [

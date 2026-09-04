@@ -38,12 +38,25 @@ K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK
 SIZE = 26
 
 
-def build_tableau(alphabet_keyword: str = "KRYPTOS") -> list[list[str]]:
+def build_tableau(alphabet_keyword: str = "KRYPTOS", mirrored: bool = False) -> list[list[str]]:
     """Build the 26x26 keyed Vigenere tableau.
 
     Row 0 is the keyed alphabet; row i is that alphabet rotated i places left.
+
+    ``mirrored=True`` models a real, sourced physical fact rather than an
+    abstract transform: CIA's own page on the sculpture states the tableau
+    "has been intentionally flipped so it can only be read from the back
+    of the sculpture" (see ``physical_geometry.CURRENT.tableau``). Reading
+    the same physical grid from the opposite side reverses the column
+    axis; for this cyclic construction (``grid[i][j] = keyed[(i+j) % 26]``)
+    that's algebraically ``keyed[(i-j) % 26]`` -- a real Beaufort-style
+    tableau, not just a relabeled Vigenere one, and genuinely different
+    from any of the 108 rows/columns/diagonals/serpentine reads already
+    tested through the *un-mirrored* grid.
     """
     keyed = keyword_alphabet(alphabet_keyword)
+    if mirrored:
+        return [[keyed[(i - j) % SIZE] for j in range(SIZE)] for i in range(SIZE)]
     return [[keyed[(i + j) % SIZE] for j in range(SIZE)] for i in range(SIZE)]
 
 
@@ -70,14 +83,14 @@ def _boustrophedon(lines: list[str]) -> str:
     return "".join(line if i % 2 == 0 else line[::-1] for i, line in enumerate(lines))
 
 
-def candidate_keystreams(alphabet_keyword: str = "KRYPTOS") -> dict[str, str]:
+def candidate_keystreams(alphabet_keyword: str = "KRYPTOS", mirrored: bool = False) -> dict[str, str]:
     """Generate named candidate keystreams by walking the tableau.
 
     Returns a dict of route-name -> keystream string. Routes include each of
     the 26 rows/columns/diagonals individually plus full-grid serpentine reads
-    in row, column, and diagonal order.
+    in row, column, and diagonal order. ``mirrored`` -- see `build_tableau`.
     """
-    grid = build_tableau(alphabet_keyword)
+    grid = build_tableau(alphabet_keyword, mirrored=mirrored)
     rows = _rows(grid)
     cols = _columns(grid)
     main_diags = _main_diagonals(grid)
@@ -108,8 +121,14 @@ def run_physical_grid_attack(
     null_artifact_path: str | Path = "K4_PHYSICAL_GRID_NULL.json",
     positional_eureka_threshold: int = 3,
     keyword_eureka_threshold: int = 4,
+    mirrored: bool = False,
 ) -> dict[str, Any]:
     """Walk the Kryptos tableau for keystreams and Quagmire-III-decrypt K4.
+
+    ``mirrored`` -- see `build_tableau`'s docstring: tests the tableau as
+    CIA's own page describes it actually being read (from the back of the
+    sculpture), a real sourced physical fact rather than an abstract
+    reflection choice.
 
     Returns a summary dict (status, run_params, best_candidates) and writes it
     to ``null_artifact_path``. Raises EurekaSignal on a crib breakthrough.
@@ -117,7 +136,7 @@ def run_physical_grid_attack(
     ct = "".join(c for c in ciphertext.upper() if c.isalpha())
     ts_start = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
-    streams = candidate_keystreams(alphabet_keyword)
+    streams = candidate_keystreams(alphabet_keyword, mirrored=mirrored)
     total_tested = 0
     best_candidates: list[dict[str, Any]] = []
 
@@ -135,6 +154,7 @@ def run_physical_grid_attack(
                     "keystream": keystream,
                     "alphabet_keyword": alphabet_keyword,
                     "indicator_base": base,
+                    "mirrored": mirrored,
                 }
                 snap = write_breakthrough_snapshot(
                     candidate,
@@ -176,6 +196,7 @@ def run_physical_grid_attack(
             "total_tested": total_tested,
             "positional_eureka_threshold": positional_eureka_threshold,
             "keyword_eureka_threshold": keyword_eureka_threshold,
+            "mirrored": mirrored,
             "ts_start": ts_start,
         },
         "best_candidates": best_candidates[:10],

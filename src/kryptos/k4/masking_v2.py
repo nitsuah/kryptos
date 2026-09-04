@@ -18,16 +18,16 @@ from datetime import time
 
 from .berlin_clock import full_clock_state
 from .keystream_validator import K4_CRIBS
+from .physical_grid import K4
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
-
-# Original crib positions (0-indexed in the 97-char K4)
-ORIGINAL_CRIB_POSITIONS: dict[str, int] = {
-    "EAST": 22,
-    "NORTHEAST": 26,
-    "BERLIN": 63,
-    "CLOCK": 69,
-}
+# Original crib positions (0-indexed in the 97-char K4).
+#
+# Previously duplicated K4_CRIBS as a separate, hand-maintained literal here
+# (with EAST/NORTHEAST independently drifted 1 position too high -- the same
+# bug fixed in keystream_validator.K4_CRIBS on 2026-09-02, see that module's
+# note). Derived from the already-imported K4_CRIBS instead, so there is only
+# one source of truth to keep correct.
+ORIGINAL_CRIB_POSITIONS: dict[str, int] = {label: pos for label, (_, pos) in K4_CRIBS.items()}
 
 
 def _recalc_cribs(residue_indices: list[int]) -> dict[str, int | None]:
@@ -38,17 +38,15 @@ def _recalc_cribs(residue_indices: list[int]) -> dict[str, int | None]:
     """
     idx_map = {orig: new for new, orig in enumerate(residue_indices)}
     result: dict[str, int | None] = {}
-    for crib, plain, orig_pos in [
-        ("EAST", "EAST", 22),
-        ("NORTHEAST", "NORTHEAST", 26),
-        ("BERLIN", "BERLIN", 63),
-        ("CLOCK", "CLOCK", 69),
-    ]:
-        new_positions = [idx_map.get(orig_pos + i) for i in range(len(crib))]
+    for label, (plain, orig_pos) in K4_CRIBS.items():
+        # Span must come from the plaintext word's own length, not the dict
+        # key -- label and plain happen to be identical strings for all 4
+        # current cribs, which hid this until it mattered.
+        new_positions = [idx_map.get(orig_pos + i) for i in range(len(plain))]
         if None in new_positions:
-            result[crib] = None  # masked out
+            result[label] = None  # masked out
         else:
-            result[crib] = new_positions[0]  # type: ignore[assignment]
+            result[label] = new_positions[0]  # type: ignore[assignment]
     return result
 
 
@@ -71,7 +69,12 @@ def mask_block_skip(ciphertext: str, block: int = 8) -> tuple[str, dict]:
     kept_indices = [i for i in range(len(ct)) if (i + 1) % block != 0]
     residue = "".join(ct[i] for i in kept_indices)
     cribs = _recalc_cribs(kept_indices)
-    return residue, {"mode": f"block-{block}-skip", "original_len": len(ct), "residue_len": len(residue), "cribs": cribs}
+    return residue, {
+        "mode": f"block-{block}-skip",
+        "original_len": len(ct),
+        "residue_len": len(residue),
+        "cribs": cribs,
+    }
 
 
 def mask_clock_shadow(ciphertext: str, clock_time: time) -> tuple[str, dict]:
@@ -90,7 +93,12 @@ def mask_clock_shadow(ciphertext: str, clock_time: time) -> tuple[str, dict]:
     residue = "".join(ct[i] for i in kept_indices)
     cribs = _recalc_cribs(kept_indices)
     time_str = f"{clock_time.hour:02d}:{clock_time.minute:02d}:{clock_time.second:02d}"
-    return residue, {"mode": f"clock-shadow@{time_str}", "original_len": len(ct), "residue_len": len(residue), "cribs": cribs}
+    return residue, {
+        "mode": f"clock-shadow@{time_str}",
+        "original_len": len(ct),
+        "residue_len": len(residue),
+        "cribs": cribs,
+    }
 
 
 def mask_arc_fraction(ciphertext: str, clock_time: time, neighborhood: int = 4) -> tuple[str, dict]:
@@ -105,7 +113,12 @@ def mask_arc_fraction(ciphertext: str, clock_time: time, neighborhood: int = 4) 
     residue = "".join(ct[i] for i in kept_indices)
     cribs = _recalc_cribs(kept_indices)
     time_str = f"{clock_time.hour:02d}:{clock_time.minute:02d}"
-    return residue, {"mode": f"arc-fraction@{time_str}±{neighborhood}", "original_len": len(ct), "residue_len": len(residue), "cribs": cribs}
+    return residue, {
+        "mode": f"arc-fraction@{time_str}±{neighborhood}",
+        "original_len": len(ct),
+        "residue_len": len(residue),
+        "cribs": cribs,
+    }
 
 
 def all_masking_variants(ciphertext: str = K4) -> list[tuple[str, dict]]:

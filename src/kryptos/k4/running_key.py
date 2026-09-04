@@ -12,11 +12,10 @@ K3 confirmed plaintext (336 chars, double-rotation transposition of K3 cipher):
 
 from __future__ import annotations
 
-from .eureka import check_eureka
+from .physical_grid import K4
 from .scoring_instructional import combined_instructional_score
 
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 
 # K3 confirmed plaintext — first 97 alpha chars as running key
 K3_PLAINTEXT_FULL = (
@@ -68,10 +67,10 @@ def run_k3_running_key_attack(
     ct = "".join(c for c in ciphertext.upper() if c.isalpha())
 
     variants = [
-        ("standard_direct",   STANDARD,      K3_KEY_97),
-        ("standard_reversed", STANDARD,      K3_KEY_97[::-1]),
-        ("kryptos_direct",    KEYED_ALPHABET, K3_KEY_97),
-        ("kryptos_reversed",  KEYED_ALPHABET, K3_KEY_97[::-1]),
+        ("standard_direct", STANDARD, K3_KEY_97),
+        ("standard_reversed", STANDARD, K3_KEY_97[::-1]),
+        ("kryptos_direct", KEYED_ALPHABET, K3_KEY_97),
+        ("kryptos_reversed", KEYED_ALPHABET, K3_KEY_97[::-1]),
     ]
 
     best: list[dict] = []
@@ -83,13 +82,17 @@ def run_k3_running_key_attack(
             if hits >= keyword_eureka_threshold:
                 key_info = {"variant": label, "key_preview": key[:20]}
                 snap = write_breakthrough_snapshot(candidate, key_info)
-                raise EurekaSignal(snapshot_path=snap, result={"candidate_text": candidate, "key_info": key_info, "keyword_hits": hits})
-            best.append({
-                "variant": label,
-                "candidate_text": candidate,
-                "keyword_hits": hits,
-                "instructional_score": score,
-            })
+                raise EurekaSignal(
+                    snapshot_path=snap, result={"candidate_text": candidate, "key_info": key_info, "keyword_hits": hits}
+                )
+            best.append(
+                {
+                    "variant": label,
+                    "candidate_text": candidate,
+                    "keyword_hits": hits,
+                    "instructional_score": score,
+                }
+            )
     except EurekaSignal:
         raise
 

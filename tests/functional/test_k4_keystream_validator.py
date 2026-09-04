@@ -14,12 +14,12 @@ K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPK
 
 class TestComputeShifts:
     def test_east_shifts(self):
-        observed = compute_shifts_at_cribs(K4, {"EAST": ("EAST", 22)})
-        assert observed["EAST"] == [7, 17, 3, 23]
+        observed = compute_shifts_at_cribs(K4, {"EAST": ("EAST", 21)})
+        assert observed["EAST"] == [1, 11, 25, 2]
 
     def test_northeast_shifts(self):
-        observed = compute_shifts_at_cribs(K4, {"NORTHEAST": ("NORTHEAST", 26)})
-        assert observed["NORTHEAST"] == [3, 1, 0, 20, 25, 6, 18, 0, 21]
+        observed = compute_shifts_at_cribs(K4, {"NORTHEAST": ("NORTHEAST", 25)})
+        assert observed["NORTHEAST"] == [3, 2, 24, 24, 6, 2, 10, 0, 25]
 
     def test_berlin_shifts(self):
         observed = compute_shifts_at_cribs(K4, {"BERLIN": ("BERLIN", 63)})
@@ -35,8 +35,8 @@ class TestComputeShifts:
 
     def test_extra_whitespace_stripped(self):
         k4_spaced = "OBKRUOXO GHULBSO LIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"  # noqa: E501
-        observed = compute_shifts_at_cribs(k4_spaced, {"EAST": ("EAST", 22)})
-        assert observed["EAST"] == [7, 17, 3, 23]
+        observed = compute_shifts_at_cribs(k4_spaced, {"EAST": ("EAST", 21)})
+        assert observed["EAST"] == [1, 11, 25, 2]
 
 
 class TestValidateK4Cribs:

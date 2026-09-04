@@ -26,15 +26,14 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-logger = logging.getLogger(__name__)
+from .physical_grid import K4
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
+logger = logging.getLogger(__name__)
 
 # English letters that can legitimately appear doubled (common doublets)
 # Source: frequency analysis of English text — all 26 possible but realistic ones:
 ENGLISH_DOUBLETS: frozenset[str] = frozenset(
-    "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ"[i]
-    for i in range(0, 52, 2)
+    "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ"[i] for i in range(0, 52, 2)
 )
 
 # Letters that realistically double in English prose (top doublets)
@@ -52,11 +51,13 @@ def find_doubled_pairs(ciphertext: str = K4) -> list[dict[str, Any]]:
     pairs = []
     for i in range(len(ct) - 1):
         if ct[i] == ct[i + 1]:
-            pairs.append({
-                "position": i,
-                "letter": ct[i],
-                "is_rare_doublet": ct[i] in RARE_DOUBLETS,
-            })
+            pairs.append(
+                {
+                    "position": i,
+                    "letter": ct[i],
+                    "is_rare_doublet": ct[i] in RARE_DOUBLETS,
+                }
+            )
     return pairs
 
 
@@ -88,10 +89,7 @@ def filter_candidates_by_doublets(
     results = []
     for cand in candidates:
         ct_alpha = [c for c in cand.upper() if c.isalpha()]
-        passes = all(
-            pos < len(ct_alpha) - 1 and ct_alpha[pos] in doublet_set
-            for pos in doubled_positions
-        )
+        passes = all(pos < len(ct_alpha) - 1 and ct_alpha[pos] in doublet_set for pos in doubled_positions)
         results.append((cand, passes))
     return results
 
@@ -111,14 +109,16 @@ def doubled_constraint_analysis(ciphertext: str = K4) -> dict[str, Any]:
     for p in pairs:
         pos = p["position"]
         letter = p["letter"]
-        analysis.append({
-            "cipher_position": pos,
-            "cipher_letter": letter,
-            "is_rare_as_cipher_doublet": p["is_rare_doublet"],
-            "mono_subst_implies": f"plaintext[{pos}] == plaintext[{pos+1}]",
-            "must_be_english_doublet": True,
-            "plausible_doublet_letters": sorted(ENGLISH_DOUBLETS),
-        })
+        analysis.append(
+            {
+                "cipher_position": pos,
+                "cipher_letter": letter,
+                "is_rare_as_cipher_doublet": p["is_rare_doublet"],
+                "mono_subst_implies": f"plaintext[{pos}] == plaintext[{pos+1}]",
+                "must_be_english_doublet": True,
+                "plausible_doublet_letters": sorted(ENGLISH_DOUBLETS),
+            }
+        )
 
     # Repeating-key implications: for each doubled pair at (pos, pos+1),
     # if key period L divides (pos+1 - pos) = 1, then key[pos%L] == key[(pos+1)%L].
@@ -132,11 +132,13 @@ def doubled_constraint_analysis(ciphertext: str = K4) -> dict[str, Any]:
             slot_a = pos % L
             slot_b = (pos + 1) % L
             if slot_a == slot_b:
-                implications.append({
-                    "cipher_position": pos,
-                    "letter": p["letter"],
-                    "implication": f"key[{slot_a}] constrains both positions — identical shift on pair",
-                })
+                implications.append(
+                    {
+                        "cipher_position": pos,
+                        "letter": p["letter"],
+                        "implication": f"key[{slot_a}] constrains both positions — identical shift on pair",
+                    }
+                )
         if implications:
             key_length_implications[L] = implications
 

@@ -54,11 +54,11 @@ from typing import Any
 
 from . import geometry24
 from .eureka import EurekaSignal, write_breakthrough_snapshot
+from .physical_grid import K4
 from .quagmire_sweep import _keyword_hits, positional_crib_hits
 from .scoring import combined_plaintext_score
 from .validation import validate_candidate
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 _NULL_ARTIFACT_PATH = "K4_GEOMETRY_SUBSTITUTION_SA_NULL.json"

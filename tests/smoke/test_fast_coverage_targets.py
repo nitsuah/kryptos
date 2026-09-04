@@ -87,6 +87,19 @@ class _FakeHypothesis:
         return self._candidates[:limit]
 
 
+def test_hypothesis_runner_default_ciphertext_is_the_full_real_k4() -> None:
+    # Regression: this module used to hardcode its own truncated 74-char
+    # K4 fragment as the default `ciphertext` parameter, silently missing
+    # the BERLIN/CLOCK crib positions (63-73) entirely -- a landmine for
+    # any caller relying on the default. Now imports the canonical
+    # physical_grid.K4 instead.
+    from kryptos.k4.hypothesis_runner import K4_CIPHERTEXT
+    from kryptos.k4.physical_grid import K4
+
+    assert K4_CIPHERTEXT == K4
+    assert len(K4_CIPHERTEXT) == 97
+
+
 def test_hypothesis_runner_writes_artifacts_and_parameters(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     baseline_dir = tmp_path / "baselines"
     baseline_dir.mkdir(parents=True)

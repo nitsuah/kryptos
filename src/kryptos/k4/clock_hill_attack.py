@@ -24,8 +24,8 @@ from .berlin_clock import enumerate_clock_shift_sequences, full_clock_state
 from .eureka import DEFAULT_SNAPSHOT_PATH, EurekaSignal, write_breakthrough_snapshot
 from .hill_cipher import hill_decrypt, matrix_inv_mod
 from .keystream_validator import crib_hit_count
+from .physical_grid import K4
 
-K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 _EUREKA_WORDS = frozenset({"EAST", "NORTHEAST", "BERLIN", "CLOCK"})
 
@@ -211,7 +211,7 @@ def run_clock_vigenere_attack(
     For each Berlin Clock state × encoding scheme:
     1. Derive a 4-char Vigenère key (not the full 24-element shift sequence).
     2. Apply Vigenère decryption to K4.
-    3. Check NORTHEAST at position 26 and EAST at position 22.
+    3. Check NORTHEAST at position 25 and EAST at position 21.
     4. Record candidates with positional matches or crib hits.
 
     Returns summary dict. Writes null-result artifact when no breakthrough found.
@@ -236,9 +236,11 @@ def run_clock_vigenere_attack(
 
             candidate = vigenere_decrypt_ints(ct, key_ints)
 
-            northeast_at_26 = len(candidate) >= 35 and candidate[26:35] == "NORTHEAST"
-            east_at_22 = len(candidate) >= 26 and candidate[22:26] == "EAST"
-            positional_match = int(northeast_at_26) + int(east_at_22)
+            # 2026-09-02: positions were previously one too high (26, 22) --
+            # same bug fixed in keystream_validator.K4_CRIBS; see that module.
+            northeast_at_25 = len(candidate) >= 34 and candidate[25:34] == "NORTHEAST"
+            east_at_21 = len(candidate) >= 25 and candidate[21:25] == "EAST"
+            positional_match = int(northeast_at_25) + int(east_at_21)
 
             kw_hits = _keyword_hits(candidate)
             crib_hits = crib_hit_count(candidate)
