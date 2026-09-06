@@ -1,0 +1,28 @@
+# Render blueprint — deploys the Kryptos FastAPI backend as a Docker web service.
+# The frontend stays on Netlify (static SPA); this backend serves /api/* and /health.
+# Netlify's VITE_API_BASE_URL must point at this service's public URL.
+services:
+  - type: web
+    name: kryptos-api
+    runtime: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: KRYPTOS_FRONTEND_DIST
+        value: /app/frontend/dist
+      - key: HF_HOME
+        value: /tmp/hf_cache
+      - key: KRYPTOS_CORS_ORIGINS
+        value: https://kryptos-k4.netlify.app
+      # Optional: set DATABASE_URL to a Neon/Postgres connection string to enable
+      # the dashboard DB features. Leave unset for db_enabled:false (graceful).
+      # - key: DATABASE_URL
+      #   sync: false
+      # Optional: LLM providers for the ops director. Falls back to rule-based
+      # logic when unset.
+      # - key: OPENAI_API_KEY
+      #   sync: false
+      # - key: ANTHROPIC_API_KEY
+      #   sync: false
