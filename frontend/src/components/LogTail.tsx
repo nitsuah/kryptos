@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { apiPath } from "../api";
 
 type ConnState = "connecting" | "live" | "stopped" | "error";
 
@@ -26,7 +27,7 @@ export default function LogTail() {
     }
 
     setState("connecting");
-    const es = new EventSource(`/api/stream/logs?backlog=${BACKLOG}&follow=true`);
+    const es = new EventSource(apiPath(`/api/stream/logs?backlog=${BACKLOG}&follow=true`));
     esRef.current = es;
 
     es.onopen = () => setState("live");
