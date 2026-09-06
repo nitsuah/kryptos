@@ -304,7 +304,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp_serve = sub.add_parser("serve", help="Run the Kryptos FastAPI server (turbovec RAG search over artifacts/)")
     sp_serve.add_argument("--host", type=str, default="0.0.0.0", help="Bind host (default: 0.0.0.0)")
     sp_serve.add_argument(
-        "--port", type=int, default=int(os.environ.get("PORT", "8000")), help="Bind port (default: $PORT or 8000)"
+        "--port", type=str, default=os.environ.get("PORT", "8000"), help="Bind port (default: $PORT or 8000)"
     )
     sp_serve.add_argument("--reload", action="store_true", help="Enable auto-reload (development)")
     sp_serve.set_defaults(func=cmd_serve)
