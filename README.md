@@ -408,7 +408,7 @@ Run the fast test suite with coverage in a lightweight Docker container:
 
 ```bash
 docker run --rm -v "${PWD}:/app" -w /app python:3.13-slim sh -lc \
-  "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml fastapi httpx && \
+  "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml fastapi httpx geographiclib && \
    python -m spacy download en_core_web_sm && \
    pip install --no-cache-dir -e . --no-deps && \
    pytest tests/ -m 'not slow' --cov=kryptos --cov-report=term"

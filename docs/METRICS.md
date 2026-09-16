@@ -6,28 +6,28 @@ Breadcrumb: [Docs](INDEX.md) > Metrics
 
 **Note:** Data and artifacts are planned to migrate to a database as part of the 2027 roadmap. Current metrics reflect the file-based structure.
 
-**Last Validated:** 2026-08-22 (docs audit pass); file counts re-derived by static analysis. Test-function count reflects all `def test_*` functions; pytest-collected count (after marks/deselection) may differ.
+**Last Validated:** 2026-09-16 (PMO audit, full re-run — see below); file counts re-derived by static analysis. Test-function count reflects all `def test_*` functions; pytest-collected count (after marks/deselection/parametrization) is higher and may differ.
 
 ## Core Metrics
 
 | Metric              | Value   | Notes                                      |
 | ------------------- | ------- | ------------------------------------------ |
-| Code Coverage       | 89.35%  | Measured with pytest-cov (Docker, 2026-08-22): `pytest tests/ --cov=kryptos --cov-report=term`; 1192 collected passed, 28 skipped |
-| Source Files        | 112     | Python modules in src/ excl. `__init__.py` (131 total incl. `__init__.py`) |
-| Test Files          | 184     | `test_*.py` modules in tests/              |
-| Test Functions      | 1271    | `def test_*` functions across all test files (static count 2026-08-22) |
-| Test Cases (Fast)   | 1192    | 0 failures, 28 skipped (Docker run 2026-08-22; slow Monte Carlo tests excluded) |
-| Test Cases (Slow)   | ~22     | `@pytest.mark.slow`-marked test locations (opt-in Monte Carlo) |
-| Lines of Code       | ~65K    | Estimated from 112 non-init source files   |
+| Code Coverage       | 89.27%  | Measured with pytest-cov (Docker, 2026-09-16, PMO audit): README's "Docker Fast Coverage" `python:3.13-slim` command — `pytest tests/ -m 'not slow' --cov=kryptos --cov-report=term`; 13,216 statements, 1,418 missed. Essentially flat vs. the 2026-08-22 reading (89.35%) despite substantial test growth in between. |
+| Source Files        | 133     | Python modules in src/ excl. `__init__.py` (152 total incl. `__init__.py`) — re-derived 2026-09-16, up from 112/131 on 2026-08-22 (Phase 6/7/8 modules: geodesy, solar_geometry, cross_vector_consensus, classical_cipher_sweep, k0_morse_keywords, plaintext_evidence, known_plaintext_inversion, physical_geometry, constraint_chain, overnight_runner, and others) |
+| Test Files          | 208     | `test_*.py` modules in tests/ (re-derived 2026-09-16, up from 184) |
+| Test Functions      | 1535    | `def test_*` functions across all test files (static count 2026-09-16, up from 1271 on 2026-08-22) |
+| Test Cases (Fast)   | 1658 passed | 0 failures, 34 skipped (Docker run 2026-09-16, PMO audit; slow-marked tests excluded via `-m 'not slow'`). Pytest-collected count exceeds the static function count above because parametrized tests expand into multiple items. |
+| Test Cases (Slow)   | 26      | `@pytest.mark.slow`-marked test items, deselected by the fast run above (was estimated "~22" on 2026-08-22; now an exact count from the same run) |
+| Lines of Code       | ~65K    | Not re-measured this cycle — carried over from 2026-08-22; TBD re-verify against the 133-file count above |
 | Documentation Files | 40+     | Comprehensive docs in docs/ directory      |
-| Subdirectories      | 33      | Well-organized module structure            |
-| Total Package Size  | 712 KB  | Source code only (excl. data/artifacts)    |
+| Subdirectories      | 40      | `find src -type d` count, 2026-09-16 (was 33 on 2026-08-22; grew with new K4 modules — methodology not otherwise changed) |
+| Total Package Size  | 712 KB  | Source code only (excl. data/artifacts) — not re-measured this cycle, TBD re-verify |
 
 ## Performance Metrics
 
 | Metric                      | Value         | Notes                                |
 | --------------------------- | ------------- | ------------------------------------ |
-| Fast Test Duration          | 48.51s        | Measured: 631 fast tests on 2026-05-25 |
+| Fast Test Duration          | 261.37s (4:21)| Full `-m 'not slow'` suite, Docker, 2026-09-16 (1658 passed + 34 skipped). Not directly comparable to the 48.51s/631-test 2026-05-25 baseline — the fast suite has grown substantially since (now 1692 collected non-slow items) as Phase 6-8 K4 attack modules and their tests were added. |
 | Full Test Duration          | N/A (slow suites are opt-in) | Run with `KRYPTOS_RUN_SLOW_MONTE_CARLO=1` when you want the Monte Carlo path |
 | K4 Attack Throughput        | 2.5 atk/sec   | Sequential execution baseline        |
 | SA Speedup vs Hill-Climbing | 30-45%        | Simulated annealing optimization     |
@@ -54,14 +54,14 @@ Breadcrumb: [Docs](INDEX.md) > Metrics
 | Provenance            | 2     | ~836  | Attack logging and search tracking   |
 | K4 Toolkit            | 29    | ~15K  | Cipher implementations and scoring   |
 | Research              | 4     | ~2K   | Academic paper analysis              |
-| Tests                 | 184   | ~25K+ | Comprehensive test coverage          |
+| Tests                 | 208   | ~25K+ | Comprehensive test coverage (file count re-derived 2026-09-16, was 184) |
 
 ## Code Quality
 
 | Metric                 | Value    | Notes                                    |
 | ---------------------- | -------- | ---------------------------------------- |
 | Linting Status         | Clean    | Pre-commit hooks enforced                |
-| Test Pass Rate         | 100%     | 829 passed, 0 failures (AUDIT_2026-06-01 baseline; 1271 functions as of 2026-08-22 static count) |
+| Test Pass Rate         | 100%     | 1658 passed, 0 failures (Docker run 2026-09-16, PMO audit; 1535 functions as of 2026-09-16 static count) |
 | Deprecated Code        | Minimal  | executor.py marked for removal (legacy, retiring after migration confirmation) |
 | TODO/FIXME Count       | Low      | No critical technical debt               |
 | Module Independence    | High     | Clear boundaries, no shadow imports      |
@@ -71,10 +71,10 @@ Breadcrumb: [Docs](INDEX.md) > Metrics
 
 | Metric           | Value      | Notes                                    |
 | ---------------- | ---------- | ---------------------------------------- |
-| Open Issues      | 0          | GitHub issue tracking                     |
-| PR Turnaround    | <1 day     | Typical PR review time                   |
-| Skipped Tests    | 10         | Module-level slow tests (marked skip)    |
-| Health Score     | 95/100     | Overseer compliance score                 |
-| Last Updated     | 2026-08-22 | Docs audit: file counts updated to current codebase state |
+| Open Issues      | 0          | `gh issue list` — no open issues as of 2026-09-16 |
+| PR Turnaround    | <1 day     | Typical PR review time (last measured 2026-08-22, not re-sampled this cycle) |
+| Skipped Tests    | 34         | Fast-run skips (Docker, 2026-09-16) — DATABASE_URL-gated, torch/transformers-gated, and a few environment-conditional tests; was reported as "10" on 2026-08-22, which undercounted vs. the actual fast-run skip list |
+| Health Score     | 95/100     | Overseer compliance score (not re-scored this cycle) |
+| Last Updated     | 2026-09-16 | PMO audit: full re-run in Docker (README's "Docker Fast Coverage" command, after fixing a missing `geographiclib` dependency in that same command — see README.md) |
 | Project Status   | Active     | All Q1-2027 phases shipped; frontier K4 attack planning in progress |
 | K4 Readiness     | 8.5/10     | Full pipeline, dashboard, RAG, and 14 completed attack vectors; 3-layer composites next |
