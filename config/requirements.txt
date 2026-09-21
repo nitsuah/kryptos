@@ -12,6 +12,6 @@ torch>=2.14.0  # Optional: for LINGUIST neural models; also backs kryptos.rag em
 sentence-transformers>=6.0.1  # Embeddings for kryptos.rag turbovec index (also used for LINGUIST)
 turbovec  # Compressed vector index for kryptos.rag (RAG over artifacts/)
 fastapi>=0.141.1  # `kryptos serve` API
-uvicorn[standard]>=0.52.4  # ASGI server for `kryptos serve`
+uvicorn[standard]>=0.53.0  # ASGI server for `kryptos serve`
 psycopg2-binary>=2.9.13  # PostgreSQL driver for kryptos.db (DATABASE_URL / Neon storage)
 geographiclib>=2.1  # WGS84 geodesic bearing/distance for kryptos.k4.geodesy (pure-Python, no compiled deps)
