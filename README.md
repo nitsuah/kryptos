@@ -6,6 +6,8 @@
 
 [![CI (slow)](https://github.com/nitsuah/kryptos/actions/workflows/ci-slow.yml/badge.svg)](https://github.com/nitsuah/kryptos/actions)
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/0fb1be42-e131-4cf6-ae74-d139c671e1e3/deploy-status)](https://app.netlify.com/projects/kryptos-k4/deploys)
+
 Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos using Python! This project focuses on
 implementing cryptographic techniques, specifically the Vigenère cipher and structural transposition analysis, to
 decrypt the famous Kryptos sculpture.
