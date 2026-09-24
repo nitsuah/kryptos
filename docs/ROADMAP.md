@@ -3,7 +3,7 @@
 Breadcrumb: [Docs](INDEX.md) > Roadmap
 
 Last Updated: 2026-09-03
-Next Review: 2026-09-15
+Next Review: 2026-10-24
 
 ---
 

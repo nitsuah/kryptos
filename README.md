@@ -404,6 +404,14 @@ using the evaluation harness; it falls back to `0.25` when no labeled runs are a
 
 Community contribution guidelines are maintained in [nitsuah/.github](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md).
 
+## Deployment
+
+The app is split across two hosts. Both were verified live on 2026-09-24.
+
+- **Frontend (static SPA):** Netlify, https://kryptos-k4.netlify.app. Configured in `netlify.toml`, whose `VITE_API_BASE_URL` points the SPA at the backend below.
+- **Backend (FastAPI, `/api/*` and `/health`):** Render free-tier Docker web service `kryptos-api`, https://kryptos-kg8t.onrender.com, defined by the `render.yaml` blueprint (#204, #205, #206). CORS is limited to the Netlify origin via `KRYPTOS_CORS_ORIGINS`. `DATABASE_URL` and the LLM provider keys are optional; without a database the backend runs with `db_enabled:false`, and without LLM keys the ops director uses its rule-based fallback.
+- Render's free plan sleeps when idle. The first request after idle can take about 20s: `/health` took 22s cold on 2026-09-24.
+
 ## Docker Fast Coverage
 
 Run the fast test suite with coverage in a lightweight Docker container:
