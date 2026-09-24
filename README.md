@@ -410,7 +410,7 @@ The app is split across two hosts. Both were verified live on 2026-09-24.
 
 - **Frontend (static SPA):** Netlify, https://kryptos-k4.netlify.app. Configured in `netlify.toml`, whose `VITE_API_BASE_URL` points the SPA at the backend below.
 - **Backend (FastAPI, `/api/*` and `/health`):** Render free-tier Docker web service `kryptos-api`, https://kryptos-kg8t.onrender.com, defined by the `render.yaml` blueprint (#204, #205, #206). CORS is limited to the Netlify origin via `KRYPTOS_CORS_ORIGINS`. `DATABASE_URL` and the LLM provider keys are optional; without a database the backend runs with `db_enabled:false`, and without LLM keys the ops director uses its rule-based fallback.
-- Render's free plan sleeps when idle. The first request after idle can take about 20s: `/health` took 22s cold on 2026-09-24.
+- Render's free plan spins the service down after about 15 minutes idle, and spinning back up can take up to about a minute. For this deployment, `/health` took 22s cold on 2026-09-24.
 
 ## Docker Fast Coverage
 
