@@ -441,6 +441,7 @@ Frequency & n-gram data in `data/` (TSV). High-quality quadgrams loaded automati
 exists. Fallback unigram distribution used if files absent.
 
 <!-- docs-index:start -->
+
 ## Docs Index
 
 Every tracked doc in this repo, so nothing is orphaned (also used by the Obsidian vault mirror).
@@ -486,6 +487,7 @@ Every tracked doc in this repo, so nothing is orphaned (also used by the Obsidia
 
 - [The World Clock (Weltzeituhr) in Kryptos K4](./docs/sources/CLOCK.md) — `docs/sources/CLOCK.md`
 - [Jim Sanborn — notes and research pointers](./docs/sources/SANBORN.md) — `docs/sources/SANBORN.md`
+
 <!-- docs-index:end -->
 
 ## License
