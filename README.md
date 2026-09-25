@@ -444,7 +444,9 @@ exists. Fallback unigram distribution used if files absent.
 
 ## Docs Index
 
-Every doc at the repo root and under `docs/` (the files mirrored into the Obsidian vault), so none of them is orphaned.
+Every committed Markdown doc in this repo (other than this README, `.github/` and `templates/`), the same set mirrored into the Obsidian vault, so none of them is orphaned.
+
+**`docs/`**
 
 - [Changelog](./docs/CHANGELOG.md) — `docs/CHANGELOG.md`
 - [KRYPTOS Features](./docs/FEATURES.md) — `docs/FEATURES.md`
@@ -487,6 +489,30 @@ Every doc at the repo root and under `docs/` (the files mirrored into the Obsidi
 
 - [The World Clock (Weltzeituhr) in Kryptos K4](./docs/sources/CLOCK.md) — `docs/sources/CLOCK.md`
 - [Jim Sanborn — notes and research pointers](./docs/sources/SANBORN.md) — `docs/sources/SANBORN.md`
+
+**`benchmarks/`**
+
+- [Attack-sweep benchmarks](./benchmarks/README.md) — `benchmarks/README.md`
+
+**`frontend/`**
+
+- [Kryptos dashboard (frontend)](./frontend/README.md) — `frontend/README.md`
+
+**`scripts/`**
+
+- [Scripts Directory](./scripts/README.md) — `scripts/README.md`
+
+**`scripts/lint/`**
+
+- [Lint Tools](./scripts/lint/README.md) — `scripts/lint/README.md`
+
+**`scripts/testing/`**
+
+- [Testing Notes](./scripts/testing/README.md) — `scripts/testing/README.md`
+
+**`tests/`**
+
+- [Test Suite](./tests/README.md) — `tests/README.md`
 
 <!-- docs-index:end -->
 
