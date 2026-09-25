@@ -1,5 +1,7 @@
 # KRYPTOS
 
+> 🧭 **kryptos** · [Index](./docs/INDEX.md) · [Features](./docs/FEATURES.md) · [Roadmap](./docs/ROADMAP.md) · [Tasks](./docs/TASKS.md) · [Changelog](./docs/CHANGELOG.md) · [Metrics](./docs/METRICS.md) <!-- nav -->
+
 [![CI fast](https://github.com/nitsuah/kryptos/actions/workflows/ci-fast.yml/badge.svg)](https://github.com/nitsuah/kryptos/actions)
 
 [![CI (smoke)](https://github.com/nitsuah/kryptos/actions/workflows/demo-smoke.yml/badge.svg)](https://github.com/nitsuah/kryptos/actions)
@@ -185,7 +187,7 @@ to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
-- **Status**: Unsolved. Every attack vector attempted so far is null — single-layer, 2-layer, 3-layer composite, all 20 frontier vectors (P1–P20), the full 15-item Physical/Geometric Pivot, and Phase 7's shape-changing transpose family + shadow-angle primitives + city-list keywords. 1400+ tests passing, all attacks instrumented with permanent provenance artifacts.
+- **Status**: Unsolved. Every attack vector attempted so far is null — single-layer, 2-layer, 3-layer composite, all 20 frontier vectors (P1–P20), the full 15-item Physical/Geometric Pivot, Phase 7's shape-changing transpose family + shadow-angle primitives + city-list keywords, and the 2026-09-03 Phase 8 follow-ups. The one open lead is the compass rose's measured bearing (primary-source outreach, see ROADMAP 2027 Q1). 1400+ tests passing, all attacks instrumented with permanent provenance artifacts.
 - **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first definitively ruled out)
 - **Confirmed cribs** (0-indexed): EAST@21–24, NORTHEAST@25–33, BERLIN@63–68, CLOCK@69–73
 - **What's left**: needs new source material, not new code — a complete World Clock city list, a sub-minute-precision historical timestamp, or photographic documentation of the Kryptos compass rose's exact bearing. See `docs/ROADMAP.md`'s "Ideas — not yet scheduled."
@@ -386,6 +388,8 @@ The index is stored under `data/turbovec/` (gitignored, derived from `artifacts/
 
 ## Recent Changes
 
+- **2026-09-24**: 2027 planning reset — completed ROADMAP phases and TASKS Done archived verbatim (`docs/archive/2026-completed-roadmap-and-tasks.md`) and summarized in FEATURES; Phase 8 (compass-rose bearing + outreach) carried into 2027 Q1; linked breadcrumb navigation on every doc.
+- **2026-09-03**: Phase 8 follow-ups (three rounds) — plaintext evidence tiers, known-plaintext inversion over geometric and rectangular grids (3.67M permutations), mirrored "read from the back" tableau, K0 Morse and reconstructed-plaintext keyword sources, classical cipher sweep (Playfair/Four-Square/Bifid/Autokey). All null; `K4_CRIBS` off-by-one fixed 2026-09-02.
 - **2026-09-01**: K4 Physical/Geometric Pivot (Phase 6) and its Phase 7 follow-on both complete — shape-changing transpose family wired, "shadow of the word" computationally modeled (World Clock topper rotation + real solar position), World Clock city-list keywords tested, cross-vector consensus scoring built, scheduled overnight sweep runner built. 2.6M+ candidates across both phases, all null. ROADMAP/TASKS refreshed.
 - **2026-08-12**: Documentation refresh — created `docs/analysis/K4_ATTACK_LANDSCAPE.md` (3D fingerprint of all completed null-result vectors and 10 frontier directions: P1–P7 active, P8–P10 deferred); updated ROADMAP, TASKS, GOVERN, METRICS, K4_ACTIVE_RESEARCH, K4_KEYSTREAM_ANALYSIS, and INDEX for accuracy
 - **2026-06-01**: src/ audit baseline — 829 tests passing (0 failures); Quagmire I–IV, physical-grid tableau walk, SA columnar seeding, early-crib locking verified; all clock-based attack variants complete
@@ -435,6 +439,54 @@ Use `baseline_stats(text)` to inspect metrics including advanced linguistic feat
 
 Frequency & n-gram data in `data/` (TSV). High-quality quadgrams loaded automatically if `quadgrams_high_quality.tsv`
 exists. Fallback unigram distribution used if files absent.
+
+<!-- docs-index:start -->
+## Docs Index
+
+Every tracked doc in this repo, so nothing is orphaned (also used by the Obsidian vault mirror).
+
+- [Changelog](./docs/CHANGELOG.md) — `docs/CHANGELOG.md`
+- [KRYPTOS Features](./docs/FEATURES.md) — `docs/FEATURES.md`
+- [Governance and Maintenance Notes](./docs/GOVERN.md) — `docs/GOVERN.md`
+- [Kryptos Docs Index](./docs/INDEX.md) — `docs/INDEX.md`
+- [K4 makeover](./docs/K4-v2.md) — `docs/K4-v2.md`
+- [Metrics](./docs/METRICS.md) — `docs/METRICS.md`
+- [Kryptos Roadmap](./docs/ROADMAP.md) — `docs/ROADMAP.md`
+- [Tasks](./docs/TASKS.md) — `docs/TASKS.md`
+
+**`docs/analysis/`**
+
+- [30-YEAR GAP COVERAGE ANALYSIS](./docs/analysis/30_YEAR_GAP_COVERAGE.md) — `docs/analysis/30_YEAR_GAP_COVERAGE.md`
+- [Agent Module Review (Post-K4, Pre-GUI)](./docs/analysis/AGENT_MODULE_REVIEW.md) — `docs/analysis/AGENT_MODULE_REVIEW.md`
+- [K1-K3 PATTERN ANALYSIS REPORT](./docs/analysis/K1_2_3_PATTERN_ANALYSIS.md) — `docs/analysis/K1_2_3_PATTERN_ANALYSIS.md`
+- [K1/K2 Autonomous Recovery Validation Results](./docs/analysis/K1_K2_VALIDATION_RESULTS.md) — `docs/analysis/K1_K2_VALIDATION_RESULTS.md`
+- [K3 Autonomous Solving Validation Results](./docs/analysis/K3_VALIDATION_RESULTS.md) — `docs/analysis/K3_VALIDATION_RESULTS.md`
+- [K4 Active Research State](./docs/analysis/K4_ACTIVE_RESEARCH.md) — `docs/analysis/K4_ACTIVE_RESEARCH.md`
+- [K4 Capability Table](./docs/analysis/K4_CAPABILITY_TABLE.md) — `docs/analysis/K4_CAPABILITY_TABLE.md`
+- [K4 Keystream Analysis — Confirmed Period-13 Window](./docs/analysis/K4_KEYSTREAM_ANALYSIS.md) — `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`
+
+**`docs/archive/`**
+
+- [2026 Completed Roadmap Phases & Done Tasks (Archive)](./docs/archive/2026-completed-roadmap-and-tasks.md) — `docs/archive/2026-completed-roadmap-and-tasks.md`
+- [Comprehensive Structure Audit - October 26, 2025](./docs/archive/AUDIT_2025-10-26.md) — `docs/archive/AUDIT_2025-10-26.md`
+- [Kryptos Repository Audit](./docs/archive/AUDIT_2026-05-24.md) — `docs/archive/AUDIT_2026-05-24.md`
+- [src/ Audit — Kryptos Toolkit (2026-06-01)](./docs/archive/AUDIT_2026-06-01.md) — `docs/archive/AUDIT_2026-06-01.md`
+- [Frontend design spec](./docs/archive/K4-FRONTEND.md) — `docs/archive/K4-FRONTEND.md`
+- [K4 Theories: Composite Pipeline & Physical-Geometric Resolver Specification](./docs/archive/K4-T1.md) — `docs/archive/K4-T1.md`
+- [K4 Attack Landscape — 3D Fingerprint](./docs/archive/K4_ATTACK_LANDSCAPE.md) — `docs/archive/K4_ATTACK_LANDSCAPE.md`
+
+**`docs/reference/`**
+
+- [Agents Architecture](./docs/reference/AGENTS_ARCHITECTURE.md) — `docs/reference/AGENTS_ARCHITECTURE.md`
+- [Kryptos Public API Reference](./docs/reference/API_REFERENCE.md) — `docs/reference/API_REFERENCE.md`
+- [Autonomous Cryptanalysis System](./docs/reference/AUTONOMOUS_SYSTEM.md) — `docs/reference/AUTONOMOUS_SYSTEM.md`
+- [Provenance and Search-Space Tracking](./docs/reference/PROVENANCE_SYSTEM_EXPLAINED.md) — `docs/reference/PROVENANCE_SYSTEM_EXPLAINED.md`
+
+**`docs/sources/`**
+
+- [The World Clock (Weltzeituhr) in Kryptos K4](./docs/sources/CLOCK.md) — `docs/sources/CLOCK.md`
+- [Jim Sanborn — notes and research pointers](./docs/sources/SANBORN.md) — `docs/sources/SANBORN.md`
+<!-- docs-index:end -->
 
 ## License
 

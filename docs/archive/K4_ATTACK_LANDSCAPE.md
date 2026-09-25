@@ -1,8 +1,9 @@
 # K4 Attack Landscape — 3D Fingerprint
 
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
+
 > **Archived 2026-09-01.** Superseded by [`docs/analysis/K4_ACTIVE_RESEARCH.md`](../analysis/K4_ACTIVE_RESEARCH.md), which is now the single current source of truth for K4 status. This document's every priority (P1–P10) reached "COMPLETE — NULL RESULT" before archival — see K4_ACTIVE_RESEARCH.md's Ruled Out table and Phase 6/7 sections for the up-to-date record with exact candidate counts and artifact paths. Kept here for its historical evidence-basis narrative and implementation-plan detail; do not treat its "OPEN"/"NOT RUN" language anywhere below as current status.
 
-Breadcrumb: Home > Docs > Analysis > Attack Landscape
 
 **Generated:** 2026-08-12
 **Last corrected:** 2026-08-30 — see note below

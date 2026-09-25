@@ -1,7 +1,6 @@
 # K1-K3 PATTERN ANALYSIS REPORT
 
-Breadcrumb: Home > Docs > Analysis > K1-K3 Patterns
-
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
 Generated: 2025-10-25 01:20:57
 

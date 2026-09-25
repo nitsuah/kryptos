@@ -1,7 +1,6 @@
 # 30-YEAR GAP COVERAGE ANALYSIS
 
-Breadcrumb: Home > Docs > Analysis > 30-Year Gap
-
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
 **Assessment Date:** October 25, 2025 — _Updated: 2026-08-12_ **Scope:** Pre-1990 Classical Cryptography (Kryptos Era)
 

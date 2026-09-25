@@ -1,6 +1,7 @@
 # Agent Module Review (Post-K4, Pre-GUI)
 
-Breadcrumb: Home > Docs > Analysis > Agent Module Review
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
+
 **repo**: [[repos/kryptos|kryptos]]
 _Date: 2026-06-10_
 
