@@ -1,7 +1,6 @@
 # K4 Keystream Analysis — Confirmed Period-13 Window
 
-Breadcrumb: Home > Docs > Analysis > Keystream
-
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
 **Status:** Active research finding
 **Last Updated:** 2026-09-02

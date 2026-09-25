@@ -1,8 +1,9 @@
 # Frontend design spec
 
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
+>
 > **Archived 2026-09-01.** This spec's database design (SQLite at `/data/kryptos.db`) does not match what was actually built — the current dashboard persists to Neon (Postgres): `campaign_runs` + `candidates` + `strategy_kb` tables, per `docs/TASKS.md`'s Done section. Kept for historical reference only; do not treat its schema or stack description as current.
 
-Breadcrumb: Home > Docs > Analysis > Frontend
 
 ## Summary
 

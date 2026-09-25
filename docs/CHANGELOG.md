@@ -1,5 +1,7 @@
 # Changelog
 
+> 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · [Tasks](./TASKS.md) · **Changelog** · [Metrics](./METRICS.md) <!-- nav -->
+
 All notable changes to the KRYPTOS project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -7,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+### Added (2026-08-29 → 2026-09-03 — K4 Phases 6–8, all null)
+
+- **Phase 6 — Physical/Geometric Pivot** (#192, #193, #194, #196): 24-column geometric permutation front-end, precise WGS84 geodesy (`kryptos.k4.geodesy`), Mengenlehreuhr→Weltzeituhr bearing, Nov 9 1989 clock state, Myszkowski/Trifid, SA substitution search; first real executions of P2/P5/P6; dashboard Pivot Status panel.
+- **Phase 7** — shape-changing transpose family, `solar_geometry` (shadow hypothesis), `world_clock_cities` (130/146 names sourced), `cross_vector_consensus`, `overnight_runner`: 2,420,928 candidates, null.
+- **Phase 8 follow-ups** — `plaintext_evidence`, `known_plaintext_inversion` (incl. 3,674,160 rectangular-grid permutations), mirrored tableau, `k0_morse_keywords`, `classical_cipher_sweep`, `physical_geometry`, `constraint_chain`: all null.
+
+### Fixed (2026-09)
+
+- `keystream_validator.K4_CRIBS` stored `EAST`/`NORTHEAST` one position too high (22/26 → 21/25); same bug fixed in `key_csp.py` and `clock_hill_attack.py` (found via PR #203 review).
+- Broken Docker fast-coverage command in docs (#215).
+
+### Changed (2026-09)
+
+- Netlify + Render deployment documented; Netlify deploy badge in README (#219, #220); orphaned `.playwright-mcp` artifacts untracked (#221).
+- Dependency floors raised: openai ≥3.15, anthropic ≥1.6, uvicorn ≥0.53, transformers ≥5.17, psycopg2-binary (#212–#218).
+- Planning docs reset for 2027 (`pmo-ff`): completed ROADMAP phases (1–4, 6, 7) and TASKS Done moved verbatim to `docs/archive/2026-completed-roadmap-and-tasks.md` and summarized in FEATURES; Phase 8 carried into 2027 Q1; plain-text `Breadcrumb:` lines replaced with linked breadcrumb navigation; README docs index added.
 
 ### Added
 
@@ -180,4 +199,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 For detailed phase planning and technical documentation, see:
 
 - [ROADMAP.md](./ROADMAP.md) - Current roadmap and phase objectives
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - Active workflow, standards, and quickstart guidance
+- [CONTRIBUTING.md](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md) (nitsuah org default) - Active workflow, standards, and quickstart guidance

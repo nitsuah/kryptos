@@ -1,6 +1,6 @@
 # Kryptos Docs Index
 
-Breadcrumb: Home > Docs > Index
+> 🧭 [kryptos](../README.md) · **Index** · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
 
 This is the traversal map for humans and AI agents.
 
@@ -38,6 +38,7 @@ This is the traversal map for humans and AI agents.
 
 ## Historical / Archived
 
+- [docs/archive/2026-completed-roadmap-and-tasks.md](archive/2026-completed-roadmap-and-tasks.md) - Verbatim ROADMAP Phases 1–4/6/7 + TASKS Done, archived in the 2027 planning reset (2026-09-24)
 - [docs/archive/AUDIT_2026-06-01.md](archive/AUDIT_2026-06-01.md) - Most recent src/ audit (see doc for test counts)
 - [docs/archive/AUDIT_2026-05-24.md](archive/AUDIT_2026-05-24.md)
 - [docs/archive/AUDIT_2025-10-26.md](archive/AUDIT_2025-10-26.md)

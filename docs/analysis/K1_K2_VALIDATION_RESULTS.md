@@ -1,7 +1,6 @@
 # K1/K2 Autonomous Recovery Validation Results
 
-Breadcrumb: Home > Docs > Analysis > K1-K2 Validation
-
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
 **Date:** May 24, 2026 **Validation:** Monte Carlo testing (50 runs each)
 

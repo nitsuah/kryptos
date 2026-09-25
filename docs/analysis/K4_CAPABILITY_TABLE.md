@@ -1,6 +1,6 @@
 # K4 Capability Table
 
-Breadcrumb: [Docs](../INDEX.md) > [Analysis](../INDEX.md#analysis) > Capability Table
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
 Last Updated: 2026-09-03
 

@@ -1,8 +1,8 @@
 
 # KRYPTOS Features
 
-Breadcrumb: [Docs](INDEX.md) > Features
-
+> 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · **Features** · [Roadmap](./ROADMAP.md) · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
+>
 > Cryptographic research toolkit for solving the K4 cipher puzzle
 
 ---
@@ -169,6 +169,20 @@ Breadcrumb: [Docs](INDEX.md) > Features
 ---
 
 
+
+## 🧪 Completed K4 Attack Campaigns (2026, all null)
+
+Condensed from the ROADMAP/TASKS removed in the 2027 planning reset (verbatim text: `docs/archive/2026-completed-roadmap-and-tasks.md`; living detail: `docs/analysis/K4_ACTIVE_RESEARCH.md`, `docs/analysis/K4_CAPABILITY_TABLE.md`).
+
+### 🧾 Attack Phases
+
+- **Phase 1 — 14 prior vectors**: single/2-layer composites exhausted (repeating Vigenère, Berlin Clock Vigenère, keyed alphabets, Hill 2×2/3×3, Beaufort, Quagmire I–IV, physical tableau walk, ADFGVX, Nihilist) — all null
+- **Phase 2 — P1–P7 frontier attacks**: 3-layer composite, shadow/null masking, K2 coordinate clocks, ±6h offsets, 2-crib soft filter, K3 running key, Gronsfeld — all null; live at `POST /api/k4/attacks/run`
+- **Phase 3 — P11–P20**: alternative/misspelling keyword alphabets, magnetic declination, CIA→Berlin bearing, straddling checkerboard, corpus fragment mining, QQ/SS bigram constraints, repeating-key CSP, advisory names, Cyrillic Projector crossover — all null
+- **Phase 4 — Dashboard & tooling**: React/Vite SPA, K4 Attack Dashboard, frontier queue, REST API, Ops Center, K1–K3 decoder, Vault, SSE log tail
+- **Phase 6 — Physical/Geometric Pivot** (PRs #192–#196): 24-column geometric front-end × reflections × rotations × physical tableau, precise WGS84 geodesy (`kryptos.k4.geodesy`), Mengenlehreuhr→Weltzeituhr bearing, Nov 9 1989 clock state, Myszkowski, Trifid, SA substitution search — all null
+- **Phase 7 — Shape-changing transposition + shadow hypothesis**: transpose family wired, `solar_geometry` (topper rotation + NOAA/Meeus solar azimuth), World Clock city keywords (130/146 sourced), cross-vector consensus scoring (zero anchors), overnight sweep runner — 2,420,928 candidates, all null
+- **Phase 8 follow-ups (2026-09-03)**: `plaintext_evidence` confidence tiers, known-plaintext inversion over geometric + rectangular grids (3,674,160 permutations), mirrored "read from the back" tableau, reconstructed-plaintext and K0 Morse keyword sources, `classical_cipher_sweep` (Playfair/Four-Square/Bifid/Autokey), `physical_geometry` schema, `constraint_chain` — all null
 
 ## 🚀 Planned & Upcoming
 

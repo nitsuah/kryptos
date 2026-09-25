@@ -1,7 +1,6 @@
 # Kryptos Public API Reference
 
-Breadcrumb: Home > Docs > Reference > API
-
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
 _Last updated: 2026-05-31_
 

@@ -1,7 +1,6 @@
 # Governance and Maintenance Notes
 
-Breadcrumb: Home > Docs > Governance
-
+> 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
 
 _Last updated: 2026-08-12_
 
