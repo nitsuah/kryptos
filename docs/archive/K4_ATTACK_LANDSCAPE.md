@@ -371,11 +371,11 @@ This is a 2× expansion of any clock-based sweep at negligible cost.
 
 ## Related Documents
 
-- [`docs/analysis/K4_ACTIVE_RESEARCH.md`](K4_ACTIVE_RESEARCH.md) — Living document: confirmed facts, ruled-out hypotheses, active queue
-- [`docs/analysis/K4_KEYSTREAM_ANALYSIS.md`](K4_KEYSTREAM_ANALYSIS.md) — Detailed keystream derivation from the 4 Sanborn cribs
+- [`docs/analysis/K4_ACTIVE_RESEARCH.md`](../analysis/K4_ACTIVE_RESEARCH.md) — Living document: confirmed facts, ruled-out hypotheses, active queue
+- [`docs/analysis/K4_KEYSTREAM_ANALYSIS.md`](../analysis/K4_KEYSTREAM_ANALYSIS.md) — Detailed keystream derivation from the 4 Sanborn cribs
 - [`docs/analysis/K4-T1.md`](K4-T1.md) — Physical-geometric resolver specification with toggle matrix
 - [`docs/sources/CLOCK.md`](../sources/CLOCK.md) — World Clock geographic and cryptographic interpretation
 - [`docs/sources/SANBORN.md`](../sources/SANBORN.md) — Artist-clue research checklist
-- [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](30_YEAR_GAP_COVERAGE.md) — Classical cipher technique coverage assessment
+- [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](../analysis/30_YEAR_GAP_COVERAGE.md) — Classical cipher technique coverage assessment
 - [`docs/ROADMAP.md`](../ROADMAP.md) — Frontier attack vectors and milestones
 - [`docs/TASKS.md`](../TASKS.md) — Implementation backlog with specific next steps
