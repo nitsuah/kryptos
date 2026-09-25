@@ -446,6 +446,8 @@ exists. Fallback unigram distribution used if files absent.
 
 Every committed Markdown doc in this repo (other than this README, `.github/` and `templates/`), the same set mirrored into the Obsidian vault, so none of them is orphaned.
 
+**`docs/`**
+
 - [Changelog](./docs/CHANGELOG.md) — `docs/CHANGELOG.md`
 - [KRYPTOS Features](./docs/FEATURES.md) — `docs/FEATURES.md`
 - [Governance and Maintenance Notes](./docs/GOVERN.md) — `docs/GOVERN.md`
