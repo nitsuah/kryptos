@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (2026-09)
 
+- `k4_attack_routes.py` split into a thin route module plus `k4_jobs.py` (job status store) and `k4_attack_dispatch.py` (attack dispatch table) — no behavior change; covered by new characterization tests in `test_k4_attack_routes.py`.
 - Netlify + Render deployment documented; Netlify deploy badge in README (#219, #220); orphaned `.playwright-mcp` artifacts untracked (#221).
 - Dependency floors raised: openai ≥3.15, anthropic ≥1.6, uvicorn ≥0.53, transformers ≥5.17, psycopg2-binary (#212–#218).
 - Planning docs reset for 2027 (`pmo-ff`): completed ROADMAP phases (1–4, 6, 7) and TASKS Done moved verbatim to `docs/archive/2026-completed-roadmap-and-tasks.md` and summarized in FEATURES; Phase 8 carried into 2027 Q1; plain-text `Breadcrumb:` lines replaced with linked breadcrumb navigation; README docs index added.
