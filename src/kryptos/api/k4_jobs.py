@@ -16,6 +16,7 @@ _JOBS_LOCK = threading.Lock()
 
 
 def new_job(attack_id: str) -> str:
+    """Register a new job in `queued` status and return its id."""
     job_id = str(uuid.uuid4())
     with _JOBS_LOCK:
         _JOBS[job_id] = {
@@ -33,11 +34,13 @@ def new_job(attack_id: str) -> str:
 
 
 def update_job(job_id: str, **kwargs: Any) -> None:
+    """Merge `kwargs` into the job's fields; a no-op if the job is unknown."""
     with _JOBS_LOCK:
         if job_id in _JOBS:
             _JOBS[job_id].update(kwargs)
 
 
 def get_job(job_id: str) -> dict[str, Any] | None:
+    """Return a snapshot copy of the job's fields, or None if unknown."""
     with _JOBS_LOCK:
         return dict(_JOBS[job_id]) if job_id in _JOBS else None
