@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (2026-09-27 — K4 deep-dive audit)
+
+- **K4 IC figures in the docs were wrong.** The overall IC is 0.0361, not ≈0.062. Segment ICs are 0.046/0.046/0.034, not 0.058/0.071/0.062. The "substitution → transposition confirmed" architecture built on them is downgraded to a working hypothesis in `K4_ACTIVE_RESEARCH.md`, `K4_KEYSTREAM_ANALYSIS.md`, ROADMAP and README.
+- EAST crib release date: Aug 2020, not 2023.
+- "THE COMPASS ROSE IS HERE" was credited to Sanborn's own recovered plaintext in ROADMAP, TASKS and `K4_ACTIVE_RESEARCH.md`. It is solvekryptos.com's reconstruction.
+- ROADMAP attributed the 17/20 crib shifts to EAST/NORTHEAST; they come from BERLIN/CLOCK.
+- `docs/sources/CLOCK.md`: 148 → 146 city names plus a date-line plate; unsourced claims flagged.
+- `key_csp.CRIB_SHIFTS` is derived from `keystream_validator.K4_CRIBS` instead of hand-typed; docstrings said 22 shifts, there are 24.
+- Lint: unused imports, duplicate set items in `bigram_constraint.COMMON_ENGLISH_DOUBLETS`.
+
+### Added (2026-09-27)
+
+- `kryptos.k4.ic_profile`: overall/segment IC and a reshuffle significance test for segment spread.
+- `key_csp.periodic_family_consistency()`: periods 1–26 are inconsistent with the cribs under Vigenère, Beaufort, Variant Beaufort and KRYPTOS-keyed Quagmire III.
+- `keystream_validator.K4_CRIB_RELEASES`: crib ciphertext, release month, venue.
+- `tests/functional/test_k4_documented_facts.py`: pins every number above.
+
 ### Added (2026-08-29 → 2026-09-03 — K4 Phases 6–8, all null)
 
 - **Phase 6 — Physical/Geometric Pivot** (#192, #193, #194, #196): 24-column geometric permutation front-end, precise WGS84 geodesy (`kryptos.k4.geodesy`), Mengenlehreuhr→Weltzeituhr bearing, Nov 9 1989 clock state, Myszkowski/Trifid, SA substitution search; first real executions of P2/P5/P6; dashboard Pivot Status panel.

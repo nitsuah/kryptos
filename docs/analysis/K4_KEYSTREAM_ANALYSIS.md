@@ -3,8 +3,10 @@
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
 **Status:** Active research finding
-**Last Updated:** 2026-09-02
+**Last Updated:** 2026-09-27
 **Evidence Level:** High — derived directly from Sanborn's confirmed cribs against the K4 ciphertext
+
+**2026-09-27 correction:** §4 (IC) and §5 (architecture ruling) were wrong. The IC figures were never computed from the ciphertext, and the "substitution then transposition" ruling was built on them. Both sections are rewritten below. The EAST release date was also wrong (Aug 2020, not 2023). The numbers are now pinned by `tests/functional/test_k4_documented_facts.py`.
 
 **2026-09-02 correction:** this document's EAST/NORTHEAST positions and every keystream derived from them were wrong by one position throughout — the same bug fixed in `keystream_validator.K4_CRIBS` and traced to independent duplicates in `key_csp.py` and `clock_hill_attack.py` (see `K4_ACTIVE_RESEARCH.md`'s "External Developments (2025–2026)" section for the full story of how this was found). BERLIN/CLOCK were already correct throughout. All values below are corrected and re-verified directly against the real K4 ciphertext.
 
@@ -24,10 +26,10 @@ Sanborn's publicly confirmed plaintext anchors (0-indexed within K4):
 
 | Position (0-idx) | Cipher | Plain     | Source / Date        |
 |------------------|--------|-----------|----------------------|
-| 21–24            | FLRV   | EAST      | Sanborn clue, 2023   |
-| 25–33            | QQPRNGKSS | NORTHEAST | Sanborn clue, 2020  |
-| 63–68            | NYPVTT | BERLIN    | Sanborn clue, 2010   |
-| 69–73            | MZFPK  | CLOCK     | Sanborn clue, 2014   |
+| 21–24            | FLRV   | EAST      | Sanborn clue, Aug 2020 |
+| 25–33            | QQPRNGKSS | NORTHEAST | Sanborn clue, Jan 2020 |
+| 63–68            | NYPVTT | BERLIN    | Sanborn clue, Nov 2010 |
+| 69–73            | MZFPK  | CLOCK     | Sanborn clue, Nov 2014 |
 
 > **Index note:** Community sources and some docs in this repo label these positions as 1-indexed (25–33 → 1-indexed 26–34, etc.). The values above use Python 0-indexed convention consistently. The K4-CLOCKS.html document incorrectly labels NYPVTTMZF as being at "positions 26–34"; NYPVTTMZF is BERLIN+CLOCK's ciphertext, actually at 0-indexed 63–73. The old CONTRIBUTING.md quick-start code (no longer in this repo) listed `'NORTHEAST': [25]` and `'BERLIN': [64]`; **`[25]` for NORTHEAST was correct all along** (this document's own table above previously said otherwise — see the 2026-09-02 correction note up top), and `[64]` for BERLIN was genuinely wrong, correct 0-indexed start is **63**.
 
@@ -108,34 +110,41 @@ Linear scaling or shift of clock values doesn't cleanly map to the observed dist
 
 ## 4. What the IC Analysis Tells Us
 
-The local Index of Coincidence by segment:
+Computed by `kryptos.k4.ic_profile` (pinned in `tests/functional/test_k4_documented_facts.py`):
 
-| Segment (0-indexed) | Approx IC | Interpretation              |
-|---------------------|-----------|-----------------------------|
-| 0–31                | ~0.058    | More substitution-noise     |
-| 32–63               | ~0.071    | More English-like           |
-| 64–96               | ~0.062    | Intermediate                |
+| Text | IC |
+|------|----|
+| K4, all 97 letters | **0.0361** |
+| Uniform random (1/26) | 0.0385 |
+| English prose | ≈0.066 |
 
-**Key conclusion:** Non-uniform IC across segments is a signature of **transposition applied AFTER substitution**. A transposition-first approach would produce uniform IC. The fact that the IC in the 32–63 window is closer to English (0.0667) while the first window is lower indicates character reshuffling moved English-dense segments to that region.
+| Segment (0-indexed) | IC |
+|---------------------|----|
+| 0–31  | 0.046 |
+| 32–63 | 0.046 |
+| 64–96 | 0.034 |
 
-This rules out transposition-first architectures and constrains the composite pipeline to:
+> The previous version of this table read 0.058 / 0.071 / 0.062, and the overall IC was quoted elsewhere as ≈0.062. Neither matches the ciphertext.
 
-```
-plaintext → [substitution layer] → [transposition layer] → K4 ciphertext
-```
+**What this does show:** transposition and monoalphabetic substitution both leave IC unchanged, so any cipher built only from those would keep English's ≈0.066. K4's 0.036 means at least one polyalphabetic or otherwise flattening layer is present.
+
+**What this does not show:** layer order. IC is invariant under transposition, so it can't tell "transposition first" from "transposition last". On 32-letter slices it is also very noisy: shuffling K4's own letters at random gives a segment spread at least as large as the real one about 46% of the time (`segment_spread_p_value`). The old conclusion that "non-uniform IC is a signature of transposition applied after substitution" doesn't hold.
 
 ---
 
-## 5. Composite Architecture Conclusion
+## 5. Composite Architecture — What Is and Isn't Established
 
-**Ruling:** K4 uses at minimum a 2-layer composite cipher:
+**Established:**
 
-1. A substitution (polyalphabetic or matrix) applied to the plaintext
-2. A transposition applied to the substituted text to produce the ciphertext
+1. A flattening (polyalphabetic-like) layer exists (§4).
+2. It is not a direct periodic key of length ≤ 26 under Vigenère, Beaufort, Variant Beaufort, or KRYPTOS-keyed Quagmire III: for every period 1–26, two crib letters that share a key slot imply different key values. The first consistent period is 27, where the 24 cribs barely constrain anything. (`key_csp.periodic_family_consistency`)
 
-The EASTNORTHEAST window (positions 21–33 of the ciphertext) contains characters that were pulled from **different, non-contiguous positions** of the pre-transposition text by the transposition step. This means the 13-char keystream BLZCDCYYGCKAZ encodes the substitution shifts of characters that were originally scattered across the pre-transposition plaintext/substituted-text, not adjacent.
+**Not established (previously stated as a ruling):** that a transposition layer exists, or which layer comes first. Two families fit the evidence equally well:
 
-**Consequence for search:** Brute-forcing the substitution key against the raw ciphertext and validating EAST/NORTHEAST is valid IF the transposition is applied after. But recovering the substitution key from the crib requires first undoing the transposition.
+- **Non-periodic key, no transposition.** Running key, autokey, or a key produced by a procedure (a clock state per position, a physical reading). Here BLZCDCYYGCKAZ really is the (Vigenère-equivalent) key at positions 21–33.
+- **Periodic or structured key plus transposition.** Under this model the cribs' ciphertext letters were scattered before substitution, and the observed keystream is a permuted view of a simpler key.
+
+Every sweep in phases 1–7 assumed the second family. §6 below describes the attack for that family; read it as conditional on that assumption.
 
 ---
 

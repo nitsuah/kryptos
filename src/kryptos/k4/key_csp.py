@@ -1,4 +1,4 @@
-"""P18 — Repeating-key CSP from 22 confirmed crib shift values.
+"""P18 — Repeating-key CSP from the 24 confirmed crib shift values.
 
 The four confirmed K4 cribs yield 24 known (ciphertext_position, Vigenère_shift)
 pairs (under standard alphabet, no transposition assumption):
@@ -29,42 +29,29 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+from .keystream_validator import K4_CRIBS
 from .physical_grid import K4
 
 logger = logging.getLogger(__name__)
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-CRIB_SHIFTS: list[tuple[int, int]] = [
-    # (ciphertext_position_0indexed, vigenere_shift_mod_26)
-    # EAST @ 21-24   ciphertext FLRV  plaintext EAST
-    (21, 1),
-    (22, 11),
-    (23, 25),
-    (24, 2),
-    # NORTHEAST @ 25-33   ciphertext QQPRNGKSS  plaintext NORTHEAST
-    (25, 3),
-    (26, 2),
-    (27, 24),
-    (28, 24),
-    (29, 6),
-    (30, 2),
-    (31, 10),
-    (32, 0),
-    (33, 25),
-    # BERLIN @ 63-68   ciphertext NYPVTT  plaintext BERLIN
-    (63, 12),
-    (64, 20),
-    (65, 24),
-    (66, 10),
-    (67, 11),
-    (68, 6),
-    # CLOCK @ 69-73   ciphertext MZFPK  plaintext CLOCK
-    (69, 10),
-    (70, 14),
-    (71, 17),
-    (72, 13),
-    (73, 0),
-]
+
+def _derive_crib_shifts() -> list[tuple[int, int]]:
+    """Derive (position, shift) pairs from the canonical crib table.
+
+    This list used to be hand-typed, which is how the 2026-09-02 EAST/NORTHEAST
+    off-by-one got duplicated here from ``keystream_validator.K4_CRIBS``.
+    Deriving it keeps one source of truth.
+    """
+    pairs: list[tuple[int, int]] = []
+    for word, start in K4_CRIBS.values():
+        for i, p in enumerate(word):
+            pairs.append((start + i, (STANDARD.index(K4[start + i]) - STANDARD.index(p)) % 26))
+    return sorted(pairs)
+
+
+# (ciphertext_position_0indexed, vigenere_shift_mod_26) for all 24 crib letters
+CRIB_SHIFTS: list[tuple[int, int]] = _derive_crib_shifts()
 
 
 def _shifts_for_text(cipher: str, plain: str, start: int) -> list[tuple[int, int]]:
@@ -82,7 +69,7 @@ def solve_key_csp(
     key_lengths: range | list[int] = range(2, 21),
     crib_shifts: list[tuple[int, int]] = CRIB_SHIFTS,
 ) -> dict[int, list[int | None]]:
-    """Find key lengths consistent with all 22 known (position, shift) constraints.
+    """Find key lengths consistent with all 24 known (position, shift) constraints.
 
     Args:
         key_lengths:    Periods to test (inclusive range or list).
@@ -110,6 +97,46 @@ def solve_key_csp(
             consistent[L] = key
 
     return consistent
+
+
+def _keyed_alphabet(keyword: str) -> str:
+    seen: list[str] = []
+    for c in keyword.upper() + STANDARD:
+        if c not in seen:
+            seen.append(c)
+    return "".join(seen)
+
+
+def periodic_family_consistency(max_period: int = 26, keyword: str = "KRYPTOS") -> dict[str, list[int]]:
+    """Which key periods 1..max_period survive the 24 crib letters, per cipher family.
+
+    ``solve_key_csp`` only checks a standard-alphabet Vigenère. This checks every
+    direct (no transposition) periodic family the project has attacked: Vigenère,
+    Beaufort, Variant Beaufort, and Quagmire III on a ``keyword``-keyed alphabet
+    (the K1/K2 construction). Two crib positions that fall in the same key slot
+    must imply the same key value; one disagreement kills the period.
+
+    On real K4, every family returns ``[]`` for periods 1..26 -- no periodic
+    key of length <= 26 fits the cribs under any of them (first consistent
+    period is 27). That is a structural result, not a sweep.
+    """
+    ka = _keyed_alphabet(keyword)
+    families = {
+        "vigenere": lambda c, p: (STANDARD.index(c) - STANDARD.index(p)) % 26,
+        "beaufort": lambda c, p: (STANDARD.index(c) + STANDARD.index(p)) % 26,
+        "variant_beaufort": lambda c, p: (STANDARD.index(p) - STANDARD.index(c)) % 26,
+        f"quagmire3_{keyword.lower()}": lambda c, p: (ka.index(c) - ka.index(p)) % 26,
+    }
+    letters = [(start + i, K4[start + i], p) for word, start in K4_CRIBS.values() for i, p in enumerate(word)]
+    result: dict[str, list[int]] = {}
+    for name, key_value in families.items():
+        consistent: list[int] = []
+        for period in range(1, max_period + 1):
+            slots: dict[int, int] = {}
+            if all(slots.setdefault(pos % period, key_value(c, p)) == key_value(c, p) for pos, c, p in letters):
+                consistent.append(period)
+        result[name] = consistent
+    return result
 
 
 def partial_key_to_alphabet(partial_key: list[int | None]) -> list[str]:

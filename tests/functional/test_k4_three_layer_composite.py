@@ -205,7 +205,6 @@ class TestEurekaTrigger:
         return apply_columnar_permutation_encrypt(step2, n_cols, perm)
 
     def _make_ct(self) -> str:
-        from datetime import time
         from kryptos.k4.berlin_clock import full_berlin_clock_shifts
 
         shifts = full_berlin_clock_shifts(time(0, 0, 0))

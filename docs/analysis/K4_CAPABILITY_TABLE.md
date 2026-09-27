@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-Last Updated: 2026-09-03
+Last Updated: 2026-09-27
 
 ---
 
@@ -59,7 +59,8 @@ This table previously lived inline inside K4_ACTIVE_RESEARCH.md's "Existing Infr
 | P15 — Coordinate digits as straddling checkerboard | ✅ Complete | `kryptos.k4.straddling_checkerboard` — K2 coordinate digits as row-header indices, 36 combinations. **Null result.** |
 | P16 — Candidate corpus fragment mining | ✅ Complete | `kryptos.k4.corpus_miner.mine_candidate_corpus` — mines null-result artifacts for repeating fragments above a 3% threshold. **No anchor fragment found.** |
 | P17 — QQ/SS bigram hard constraints | ✅ Complete | `kryptos.k4.bigram_constraint` — pre-filters permutations incompatible with K4's doubled-letter positions (QQ@12-13, SS@31-32). **Null result.** |
-| P18 — Repeating-key CSP over crib windows | ✅ Complete | `kryptos.k4.key_csp.solve_key_csp` — arc-consistency + backtracking over the 22 known (position, shift) pairs. **No solution for key lengths 7–15.** |
+| P18 — Repeating-key CSP over crib windows | ✅ Complete | `kryptos.k4.key_csp.solve_key_csp` checks each key slot directly (no search needed) over the 24 known (position, shift) pairs, now derived from `K4_CRIBS`. `periodic_family_consistency()` (2026-09-27) extends this to Beaufort, Variant Beaufort and KRYPTOS-keyed Quagmire III. **No period 1–26 is consistent in any of the four families; the first consistent period is 27.** (This row previously said "arc-consistency + backtracking … 22 pairs … no solution for 7–15"; all three were inaccurate.) |
+| IC profile | ✅ Diagnostic | `kryptos.k4.ic_profile`: IC 0.0361; segment ICs 0.046/0.046/0.034; segment spread p ≈ 0.46 against random reshuffles. Shows a flattening layer exists, says nothing about layer order. (2026-09-27) |
 | P19 — Sanborn advisory names as alphabet keywords | ✅ Complete | `kryptos.k4.advisory_keywords.run_advisory_keyword_sweep` — SCHEIDT/WEBSTER/STUDEMAN/KERR/SANBORN/LANGLEY/ELONKA/OSHEA/KRYPTOS. **Null result.** |
 | P20 — Cyrillic Projector crossover | ✅ Complete | `kryptos.k4.cyrillic_projector.run_cyrillic_projector_sweep` — Roman-alphabet renderings of Sanborn's 1997 KGB-document piece as K4 alphabet seeds. **Null result.** |
 | P21 — Classical-cipher sweep (Playfair/Four-Square/Bifid/Autokey) | ✅ Complete | `kryptos.k4.classical_cipher_sweep.run_classical_cipher_sweep` — closes a real gap: `hypotheses.py`'s classical-cipher hypothesis classes were implemented and unit-tested but never actually run against real K4 with real crib gating. 30-word expanded keyword list. **Null result — 1,065 candidates, zero near-misses.** |

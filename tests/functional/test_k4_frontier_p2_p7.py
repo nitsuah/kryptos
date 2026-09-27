@@ -253,7 +253,6 @@ class TestRunningKeyDecrypt(unittest.TestCase):
         self.assertEqual(result, "H")
 
     def test_roundtrip(self):
-        from kryptos.k4.running_key import running_key_decrypt
         # Manually encrypt "EAST" with key "ABCD"
         # E+A=E, A+B=C, S+C=U, T+D=W → ciphertext ECUW
         # decrypt ECUW with key ABCD → EAST

@@ -13,12 +13,12 @@
 | Metric              | Value   | Notes                                      |
 | ------------------- | ------- | ------------------------------------------ |
 | Code Coverage       | 89.27%  | Measured with pytest-cov (Docker, 2026-09-16, PMO audit): README's "Docker Fast Coverage" `python:3.13-slim` command — `pytest tests/ -m 'not slow' --cov=kryptos --cov-report=term`; 13,216 statements, 1,418 missed. Essentially flat vs. the 2026-08-22 reading (89.35%) despite substantial test growth in between. |
-| Source Files        | 133     | Python modules in src/ excl. `__init__.py` (152 total incl. `__init__.py`) — re-derived 2026-09-16, up from 112/131 on 2026-08-22 (Phase 6/7/8 modules: geodesy, solar_geometry, cross_vector_consensus, classical_cipher_sweep, k0_morse_keywords, plaintext_evidence, known_plaintext_inversion, physical_geometry, constraint_chain, overnight_runner, and others) |
-| Test Files          | 208     | `test_*.py` modules in tests/ (re-derived 2026-09-16, up from 184) |
-| Test Functions      | 1535    | `def test_*` functions across all test files (static count 2026-09-16, up from 1271 on 2026-08-22) |
-| Test Cases (Fast)   | 1658 passed | 0 failures, 34 skipped (Docker run 2026-09-16, PMO audit; slow-marked tests excluded via `-m 'not slow'`). Pytest-collected count exceeds the static function count above because parametrized tests expand into multiple items. |
+| Source Files        | 136     | 2026-09-27: +`k4_jobs`, `k4_attack_dispatch`, `ic_profile` since 2026-09-16 (155 incl. `__init__.py`). Previous note: Python modules in src/ excl. `__init__.py` (152 total incl. `__init__.py`) — re-derived 2026-09-16, up from 112/131 on 2026-08-22 (Phase 6/7/8 modules: geodesy, solar_geometry, cross_vector_consensus, classical_cipher_sweep, k0_morse_keywords, plaintext_evidence, known_plaintext_inversion, physical_geometry, constraint_chain, overnight_runner, and others) |
+| Test Files          | 210     | 2026-09-27 (+`test_k4_documented_facts.py`). Previous note: `test_*.py` modules in tests/ (re-derived 2026-09-16, up from 184) |
+| Test Functions      | 1552    | 2026-09-27 static count. Previous note: `def test_*` functions across all test files (static count 2026-09-16, up from 1271 on 2026-08-22) |
+| Test Cases (Fast)   | 1676 passed | 2026-09-27: 0 failures, 33 skipped (local Python 3.11 run, K4 audit). Previous note: 0 failures, 34 skipped (Docker run 2026-09-16, PMO audit; slow-marked tests excluded via `-m 'not slow'`). Pytest-collected count exceeds the static function count above because parametrized tests expand into multiple items. |
 | Test Cases (Slow)   | 26      | `@pytest.mark.slow`-marked test items, deselected by the fast run above (was estimated "~22" on 2026-08-22; now an exact count from the same run) |
-| Lines of Code       | ~65K    | Not re-measured this cycle — carried over from 2026-08-22; TBD re-verify against the 133-file count above |
+| Lines of Code       | ~54K    | `wc -l` over all `.py`, 2026-09-27: src 31.3K + tests 22.5K. The earlier ~65K figure could not be reproduced |
 | Documentation Files | 40+     | Comprehensive docs in docs/ directory      |
 | Subdirectories      | 40      | `find src -type d` count, 2026-09-16 (was 33 on 2026-08-22; grew with new K4 modules — methodology not otherwise changed) |
 | Total Package Size  | 712 KB  | Source code only (excl. data/artifacts) — not re-measured this cycle, TBD re-verify |
@@ -76,5 +76,5 @@
 | Skipped Tests    | 34         | Fast-run skips (Docker, 2026-09-16) — DATABASE_URL-gated, torch/transformers-gated, and a few environment-conditional tests; was reported as "10" on 2026-08-22, which undercounted vs. the actual fast-run skip list |
 | Health Score     | 95/100     | Overseer compliance score (not re-scored this cycle) |
 | Last Updated     | 2026-09-16 | PMO audit: full re-run in Docker (README's "Docker Fast Coverage" command, after fixing a missing `geographiclib` dependency in that same command — see README.md) |
-| Project Status   | Active     | All Q1-2027 phases shipped; frontier K4 attack planning in progress |
-| K4 Readiness     | 8.5/10     | Full pipeline, dashboard, RAG, and 14 completed attack vectors; 3-layer composites next |
+| Project Status   | Active     | Phase 8 (2027 Q1) open: one primary-source gap remains; code-side frontier rescoped by the 2026-09-27 audit |
+| K4 Readiness     | 8.5/10     | Full pipeline, dashboard, RAG; Phases 1–7 complete (all null), 3-layer composites done. Open: compass-rose bearing (sourcing) and the untested non-periodic-key family (2026-09-27) |

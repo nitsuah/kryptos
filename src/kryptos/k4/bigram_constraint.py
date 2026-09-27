@@ -38,7 +38,7 @@ ENGLISH_DOUBLETS: frozenset[str] = frozenset(
 
 # Letters that realistically double in English prose (top doublets)
 COMMON_ENGLISH_DOUBLETS: frozenset[str] = frozenset(
-    {"L", "L", "S", "S", "E", "E", "T", "T", "O", "O", "N", "N", "R", "R", "F", "F", "P", "P"}
+    {"L", "S", "E", "T", "O", "N", "R", "F", "P"}
 )
 
 # Letters extremely rare or impossible as doublets in standard English prose
