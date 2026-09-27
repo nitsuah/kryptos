@@ -177,12 +177,27 @@ FRONTIER_VECTORS = [
         "name": "P18 — Repeating-Key CSP",
         "status": "Active",
         "description": (
-            "Constraint satisfaction over 22 known (position, shift) pairs from all 4 crib windows. "
+            "Constraint satisfaction over the 24 known (position, shift) pairs from all 4 crib windows. "
             "For key lengths 2–20, checks if any period is consistent with EAST/NORTHEAST/BERLIN/CLOCK shifts. "
             "Consistent lengths have their partial key completed via exhaustive enumeration."
         ),
         "layer_count": 1,
         "combo_estimate": 19,
+        "runnable": True,
+    },
+    {
+        "id": "p21_crib_constraints",
+        "priority": 21,
+        "name": "P21 — Crib-Constraint Engine",
+        "status": "Active",
+        "description": (
+            "Tests whole cipher families against the 24 crib letters instead of sampling keys: "
+            "ciphertext/plaintext autokey (every lag), linear keys, Gronsfeld digit keys, running keys over "
+            "the sculpture corpus, and periodic keys composed with every columnar transposition (widths 2-8) "
+            "and the phase 6-7 geometric permutations, in both layer orders."
+        ),
+        "layer_count": 2,
+        "combo_estimate": 46_232,
         "runnable": True,
     },
     {

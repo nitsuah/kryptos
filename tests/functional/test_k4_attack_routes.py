@@ -33,6 +33,9 @@ def fast_attacks(monkeypatch):
     lifecycle and dispatch, not attack speed (the real sweeps can take >10s on CI)."""
     monkeypatch.setattr("kryptos.k4.gronsfeld.run_gronsfeld_sweep", lambda *a, **k: {"fake": "gronsfeld"})
     monkeypatch.setattr("kryptos.k4.key_csp.run_key_csp_attack", lambda *a, **k: {"fake": "key_csp"})
+    monkeypatch.setattr(
+        "kryptos.k4.crib_constraints.run_crib_constraint_suite", lambda *a, **k: {"fake": "crib_constraints"}
+    )
 
 
 def _poll_until_done(client: TestClient, job_id: str, timeout: float = 10.0) -> dict:
@@ -156,3 +159,13 @@ def test_run_multiple_jobs_have_independent_state(client, fast_attacks):
     assert job2["attack_id"] == "p18_key_csp"
     assert job1["summary"] == {"fake": "gronsfeld"}
     assert job2["summary"] == {"fake": "key_csp"}
+
+
+def test_crib_constraints_attack_is_runnable(client, fast_attacks):
+    ids = {v["id"] for v in client.get("/api/k4/attacks/frontier").json()["vectors"]}
+    assert "p21_crib_constraints" in ids
+    resp = client.post("/api/k4/attacks/run", json={"attack_id": "p21_crib_constraints"})
+    assert resp.status_code == 200
+    job = _poll_until_done(client, resp.json()["job_id"])
+    assert job["status"] == "complete"
+    assert job["summary"] == {"fake": "crib_constraints"}

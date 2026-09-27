@@ -127,3 +127,12 @@ def test_tuning_report(tmp_path: Path, capsys):
     data = json.loads(out)
     assert "condensed_csv" in data
     assert data["markdown"] is not None
+
+
+def test_crib_constraints(tmp_path: Path, capsys):
+    out_path = tmp_path / "crib.json"
+    rc = _invoke(["crib-constraints", "--max-width", "3", "--out", str(out_path)])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "running-key exact matches:                       0" in out
+    assert json.loads(out_path.read_text())["status"] == "complete"
