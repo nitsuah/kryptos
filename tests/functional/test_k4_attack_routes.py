@@ -154,3 +154,5 @@ def test_run_multiple_jobs_have_independent_state(client, fast_attacks):
     job2 = _poll_until_done(client, job_id_2)
     assert job1["attack_id"] == "p7_gronsfeld"
     assert job2["attack_id"] == "p18_key_csp"
+    assert job1["summary"] == {"fake": "gronsfeld"}
+    assert job2["summary"] == {"fake": "key_csp"}
