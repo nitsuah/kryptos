@@ -20,8 +20,19 @@ from kryptos.k4.eureka import EurekaSignal
 
 
 @pytest.fixture()
-def client():
+def client(tmp_path, monkeypatch):
+    # Attacks write artifacts (e.g. K4_*_NULL.json) to the working directory, and
+    # later attacks read them back; keep each test's output out of the repo.
+    monkeypatch.chdir(tmp_path)
     return TestClient(create_app())
+
+
+@pytest.fixture()
+def fast_attacks(monkeypatch):
+    """Replace the real sweeps with instant fakes: these tests pin the job
+    lifecycle and dispatch, not attack speed (the real sweeps can take >10s on CI)."""
+    monkeypatch.setattr("kryptos.k4.gronsfeld.run_gronsfeld_sweep", lambda *a, **k: {"fake": "gronsfeld"})
+    monkeypatch.setattr("kryptos.k4.key_csp.run_key_csp_attack", lambda *a, **k: {"fake": "key_csp"})
 
 
 def _poll_until_done(client: TestClient, job_id: str, timeout: float = 10.0) -> dict:
@@ -74,14 +85,15 @@ def test_job_status_404_for_unknown_job(client):
 
 
 # ---------------------------------------------------------------------------
-# POST /run — end-to-end lifecycle against a real, fast attack module
+# POST /run — end-to-end lifecycle (attack stubbed by fast_attacks)
 # ---------------------------------------------------------------------------
-def test_run_gronsfeld_job_reaches_complete(client):
+def test_run_gronsfeld_job_reaches_complete(client, fast_attacks):
     resp = client.post("/api/k4/attacks/run", json={"attack_id": "p7_gronsfeld"})
     assert resp.status_code == 200
     body = resp.json()
     assert body["attack_id"] == "p7_gronsfeld"
-    assert body["status"] in ("queued", "running")
+    # The worker thread can finish before the response is built.
+    assert body["status"] in ("queued", "running", "complete")
     job_id = body["job_id"]
 
     job = _poll_until_done(client, job_id)
@@ -131,7 +143,7 @@ def test_run_job_records_eureka_signal(client, monkeypatch):
 # ---------------------------------------------------------------------------
 # Multiple concurrent jobs get distinct, independently-tracked state
 # ---------------------------------------------------------------------------
-def test_run_multiple_jobs_have_independent_state(client):
+def test_run_multiple_jobs_have_independent_state(client, fast_attacks):
     resp1 = client.post("/api/k4/attacks/run", json={"attack_id": "p7_gronsfeld"})
     resp2 = client.post("/api/k4/attacks/run", json={"attack_id": "p18_key_csp"})
     job_id_1 = resp1.json()["job_id"]
