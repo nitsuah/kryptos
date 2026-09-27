@@ -154,6 +154,29 @@ def linear_key(ciphertext: str = K4, plain: dict[int, str] | None = None, keywor
     return out
 
 
+def progressive_key(
+    ciphertext: str = K4,
+    plain: dict[int, str] | None = None,
+    keyword: str = "KRYPTOS",
+    periods: Iterable[int] = range(1, 27),
+) -> dict[str, list[dict[str, int]]]:
+    """Progressive key: key_i = K[i mod p] + d * floor(i / p). d = 0 is the plain periodic key."""
+    plain = plain if plain is not None else crib_letters()
+    out: dict[str, list[dict[str, int]]] = {}
+    for name, (alpha, fn) in families(keyword).items():
+        kv = key_values(alpha, fn, ciphertext, plain)
+        hits = []
+        for p in periods:
+            for d in range(26):
+                slots: dict[int, int] = {}
+                if all(
+                    slots.setdefault(i % p, (k - d * (i // p)) % 26) == (k - d * (i // p)) % 26 for i, k in kv.items()
+                ):
+                    hits.append({"period": p, "step": d})
+        out[name] = hits
+    return out
+
+
 def digit_key(
     keywords: Iterable[str], ciphertext: str = K4, plain: dict[int, str] | None = None
 ) -> dict[str, dict[str, Any]]:
@@ -382,6 +405,74 @@ def geometry_period_scan(
     return {"mappings": len(rows), **_scan_mappings(cpos, labels, K4, plain, list(periods), keyword, max_examples)}
 
 
+# ── Dictionary-scale keyed alphabets ───────────────────────────────────────
+
+
+def dictionary_words(min_len: int = 3) -> list[str]:
+    """English words for keyword tests: the MIT ``english-words`` package (web2 + GCIDE, ~340k)
+    if installed, otherwise the small built-in scoring list."""
+    try:
+        from english_words import get_english_words_set
+
+        words = get_english_words_set(["web2", "gcide"], alpha=True, lower=False)
+    except ImportError:
+        from .scoring import WORDLIST
+
+        words = set(WORDLIST)
+    return sorted({w.upper() for w in words if len(w) >= min_len and w.isalpha()})
+
+
+def keyword_alphabet_scan(
+    words: Iterable[str],
+    periods: Iterable[int] = range(1, 27),
+    ciphertext: str = K4,
+    plain: dict[int, str] | None = None,
+    max_examples: int = 10,
+) -> dict[str, Any]:
+    """Periodic Quagmire I/II/III with *every* word as the alphabet keyword (direct, no transposition).
+
+    - Quagmire I:   plain alphabet keyed, cipher alphabet standard.
+    - Quagmire II:  plain standard, cipher keyed.
+    - Quagmire III: both keyed with the same keyword (K1/K2's construction).
+
+    Words that produce the same keyed alphabet are tested once. Phases 1-7
+    tried about 30 hand-picked keywords; this covers a dictionary.
+    """
+    plain = plain if plain is not None else crib_letters()
+    positions = np.array(sorted(plain))
+    c_letters = [ciphertext[i] for i in positions]
+    p_letters = [plain[i] for i in positions]
+    by_alphabet: dict[str, str] = {}
+    for w in words:
+        by_alphabet.setdefault(keyed_alphabet(w), w.upper())
+    alphabets = list(by_alphabet)
+    if not alphabets:
+        return {"alphabets": 0, "words": 0}
+    idx = np.array([[a.index(ch) for ch in STANDARD] for a in alphabets], dtype=np.int16)  # letter -> position
+    c_std = np.array([STANDARD.index(ch) for ch in c_letters])
+    p_std = np.array([STANDARD.index(ch) for ch in p_letters])
+    c_key = idx[:, c_std]
+    p_key = idx[:, p_std]
+    variants = {
+        "quagmire1": (c_std[None, :] - p_key) % 26,
+        "quagmire2": (c_key - p_std[None, :]) % 26,
+        "quagmire3": (c_key - p_key) % 26,
+    }
+    out: dict[str, Any] = {"alphabets": len(alphabets), "words": sum(1 for _ in by_alphabet.values())}
+    for name, kv in variants.items():
+        per_period = {}
+        for p in periods:
+            slots = np.broadcast_to(positions % p, kv.shape)
+            ok = _period_survivors(kv.astype(np.int64), slots)
+            per_period[p] = {
+                "survivors": int(ok.sum()),
+                "examples": [by_alphabet[alphabets[i]] for i in np.flatnonzero(ok)[:max_examples]],
+                "equality_constraints": int(len(positions) - len(np.unique(positions % p))),
+            }
+        out[name] = per_period
+    return out
+
+
 # ── Suite ──────────────────────────────────────────────────────────────────
 
 
@@ -401,6 +492,14 @@ def _summarize_scan(scan: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def _summarize_keywords(scan: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {"alphabets": scan["alphabets"]}
+    for name in ("quagmire1", "quagmire2", "quagmire3"):
+        if name in scan:
+            out[name] = {p: v for p, v in scan[name].items() if v["survivors"]}
+    return out
+
+
 def run_crib_constraint_suite(
     widths: Iterable[int] = range(2, 9),
     artifact_path: str | Path | None = DEFAULT_ARTIFACT_PATH,
@@ -416,10 +515,12 @@ def run_crib_constraint_suite(
         "ciphertext_autokey": ciphertext_autokey(),
         "plaintext_autokey": plaintext_autokey(),
         "linear_key": linear_key(),
+        "progressive_key": progressive_key(),
         "digit_key": digit_key(DIGIT_KEYWORDS),
         "running_key": running_key_scan(sculpture_corpus()),
         "columnar_period": {w: {"permutations": r["permutations"], **_summarize_scan(r)} for w, r in columnar.items()},
         "geometry_period": {"mappings": geometry["mappings"], **_summarize_scan(geometry)},
+        "keyword_alphabets": _summarize_keywords(keyword_alphabet_scan(dictionary_words())),
         "run_params": {"widths": widths, "periods": [1, 26]},
     }
     if artifact_path:
@@ -431,13 +532,16 @@ __all__ = [
     "ciphertext_autokey",
     "columnar_period_scan",
     "crib_letters",
+    "dictionary_words",
     "digit_key",
     "families",
     "geometry_period_scan",
     "key_values",
+    "keyword_alphabet_scan",
     "keyed_alphabet",
     "linear_key",
     "plaintext_autokey",
+    "progressive_key",
     "run_crib_constraint_suite",
     "running_key_scan",
     "sculpture_corpus",

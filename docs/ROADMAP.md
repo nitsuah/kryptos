@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · [Features](./FEATURES.md) · **Roadmap** · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
 
-Last Updated: 2026-09-27
+Last Updated: 2026-09-28
 Next Review: 2026-10-24
 
 > 2027 planning reset (2026-09-24): completed Phases 1–4, 6 and 7 (all null — every code-executable direction
@@ -27,9 +27,11 @@ Everything code-derivable from current sourcing has been tried (Phases 1–7, al
 - [ ] **The Kryptos compass rose's actual measured bearing.** Confirmed via `elonka.com`'s own wishlist to be a still-open *community-wide* question, not just a gap in this repo. One uncertain secondary estimate exists (~220°, explicitly flagged inexact). 2026-09-02: satellite imagery of the CIA courtyard was inspected directly (Google Maps, unblurred) and ruled out — resolution is building/lot-scale, not fine enough for a ground-level stone engraving. Remaining leads: a CIA FOIA/public-affairs request, or contacting Elonka Dunin directly. Outreach drafts for both (the questions to ask Elonka, and the FOIA request text) are ready — see `docs/TASKS.md`.
 - [ ] **Send the three outreach drafts** — FOIA request (foia.cia.gov, asking for the 1990 landscape/installation drawing), Elonka Dunin, and CIA Public Affairs (authorized research visit). All three are drafted in `docs/TASKS.md` (FOIA and Elonka under the compass-rose item, Public Affairs as its own item); each needs a human send.
 
-Inventing more sweep variants over the same structural assumptions (grids, reflections, rotations, clock states) is not expected to help (see Phase 7's zero cross-vector consensus result). One code-side direction is still open. Every sweep so far assumed "periodic or structured key plus transposition". The alternative that fits the evidence just as well, a non-periodic key with no transposition, has only been tested through K3-as-running-key (P6) and autokey. See the item below.
+Inventing more sweep variants over the same structural assumptions (grids, reflections, rotations, clock states) is not expected to help (see Phase 7's zero cross-vector consensus result). The productive code-side direction is testing whole families against the 24 crib key values instead of sampling keys.
 
-- [ ] **Scope the "non-periodic key, no transposition" family.** Treat BLZCDCYYGCKAZ / MUYKLG / KORNA as the literal key at those positions. Test key-generating procedures against those 24 values directly: running keys from Sanborn-adjacent texts, per-position clock or bearing readings, and Weltzeituhr sector/city sequences. Checking a procedure against 24 known key values is much cheaper than decrypting all 97 letters and scoring the result. P3, Research + code.
+- [x] **Crib-constraint engine (P21, 2026-09-28).** `kryptos.k4.crib_constraints` eliminates, over stated ranges: autokey (both kinds), linear, progressive and digit keys; running keys over the sculpture corpus; dictionary keyword alphabets for Quagmire I–III (231,933 alphabets, periods ≤ 25); and columnar (widths 2–9) or geometric transpositions composed with a periodic key of period ≤ 22, in either layer order. Runnable via `kryptos crib-constraints` or the `p21_crib_constraints` API attack. Machine-readable status: `GET /api/k4/ledger`.
+- [ ] **Next constraint checks** — Quagmire IV pairs, double-periodic keys, K3-style double rotation, transposition + non-periodic key. Ranked in [`docs/analysis/K4_NEGATIVE_SPACE.md`](./analysis/K4_NEGATIVE_SPACE.md).
+- [ ] **Real scoring word list** — `scoring.wordlist_hit_rate` has only ever had 18 words. Fix and re-baseline (see TASKS).
 
 **External developments (2025–2026):** Sanborn's 1990 archival papers were found by independent researchers (Sept 2025, not a cryptographic solve); a Sanborn-confirmed K5 exists; a third-party reconstruction (solvekryptos.com) aligns with all four confirmed crib anchors after this repo's own `K4_CRIBS` off-by-one bug was fixed. Its mechanism is not published in enough detail to reproduce. Its opening line, "THE COMPASS ROSE IS HERE," is part of that reconstruction. It is not Sanborn's recovered text, which Kobek and Byrne have not released, and it is not independent evidence (earlier versions of this doc said it was; corrected 2026-09-27). Paradigm self-identified as the buyer in June 2026 and runs a $1-per-guess K4 verifier alongside its Kryptos CTF. Follow-up rounds 1–3 (2026-09-03) were all null. Full detail: `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "External Developments" sections.
 

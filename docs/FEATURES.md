@@ -58,6 +58,8 @@
 - **Physical-Grid Tableau Walk**: Walks the 26×26 KRYPTOS Vigenère tableau along 108 geometric routes into the Quagmire III solver against K4 (`k4.physical_grid`); null result
 - **Berlin Clock Attack Suite**: Clock→Hill 2×2 invertibility pre-filter, 4-char clock→Vigenère with NORTHEAST anchor, non-standard sub-row encodings, and lamp-count transposition widths (`k[...]
 - **Beaufort K4 Sweep**: Systematic reciprocal-Beaufort pass over KRYPTOS/PALIMPSEST/BERLIN/CLOCK/ABSCISSA keys (`k4.beaufort_sweep`); null result
+- **Crib-Constraint Engine (P21)**: Tests whole cipher families against the 24 crib key values, each check with a positive control: autokey, linear/progressive/digit keys, sculpture-corpus running keys, dictionary Quagmire I–III (231,933 alphabets), and columnar/geometric transposition × periodic key in both layer orders (`k4.crib_constraints`, `kryptos crib-constraints`)
+- **IC Profile**: Overall/segment IC with a reshuffle significance test (`k4.ic_profile`)
 
 ### ⚙️ Pipeline Architecture
 
@@ -135,6 +137,8 @@
 - **Vault endpoints**: `POST /api/vault/seal`, `POST /api/vault/unseal`, `GET /api/vault/{token}` (503/404/410/403 error mapping for unavailable/missing/gone/wrong-key)
 - **RAG endpoints**: `GET /api/rag/status`, `POST /api/rag/reindex`, `GET /api/rag/search`
 - **SSE log tail**: `GET /api/stream/logs` — `StreamingResponse` (`text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler; `LogTail` EventSource component on [...]
+- **K4 hypothesis ledger**: `GET /api/k4/ledger[?tier=]` — every family tagged eliminated / sampled_null / open, with scope, evidence, module and test
+- **K4 attack jobs**: `GET /api/k4/attacks/frontier`, `POST /api/k4/attacks/run` (incl. `p21_crib_constraints`), `GET /api/k4/attacks/jobs/{id}`
 - **Health**: `GET /health`
 
 ### Persistence

@@ -241,6 +241,25 @@ from kryptos.k4.keystream_validator import (
 
 Confirmed crib positions (0-indexed): EAST 21–24, NORTHEAST 25–33, BERLIN 63–68, CLOCK 69–73.
 
+## Crib-constraint engine and hypothesis ledger
+
+```python
+from kryptos.k4.crib_constraints import (
+    ciphertext_autokey, plaintext_autokey,   # key = earlier letter + constant, every lag
+    linear_key, progressive_key, digit_key,  # arithmetic and Gronsfeld-style keys
+    running_key_scan, sculpture_corpus,      # every alignment of a text, with a shuffled control
+    keyword_alphabet_scan, dictionary_words, # Quagmire I/II/III over a dictionary of keywords
+    columnar_period_scan,                    # every column order x period x family, both layer orders
+    geometry_period_scan,                    # the phase 6-7 geometric permutations x period
+    run_crib_constraint_suite,               # all of the above -> K4_CRIB_CONSTRAINTS_NULL.json
+)
+from kryptos.k4.hypothesis_ledger import LEDGER, ledger, ledger_summary  # eliminated / sampled_null / open
+from kryptos.k4.ic_profile import ic_profile, segment_ics, segment_spread_p_value
+from kryptos.k4.key_csp import periodic_family_consistency
+```
+
+Every function accepts a ciphertext and crib dict, so each check can be run on a planted solution (see `tests/functional/test_k4_crib_constraints.py`).
+
 ---
 
 ## Inverse transposition sweep
@@ -373,6 +392,8 @@ kryptos spy-extract [--runs PATH] [--min-conf FLOAT]
 kryptos autopilot [--plan TEXT] [--dry-run] [--loop] [--iterations N] [--interval SECS] [--force]
 kryptos autonomous [--max-hours H] [--max-cycles N] [--cycle-interval M] [--ops-cycle M] [--web-intel-hours H]
 kryptos examples-smoke [--limit N] [--keep N]
+kryptos crib-constraints [--max-width W] [--out PATH]
+kryptos benchmark [--cases CSV] [--out-dir DIR]
 ```
 
 `--cipher` is optional on `k4-decrypt` and `sections-decrypt`; omitting it loads the ciphertext from `config/config.json`.
@@ -404,6 +425,15 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 | `GET /api/runs/{run_id}/candidates?limit=` | Candidates for a run, ranked |
 | `GET /api/candidates?limit=` | Highest-scoring candidates across all runs |
 | `POST /api/decrypt` | Body `{section, ciphertext, key?}` → `{section, plaintext}`. K1/K2 require `key`; K3 ignores it; unknown section → 422 |
+
+### K4 hypothesis ledger (`kryptos.api.ledger_routes`)
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/k4/ledger` | Every hypothesis family with `tier` (`eliminated` / `sampled_null` / `open`), scope, evidence, module and test, plus per-tier counts |
+| `GET /api/k4/ledger?tier=open` | One tier only (unknown tier → 422) |
+
+The K4 attack router also accepts `POST /api/k4/attacks/run {"attack_id": "p21_crib_constraints"}` to run the crib-constraint suite as a background job.
 
 ### Live log tail (SSE — `kryptos.api.log_stream`)
 

@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (2026-09-28 — negative-space pass)
+
+- **P21 crib-constraint engine** (`kryptos.k4.crib_constraints`): tests whole cipher families against the 24 crib key values instead of sampling keys. Every check has a positive-control test. Eliminated over stated ranges: ciphertext/plaintext autokey, linear, progressive and Gronsfeld digit keys; running keys over a sculpture corpus (best 7–8/24, equal to a shuffled control); Quagmire I–III for 231,933 dictionary keyword alphabets (periods ≤ 25); columnar transpositions of width 2–9 and 7,680 geometric mappings composed with a periodic key (periods ≤ 22, both layer orders).
+- `kryptos crib-constraints` CLI command and `p21_crib_constraints` API attack.
+- `kryptos.k4.hypothesis_ledger` and `GET /api/k4/ledger[?tier=]`: every hypothesis family tagged `eliminated` / `sampled_null` / `open`.
+- `docs/analysis/K4_NEGATIVE_SPACE.md`: ranked list of untried or under-tested directions.
+- `english-words` (MIT) dependency for the dictionary keyword scan.
+
+### Fixed (2026-09-28)
+
+- `running_key.K3_PLAINTEXT_FULL` contained invented text after character 97; now the real K3 plaintext. P6 used only the first 97 characters, so its result stands.
+- `cli/main.py`: removed 136 lines of unreachable duplicate parser code after `return parser`.
+- P18 frontier description said 22 crib pairs; there are 24.
+- Elonka Dunin and FOIA outreach drafts moved into `docs/TASKS.md` from a retired briefing page.
+
 ### Fixed (2026-09-27 — K4 deep-dive audit)
 
 - **K4 IC figures in the docs were wrong.** The overall IC is 0.0361, not ≈0.062. Segment ICs are 0.046/0.046/0.034, not 0.058/0.071/0.062. The "substitution → transposition confirmed" architecture built on them is downgraded to a working hypothesis in `K4_ACTIVE_RESEARCH.md`, `K4_KEYSTREAM_ANALYSIS.md`, ROADMAP and README.

@@ -134,3 +134,34 @@ def test_suite_writes_artifact(tmp_path):
 
 def test_k4_constant():
     assert len(K4) == 97
+
+
+class TestKeywordAlphabets:
+    def test_positive_control_quagmire3(self):
+        ka = cc.keyed_alphabet("ZEBRA")
+        key = [5, 19, 2, 11, 23, 8, 14]
+        ct = "".join(ka[(ka.index(c) + key[i % 7]) % 26] for i, c in enumerate(PLAIN_97))
+        res = cc.keyword_alphabet_scan(
+            ["ZEBRA", "KRYPTOS", "PALIMPSEST"], periods=[7], ciphertext=ct, plain=_plain_at(PLAIN_97)
+        )
+        assert res["quagmire3"][7]["examples"] == ["ZEBRA"]
+
+    def test_k4_hand_picked_keywords_eliminated(self):
+        res = cc.keyword_alphabet_scan(cc.DIGIT_KEYWORDS, periods=range(1, 23))
+        for name in ("quagmire1", "quagmire2", "quagmire3"):
+            assert all(v["survivors"] == 0 for v in res[name].values())
+
+    def test_dictionary_words_nonempty(self):
+        assert len(cc.dictionary_words()) >= 10
+
+
+class TestProgressiveKey:
+    def test_positive_control(self):
+        base, p, d = [4, 9, 20, 1, 13], 5, 3
+        key = [(base[i % p] + d * (i // p)) % 26 for i in range(97)]
+        res = cc.progressive_key(_vig(PLAIN_97, key), _plain_at(PLAIN_97))
+        assert {"period": p, "step": d} in res["vigenere"]
+
+    def test_k4_short_periods_eliminated(self):
+        for hits in cc.progressive_key(periods=range(1, 23)).values():
+            assert hits == []
