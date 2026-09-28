@@ -323,7 +323,7 @@ def build_parser() -> argparse.ArgumentParser:
         "crib-constraints",
         help="Test whole cipher families against the 24 K4 crib letters (autokey, running key, transposition)",
     )
-    sp_crib.add_argument("--max-width", type=int, default=8, help="Largest columnar width to scan (default: 8)")
+    sp_crib.add_argument("--max-width", type=int, default=9, help="Largest columnar width to scan (default: 9)")
     sp_crib.add_argument(
         "--out", type=str, default="K4_CRIB_CONSTRAINTS_NULL.json", help="Artifact path (default: %(default)s)"
     )

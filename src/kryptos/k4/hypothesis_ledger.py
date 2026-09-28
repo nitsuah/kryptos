@@ -9,6 +9,8 @@ Tiers:
 - ``eliminated``: exhaustive over the stated parameter range. Checked against the
   24 crib letters, with a positive-control test proving the check can find a
   planted solution.
+- ``statistical``: ruled out by statistical evidence (e.g. index of coincidence)
+  rather than an exhaustive check. Very unlikely, not impossible.
 - ``sampled_null``: specific parameter choices were decrypted and scored, and none
   matched. That rules out those choices only, not the family.
 - ``open``: not yet tested in a way that covers the family.
@@ -18,18 +20,28 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-Tier = Literal["eliminated", "sampled_null", "open"]
-TIERS: tuple[Tier, ...] = ("eliminated", "sampled_null", "open")
+Tier = Literal["eliminated", "statistical", "sampled_null", "open"]
+TIERS: tuple[Tier, ...] = ("eliminated", "statistical", "sampled_null", "open")
 
 LEDGER: list[dict[str, Any]] = [
     # ── eliminated ─────────────────────────────────────────────────────────
     {
-        "id": "monoalphabetic",
-        "family": "Monoalphabetic substitution (with or without transposition)",
+        "id": "monoalphabetic_direct",
+        "family": "Monoalphabetic substitution, no transposition",
         "tier": "eliminated",
         "scope": "any alphabet",
-        "evidence": "IC 0.0361 vs English 0.066 (invariant under mono + transposition); 8 of 9 repeated crib letters "
-        "map to different ciphertext letters",
+        "evidence": "8 of 9 plaintext letters that repeat within the cribs map to different ciphertext "
+        "letters; a fixed substitution cannot do that",
+        "module": "kryptos.k4.crib_constraints.monoalphabetic_conflicts",
+        "test": "tests/functional/test_k4_crib_constraints.py",
+    },
+    {
+        "id": "monoalphabetic_with_transposition",
+        "family": "Monoalphabetic substitution combined with a transposition",
+        "tier": "statistical",
+        "scope": "any alphabet, any transposition",
+        "evidence": "IC is unchanged by both steps, so English plaintext would give ~0.066; K4 gives 0.0361. Strong "
+        "statistical evidence, not an exhaustive proof, because a transposition moves the crib positions",
         "module": "kryptos.k4.ic_profile",
         "test": "tests/functional/test_k4_documented_facts.py",
     },
@@ -102,7 +114,8 @@ LEDGER: list[dict[str, Any]] = [
         "id": "columnar_plus_periodic",
         "family": "Columnar transposition composed with a periodic key, either order",
         "tier": "eliminated",
-        "scope": "widths 2-9 (all column orders), periods 1-22, five families; width 10 checked to period 20",
+        "scope": "widths 2-9 (all column orders; the default suite run), periods 1-22, five families; "
+        "width 10 checked to period 20",
         "evidence": "zero survivors; the few at periods 23-26 are chance-level and decrypt to noise",
         "module": "kryptos.k4.crib_constraints.columnar_period_scan",
         "test": "tests/functional/test_k4_crib_constraints.py",

@@ -15,9 +15,8 @@ Attack 4 — Berlin Clock lamp counts as transposition column widths:
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from datetime import time as _dt_time
-from datetime import timezone
 from pathlib import Path
 from typing import Any
 

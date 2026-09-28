@@ -96,6 +96,19 @@ def _offset_consistent(pairs: list[tuple[int, int]]) -> int | None:
     return b if all((k - s) % 26 == b for s, k in pairs) else None
 
 
+def monoalphabetic_conflicts(ciphertext: str = K4, plain: dict[int, str] | None = None) -> dict[str, list[str]]:
+    """Plaintext letters that repeat in the cribs but map to more than one ciphertext letter.
+
+    A fixed monoalphabetic substitution (no transposition) maps each plaintext letter to one
+    ciphertext letter, so any entry here rules it out. K4 has 8.
+    """
+    plain = plain if plain is not None else crib_letters()
+    seen: dict[str, set[str]] = {}
+    for i, p in plain.items():
+        seen.setdefault(p, set()).add(ciphertext[i])
+    return {p: sorted(cs) for p, cs in sorted(seen.items()) if len(cs) > 1}
+
+
 # ── Autokey ────────────────────────────────────────────────────────────────
 
 
@@ -260,12 +273,14 @@ def running_key_scan(
 
 def sculpture_corpus() -> dict[str, str]:
     """Texts physically on, or directly tied to, the sculpture. Each is also included reversed."""
+    from kryptos.paths import get_repo_root
+
     from .k0_morse_keywords import K0_MORSE_KEYWORDS
     from .running_key import K3_PLAINTEXT_FULL
     from .vigenere_stress_tests import K1_PLAINTEXT, K2_PLAINTEXT
     from .world_clock_cities import CONFIRMED_CITIES
 
-    cfg = json.loads((Path(__file__).resolve().parents[3] / "config" / "config.json").read_text())
+    cfg = json.loads((get_repo_root() / "config" / "config.json").read_text(encoding="utf-8"))
     cts = {k: "".join(c for c in v.upper() if c.isalpha()) for k, v in cfg["ciphertexts"].items()}
     base = {
         "K1_plaintext": K1_PLAINTEXT,
@@ -386,13 +401,17 @@ class _LazyLabels:
 
 
 def geometry_period_scan(
-    periods: Iterable[int] = range(1, 27), keyword: str = "KRYPTOS", max_examples: int = 5
+    periods: Iterable[int] = range(1, 27),
+    keyword: str = "KRYPTOS",
+    max_examples: int = 5,
+    ciphertext: str = K4,
+    plain: dict[int, str] | None = None,
 ) -> dict[str, Any]:
     """The phase 6-7 24-column geometric permutations (trailing/leading remainder, all 24 rotations)."""
     from . import reflection
     from .geometry_combined_sweep import DEFAULT_ORDER_NAMES, composed_flat_indices
 
-    plain = crib_letters()
+    plain = plain if plain is not None else crib_letters()
     positions = sorted(plain)
     rows, labels = [], []
     for order in DEFAULT_ORDER_NAMES:
@@ -400,31 +419,44 @@ def geometry_period_scan(
             for offset in range(24):
                 for mode in ("trailing", "leading"):
                     flat = composed_flat_indices(order, refl, offset, mode)
-                    if len(flat) != len(K4):
+                    if len(flat) != len(ciphertext):
                         continue
                     # apply_inverse puts ciphertext[i] at pre-transposition position flat[i].
                     inv = {src: i for i, src in enumerate(flat)}
                     rows.append([inv[j] for j in positions])
                     labels.append({"order": order, "reflection": refl, "offset": offset, "remainder": mode})
     cpos = np.array(rows, dtype=np.int64)
-    return {"mappings": len(rows), **_scan_mappings(cpos, labels, K4, plain, list(periods), keyword, max_examples)}
+    return {
+        "mappings": len(rows),
+        **_scan_mappings(cpos, labels, ciphertext, plain, list(periods), keyword, max_examples),
+    }
 
 
 # ── Dictionary-scale keyed alphabets ───────────────────────────────────────
 
 
-def dictionary_words(min_len: int = 3) -> list[str]:
-    """English words for keyword tests: the MIT ``english-words`` package (web2 + GCIDE, ~340k)
-    if installed, otherwise the small built-in scoring list."""
+def dictionary_source() -> tuple[str, list[str]]:
+    """(source name, words): the MIT ``english-words`` package (web2 + GCIDE, ~260k usable words)
+    if installed, otherwise the small built-in scoring list, with a logged warning."""
     try:
         from english_words import get_english_words_set
 
         words = get_english_words_set(["web2", "gcide"], alpha=True, lower=False)
+        source = "english-words:web2+gcide"
     except ImportError:
         from .scoring import WORDLIST
 
+        logger.warning(
+            "english-words not installed; dictionary scan falls back to the %d-word scoring list", len(WORDLIST)
+        )
         words = set(WORDLIST)
-    return sorted({w.upper() for w in words if len(w) >= min_len and w.isalpha()})
+        source = "kryptos.k4.scoring.WORDLIST (fallback)"
+    return source, sorted({w.upper() for w in words if len(w) >= 3 and w.isalpha()})
+
+
+def dictionary_words(min_len: int = 3) -> list[str]:
+    """English words for keyword tests (see :func:`dictionary_source`)."""
+    return [w for w in dictionary_source()[1] if len(w) >= min_len]
 
 
 def keyword_alphabet_scan(
@@ -507,7 +539,7 @@ def _summarize_keywords(scan: dict[str, Any]) -> dict[str, Any]:
 
 
 def run_crib_constraint_suite(
-    widths: Iterable[int] = range(2, 9),
+    widths: Iterable[int] = range(2, 10),
     artifact_path: str | Path | None = DEFAULT_ARTIFACT_PATH,
 ) -> dict[str, Any]:
     """Run every test, write one artifact, return the summary."""
@@ -515,6 +547,7 @@ def run_crib_constraint_suite(
     widths = list(widths)
     columnar = columnar_period_scan(widths=widths)
     geometry = geometry_period_scan()
+    dict_source, dict_words = dictionary_source()
     summary: dict[str, Any] = {
         "status": "complete",
         "timestamp": ts,
@@ -526,8 +559,13 @@ def run_crib_constraint_suite(
         "running_key": running_key_scan(sculpture_corpus()),
         "columnar_period": {w: {"permutations": r["permutations"], **_summarize_scan(r)} for w, r in columnar.items()},
         "geometry_period": {"mappings": geometry["mappings"], **_summarize_scan(geometry)},
-        "keyword_alphabets": _summarize_keywords(keyword_alphabet_scan(dictionary_words())),
-        "run_params": {"widths": widths, "periods": [1, 26]},
+        "keyword_alphabets": _summarize_keywords(keyword_alphabet_scan(dict_words)),
+        "run_params": {
+            "widths": widths,
+            "periods": [1, 26],
+            "dictionary_source": dict_source,
+            "dictionary_words": len(dict_words),
+        },
     }
     if artifact_path:
         Path(artifact_path).write_text(json.dumps(summary, indent=2, default=str))
@@ -538,6 +576,7 @@ __all__ = [
     "ciphertext_autokey",
     "columnar_period_scan",
     "crib_letters",
+    "dictionary_source",
     "dictionary_words",
     "digit_key",
     "families",
@@ -546,6 +585,7 @@ __all__ = [
     "keyword_alphabet_scan",
     "keyed_alphabet",
     "linear_key",
+    "monoalphabetic_conflicts",
     "plaintext_autokey",
     "progressive_key",
     "run_crib_constraint_suite",

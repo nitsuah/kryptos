@@ -31,9 +31,8 @@ from .geometry_combined_sweep import (
     DEFAULT_REMAINDER_MODES,
     composed_flat_indices,
 )
-from .hypothesis_graph import DEFAULT_GRAPH_PATH
+from .hypothesis_graph import DEFAULT_GRAPH_PATH, record_result_preserving_strongest
 from .hypothesis_graph import load as load_graph
-from .hypothesis_graph import record_result_preserving_strongest
 from .hypothesis_graph import save as save_graph
 from .inverse_transposition_sweep import K4_GRID_GEOMETRIES
 from .physical_grid import K4

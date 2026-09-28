@@ -212,7 +212,7 @@ class TestGetTzOffsetStates(unittest.TestCase):
     """P4 — TZ offset modifier."""
 
     def setUp(self):
-        from kryptos.k4.k2_clock_states import get_tz_offset_states, clock_state_for_time
+        from kryptos.k4.k2_clock_states import clock_state_for_time, get_tz_offset_states
         self._fn = get_tz_offset_states
         self._base = [clock_state_for_time("13:00")]
 

@@ -62,7 +62,7 @@ class TestStraddlingCheckerboard:
         assert "total_candidates" in result
 
     def test_run_attack_total_candidates(self):
-        from kryptos.k4.straddling_checkerboard import run_straddling_checkerboard_attack, CANDIDATE_ROW_HEADERS
+        from kryptos.k4.straddling_checkerboard import CANDIDATE_ROW_HEADERS, run_straddling_checkerboard_attack
         result = run_straddling_checkerboard_attack(null_artifact_path="K4_P15_TEST2_NULL.json")
         # 6 row-headers × 3 orderings × 2 converters = 36
         expected = len(CANDIDATE_ROW_HEADERS) * 3 * 2
@@ -84,7 +84,7 @@ class TestCorpusMiner:
         assert callable(mine_candidate_corpus)
 
     def test_constants_reasonable(self):
-        from kryptos.k4.corpus_miner import NGRAM_RANGE, ANCHOR_WINDOW, MIN_FREQUENCY_PCT
+        from kryptos.k4.corpus_miner import ANCHOR_WINDOW, MIN_FREQUENCY_PCT, NGRAM_RANGE
         assert NGRAM_RANGE[0] >= 4
         assert NGRAM_RANGE[1] <= 8
         assert ANCHOR_WINDOW[0] == 0
@@ -102,6 +102,7 @@ class TestCorpusMiner:
 
     def test_mine_with_synthetic_candidates(self, tmp_path):
         import json
+
         from kryptos.k4.corpus_miner import mine_candidate_corpus
 
         # Create a synthetic null artifact
@@ -125,6 +126,7 @@ class TestCorpusMiner:
 
     def test_mine_detects_east_ngram(self, tmp_path):
         import json
+
         from kryptos.k4.corpus_miner import mine_candidate_corpus
 
         # All candidates share EAST at position 0

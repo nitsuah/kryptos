@@ -137,7 +137,7 @@
 - **Vault endpoints**: `POST /api/vault/seal`, `POST /api/vault/unseal`, `GET /api/vault/{token}` (503/404/410/403 error mapping for unavailable/missing/gone/wrong-key)
 - **RAG endpoints**: `GET /api/rag/status`, `POST /api/rag/reindex`, `GET /api/rag/search`
 - **SSE log tail**: `GET /api/stream/logs` — `StreamingResponse` (`text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler; `LogTail` EventSource component on [...]
-- **K4 hypothesis ledger**: `GET /api/k4/ledger[?tier=]` — every family tagged eliminated / sampled_null / open, with scope, evidence, module and test
+- **K4 hypothesis ledger**: `GET /api/k4/ledger[?tier=]` — every family tagged eliminated / statistical / sampled_null / open, with scope, evidence, module and test
 - **K4 attack jobs**: `GET /api/k4/attacks/frontier`, `POST /api/k4/attacks/run` (incl. `p21_crib_constraints`), `GET /api/k4/attacks/jobs/{id}`
 - **Health**: `GET /health`
 

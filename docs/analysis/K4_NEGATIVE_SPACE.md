@@ -19,6 +19,7 @@ So there are two strengths of "ruled out":
 | Tier | Meaning | Where |
 |------|---------|-------|
 | **eliminated** | Exhaustive over the stated parameter range, checked against the cribs, with a positive control | `hypothesis_ledger`, tier `eliminated` |
+| **statistical** | Ruled out by statistical evidence, not an exhaustive check. Monoalphabetic + transposition is here: IC 0.0361 vs English 0.066 | `hypothesis_ledger`, tier `statistical` |
 | **sampled null** | Specific parameters were decrypted and scored; none matched | Phase 1–7 sweeps, `K4_ACTIVE_RESEARCH.md` |
 | **open** | Not yet tested in a way that covers the family | This doc |
 
@@ -30,7 +31,7 @@ So there are two strengths of "ruled out":
 
 | Family | Range covered | Result |
 |--------|---------------|--------|
-| Monoalphabetic, with or without transposition | any alphabet | IC 0.0361 vs English 0.066, plus 8 of 9 repeated crib letters map inconsistently |
+| Monoalphabetic, no transposition | any alphabet | 8 of 9 repeated crib letters map inconsistently |
 | Direct periodic key: Vigenère, Beaufort, Variant, Quagmire III (KRYPTOS) | periods 1–26 | no period fits |
 | Quagmire I / II / III, dictionary keyword alphabets | 231,933 distinct alphabets (web2 + GCIDE), periods 1–25 | zero survivors (period 26 applies one constraint and passes by chance) |
 | Ciphertext autokey (+ constant) | lags 1–71, five families | none; lag 72 has two constraints and survives at chance level |
@@ -39,7 +40,7 @@ So there are two strengths of "ruled out":
 | Progressive key K[i mod p] + d·⌊i/p⌋ | periods 1–26, all d | none |
 | Gronsfeld / Gromark digit keys | 15 Kryptos keyword alphabets, both directions | every alphabet needs a shift ≥ 23 |
 | Running key from sculpture texts | K1–K3 plaintext and ciphertext, K1–K4 ciphertext, KRYPTOS tableau rows, K0 Morse words, Weltzeituhr cities; forward and reversed; every alignment; any constant | best alignment 7–8 of 24, the same as a shuffled-text control |
-| Columnar transposition + periodic key, both layer orders | widths 2–9 (all column orders), periods 1–22, five families | zero survivors. Width 10 was checked to period 20 in a one-off run. Survivors at periods 23–26 are chance-level (a period-26 slot pattern has one equality) and decrypt to noise |
+| Columnar transposition + periodic key, both layer orders | widths 2–9 (all column orders; the default run), periods 1–22, five families | zero survivors. Width 10 was checked to period 20 in a one-off run. Survivors at periods 23–26 are chance-level (a period-26 slot pattern has one equality) and decrypt to noise |
 | Phase 6–7 geometric permutations + periodic key, both orders | 7,680 mappings, periods 1–22 | zero survivors |
 
 Nicodemus (Vigenère by column, then columnar read-out) is the sub-then-transposition case with period = width, so it's covered by the columnar row.

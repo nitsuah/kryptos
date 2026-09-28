@@ -22,7 +22,7 @@ Next Review: 2026-10-24
 
 ## 2027 Q1 — Phase 8: Primary-Source Sourcing (Active — opened 2026-09-01)
 
-Everything code-derivable from current sourcing has been tried (Phases 1–7, all null). What's left needs new source material, not new code. Of the three gaps opened 2026-09-01, two closed 2026-09-02 (World Clock city list at 130/146; sub-minute Nov 9 1989 timestamp). One remains:
+Two workstreams remain. The compass-rose bearing needs new source material. Code-side constraint and scoring work also remains, listed further down. Of the three source gaps opened 2026-09-01, two closed 2026-09-02 (World Clock city list at 130/146; sub-minute Nov 9 1989 timestamp). One remains:
 
 - [ ] **The Kryptos compass rose's actual measured bearing.** Confirmed via `elonka.com`'s own wishlist to be a still-open *community-wide* question, not just a gap in this repo. One uncertain secondary estimate exists (~220°, explicitly flagged inexact). 2026-09-02: satellite imagery of the CIA courtyard was inspected directly (Google Maps, unblurred) and ruled out — resolution is building/lot-scale, not fine enough for a ground-level stone engraving. Remaining leads: a CIA FOIA/public-affairs request, or contacting Elonka Dunin directly. Outreach drafts for both (the questions to ask Elonka, and the FOIA request text) are ready — see `docs/TASKS.md`.
 - [ ] **Send the three outreach drafts** — FOIA request (foia.cia.gov, asking for the 1990 landscape/installation drawing), Elonka Dunin, and CIA Public Affairs (authorized research visit). All three are drafted in `docs/TASKS.md` (FOIA and Elonka under the compass-rose item, Public Affairs as its own item); each needs a human send.

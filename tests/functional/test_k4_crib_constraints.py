@@ -165,3 +165,33 @@ class TestProgressiveKey:
     def test_k4_short_periods_eliminated(self):
         for hits in cc.progressive_key(periods=range(1, 23)).values():
             assert hits == []
+
+
+class TestMonoalphabetic:
+    def test_positive_control_fixed_substitution_has_no_conflicts(self):
+        ka = cc.keyed_alphabet("ZEBRA")
+        ct = "".join(ka[S.index(c)] for c in PLAIN_97)
+        assert cc.monoalphabetic_conflicts(ct, _plain_at(PLAIN_97)) == {}
+
+    def test_k4_eight_conflicting_letters(self):
+        assert len(cc.monoalphabetic_conflicts()) == 8
+
+
+class TestGeometryPositiveControl:
+    def test_planted_geometry_mapping_is_found(self):
+        from kryptos.k4.geometry_combined_sweep import DEFAULT_ORDER_NAMES, composed_flat_indices
+
+        order = DEFAULT_ORDER_NAMES[3]
+        flat = composed_flat_indices(order, "flip_h", 5, "trailing")
+        key = [2, 19, 7, 11, 24, 3, 16]
+        pre = _vig(PLAIN_97, [key[i % 7] for i in range(97)])  # substitution first
+        ct = "".join(pre[flat[i]] for i in range(97))  # apply_inverse(ct, flat) == pre
+        res = cc.geometry_period_scan(periods=[7], ciphertext=ct, plain=_plain_at(PLAIN_97), max_examples=50)
+        hit = res["sub_then_trans"]["vigenere"][7]
+        assert {"order": order, "reflection": "flip_h", "offset": 5, "remainder": "trailing"} in hit["examples"]
+
+
+def test_suite_records_dictionary_provenance(tmp_path):
+    summary = cc.run_crib_constraint_suite(widths=[2], artifact_path=tmp_path / "a.json")
+    assert summary["run_params"]["dictionary_source"]
+    assert summary["run_params"]["dictionary_words"] > 0

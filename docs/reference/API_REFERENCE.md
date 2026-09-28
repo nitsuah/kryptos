@@ -248,12 +248,12 @@ from kryptos.k4.crib_constraints import (
     ciphertext_autokey, plaintext_autokey,   # key = earlier letter + constant, every lag
     linear_key, progressive_key, digit_key,  # arithmetic and Gronsfeld-style keys
     running_key_scan, sculpture_corpus,      # every alignment of a text, with a shuffled control
-    keyword_alphabet_scan, dictionary_words, # Quagmire I/II/III over a dictionary of keywords
+    keyword_alphabet_scan, dictionary_source, # Quagmire I/II/III over a dictionary of keywords
     columnar_period_scan,                    # every column order x period x family, both layer orders
     geometry_period_scan,                    # the phase 6-7 geometric permutations x period
     run_crib_constraint_suite,               # all of the above -> K4_CRIB_CONSTRAINTS_NULL.json
 )
-from kryptos.k4.hypothesis_ledger import LEDGER, ledger, ledger_summary  # eliminated / sampled_null / open
+from kryptos.k4.hypothesis_ledger import LEDGER, ledger, ledger_summary  # eliminated / statistical / sampled_null / open
 from kryptos.k4.ic_profile import ic_profile, segment_ics, segment_spread_p_value
 from kryptos.k4.key_csp import periodic_family_consistency
 ```
@@ -430,7 +430,7 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 
 | Method & path | Purpose |
 |---------------|---------|
-| `GET /api/k4/ledger` | Every hypothesis family with `tier` (`eliminated` / `sampled_null` / `open`), scope, evidence, module and test, plus per-tier counts |
+| `GET /api/k4/ledger` | Every hypothesis family with `tier` (`eliminated` / `statistical` / `sampled_null` / `open`), scope, evidence, module and test, plus per-tier counts |
 | `GET /api/k4/ledger?tier=open` | One tier only (unknown tier → 422) |
 
 The K4 attack router also accepts `POST /api/k4/attacks/run {"attack_id": "p21_crib_constraints"}` to run the crib-constraint suite as a background job.

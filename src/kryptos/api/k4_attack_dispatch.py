@@ -289,7 +289,7 @@ def run_attack_worker(job_id: str, req: RunAttackRequest) -> None:
         from kryptos.k4.crib_constraints import run_crib_constraint_suite
 
         update_job(job_id, progress_pct=10.0, clock_time="constraint-scan")
-        summary = run_crib_constraint_suite(widths=range(2, 9))
+        summary = run_crib_constraint_suite(widths=range(2, 10))
         update_job(job_id, progress_pct=100.0)
 
     elif attack_id == "p15_straddling_checkerboard":

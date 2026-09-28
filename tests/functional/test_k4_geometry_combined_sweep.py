@@ -6,9 +6,8 @@ import json
 
 import pytest
 
-from kryptos.k4 import geometry24
+from kryptos.k4 import geometry24, reflection
 from kryptos.k4 import geometry_combined_sweep as gcs
-from kryptos.k4 import reflection
 from kryptos.k4.eureka import EurekaSignal
 from kryptos.k4.physical_grid import build_tableau
 from kryptos.k4.quagmire import quagmire3_encrypt

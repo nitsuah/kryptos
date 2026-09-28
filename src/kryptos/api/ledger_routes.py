@@ -1,7 +1,7 @@
 """K4 hypothesis ledger API: what has been ruled out, how, and how firmly.
 
 ``GET /api/k4/ledger`` returns every family with its tier (``eliminated``,
-``sampled_null``, ``open``), scope, evidence, and the module and test behind it.
+``statistical``, ``sampled_null``, ``open``), scope, evidence, and the module and test behind it.
 ``?tier=`` filters to one tier. Data lives in :mod:`kryptos.k4.hypothesis_ledger`.
 """
 
@@ -19,7 +19,9 @@ def create_ledger_router() -> APIRouter:
     router = APIRouter(prefix="/api/k4/ledger", tags=["k4-ledger"])
 
     @router.get("")
-    def get_ledger(tier: str | None = Query(None, description="eliminated | sampled_null | open")) -> dict[str, Any]:
+    def get_ledger(
+        tier: str | None = Query(None, description="eliminated | statistical | sampled_null | open"),
+    ) -> dict[str, Any]:
         """Return the full ledger summary, or one tier's entries when ``tier`` is given (422 if unknown)."""
         if tier is None:
             return ledger_summary()

@@ -193,7 +193,7 @@ FRONTIER_VECTORS = [
         "description": (
             "Tests whole cipher families against the 24 crib letters instead of sampling keys: "
             "ciphertext/plaintext autokey (every lag), linear keys, Gronsfeld digit keys, running keys over "
-            "the sculpture corpus, and periodic keys composed with every columnar transposition (widths 2-8) "
+            "the sculpture corpus, and periodic keys composed with every columnar transposition (widths 2-9) "
             "and the phase 6-7 geometric permutations, in both layer orders."
         ),
         "layer_count": 2,

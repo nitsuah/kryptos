@@ -120,7 +120,7 @@ then convert back.
 ### K4 Negative-Space Pass (September 2026)
 
 - **P21 crib-constraint engine.** Tests cipher *families* against the 24 known letters rather than decrypting sampled keys. It eliminates, over stated ranges: autokey, linear, progressive, digit and sculpture-text running keys; Quagmire I–III for 231,933 dictionary keyword alphabets; and columnar (widths 2–9) or geometric transpositions composed with a periodic key of period ≤ 22, in either layer order. Run `kryptos crib-constraints`.
-- **Hypothesis ledger.** `GET /api/k4/ledger` gives a frontend-ready map of what's `eliminated`, `sampled_null` or `open`.
+- **Hypothesis ledger.** `GET /api/k4/ledger` gives a frontend-ready map of what's `eliminated`, `statistical`, `sampled_null` or `open`.
 - **Ranked gaps** in `docs/analysis/K4_NEGATIVE_SPACE.md`. Top of the list: the scoring word list has only ever had 18 words.
 
 ---
