@@ -14,7 +14,7 @@
 | ------------------- | ------- | ------------------------------------------ |
 | Code Coverage       | 89.27%  | Measured with pytest-cov (Docker, 2026-09-16, PMO audit): README's "Docker Fast Coverage" `python:3.13-slim` command — `pytest tests/ -m 'not slow' --cov=kryptos --cov-report=term`; 13,216 statements, 1,418 missed. Essentially flat vs. the 2026-08-22 reading (89.35%) despite substantial test growth in between. |
 | Source Files        | 136     | 2026-09-27: +`k4_jobs`, `k4_attack_dispatch`, `ic_profile` since 2026-09-16 (155 incl. `__init__.py`). Previous note: Python modules in src/ excl. `__init__.py` (152 total incl. `__init__.py`) — re-derived 2026-09-16, up from 112/131 on 2026-08-22 (Phase 6/7/8 modules: geodesy, solar_geometry, cross_vector_consensus, classical_cipher_sweep, k0_morse_keywords, plaintext_evidence, known_plaintext_inversion, physical_geometry, constraint_chain, overnight_runner, and others) |
-| Test Files          | 210     | 2026-09-27 (+`test_k4_documented_facts.py`). Previous note: `test_*.py` modules in tests/ (re-derived 2026-09-16, up from 184) |
+| Test Files          | 218     | 2026-09-28: `test_*.py` modules under tests/ (includes the new K4 constraint, frontier, ledger, persistence and calibration tests). Previous note: `test_*.py` modules in tests/ (re-derived 2026-09-16, up from 184) |
 | Test Functions      | 1552    | 2026-09-27 static count. Previous note: `def test_*` functions across all test files (static count 2026-09-16, up from 1271 on 2026-08-22) |
 | Test Cases (Fast)   | 1761 passed | 2026-09-28: `-m "not slow"`, 33 skipped, RAG-index tests deselected locally (they need `turbovec`); coverage 89% (local Python 3.11 run, frontier pass). Previous note: 0 failures, 34 skipped (Docker run 2026-09-16, PMO audit; slow-marked tests excluded via `-m 'not slow'`). Pytest-collected count exceeds the static function count above because parametrized tests expand into multiple items. |
 | Test Cases (Slow)   | 26      | `@pytest.mark.slow`-marked test items, deselected by the fast run above (was estimated "~22" on 2026-08-22; now an exact count from the same run) |
@@ -54,7 +54,7 @@
 | Provenance            | 2     | ~836  | Attack logging and search tracking   |
 | K4 Toolkit            | 29    | ~15K  | Cipher implementations and scoring   |
 | Research              | 4     | ~2K   | Academic paper analysis              |
-| Tests                 | 208   | ~25K+ | Comprehensive test coverage (file count re-derived 2026-09-16, was 184) |
+| Tests                 | 218   | ~25K+ | Comprehensive test coverage (file count re-derived 2026-09-28; same scope as the Test Files row above) |
 
 ## Code Quality
 

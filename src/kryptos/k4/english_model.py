@@ -79,5 +79,11 @@ def calibration(length: int, n: int = 4, samples: int = 400, seed: int = 0) -> t
 def english_z(text: str, n: int = 4) -> float:
     """0 = typical random text of this length, 1 = typical English of this length."""
     s = "".join(c for c in text.upper() if c in _STD)
+    if len(s) < n:
+        raise ValueError(f"english_z needs at least {n} letters, got {len(s)}")
+    if len(s) >= len(reference_english()):
+        raise ValueError(f"english_z is calibrated for texts shorter than {len(reference_english())} letters")
     lo, hi = calibration(len(s), n)
+    if hi == lo:
+        raise ValueError("degenerate calibration: English and random texts score the same")
     return (mean_logp(s, n) - lo) / (hi - lo)

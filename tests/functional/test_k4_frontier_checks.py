@@ -252,4 +252,38 @@ class TestReconstruction:
     @pytest.mark.slow
     def test_reconstruction_suite_runs(self):
         res = fc.reconstruction_suite(columnar_widths=range(2, 6))
-        assert all(v == [] for v in res["periodic_1_48"].values())
+
+        def empty_lists(d):
+            return all(v == [] for v in d.values())
+
+        for key in (
+            "periodic_1_48",
+            "ciphertext_autokey",
+            "plaintext_autokey",
+            "linear_key",
+            "progressive_key_1_48",
+            "double_periodic_p_le_45",
+            "recurrence_key_1_40",
+            "general_alphabet_periodic_1_48",
+        ):
+            assert empty_lists(res[key]), key
+        assert all(v == [] for v in res["hill_2_9"].values())
+        assert all(n == 0 for fam in res["dial_keys"].values() for n in fam.values())
+        assert all(v["english_z"] < 0.3 for v in res["running_key_keystreams"].values())
+        assert all(n == 0 for n in res["columnar_period_1_48"].values())
+        assert res["geometry_period_1_48"] == 0
+        assert res["double_rotation_period_1_48"] == 0
+        assert res["bearing_route_period_1_48"] == 0
+
+    @pytest.mark.slow
+    def test_reconstruction_dictionary_quagmires_have_no_fit(self):
+        res = fc.reconstruction_suite(columnar_widths=[2], include_dictionary=True)
+        assert all(n == 0 for n in res["keyword_alphabets_1_48"].values())
+        assert res["quagmire4_dictionary_1_48"] == 0
+
+
+def test_english_z_rejects_unsupported_lengths():
+    with pytest.raises(ValueError):
+        english_z("ABC")
+    with pytest.raises(ValueError):
+        english_z("A" * 5000)

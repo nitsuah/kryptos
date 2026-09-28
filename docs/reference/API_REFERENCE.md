@@ -441,7 +441,9 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 |---------------|---------|
 | `GET /api/k4/ledger` | Latest suite run (`latest_run`) and every hypothesis family with `tier` (`eliminated` / `statistical` / `sampled_null` / `open`), scope, evidence, module and test, plus per-tier counts |
 | `GET /api/k4/ledger?tier=open` | One tier only (unknown tier → 422) |
+| `GET /api/k4/attacks/frontier` | Every attack vector (id, priority, name, status, description, layer count, combo estimate, `runnable`) |
 | `GET /api/k4/attacks/jobs?limit=` | Recent attack jobs, newest first (in memory, plus Neon when `DATABASE_URL` is set) |
+| `GET /api/k4/attacks/jobs/{job_id}` | One job: status (`queued` / `running` / `complete` / `error` / `eureka`), progress, summary, error, timestamps; 404 if unknown |
 
 The K4 attack router also accepts `POST /api/k4/attacks/run {"attack_id": "p21_crib_constraints"}` to run the crib-constraint suite as a background job. Only one P21 job runs at a time; a second request while one is queued or running gets `409 Conflict` naming the active job. `p22_frontier_checks` runs `kryptos.k4.frontier_checks.run_frontier_suite` (recurrence, mixed-alphabet, dial and bearing-route keys, Hill 4×4/5×5, English running keys, and the full-plaintext reconstruction against every family; a few minutes) under the same one-at-a-time rule, and writes `K4_FRONTIER_NULL.json`.
 

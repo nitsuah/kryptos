@@ -759,7 +759,7 @@ def hill_rowspace_search(
     plain: dict[int, str] | None = None,
     max_matrices: int = 20_000_000,
     top: int = 200,
-    chunk: int = 500_000,
+    chunk: int = 100_000,
 ) -> list[dict[str, Any]]:
     """Hill n x n where the crib blocks leave a few choices per row: score every matrix.
 
@@ -798,8 +798,13 @@ def hill_rowspace_search(
         for lo in range(0, total, chunk):
             idx = np.arange(lo, min(total, lo + chunk))
             choice = np.stack(np.unravel_index(idx, sizes), axis=1)  # (m, n)
-            text = np.stack([letters[r][choice[:, r]] for r in range(n)], axis=2).reshape(len(idx), -1)
-            q = text[:, :-3] * 17576 + text[:, 1:-2] * 676 + text[:, 2:-1] * 26 + text[:, 3:]
+            # uint8 letters and int32 indices keep a 100k-row chunk to ~100 MB peak.
+            text = np.stack([letters[r][choice[:, r]].astype(np.uint8) for r in range(n)], axis=2).reshape(len(idx), -1)
+            t = text.astype(np.int32)
+            q = t[:, :-3] * 17576
+            q += t[:, 1:-2] * 676
+            q += t[:, 2:-1] * 26
+            q += t[:, 3:]
             score = table4[q].mean(axis=1)
             keep = np.argsort(score)[-top:]
             best_scores += [(float(score[k]), tuple(int(x) for x in choice[k])) for k in keep]

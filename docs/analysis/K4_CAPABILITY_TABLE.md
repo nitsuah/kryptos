@@ -18,7 +18,7 @@ This table previously lived inline inside K4_ACTIVE_RESEARCH.md's "Existing Infr
 | Transposition adaptive stage | ✅ Working | Tests passing |
 | Berlin clock (single-layer) | ✅ Complete | All 720 states tested; ruled out as standalone |
 | Composite pipeline | ✅ Working | `run_composite_pipeline` + `CompositeChainExecutor` |
-| Quadgram scoring | ✅ Working | High-quality TSV loaded from `data/ngrams/` |
+| Quadgram scoring | ✅ Working (since 2026-09-28) | `scoring` loads real English 2/3/4-gram tables (`data/ngrams/english_{2,3,4}grams.tsv`, 8.9M letters of public-domain text). Before that it read placeholder TSVs of about ten entries each, so earlier language-score rankings were weak. |
 | Positional crib bonus | ✅ Working | `make_transposition_multi_crib_stage` |
 | InstructionalScorer | ✅ Complete | `kryptos.k4.scoring_instructional` — vocabulary, Levenshtein, entropy gate |
 | ENE diagonal transposition | ✅ Complete | `read_ene_diagonal` in `transposition_routes.py`; integrated into `full_sweep` |
@@ -90,7 +90,7 @@ This table previously lived inline inside K4_ACTIVE_RESEARCH.md's "Existing Infr
 
 ## What's genuinely still open
 
-Everything above is code-executable and done. What's left needs new source material this repo can't generate on its own — see [docs/TASKS.md](../TASKS.md)'s "Primary-source sourcing" section:
+The code-side gaps that remain (long-key rules not yet named, Hill 6×6+, masking that inserts or drops letters, per-letter lookup keys) are ranked in [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md). The rest needs new source material this repo can't generate on its own — see [docs/TASKS.md](../TASKS.md)'s "Primary-source sourcing" section:
 
 1. The Kryptos compass rose's actual measured bearing (FOIA/Elonka outreach drafted, needs a human to send it).
 2. Whether CIA Public Affairs has an authorized research-visit mechanism (draft ready, same).

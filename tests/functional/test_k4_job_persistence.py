@@ -36,6 +36,12 @@ class _FakeCursor:
         return list(self._rows)
 
 
+@pytest.fixture(autouse=True)
+def _fresh_jobs(monkeypatch):
+    """Each test gets its own job registry, so jobs never leak between tests or modules."""
+    monkeypatch.setattr(k4_jobs, "_JOBS", {})
+
+
 @pytest.fixture()
 def fake_db(monkeypatch):
     store: dict = {}
