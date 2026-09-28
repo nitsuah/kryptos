@@ -303,7 +303,7 @@ LEDGER: list[dict[str, Any]] = [
     },
     {
         "id": "keys_beyond_crib_reach",
-        "family": "Keys longer than the 24 cribs can constrain (periods above ~23, long running keys from unknown texts)",
+        "family": "Keys longer than the 24 cribs can constrain (periods above ~23, running keys from unknown texts)",
         "tier": "open",
         "scope": "needs an assumed key-generation rule to be testable",
         "evidence": "",
