@@ -51,6 +51,7 @@ KeyFn = Callable[[int, int], int]
 
 
 def keyed_alphabet(keyword: str) -> str:
+    """Keyword letters first (deduplicated), then the rest of A-Z, as on the Kryptos tableau."""
     seen: list[str] = []
     for c in keyword.upper() + STANDARD:
         if c.isalpha() and c not in seen:
@@ -82,6 +83,7 @@ def crib_letters(cribs: dict[str, tuple[str, int]] | None = None) -> dict[int, s
 
 
 def key_values(alphabet: str, fn: KeyFn, ciphertext: str = K4, plain: dict[int, str] | None = None) -> dict[int, int]:
+    """Key value at each crib position for one family: fn(cipher index, plain index) in ``alphabet``."""
     plain = plain if plain is not None else crib_letters()
     return {i: fn(alphabet.index(ciphertext[i]), alphabet.index(p)) for i, p in sorted(plain.items())}
 
@@ -202,6 +204,7 @@ def digit_key(
 
 
 def _best_alignment(text: str, kv: dict[int, int], alpha: str, lo: int, hi: int, allow_offset: bool) -> dict[str, Any]:
+    """Best-scoring alignment of ``text`` against the crib key values (optionally with a free constant offset)."""
     best: dict[str, Any] = {"matches": -1}
     for start in range(-lo, len(text) - hi):
         src_vals = [(alpha.index(text[start + i]), k) for i, k in kv.items()]
@@ -374,9 +377,11 @@ def columnar_period_scan(
 
 class _LazyLabels:
     def __init__(self, perms: np.ndarray):
+        """Wrap a large permutation array; labels are built on demand."""
         self._perms = perms
 
     def __getitem__(self, i: int) -> list[int]:
+        """Column order ``i`` as a plain list of ints."""
         return list(map(int, self._perms[i]))
 
 
@@ -493,6 +498,7 @@ def _summarize_scan(scan: dict[str, Any]) -> dict[str, Any]:
 
 
 def _summarize_keywords(scan: dict[str, Any]) -> dict[str, Any]:
+    """Keep only periods with survivors so the suite artifact stays small."""
     out: dict[str, Any] = {"alphabets": scan["alphabets"]}
     for name in ("quagmire1", "quagmire2", "quagmire3"):
         if name in scan:

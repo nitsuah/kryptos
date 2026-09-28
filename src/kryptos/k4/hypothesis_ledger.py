@@ -64,7 +64,8 @@ LEDGER: list[dict[str, Any]] = [
         "id": "plaintext_autokey",
         "family": "Plaintext autokey (key = earlier plaintext letter + constant)",
         "tier": "eliminated",
-        "scope": "lags 1-11 and 31-51; lags 12, 30, 52 have one crib pair and 13-29, 53-96 have none, so those stay untestable",
+        "scope": "lags 1-11 and 31-51; lags 12, 30, 52 have one crib pair and 13-29, 53-96 have none, "
+        "so those stay untestable",
         "evidence": "no consistent constant offset",
         "module": "kryptos.k4.crib_constraints.plaintext_autokey",
         "test": "tests/functional/test_k4_crib_constraints.py",
@@ -239,10 +240,12 @@ LEDGER: list[dict[str, Any]] = [
 
 
 def ledger(tier: Tier | None = None) -> list[dict[str, Any]]:
+    """Copies of the ledger entries, optionally filtered to one tier."""
     return [dict(e) for e in LEDGER if tier is None or e["tier"] == tier]
 
 
 def ledger_summary() -> dict[str, Any]:
+    """Per-tier counts plus every entry, as served by ``GET /api/k4/ledger``."""
     return {"counts": {t: sum(1 for e in LEDGER if e["tier"] == t) for t in TIERS}, "entries": ledger()}
 
 

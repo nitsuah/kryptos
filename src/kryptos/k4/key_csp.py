@@ -100,6 +100,7 @@ def solve_key_csp(
 
 
 def _keyed_alphabet(keyword: str) -> str:
+    """Keyword letters first (deduplicated), then the rest of A-Z."""
     seen: list[str] = []
     for c in keyword.upper() + STANDARD:
         if c not in seen:

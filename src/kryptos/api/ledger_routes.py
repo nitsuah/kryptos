@@ -15,10 +15,12 @@ from kryptos.k4.hypothesis_ledger import TIERS, ledger, ledger_summary
 
 
 def create_ledger_router() -> APIRouter:
+    """Build the ``/api/k4/ledger`` router."""
     router = APIRouter(prefix="/api/k4/ledger", tags=["k4-ledger"])
 
     @router.get("")
     def get_ledger(tier: str | None = Query(None, description="eliminated | sampled_null | open")) -> dict[str, Any]:
+        """Return the full ledger summary, or one tier's entries when ``tier`` is given (422 if unknown)."""
         if tier is None:
             return ledger_summary()
         if tier not in TIERS:
