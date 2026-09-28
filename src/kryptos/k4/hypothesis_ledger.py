@@ -357,11 +357,12 @@ LEDGER: list[dict[str, Any]] = [
     },
     {
         "id": "wide_columnar_plus_periodic",
-        "family": "Columnar transposition widths 10-13 (10! to 13! column orders) + periodic key, either order",
+        "family": "Columnar transposition widths 10-14 (10! to 14! column orders) + periodic key, either order",
         "tier": "eliminated",
-        "scope": "key applied first: periods 1-22; transposition first: periods 1-18",
-        "evidence": "exact depth-first search over column orders; the only survivors (period 17, widths 12-13, a few "
-        "near-identical orders) fix the whole key, and decrypt to noise (English score about 0)",
+        "scope": "key applied first: periods 1-22 (width 14 at period 18 excepted, see evidence); transposition first: periods 1-17",
+        "evidence": "exact depth-first search over column orders. Survivors at period 17 (widths 12-14) fix the whole "
+        "key and decrypt to noise (English score about 0). Width 14 at period 18 leaves 196 orders, about the "
+        "chance count, with the key not fully fixed, so they cannot be decrypted",
         "module": "kryptos.k4.frontier_checks.wide_columnar_scan",
         "test": "tests/functional/test_k4_frontier_checks.py",
     },

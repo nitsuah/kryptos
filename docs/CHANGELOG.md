@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added (2026-09-28 — frontier pass)
 
 - `kryptos.k4.frontier_checks` (P22, `kryptos frontier`, API `p22_frontier_checks`): recurrence keys, periodic key + arbitrary mixed alphabet, dial keys, routes along every compass bearing, Hill 4×4 (exhaustive) and 5×5 (11.9M matrices scored), running keys from any English text (direct and after columnar transposition), and `reconstruction_suite`, which tests the published full-plaintext reconstruction against every family. Each check has a positive control.
+- `frontier_checks.wide_columnar_scan` (exact search over column orders past brute force; widths 10–14 null), `hill_beam_search` (Hill 5×5 at the alignments exhaustive search can't reach), `vocabulary_phrase_keys`.
 - `kryptos.k4.english_model` with English 3- and 4-gram tables built from 8.9M letters of public-domain text (`scripts/data/build_english_ngrams.py`).
 - Ledger: 6 new eliminated entries, 3 new statistical entries; the open entries narrowed to what is actually left.
 
