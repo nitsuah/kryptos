@@ -33,6 +33,7 @@ Reproduce with `kryptos crib-constraints` (writes `K4_CRIB_CONSTRAINTS_NULL.json
 | Direct periodic key (Vigenère, Beaufort, Variant, Quagmire III KRYPTOS) | periods 1–26 | no period fits |
 | Quagmire I / II / III, dictionary keyword alphabets | 231,933 alphabets, periods 1–25 | zero survivors |
 | Quagmire IV, Kryptos vocabulary × dictionary | 43 × 231,933, both roles, periods 1–22 | zero survivors |
+| Quagmire IV, dictionary × dictionary | 231,933², about 5.4×10¹⁰ pairs, periods 1–22 | zero survivors except 5 chance pairs at period 16 (only 8 constraints), which decrypt to noise |
 | Sum of two periodic keys, *any* keywords | every (p1, p2) with p1 + p2 ≤ 24 | linear system unsolvable over GF(2)/GF(13); covers PALIMPSEST + ABSCISSA |
 | Ciphertext autokey (+ constant) | lags 1–71, five families | none (lag 72 has two constraints; chance level) |
 | Plaintext autokey (+ constant) | lags 1–11 and 31–51 | none; lags 12, 30, 52 have one crib pair, 13–29 and 53–96 none |
@@ -69,11 +70,10 @@ Mengenlehreuhr lamp keys; geometric/tableau keystream sweeps (~2.4M candidates);
 
 | # | Gap | Why it matters | Effort |
 |---|-----|----------------|--------|
-| 1 | **Quagmire IV, dictionary × dictionary** | ~5×10¹⁰ pairs. Needs stronger pruning, e.g. derive the required cipher-alphabet position differences from the plaintext alphabet and index the dictionary by them. | M |
-| 2 | **Longer or structured keys beyond period 22–26** | Most families are only testable up to the point where the 24 cribs stop constraining. A longer key needs an extra assumption (a key-generation rule) to test. | M |
-| 3 | **Hill 4×4 and up** | The cribs give too few full blocks per alignment; needs a transposition hypothesis or partial blocks. | M |
-| 4 | **Masking other than nulls between cribs** | Nulls inside the plaintext blocks conflict with Sanborn's letter-for-letter crib pairing; other masking forms (phonetic spelling, letter swaps) are not modelled. | L |
-| 5 | **Per-position procedural keys** (clock state or bearing per letter) | Depends on the compass-rose bearing and a rule for turning a reading into a key value. | L |
+| 1 | **Longer or structured keys beyond period 22–26** | Most families are only testable up to the point where the 24 cribs stop constraining. A longer key needs an extra assumption (a key-generation rule) to test. | M |
+| 2 | **Hill 4×4 and up** | The cribs give too few full blocks per alignment; needs a transposition hypothesis or partial blocks. | M |
+| 3 | **Masking other than nulls between cribs** | Nulls inside the plaintext blocks conflict with Sanborn's letter-for-letter crib pairing; other masking forms (phonetic spelling, letter swaps) are not modelled. | L |
+| 4 | **Per-position procedural keys** (clock state or bearing per letter) | Depends on the compass-rose bearing and a rule for turning a reading into a key value. | L |
 
 ### Evidence and sourcing
 
@@ -86,12 +86,11 @@ Mengenlehreuhr lamp keys; geometric/tableau keystream sweeps (~2.4M candidates);
 
 ### Platform
 
-Done 2026-09-28: `GET /api/k4/ledger` (with the latest suite run), job persistence to Neon plus `GET /api/k4/attacks/jobs`, the registry-matches-dispatcher test, the positive-control rule, and a real scoring word list.
+Done 2026-09-28: `GET /api/k4/ledger` (with the latest suite run, stored in Neon via `k4_constraint_runs` so it survives redeploys), job persistence to Neon plus `GET /api/k4/attacks/jobs`, the registry-matches-dispatcher test, the positive-control rule, and a real scoring word list.
 
 | # | Gap | Effort |
 |---|-----|--------|
-| 1 | Store suite artifacts in Neon instead of the working directory, so `latest_run` survives redeploys | S |
-| 2 | Generate the markdown capability table from `FRONTIER_VECTORS` + the ledger instead of editing it by hand | S |
+| 1 | Generate the markdown capability table from `FRONTIER_VECTORS` + the ledger instead of editing it by hand | S |
 
 ---
 

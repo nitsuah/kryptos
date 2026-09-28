@@ -701,6 +701,59 @@ def tolerance_study(
     }
 
 
+def quagmire4_dictionary_scan(
+    words: Iterable[str],
+    periods: Iterable[int] = range(1, 23),
+    ciphertext: str = K4,
+    plain: dict[int, str] | None = None,
+    max_examples: int = 10,
+) -> dict[str, Any]:
+    """Quagmire IV with *both* keywords from ``words`` (e.g. the full dictionary), exactly.
+
+    For a period p, crib positions i, j in the same key slot force
+    CA(c_i) - CA(c_j) = PA(p_i) - PA(p_j) (mod 26), where CA / PA are positions in the cipher
+    and plain alphabets. So every cipher alphabet is indexed by its difference vector over
+    those pairs, and every plain alphabet looks up the vector it requires. That replaces
+    ~N^2 pair checks with ~2N hash operations per period.
+    """
+    plain = plain if plain is not None else crib_letters()
+    positions = sorted(plain)
+    by_alpha: dict[str, str] = {}
+    for w in words:
+        by_alpha.setdefault(keyed_alphabet(w), w.upper())
+    alphabets = list(by_alpha)
+    idx = np.array([[a.index(ch) for ch in STANDARD] for a in alphabets], dtype=np.int16)
+    out: dict[str, Any] = {"alphabets": len(alphabets), "pairs_covered": len(alphabets) ** 2}
+    per_period: dict[int, dict[str, Any]] = {}
+    for p in periods:
+        groups: dict[int, list[int]] = {}
+        for i in positions:
+            groups.setdefault(i % p, []).append(i)
+        pairs = [(g[k], g[k + 1]) for g in groups.values() for k in range(len(g) - 1)]
+        if not pairs:
+            per_period[p] = {"constraints": 0, "survivors": len(alphabets) ** 2, "examples": []}
+            continue
+        ca = np.array([STANDARD.index(ciphertext[i]) for i, _ in pairs])
+        cb = np.array([STANDARD.index(ciphertext[j]) for _, j in pairs])
+        pa = np.array([STANDARD.index(plain[i]) for i, _ in pairs])
+        pb = np.array([STANDARD.index(plain[j]) for _, j in pairs])
+        c_vec = ((idx[:, ca] - idx[:, cb]) % 26).astype(np.uint8)
+        p_vec = ((idx[:, pa] - idx[:, pb]) % 26).astype(np.uint8)
+        index: dict[bytes, list[int]] = {}
+        for r, row in enumerate(c_vec):
+            index.setdefault(row.tobytes(), []).append(r)
+        count, examples = 0, []
+        for r, row in enumerate(p_vec):
+            hits = index.get(row.tobytes())
+            if hits:
+                count += len(hits)
+                for h in hits[: max(0, max_examples - len(examples))]:
+                    examples.append((by_alpha[alphabets[r]], by_alpha[alphabets[h]]))
+        per_period[p] = {"constraints": len(pairs), "survivors": count, "examples": examples}
+    out["periods"] = per_period
+    return out
+
+
 # ── Suite ──────────────────────────────────────────────────────────────────
 
 
@@ -785,10 +838,14 @@ def run_crib_constraint_suite(
     }
     if artifact_path:
         Path(artifact_path).write_text(json.dumps(summary, indent=2, default=str))
+    from .run_store import save_run
+
+    save_run(summary)
     return summary
 
 
 __all__ = [
+    "quagmire4_dictionary_scan",
     "tolerance_study",
     "quagmire4_scan",
     "double_periodic_consistency",

@@ -217,6 +217,16 @@ LEDGER: list[dict[str, Any]] = [
         "module": "kryptos.k4.structural_checks.transposition_running_key_scan",
         "test": "tests/functional/test_k4_structural_checks.py",
     },
+    {
+        "id": "quagmire4_dictionary_pairs",
+        "family": "Quagmire IV with both keywords from the full dictionary",
+        "tier": "eliminated",
+        "scope": "231,933 x 231,933 keyed alphabets (~5.4e10 pairs), periods 1-22; period 16 applies only 8 "
+        "constraints and leaves 5 chance pairs, which decrypt to noise",
+        "evidence": "exact difference-vector index over same-slot crib pairs; zero survivors at every other period",
+        "module": "kryptos.k4.crib_constraints.quagmire4_dictionary_scan",
+        "test": "tests/functional/test_k4_crib_constraints.py",
+    },
     # ── sampled nulls ──────────────────────────────────────────────────────
     {
         "id": "berlin_clock_keys",
@@ -284,15 +294,6 @@ LEDGER: list[dict[str, Any]] = [
     },
     # ── open ───────────────────────────────────────────────────────────────
     {
-        "id": "quagmire4_dictionary_pairs",
-        "family": "Quagmire IV with both keywords from the full dictionary",
-        "tier": "open",
-        "scope": "~5e10 pairs; needs pruning beyond the per-side constraints",
-        "evidence": "",
-        "module": "",
-        "test": "",
-    },
-    {
         "id": "hill_large",
         "family": "Hill 4x4 and larger",
         "tier": "open",
@@ -349,16 +350,23 @@ def latest_run(artifact_path: str | Path | None = None) -> dict[str, Any] | None
     """Headline numbers from the most recent crib-constraint suite run, if its artifact exists.
 
     Reads ``K4_CRIB_CONSTRAINTS_NULL.json`` (written by ``kryptos crib-constraints`` and the
-    P21 API job) from the working directory unless a path is given.
+    P21 API job) from the working directory unless a path is given; with no explicit path and
+    no local file, falls back to the newest run stored in Neon (``kryptos.k4.run_store``).
     """
     from .crib_constraints import DEFAULT_ARTIFACT_PATH
 
     path = Path(artifact_path or DEFAULT_ARTIFACT_PATH)
-    if not path.exists():
-        return None
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
+    data = None
+    if path.exists():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            data = None
+    if data is None and artifact_path is None:
+        from .run_store import load_latest
+
+        data = load_latest()
+    if data is None:
         return None
 
     def low_period_survivors(block: dict[str, Any]) -> int:

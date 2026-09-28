@@ -253,7 +253,9 @@ from kryptos.k4.crib_constraints import (
     geometry_period_scan,                    # the phase 6-7 geometric permutations x period
     run_crib_constraint_suite,               # all of the above -> K4_CRIB_CONSTRAINTS_NULL.json
 )
-from kryptos.k4.crib_constraints import double_periodic_consistency, quagmire4_scan, tolerance_study
+from kryptos.k4.crib_constraints import (
+    double_periodic_consistency, quagmire4_scan, quagmire4_dictionary_scan, tolerance_study,
+)
 from kryptos.k4.structural_checks import (
     output_alphabet_eliminations, null_gap_periodic, hill_consistency, double_rotation_period_scan,
     transposition_autokey_scan, transposition_running_key_scan, chaocipher_scan,
@@ -500,6 +502,7 @@ Schema defined in `kryptos.db_schema`; create with `kryptos db-init`.
 | `candidates` | `kryptos.persistence` (via `k4.reporting`) | Ranked candidate decryptions per run |
 | `vault_payloads` | `kryptos.vault` (via `POST /api/vault/seal`) | Sealed secrets: ciphertext, verifier, TTL, read limit |
 | `k4_attack_jobs` | `kryptos.api.k4_jobs` (finished K4 attack jobs) | Job status, summary and error, so results survive a restart |
+| `k4_constraint_runs` | `kryptos.k4.run_store` (crib-constraint suite) | Suite summaries, read by `GET /api/k4/ledger` when no local artifact exists |
 | `ops_decisions` | `OpsStrategicDirector` | Strategy decision log |
 | `strategy_kb` | Manual / future agents | Accumulated attack knowledge |
 | `discovered_cribs` | `SpyWebIntel` | Crib candidates with source provenance |

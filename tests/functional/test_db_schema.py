@@ -18,6 +18,7 @@ EXPECTED_TABLES = {
     "candidates",
     "vault_payloads",
     "k4_attack_jobs",
+    "k4_constraint_runs",
 }
 
 # Marker so live tests never collide with (or delete) real rows

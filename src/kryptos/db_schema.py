@@ -99,6 +99,14 @@ SCHEMA_STATEMENTS: dict[str, str] = {
         );
         CREATE INDEX IF NOT EXISTS idx_k4_attack_jobs_created ON k4_attack_jobs (created_at DESC);
     """,
+    "k4_constraint_runs": """
+        CREATE TABLE IF NOT EXISTS k4_constraint_runs (
+            id         BIGSERIAL PRIMARY KEY,
+            summary    JSONB NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+        CREATE INDEX IF NOT EXISTS idx_k4_constraint_runs_created ON k4_constraint_runs (created_at DESC);
+    """,
     "vault_payloads": """
         CREATE TABLE IF NOT EXISTS vault_payloads (
             token       UUID PRIMARY KEY,

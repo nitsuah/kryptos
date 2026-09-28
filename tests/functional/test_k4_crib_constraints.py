@@ -251,3 +251,17 @@ class TestTwoKeyStructures:
         res = cc.quagmire4_scan(cc.DIGIT_KEYWORDS, periods=range(1, 23))
         for role in ("anchor_plain", "anchor_cipher"):
             assert all(v["survivors"] == 0 for v in res[role].values())
+
+
+class TestQuagmire4Dictionary:
+    def test_positive_control(self):
+        pa, ca = cc.keyed_alphabet("ZEBRA"), cc.keyed_alphabet("MANGO")
+        key = [2, 9, 14, 21, 6, 11, 3]
+        ct = "".join(ca[(pa.index(c) + key[i % 7]) % 26] for i, c in enumerate(PLAIN_97))
+        words = ["ZEBRA", "MANGO", "APPLE", "KRYPTOS", "PALIMPSEST"]
+        res = cc.quagmire4_dictionary_scan(words, periods=[7], ciphertext=ct, plain=_plain_at(PLAIN_97))
+        assert ("ZEBRA", "MANGO") in res["periods"][7]["examples"]
+
+    def test_k4_small_list_no_survivors(self):
+        res = cc.quagmire4_dictionary_scan(cc.KRYPTOS_VOCABULARY, periods=range(1, 23))
+        assert all(v["survivors"] == 0 for v in res["periods"].values())

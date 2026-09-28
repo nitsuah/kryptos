@@ -75,10 +75,10 @@ One of the three primary-source gaps opened 2026-09-01 remains open; the timesta
 - [x] **Error-tolerant constraint checks** — done 2026-09-28: `tolerance_study` allows 1–2 wrong crib letters and compares with shuffled controls; K4 sits inside the control range.
   - Priority: P3
   - Type: Code
-- [ ] **Quagmire IV, dictionary × dictionary** — needs stronger pruning (index dictionary alphabets by required position differences). `K4_NEGATIVE_SPACE.md` open item 1.
+- [x] **Quagmire IV, dictionary × dictionary** — done 2026-09-28: `quagmire4_dictionary_scan` indexes alphabets by the crib-forced position differences; about 5.4×10¹⁰ pairs in 13 s, zero survivors except 5 chance pairs at period 16 that decrypt to noise.
   - Priority: P3
   - Type: Code
-- [ ] **Store crib-constraint artifacts in Neon** — so `GET /api/k4/ledger`'s `latest_run` survives redeploys.
+- [x] **Store crib-constraint artifacts in Neon** — done 2026-09-28: `kryptos.k4.run_store` + `k4_constraint_runs`; `latest_run` falls back to the newest stored run.
   - Priority: P4
   - Type: Code
 
