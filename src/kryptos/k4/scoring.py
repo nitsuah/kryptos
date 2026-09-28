@@ -175,6 +175,32 @@ _UNKNOWN_TRIGRAM = -2.5
 _UNKNOWN_QUADGRAM = -4.0
 
 
+def _ngram_floor(path: str) -> float | None:
+    try:
+        with open(path, encoding='utf-8') as fh:
+            for line in fh:
+                if line.startswith('# floor'):
+                    return float(line.split('\t')[1])
+    except (FileNotFoundError, ValueError, IndexError):
+        return None
+    return None
+
+
+# Real English n-gram tables (log10 probabilities from ~8.9M letters of public-domain text,
+# built by scripts/data/build_english_ngrams.py). The older bigrams/trigrams/quadgrams TSVs
+# hold about ten illustrative entries each, so they are only a fallback.
+NGRAM_SOURCE = "placeholder tables (data/ngrams/{bi,tri,quad}grams.tsv)"
+_english = {n: os.path.join(NGRAMS_DIR, f'english_{n}grams.tsv') for n in (2, 3, 4)}
+if all(os.path.exists(path) for path in _english.values()):
+    BIGRAMS = _load_ngrams(_english[2])
+    TRIGRAMS = _load_ngrams(_english[3])
+    QUADGRAMS = _load_ngrams(_english[4])
+    _UNKNOWN_BIGRAM = _ngram_floor(_english[2]) or _UNKNOWN_BIGRAM
+    _UNKNOWN_TRIGRAM = _ngram_floor(_english[3]) or _UNKNOWN_TRIGRAM
+    _UNKNOWN_QUADGRAM = _ngram_floor(_english[4]) or _UNKNOWN_QUADGRAM
+    NGRAM_SOURCE = "data/ngrams/english_{2,3,4}grams.tsv"
+
+
 def chi_square_stat(text: str) -> float:
     filtered = [c for c in text.upper() if c.isalpha()]
     n = len(filtered)

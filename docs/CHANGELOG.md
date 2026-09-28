@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Found (2026-09-28)
 
-- The n-gram tables the main scorer reads (`data/ngrams/*.tsv`) are placeholders of about ten entries each. Tracked in TASKS; the new checks use the real tables.
+- The n-gram tables the main scorer read (`data/ngrams/{bi,tri,quad}grams.tsv`) were placeholders of about ten entries each. Fixed: `scoring` now loads `english_{2,3,4}grams.tsv`; English vs shuffled-English separation on 97 letters rises from d = 4.2 to 9.4 with no overlap. Rankings from earlier sweeps used the old tables.
 
 ### Added (2026-09-28 — second negative-space pass)
 

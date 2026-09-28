@@ -109,13 +109,13 @@ Done 2026-09-28: `GET /api/k4/ledger` (with the latest suite run, stored in Neon
 
 `kryptos ledger` (or `kryptos ledger --json`) prints the ledger from code, so tier tables no longer need hand-editing. `kryptos frontier` / `p22_frontier_checks` runs the frontier checks. No platform gaps from the State of Research list remain open.
 
-**Scoring tables (finding, 2026-09-28).** `data/ngrams/quadgrams.tsv`, `trigrams.tsv`, `bigrams.tsv` and `quadgrams_high_quality.tsv` hold about ten illustrative entries each, and `scoring.combined_plaintext_score` reads them, so its n-gram terms barely distinguish English from noise. The frontier checks use real tables built from 8.9M letters of public-domain English (`data/ngrams/english_{3,4}grams.tsv`, `kryptos.k4.english_model`). Switching the main scorer to them is tracked in TASKS.
+**Scoring tables (finding and fix, 2026-09-28).** `data/ngrams/quadgrams.tsv`, `trigrams.tsv`, `bigrams.tsv` and `quadgrams_high_quality.tsv` held about ten illustrative entries each, and `scoring.combined_plaintext_score` read them, so its n-gram terms barely distinguished English from noise. It now loads tables built from 8.9M letters of public-domain English (`data/ngrams/english_{2,3,4}grams.tsv`): separation of English from shuffled English on 97 letters goes from d = 4.2 to 9.4, with no overlap. Every language-scored sweep before this date ranked candidates with the old tables. Their nulls mostly stand, because they rested on crib matches rather than language scores, but a candidate that was *discarded* on language score alone was judged with a weak scorer.
 
 ---
 
 ## Correction (2026-09-28)
 
-An earlier version of this doc said the 18-word scoring list meant "every sweep's language score leaned on it". That overstated it. The main scorer (`combined_plaintext_score`) uses n-grams; the word list only feeds `wordlist_hit_rate` (adaptive fusion weights in `composite.py`) and `transposition_analysis.score_words`. It is now a 261k-word dictionary (4+ letters), which raises English/random separation from 1.55 to 1.91.
+An earlier version of this doc said the 18-word scoring list meant "every sweep's language score leaned on it". That overstated it. The main scorer (`combined_plaintext_score`) uses n-grams (whose tables had their own problem, see Platform above); the word list only feeds `wordlist_hit_rate` (adaptive fusion weights in `composite.py`) and `transposition_analysis.score_words`. It is now a 261k-word dictionary (4+ letters), which raises English/random separation from 1.55 to 1.91.
 
 ## Related
 

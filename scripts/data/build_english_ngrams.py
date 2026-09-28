@@ -1,4 +1,4 @@
-"""Build data/ngrams/english_{3,4}grams.tsv from a public-domain English corpus.
+"""Build data/ngrams/english_{2,3,4}grams.tsv from a public-domain English corpus.
 
 Source: the Project Gutenberg selection shipped as NLTK's ``gutenberg`` corpus (18 public
 domain books: Austen, Carroll, Chesterton, Melville, Milton, Shakespeare, the KJV Bible,
@@ -47,7 +47,7 @@ def main() -> None:
     ap.add_argument("--top", type=int, default=40_000)
     args = ap.parse_args()
     letters = corpus_letters(args.corpus_dir)
-    for n in (3, 4):
+    for n in (2, 3, 4):
         write_table(letters, n, args.top, ROOT / "data" / "ngrams" / f"english_{n}grams.tsv")
 
 

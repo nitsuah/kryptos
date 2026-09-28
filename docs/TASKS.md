@@ -84,7 +84,7 @@ One of the three primary-source gaps opened 2026-09-01 remains open; the timesta
 - [x] **Frontier checks (P22)** — done 2026-09-28 in `kryptos.k4.frontier_checks`: recurrence keys, periodic key + arbitrary mixed alphabet, dial keys, bearing routes and Hill 4×4 eliminated; running keys from any English text and Hill 5×5 statistical; the full-plaintext reconstruction fits no tested family.
   - Priority: P2
   - Type: Code
-- [ ] **Switch the main scorer to real n-gram tables** — `data/ngrams/{bi,tri,quad}grams.tsv` and `quadgrams_high_quality.tsv` hold about ten entries each, so `scoring.combined_plaintext_score`'s n-gram terms are close to constant. Point it at `english_{3,4}grams.tsv` (via `english_model`), recalibrate thresholds (EurekaSignal, promotion), and re-score stored top candidates.
+- [x] **Switch the main scorer to real n-gram tables** — done 2026-09-28: `scoring` loads `data/ngrams/english_{2,3,4}grams.tsv` (the old tables held about ten entries each). English vs shuffled English on 97 letters: Cohen's d 4.2 → 9.4, overlap 30/300 → 0 (`test_k4_ngram_calibration.py`). EurekaSignal is crib-based, so no threshold changed. Stored top candidates from earlier sweeps were ranked with the old tables; re-score them if any are revisited.
   - Priority: P2
   - Type: Code + calibration
 
