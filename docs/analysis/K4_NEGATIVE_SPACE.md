@@ -41,6 +41,7 @@ Reproduce with `kryptos crib-constraints` (writes `K4_CRIB_CONSTRAINTS_NULL.json
 | Gronsfeld / Gromark digit keys | 15 Kryptos keyword alphabets | every alphabet needs a shift ≥ 23 |
 | Running key from sculpture texts (no transposition) | 22 texts × every alignment × any offset | best 7–8 of 24, equal to a shuffled control |
 | Columnar transposition + periodic key, either order | widths 2–9, all column orders, periods 1–22 | zero survivors (width 10 checked to period 20) |
+| Columnar widths 10–13 + periodic key, either order (exact search over 10!–13! column orders) | key first: periods 1–22; transposition first: periods 1–18 | the only survivors (period 17, widths 12–13) fix the whole key and decrypt to noise |
 | Phase 6–7 geometric permutations + periodic key, either order | 7,680 mappings, periods 1–22 | zero survivors |
 | K3-style double rotation + periodic key, either order | 21,096 layouts (0–11 null pads, all divisor widths, 6 rotations per stage), periods 1–22 | zero survivors |
 | Columnar transposition + ciphertext autokey | widths 2–7, every lag with 4+ constraints, every offset | zero survivors |

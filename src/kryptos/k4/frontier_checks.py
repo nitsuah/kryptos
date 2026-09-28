@@ -1044,9 +1044,15 @@ def run_frontier_suite(
         "dial_keys": {k: {d: len(v) for d, v in fam.items()} for k, fam in dial_key_scan().items()},
         "bearing_routes": _route_survivors(bearing_route_scan()),
         "hill_4x4": hill_exhaustive((4,))[4],
+        "vocabulary_phrase_keys": vocabulary_phrase_keys(),
     }
     if heavy:
         summary["hill_5x5"] = hill_rowspace_search(5)
+        wide = wide_columnar_scan(widths=range(10, 12))
+        summary["wide_columnar_10_11"] = {
+            w: {m: sum(e["survivors"] for fam in r[m].values() for e in fam.values()) for m in r}
+            for w, r in wide.items()
+        }
         summary["columnar_running_key_english"] = transposition_running_key_english()
         summary["reconstruction"] = reconstruction_suite(include_dictionary=include_dictionary)
     if artifact_path:
