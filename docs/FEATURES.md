@@ -59,6 +59,7 @@
 - **Berlin Clock Attack Suite**: Clock→Hill 2×2 invertibility pre-filter, 4-char clock→Vigenère with NORTHEAST anchor, non-standard sub-row encodings, and lamp-count transposition widths (`k[...]
 - **Beaufort K4 Sweep**: Systematic reciprocal-Beaufort pass over KRYPTOS/PALIMPSEST/BERLIN/CLOCK/ABSCISSA keys (`k4.beaufort_sweep`); null result
 - **Crib-Constraint Engine (P21)**: Tests whole cipher families against the 24 crib key values, each check with a positive control: autokey, linear/progressive/digit keys, sculpture-corpus running keys, dictionary Quagmire I–III (231,933 alphabets), and columnar/geometric transposition × periodic key in both layer orders (`k4.crib_constraints`, `kryptos crib-constraints`)
+- **Structural Checks**: Output-alphabet eliminations, nulls between cribs, Hill 2×2/3×3, K3-style double rotation, columnar + autokey / running key, Chaocipher; plus double-periodic keys, Quagmire IV and error-tolerant scans against shuffled controls (`k4.structural_checks`, `k4.crib_constraints`)
 - **IC Profile**: Overall/segment IC with a reshuffle significance test (`k4.ic_profile`)
 
 ### ⚙️ Pipeline Architecture
@@ -138,7 +139,7 @@
 - **RAG endpoints**: `GET /api/rag/status`, `POST /api/rag/reindex`, `GET /api/rag/search`
 - **SSE log tail**: `GET /api/stream/logs` — `StreamingResponse` (`text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler; `LogTail` EventSource component on [...]
 - **K4 hypothesis ledger**: `GET /api/k4/ledger[?tier=]` — every family tagged eliminated / statistical / sampled_null / open, with scope, evidence, module and test
-- **K4 attack jobs**: `GET /api/k4/attacks/frontier`, `POST /api/k4/attacks/run` (incl. `p21_crib_constraints`), `GET /api/k4/attacks/jobs/{id}`
+- **K4 attack jobs**: `GET /api/k4/attacks/frontier`, `POST /api/k4/attacks/run` (incl. `p21_crib_constraints`), `GET /api/k4/attacks/jobs`, `GET /api/k4/attacks/jobs/{id}`; finished jobs persist to Neon (`k4_attack_jobs`)
 - **Health**: `GET /health`
 
 ### Persistence

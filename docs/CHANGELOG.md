@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (2026-09-28 — second negative-space pass)
+
+- `crib_constraints`: error tolerance (`_min_violations`, `tolerance=` on the columnar/geometry scans) and `tolerance_study()` against shuffled-ciphertext controls; `double_periodic_consistency()` (any two periodic keys, solved over GF(2)/GF(13)); `quagmire4_scan()`; `monoalphabetic_conflicts()`; structural checks in the suite output.
+- `kryptos.k4.structural_checks`: output-alphabet eliminations, nulls between the crib blocks, Hill 2×2/3×3, K3-style double rotation, columnar + autokey, columnar + running key, Chaocipher (validated against Byrne's published example).
+- Job persistence: `k4_attack_jobs` table, finished jobs saved when `DATABASE_URL` is set, `GET /api/k4/attacks/jobs`.
+- `hypothesis_ledger.latest_run()` in `GET /api/k4/ledger`; new ledger entries and tiers.
+- `docs/sources/SANBORN_QUOTES.md`: Sanborn's statements with citations.
+- Rules in `docs/GOVERN.md`, enforced by tests: every `eliminated` ledger entry needs a positive control; the attack registry must match the dispatcher.
+
+### Fixed (2026-09-28 — second pass)
+
+- `scoring.WORDLIST` was an 18-word fallback because `data/wordlist.txt` never existed; it now loads a 261k-word dictionary (4+ letters). English/random separation 1.55 → 1.91.
+- `key_csp.periodic_family_consistency` had no positive control (caught by the new rule); it now takes `ciphertext`/`cribs` and has one.
+- Docs overstated the word list's reach ("every sweep leaned on it"); the main scorer uses n-grams.
+
 ### Added (2026-09-28 — negative-space pass)
 
 - **P21 crib-constraint engine** (`kryptos.k4.crib_constraints`): tests whole cipher families against the 24 crib key values instead of sampling keys. Every check has a positive-control test. Eliminated over stated ranges: ciphertext/plaintext autokey, linear, progressive and Gronsfeld digit keys; running keys over a sculpture corpus (best 7–8/24, equal to a shuffled control); Quagmire I–III for 231,933 dictionary keyword alphabets (periods ≤ 25); columnar transpositions of width 2–9 and 7,680 geometric mappings composed with a periodic key (periods ≤ 22, both layer orders).

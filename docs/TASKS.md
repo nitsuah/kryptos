@@ -63,14 +63,23 @@ One of the three primary-source gaps opened 2026-09-01 remains open; the timesta
 - [x] **Scope the "non-periodic key, no transposition" family** — done 2026-09-28 as the P21 crib-constraint engine (`kryptos.k4.crib_constraints`): autokey, linear, progressive, digit and running keys over the sculpture corpus are eliminated over the ranges in `docs/analysis/K4_NEGATIVE_SPACE.md`. Per-position clock/bearing procedures remain open, and depend on the compass-rose bearing.
   - Priority: P3
   - Type: Research + code
-- [ ] **Load a real scoring word list** — `data/wordlist.txt` has never existed, so `scoring.wordlist_hit_rate` has always used an 18-word fallback. Load `english-words` (now a dependency) as the fallback, then re-baseline scoring on K1–K3 and synthetic texts before trusting new sweep scores. Expect score changes in tests that pin values.
+- [x] **Load a real scoring word list** — done 2026-09-28: `scoring.WORDLIST` loads `english-words` (4+ letters, 261k words) when `data/wordlist.txt` is absent; English/random separation 1.55 → 1.91, pinned by `test_k4_wordlist_calibration.py`. (The earlier "every sweep leaned on it" framing was overstated; the main scorer uses n-grams.)
   - Priority: P2
   - Type: Code + calibration
-- [ ] **Quagmire IV and double-periodic keys as constraint checks** — extend `crib_constraints` to two-keyword Quagmire IV (prune dictionary pairs with the per-side Q1/Q2 constraints) and to sums of two periodic keys (e.g. PALIMPSEST + ABSCISSA). See `K4_NEGATIVE_SPACE.md` open items 2–3.
+- [x] **Quagmire IV and double-periodic keys as constraint checks** — done 2026-09-28: `double_periodic_consistency` (any keys, p1 + p2 ≤ 24 eliminated) and `quagmire4_scan` (vocabulary × dictionary, zero survivors to period 22).
   - Priority: P3
   - Type: Code
-- [ ] **K3-style double rotation and transposition + non-periodic key as constraint checks** — open items 4–5 in `K4_NEGATIVE_SPACE.md`.
+- [x] **K3-style double rotation and transposition + non-periodic key as constraint checks** — done 2026-09-28 in `structural_checks`: double rotation (zero survivors), columnar + autokey (zero), columnar + running key (chance level), plus nulls, Hill 2×2/3×3, output-alphabet eliminations and Chaocipher.
   - Priority: P3
+  - Type: Code
+- [x] **Error-tolerant constraint checks** — done 2026-09-28: `tolerance_study` allows 1–2 wrong crib letters and compares with shuffled controls; K4 sits inside the control range.
+  - Priority: P3
+  - Type: Code
+- [ ] **Quagmire IV, dictionary × dictionary** — needs stronger pruning (index dictionary alphabets by required position differences). `K4_NEGATIVE_SPACE.md` open item 1.
+  - Priority: P3
+  - Type: Code
+- [ ] **Store crib-constraint artifacts in Neon** — so `GET /api/k4/ledger`'s `latest_run` survives redeploys.
+  - Priority: P4
   - Type: Code
 
 ---

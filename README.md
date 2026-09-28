@@ -121,7 +121,8 @@ then convert back.
 
 - **P21 crib-constraint engine.** Tests cipher *families* against the 24 known letters rather than decrypting sampled keys. It eliminates, over stated ranges: autokey, linear, progressive, digit and sculpture-text running keys; Quagmire I–III for 231,933 dictionary keyword alphabets; and columnar (widths 2–9) or geometric transpositions composed with a periodic key of period ≤ 22, in either layer order. Run `kryptos crib-constraints`.
 - **Hypothesis ledger.** `GET /api/k4/ledger` gives a frontend-ready map of what's `eliminated`, `statistical`, `sampled_null` or `open`.
-- **Ranked gaps** in `docs/analysis/K4_NEGATIVE_SPACE.md`. Top of the list: the scoring word list has only ever had 18 words.
+- **Ranked gaps** in `docs/analysis/K4_NEGATIVE_SPACE.md`.
+- **Second pass, same day:** error-tolerant scans against shuffled controls (no signal), double-periodic keys for *any* keywords (p1 + p2 ≤ 24 eliminated), Quagmire IV, K3-style double rotation, transposition + autokey/running key, nulls, Hill 2×2/3×3, and the 25-letter-output ciphers (K4 uses all 26 letters) are all ruled out over stated ranges (`kryptos.k4.structural_checks`). Jobs now persist to Neon, the ledger reports the latest run, and the scoring word list is a real dictionary. Sanborn's statements are collected with citations in `docs/sources/SANBORN_QUOTES.md`.
 
 ---
 

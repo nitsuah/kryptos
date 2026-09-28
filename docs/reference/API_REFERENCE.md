@@ -253,7 +253,12 @@ from kryptos.k4.crib_constraints import (
     geometry_period_scan,                    # the phase 6-7 geometric permutations x period
     run_crib_constraint_suite,               # all of the above -> K4_CRIB_CONSTRAINTS_NULL.json
 )
-from kryptos.k4.hypothesis_ledger import LEDGER, ledger, ledger_summary  # eliminated / statistical / sampled_null / open
+from kryptos.k4.crib_constraints import double_periodic_consistency, quagmire4_scan, tolerance_study
+from kryptos.k4.structural_checks import (
+    output_alphabet_eliminations, null_gap_periodic, hill_consistency, double_rotation_period_scan,
+    transposition_autokey_scan, transposition_running_key_scan, chaocipher_scan,
+)
+from kryptos.k4.hypothesis_ledger import LEDGER, ledger, ledger_summary, latest_run  # eliminated / statistical / sampled_null / open
 from kryptos.k4.ic_profile import ic_profile, segment_ics, segment_spread_p_value
 from kryptos.k4.key_csp import periodic_family_consistency
 ```
@@ -430,8 +435,9 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 
 | Method & path | Purpose |
 |---------------|---------|
-| `GET /api/k4/ledger` | Every hypothesis family with `tier` (`eliminated` / `statistical` / `sampled_null` / `open`), scope, evidence, module and test, plus per-tier counts |
+| `GET /api/k4/ledger` | Latest suite run (`latest_run`) and every hypothesis family with `tier` (`eliminated` / `statistical` / `sampled_null` / `open`), scope, evidence, module and test, plus per-tier counts |
 | `GET /api/k4/ledger?tier=open` | One tier only (unknown tier → 422) |
+| `GET /api/k4/attacks/jobs?limit=` | Recent attack jobs, newest first (in memory, plus Neon when `DATABASE_URL` is set) |
 
 The K4 attack router also accepts `POST /api/k4/attacks/run {"attack_id": "p21_crib_constraints"}` to run the crib-constraint suite as a background job.
 
@@ -493,6 +499,7 @@ Schema defined in `kryptos.db_schema`; create with `kryptos db-init`.
 | `campaign_runs` | `kryptos.persistence` (via `k4.reporting`) | One row per candidate-generating run |
 | `candidates` | `kryptos.persistence` (via `k4.reporting`) | Ranked candidate decryptions per run |
 | `vault_payloads` | `kryptos.vault` (via `POST /api/vault/seal`) | Sealed secrets: ciphertext, verifier, TTL, read limit |
+| `k4_attack_jobs` | `kryptos.api.k4_jobs` (finished K4 attack jobs) | Job status, summary and error, so results survive a restart |
 | `ops_decisions` | `OpsStrategicDirector` | Strategy decision log |
 | `strategy_kb` | Manual / future agents | Accumulated attack knowledge |
 | `discovered_cribs` | `SpyWebIntel` | Crib candidates with source provenance |

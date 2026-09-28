@@ -51,6 +51,7 @@ This is the traversal map for humans and AI agents.
 ## Sources
 
 - [docs/sources/SANBORN.md](sources/SANBORN.md) - Sanborn research checklist and artist-clue strategy
+- [docs/sources/SANBORN_QUOTES.md](sources/SANBORN_QUOTES.md) - Sanborn's public statements on K4, with citations and a confidence tier for each
 - [docs/sources/CLOCK.md](sources/CLOCK.md) - World Clock / Berlin Clock geographic and cryptographic interpretation
 
 > **DB-backed sources** (query via `source_chunks`, `sanborn_timeline`, `discovered_cribs` tables):
