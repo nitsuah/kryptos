@@ -136,3 +136,12 @@ def test_crib_constraints(tmp_path: Path, capsys):
     assert rc == 0
     assert "running-key exact matches:                       0" in out
     assert json.loads(out_path.read_text())["status"] == "complete"
+
+
+def test_ledger_markdown_and_json(capsys):
+    assert _invoke(["ledger"]) == 0
+    out = capsys.readouterr().out
+    assert "### Eliminated" in out and "| Family | Scope |" in out
+    assert _invoke(["ledger", "--json"]) == 0
+    data = json.loads(capsys.readouterr().out)
+    assert set(data["counts"]) == {"eliminated", "statistical", "sampled_null", "open"}

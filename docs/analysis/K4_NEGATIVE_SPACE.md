@@ -88,9 +88,7 @@ Mengenlehreuhr lamp keys; geometric/tableau keystream sweeps (~2.4M candidates);
 
 Done 2026-09-28: `GET /api/k4/ledger` (with the latest suite run, stored in Neon via `k4_constraint_runs` so it survives redeploys), job persistence to Neon plus `GET /api/k4/attacks/jobs`, the registry-matches-dispatcher test, the positive-control rule, and a real scoring word list.
 
-| # | Gap | Effort |
-|---|-----|--------|
-| 1 | Generate the markdown capability table from `FRONTIER_VECTORS` + the ledger instead of editing it by hand | S |
+`kryptos ledger` (or `kryptos ledger --json`) prints the ledger from code, so tier tables no longer need hand-editing. No platform gaps from the State of Research list remain open.
 
 ---
 

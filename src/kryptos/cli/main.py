@@ -329,6 +329,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_crib.set_defaults(func=cmd_crib_constraints)
 
+    sp_ledger = sub.add_parser("ledger", help="Print the K4 hypothesis ledger (what is eliminated, sampled, open)")
+    sp_ledger.add_argument("--json", action="store_true", help="Emit JSON (same shape as GET /api/k4/ledger)")
+    sp_ledger.set_defaults(func=cmd_ledger)
+
     return parser
 
 
@@ -361,6 +365,16 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     rows = run_benchmarks(names=names, out_dir=args.out_dir)
     print(format_results_table(rows))
     print(f"\nResults written to {args.out_dir}/results.json and {args.out_dir}/results.csv")
+    return 0
+
+
+def cmd_ledger(args: argparse.Namespace) -> int:
+    """Print the hypothesis ledger as Markdown tables or JSON."""
+    import json as _json
+
+    from kryptos.k4.hypothesis_ledger import ledger_markdown, ledger_summary
+
+    print(_json.dumps(ledger_summary(), indent=2, default=str) if args.json else ledger_markdown())
     return 0
 
 

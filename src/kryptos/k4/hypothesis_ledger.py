@@ -346,6 +346,27 @@ def ledger(tier: Tier | None = None) -> list[dict[str, Any]]:
     return [dict(e) for e in LEDGER if tier is None or e["tier"] == tier]
 
 
+def ledger_markdown() -> str:
+    """The ledger as Markdown tables, one per tier (``kryptos ledger``)."""
+    titles = {
+        "eliminated": "Eliminated (exhaustive, with a positive control)",
+        "statistical": "Statistical (no signal against controls)",
+        "sampled_null": "Sampled null (specific keys only)",
+        "open": "Open",
+    }
+    parts = []
+    for tier in TIERS:
+        rows = ledger(tier)
+        if not rows:
+            continue
+        parts.append(f"### {titles[tier]}\n\n| Family | Scope | Evidence | Module |\n|---|---|---|---|")
+        for e in rows:
+            cells = [e["family"], e["scope"] or "-", e["evidence"] or "-", f"`{e['module']}`" if e["module"] else "-"]
+            parts.append("| " + " | ".join(c.replace("|", "\\|") for c in cells) + " |")
+        parts.append("")
+    return "\n".join(parts)
+
+
 def latest_run(artifact_path: str | Path | None = None) -> dict[str, Any] | None:
     """Headline numbers from the most recent crib-constraint suite run, if its artifact exists.
 
@@ -400,4 +421,4 @@ def ledger_summary(artifact_path: str | Path | None = None) -> dict[str, Any]:
     }
 
 
-__all__ = ["LEDGER", "TIERS", "latest_run", "ledger", "ledger_summary"]
+__all__ = ["LEDGER", "TIERS", "latest_run", "ledger", "ledger_markdown", "ledger_summary"]

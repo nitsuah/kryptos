@@ -400,6 +400,7 @@ kryptos autopilot [--plan TEXT] [--dry-run] [--loop] [--iterations N] [--interva
 kryptos autonomous [--max-hours H] [--max-cycles N] [--cycle-interval M] [--ops-cycle M] [--web-intel-hours H]
 kryptos examples-smoke [--limit N] [--keep N]
 kryptos crib-constraints [--max-width W] [--out PATH]
+kryptos ledger [--json]
 kryptos benchmark [--cases CSV] [--out-dir DIR]
 ```
 
