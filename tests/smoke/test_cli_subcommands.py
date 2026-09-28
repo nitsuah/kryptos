@@ -138,6 +138,14 @@ def test_crib_constraints(tmp_path: Path, capsys):
     assert json.loads(out_path.read_text())["status"] == "complete"
 
 
+def test_frontier_quick(tmp_path: Path, capsys):
+    out_path = tmp_path / "frontier.json"
+    assert _invoke(["frontier", "--quick", "--out", str(out_path)]) == 0
+    out = capsys.readouterr().out
+    assert "recurrence-key survivors (orders 1-7):           0" in out
+    assert json.loads(out_path.read_text())["status"] == "complete"
+
+
 def test_ledger_markdown_and_json(capsys):
     assert _invoke(["ledger"]) == 0
     out = capsys.readouterr().out

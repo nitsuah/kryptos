@@ -400,6 +400,7 @@ kryptos autopilot [--plan TEXT] [--dry-run] [--loop] [--iterations N] [--interva
 kryptos autonomous [--max-hours H] [--max-cycles N] [--cycle-interval M] [--ops-cycle M] [--web-intel-hours H]
 kryptos examples-smoke [--limit N] [--keep N]
 kryptos crib-constraints [--max-width W] [--out PATH]
+kryptos frontier [--quick] [--dictionary] [--out PATH]
 kryptos ledger [--json]
 kryptos benchmark [--cases CSV] [--out-dir DIR]
 ```
@@ -442,7 +443,7 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 | `GET /api/k4/ledger?tier=open` | One tier only (unknown tier → 422) |
 | `GET /api/k4/attacks/jobs?limit=` | Recent attack jobs, newest first (in memory, plus Neon when `DATABASE_URL` is set) |
 
-The K4 attack router also accepts `POST /api/k4/attacks/run {"attack_id": "p21_crib_constraints"}` to run the crib-constraint suite as a background job. Only one P21 job runs at a time; a second request while one is queued or running gets `409 Conflict` naming the active job.
+The K4 attack router also accepts `POST /api/k4/attacks/run {"attack_id": "p21_crib_constraints"}` to run the crib-constraint suite as a background job. Only one P21 job runs at a time; a second request while one is queued or running gets `409 Conflict` naming the active job. `p22_frontier_checks` runs `kryptos.k4.frontier_checks.run_frontier_suite` (recurrence, mixed-alphabet, dial and bearing-route keys, Hill 4×4/5×5, English running keys, and the full-plaintext reconstruction against every family; a few minutes) under the same one-at-a-time rule, and writes `K4_FRONTIER_NULL.json`.
 
 ### Live log tail (SSE — `kryptos.api.log_stream`)
 

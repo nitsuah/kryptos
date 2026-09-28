@@ -81,6 +81,12 @@ One of the three primary-source gaps opened 2026-09-01 remains open; the timesta
 - [x] **Store crib-constraint artifacts in Neon** — done 2026-09-28: `kryptos.k4.run_store` + `k4_constraint_runs`; `latest_run` falls back to the newest stored run.
   - Priority: P4
   - Type: Code
+- [x] **Frontier checks (P22)** — done 2026-09-28 in `kryptos.k4.frontier_checks`: recurrence keys, periodic key + arbitrary mixed alphabet, dial keys, bearing routes and Hill 4×4 eliminated; running keys from any English text and Hill 5×5 statistical; the full-plaintext reconstruction fits no tested family.
+  - Priority: P2
+  - Type: Code
+- [ ] **Switch the main scorer to real n-gram tables** — `data/ngrams/{bi,tri,quad}grams.tsv` and `quadgrams_high_quality.tsv` hold about ten entries each, so `scoring.combined_plaintext_score`'s n-gram terms are close to constant. Point it at `english_{3,4}grams.tsv` (via `english_model`), recalibrate thresholds (EurekaSignal, promotion), and re-score stored top candidates.
+  - Priority: P2
+  - Type: Code + calibration
 
 ---
 

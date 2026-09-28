@@ -201,6 +201,21 @@ FRONTIER_VECTORS = [
         "runnable": True,
     },
     {
+        "id": "p22_frontier_checks",
+        "priority": 22,
+        "name": "P22 — Frontier Checks",
+        "status": "Active",
+        "description": (
+            "Covers the gaps P21 left open: linear-recurrence keys, periodic keys with an arbitrary mixed "
+            "alphabet (letter-swap masking), dial keys (clock, 24-hour ring, compass degrees), routes along every "
+            "compass bearing, Hill 4x4 and 5x5, running keys from any English text, and the published "
+            "full-plaintext reconstruction tested against every family."
+        ),
+        "layer_count": 2,
+        "combo_estimate": 11_900_000,
+        "runnable": True,
+    },
+    {
         "id": "p15_straddling_checkerboard",
         "priority": 15,
         "name": "P15 — K2 Coordinate Straddling Checkerboard",
@@ -394,7 +409,7 @@ def create_k4_attack_router() -> APIRouter:
 
     _RUNNABLE = {v["id"] for v in FRONTIER_VECTORS if v["runnable"]}
     # Heavy scans that write one shared artifact: at most one job at a time.
-    _SINGLE_FLIGHT = {"p21_crib_constraints"}
+    _SINGLE_FLIGHT = {"p21_crib_constraints", "p22_frontier_checks"}
 
     @router.post("/run", response_model=JobStatusResponse)
     def run_attack(req: RunAttackRequest) -> JobStatusResponse:

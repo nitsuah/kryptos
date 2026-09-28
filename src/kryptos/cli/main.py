@@ -329,6 +329,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_crib.set_defaults(func=cmd_crib_constraints)
 
+    sp_frontier = sub.add_parser(
+        "frontier",
+        help="Run the K4 frontier checks (recurrence, mixed-alphabet, dial, bearing-route, Hill 4x4/5x5, "
+        "English running keys) and test the published full-plaintext reconstruction against every family",
+    )
+    sp_frontier.add_argument("--quick", action="store_true", help="Skip Hill 5x5 and the reconstruction suite")
+    sp_frontier.add_argument("--dictionary", action="store_true", help="Add dictionary Quagmire scans (slow)")
+    sp_frontier.add_argument(
+        "--out", type=str, default="K4_FRONTIER_NULL.json", help="Artifact path (default: %(default)s)"
+    )
+    sp_frontier.set_defaults(func=cmd_frontier)
+
     sp_ledger = sub.add_parser("ledger", help="Print the K4 hypothesis ledger (what is eliminated, sampled, open)")
     sp_ledger.add_argument("--json", action="store_true", help="Emit JSON (same shape as GET /api/k4/ledger)")
     sp_ledger.set_defaults(func=cmd_ledger)
@@ -375,6 +387,29 @@ def cmd_ledger(args: argparse.Namespace) -> int:
     from kryptos.k4.hypothesis_ledger import ledger_markdown, ledger_summary
 
     print(_json.dumps(ledger_summary(), indent=2, default=str) if args.json else ledger_markdown())
+    return 0
+
+
+def cmd_frontier(args: argparse.Namespace) -> int:
+    """Run the frontier suite and print a short verdict per check."""
+    from kryptos.k4.frontier_checks import run_frontier_suite
+
+    s = run_frontier_suite(artifact_path=args.out, heavy=not args.quick, include_dictionary=args.dictionary)
+    rk = min(v["p_english"] for v in s["running_key_english"]["families"].values())
+    print(f"running key from English text, best p_english:   {rk:.4f}")
+    print(f"recurrence-key survivors (orders 1-7):           {sum(len(v) for v in s['recurrence_key'].values())}")
+    ga = s["general_alphabet_periodic"]
+    print(f"mixed plaintext alphabet, periods <= 12 passing: {[p for p in ga['mixed_plain_alphabet'] if p <= 12]}")
+    dial = sum(n for f in s["dial_keys"].values() for n in f.values())
+    print(f"dial-key survivors:                              {dial}")
+    print(f"bearing routes: {s['bearing_routes']['mappings']} routes, survivors {s['bearing_routes']['survivors']}")
+    hill4 = sum(r.get("invertible_matrices", 0) for r in s["hill_4x4"])
+    print(f"Hill 4x4 invertible matrices fitting the cribs:  {hill4}")
+    if "reconstruction" in s:
+        r = s["reconstruction"]
+        fits = sum(len(v) for v in r["periodic_1_48"].values()) + sum(r["columnar_period_1_48"].values())
+        print(f"reconstruction: periodic / columnar fits:        {fits}")
+    print(f"Artifact written to {args.out}")
     return 0
 
 

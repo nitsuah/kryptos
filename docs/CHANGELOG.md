@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (2026-09-28 — frontier pass)
+
+- `kryptos.k4.frontier_checks` (P22, `kryptos frontier`, API `p22_frontier_checks`): recurrence keys, periodic key + arbitrary mixed alphabet, dial keys, routes along every compass bearing, Hill 4×4 (exhaustive) and 5×5 (11.9M matrices scored), running keys from any English text (direct and after columnar transposition), and `reconstruction_suite`, which tests the published full-plaintext reconstruction against every family. Each check has a positive control.
+- `kryptos.k4.english_model` with English 3- and 4-gram tables built from 8.9M letters of public-domain text (`scripts/data/build_english_ngrams.py`).
+- Ledger: 6 new eliminated entries, 3 new statistical entries; the open entries narrowed to what is actually left.
+
+### Found (2026-09-28)
+
+- The n-gram tables the main scorer reads (`data/ngrams/*.tsv`) are placeholders of about ten entries each. Tracked in TASKS; the new checks use the real tables.
+
 ### Added (2026-09-28 — second negative-space pass)
 
 - `crib_constraints`: error tolerance (`_min_violations`, `tolerance=` on the columnar/geometry scans) and `tolerance_study()` against shuffled-ciphertext controls; `double_periodic_consistency()` (any two periodic keys, solved over GF(2)/GF(13)); `quagmire4_scan()`; `monoalphabetic_conflicts()`; structural checks in the suite output.

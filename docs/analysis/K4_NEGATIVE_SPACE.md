@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Updated:** 2026-09-28 (second pass)
+**Last Updated:** 2026-09-28 (frontier pass)
 **Companion page:** [Kryptos State of Research](https://claude.ai/artifact/PBjhWqNYP5zXCdQb9qfMB3), a readable overview with the coverage map and open to-dos. It replaces the earlier briefing pages (K4 Field Notes, Three Open Leads, Three Moves, K4 Ledger Audit), which are kept for history only.
 **Status:** Living document. It records what has *not* been tried, or not tried in a way that settles anything. The machine-readable version is `kryptos.k4.hypothesis_ledger` (`GET /api/k4/ledger`).
 
@@ -46,6 +46,12 @@ Reproduce with `kryptos crib-constraints` (writes `K4_CRIB_CONSTRAINTS_NULL.json
 | Columnar transposition + ciphertext autokey | widths 2–7, every lag with 4+ constraints, every offset | zero survivors |
 | Nulls between the crib blocks + periodic key | 1–29 nulls, periods 1–23 | none |
 | Hill 2×2 and 3×3, no transposition | every alignment, both directions | no consistent matrix |
+| Linear-recurrence key K[i] = c1·K[i-1] + … + cn·K[i-n] + d (Gromark / Fibonacci style) | orders 1–7, any coefficients and primer, five families | no solution over GF(2)/GF(13) |
+| Periodic key + an *arbitrary* mixed alphabet (covers letter-for-letter masking such as letter swaps) | plaintext-side alphabet periods 1–12; ciphertext-side alphabet periods 1–15 | inconsistent; random ciphertexts pass 0% at period 12 |
+| Key read per letter from a dial advancing a fixed step | dials of 12, 24, 60, 360, 720, 1440 positions; every start, step, offset; two reading rules | none |
+| Route along a compass bearing + periodic key, either order | every whole-degree bearing, widths 4–24 (9,111 distinct routes), periods 1–22 | zero survivors |
+| Hill 4×4, no transposition | all four alignments | alignments 1–2: no matrix fits; 0 and 3: only non-invertible matrices fit |
+| The solvekryptos.com reconstruction as the plaintext | every family on this page, with all 97 letters known (periods to 48, Hill to 9×9, Quagmire I–IV dictionary, all transposition families) | no family produces K4 from it (see below) |
 | 25-letter and 5–6-letter output ciphers as the last layer | Playfair, Two-Square, Four-Square, 5×5 Bifid, Polybius, ADFGX, ADFGVX; with or without transposition | K4 contains all 26 letters |
 
 Nicodemus (Vigenère by column, then columnar read-out) is the sub-then-transposition case with period = width, so the columnar row covers it.
@@ -57,10 +63,23 @@ Nicodemus (Vigenère by column, then columnar read-out) is the sub-then-transpos
 | Monoalphabetic + transposition | any | IC 0.0361 vs English 0.066 |
 | Columnar / geometric + periodic key **allowing 1–2 wrong crib letters** | widths 2–9 and 7,680 geometric, periods 1–22 | near-miss counts inside the control range (columnar 368 vs 249–365; geometric 325 vs 250–430); nothing below period 16 within 2 errors; the lowest-period near miss decrypts to noise |
 | Columnar + running key from sculpture texts, either order | widths 2–6 | best 7–10 of 24, same as shuffled controls |
+| Running key from *any* English text, no transposition | five families | key letters at the crib runs score as random; fewer than 1 in 2,000 English fragment pairs score that low |
+| Columnar + running key from any English text (key first) | widths 2–8 | best score inside the shuffled-control range |
+| Hill 5×5 | alignments 3–4 | alignment 3: no matrix fits; alignment 4: all 11.9M fitting matrices scored, best 0.36 on the English scale (a planted key scores 0.93) |
 
 ## Sampled null
 
 Mengenlehreuhr lamp keys; geometric/tableau keystream sweeps (~2.4M candidates); fractionating ciphers with Kryptos keywords; Hill with BERLIN/CLOCK-derived matrices; keyword-seeded composites (World Clock cities, K0 Morse, advisory names, Cyrillic Projector); physical readings (shadow, solar, bearings); Chaocipher with 1,936 vocabulary alphabet pairs (best 5/24; implementation reproduces Byrne's published example).
+
+---
+
+## The full reconstruction as known plaintext
+
+solvekryptos.com's field guide publishes a full 97-letter reading, THECOMPASSROSEISHEREXEASTNORTHEAST…BERLINCLOCKWHICHISNORTHEASTOFHEREX. It matches the 24 confirmed crib letters, and the other 73 letters are its authors' reconstruction, not Sanborn's text (see `plaintext_evidence.py`).
+
+Treating all 97 letters as known makes every check far stronger: periods up to 48 become testable, and Hill up to 9×9. `frontier_checks.reconstruction_suite` runs every family on this page that way. **Nothing fits.** No periodic, progressive or double-periodic key to period 48, no autokey, linear or recurrence key, no mixed alphabet to period 48, no Hill 2×2–9×9, no dial key, no Quagmire I–IV dictionary alphabet, and no columnar (widths 2–9), geometric, double-rotation or bearing-route transposition with a periodic key to period 48. The keystream it implies, read as a running key, scores as random, not English.
+
+So either the reconstruction is wrong past the cribs, or K4's method sits outside every family tested here. Either way the reconstruction can't be used as a crib to back out the method. The earlier `known_plaintext_inversion` scans (11,520 geometric and 3,674,160 rectangular transpositions) had reached the same null for a smaller family set.
 
 ---
 
@@ -70,16 +89,16 @@ Mengenlehreuhr lamp keys; geometric/tableau keystream sweeps (~2.4M candidates);
 
 | # | Gap | Why it matters | Effort |
 |---|-----|----------------|--------|
-| 1 | **Longer or structured keys beyond period 22–26** | Most families are only testable up to the point where the 24 cribs stop constraining. A longer key needs an extra assumption (a key-generation rule) to test. | M |
-| 2 | **Hill 4×4 and up** | The cribs give too few full blocks per alignment; needs a transposition hypothesis or partial blocks. | M |
-| 3 | **Masking other than nulls between cribs** | Nulls inside the plaintext blocks conflict with Sanborn's letter-for-letter crib pairing; other masking forms (phonetic spelling, letter swaps) are not modelled. | L |
-| 4 | **Per-position procedural keys** (clock state or bearing per letter) | Depends on the compass-rose bearing and a rule for turning a reading into a key value. | L |
+| 1 | **Other long-key rules** | Recurrence, dial, progressive and English running keys are now covered. Any other rule (a keyword-driven procedure, a non-English running text) has to be named before it can be tested. | M |
+| 2 | **Hill 5×5 at alignments 0–2, 6×6 and up** | Too few full crib blocks; needs a transposition hypothesis or partial blocks. | M |
+| 3 | **Masking that isn't letter-for-letter** | Letter-for-letter masking is covered by the mixed-alphabet check; inserted or dropped letters inside words, and respellings that change length, are not modelled. | L |
+| 4 | **Per-letter lookup keys** | A steady dial is eliminated; a lookup per letter (Weltzeituhr city or time zone) needs the plate order. | L |
 
 ### Evidence and sourcing
 
 | # | Gap | Owner |
 |---|-----|-------|
-| 1 | Compass-rose bearing (FOIA, Elonka Dunin, CIA Public Affairs drafts in TASKS). Likely matters after decryption rather than for it (see `docs/sources/SANBORN_QUOTES.md` #14). | you |
+| 1 | Compass-rose bearing (FOIA, Elonka Dunin, CIA Public Affairs drafts in TASKS). Likely matters after decryption rather than for it (see `docs/sources/SANBORN_QUOTES.md` #14). Routes and dial keys along *any* whole-degree bearing are already eliminated, so the measurement would only narrow other constructions. | you |
 | 2 | Weltzeituhr: the last 16 city plates, plate order, the wind-rose mosaic's bearing (a Berlin contact with a camera) | you |
 | 3 | Upgrade `SANBORN_QUOTES.md` entries from "reported" to "checked" against primary pages | Claude, when page access allows |
 | 4 | Submission policy for Paradigm's $1 checker (only fully validated candidates) | you |
@@ -88,7 +107,9 @@ Mengenlehreuhr lamp keys; geometric/tableau keystream sweeps (~2.4M candidates);
 
 Done 2026-09-28: `GET /api/k4/ledger` (with the latest suite run, stored in Neon via `k4_constraint_runs` so it survives redeploys), job persistence to Neon plus `GET /api/k4/attacks/jobs`, the registry-matches-dispatcher test, the positive-control rule, and a real scoring word list.
 
-`kryptos ledger` (or `kryptos ledger --json`) prints the ledger from code, so tier tables no longer need hand-editing. No platform gaps from the State of Research list remain open.
+`kryptos ledger` (or `kryptos ledger --json`) prints the ledger from code, so tier tables no longer need hand-editing. `kryptos frontier` / `p22_frontier_checks` runs the frontier checks. No platform gaps from the State of Research list remain open.
+
+**Scoring tables (finding, 2026-09-28).** `data/ngrams/quadgrams.tsv`, `trigrams.tsv`, `bigrams.tsv` and `quadgrams_high_quality.tsv` hold about ten illustrative entries each, and `scoring.combined_plaintext_score` reads them, so its n-gram terms barely distinguish English from noise. The frontier checks use real tables built from 8.9M letters of public-domain English (`data/ngrams/english_{3,4}grams.tsv`, `kryptos.k4.english_model`). Switching the main scorer to them is tracked in TASKS.
 
 ---
 

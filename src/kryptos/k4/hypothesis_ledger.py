@@ -292,48 +292,145 @@ LEDGER: list[dict[str, Any]] = [
         "module": "kryptos.k4.structural_checks.chaocipher_scan",
         "test": "tests/functional/test_k4_structural_checks.py",
     },
+    {
+        "id": "hill_4x4",
+        "family": "Hill 4x4, no transposition",
+        "tier": "eliminated",
+        "scope": "all four block alignments, every matrix",
+        "evidence": "alignments 1 and 2: no matrix fits the five crib blocks; alignments 0 and 3: the only matrices "
+        "that fit are not invertible mod 26, so they cannot be a Hill key",
+        "module": "kryptos.k4.frontier_checks.hill_exhaustive",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
+        "id": "recurrence_keys",
+        "family": "Keys from a linear recurrence K[i] = c1*K[i-1] + ... + cn*K[i-n] + d (Gromark / Fibonacci style)",
+        "tier": "eliminated",
+        "scope": "orders 1-7, any coefficients and primer, five families",
+        "evidence": "the linear system from consecutive crib key values has no solution over GF(2) or GF(13)",
+        "module": "kryptos.k4.frontier_checks.recurrence_key",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
+        "id": "mixed_alphabet_periodic",
+        "family": "Periodic key plus an arbitrary (not keyword-built) alphabet on one side; covers letter-for-letter "
+        "masking such as letter swaps",
+        "tier": "eliminated",
+        "scope": "mixed plaintext alphabet: periods 1-12; mixed ciphertext alphabet: periods 1-15",
+        "evidence": "difference equations mod 26 solved exactly (union-find); random ciphertexts pass 0% of the "
+        "time at period 12, so the check has teeth over this range",
+        "module": "kryptos.k4.frontier_checks.general_alphabet_periodic",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
+        "id": "dial_keys",
+        "family": "Key read per letter from a dial advancing a fixed step (clock face, 24-hour ring, compass degrees)",
+        "tier": "eliminated",
+        "scope": "dials of 12, 24, 60, 360, 720 and 1440 positions; every start, step and offset; scaled and "
+        "mod-26 readings; five families",
+        "evidence": "no parameter set reproduces the 24 crib key values",
+        "module": "kryptos.k4.frontier_checks.dial_key_scan",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
+        "id": "bearing_routes",
+        "family": "Text read off a grid along a compass bearing, plus a periodic key, either order",
+        "tier": "eliminated",
+        "scope": "every whole-degree bearing, grid widths 4-24 (9,111 distinct routes), periods 1-22",
+        "evidence": "zero survivors; covers the route construction for whatever the compass-rose bearing turns out "
+        "to be",
+        "module": "kryptos.k4.frontier_checks.bearing_route_scan",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
+        "id": "reconstruction_as_plaintext",
+        "family": "The solvekryptos.com reconstruction (all 97 letters) as the plaintext of any tested family",
+        "tier": "eliminated",
+        "scope": "periodic, progressive and double-periodic keys to period 48; autokey; linear; recurrence to order "
+        "40; mixed alphabets to period 48; Hill 2x2-9x9; dial keys; Quagmire I-IV with dictionary keywords; "
+        "columnar widths 2-9, the geometric mappings, double rotation and bearing routes, each with a periodic "
+        "key to period 48",
+        "evidence": "no family and no key turns the reconstructed text into K4; its implied running keys score as "
+        "random, not English",
+        "module": "kryptos.k4.frontier_checks.reconstruction_suite",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
+        "id": "running_key_unknown_english",
+        "family": "Running key taken from any English text (not a known one), no transposition",
+        "tier": "statistical",
+        "scope": "five families",
+        "evidence": "the key letters over the two crib runs score as random under an English n-gram model; fewer "
+        "than 1 in 2,000 real English fragment pairs score that low",
+        "module": "kryptos.k4.frontier_checks.running_key_english",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
+        "id": "columnar_running_key_unknown_english",
+        "family": "Columnar transposition plus a running key from any English text (key applied first)",
+        "tier": "statistical",
+        "scope": "widths 2-8, every column order, five families",
+        "evidence": "K4's best key-fragment score sits inside the range of shuffled-ciphertext controls",
+        "module": "kryptos.k4.frontier_checks.transposition_running_key_english",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
+        "id": "hill_5x5",
+        "family": "Hill 5x5, no transposition",
+        "tier": "statistical",
+        "scope": "alignments 3 and 4 (alignments 0-2 have too few full crib blocks)",
+        "evidence": "alignment 3: no matrix fits; alignment 4: all 11.9M matrices that fit decrypted and scored, "
+        "best invertible one scores 0.36 on the English scale where a planted key scores 0.93",
+        "module": "kryptos.k4.frontier_checks.hill_rowspace_search",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
     # ── open ───────────────────────────────────────────────────────────────
     {
         "id": "hill_large",
-        "family": "Hill 4x4 and larger",
+        "family": "Hill 5x5 at alignments 0-2, and 6x6 and larger",
         "tier": "open",
-        "scope": "the cribs contain too few full blocks per alignment to constrain the matrix",
+        "scope": "too few full crib blocks per alignment; needs a transposition hypothesis or partial blocks",
         "evidence": "",
-        "module": "kryptos.k4.structural_checks.hill_consistency",
+        "module": "kryptos.k4.frontier_checks.hill_exhaustive",
         "test": "",
     },
     {
         "id": "keys_beyond_crib_reach",
-        "family": "Keys longer than the 24 cribs can constrain (periods above ~23, running keys from unknown texts)",
+        "family": "Long keys from other generation rules; running keys from a non-English or unknown-language text",
         "tier": "open",
-        "scope": "needs an assumed key-generation rule to be testable",
+        "scope": "recurrence, dial, progressive and English running keys are now covered; any other rule has to be "
+        "named before it can be tested",
         "evidence": "",
         "module": "",
         "test": "",
     },
     {
         "id": "masking_other_forms",
-        "family": "Masking other than nulls between the cribs (phonetic spelling, letter swaps)",
+        "family": "Masking that is not letter-for-letter (inserted or dropped letters inside words, respellings that "
+        "change length)",
         "tier": "open",
-        "scope": "not modelled",
+        "scope": "letter-for-letter masking is covered by mixed_alphabet_periodic; nulls between the cribs by "
+        "nulls_between_cribs",
         "evidence": "",
         "module": "",
         "test": "",
     },
     {
         "id": "procedural_per_position_keys",
-        "family": "A clock or bearing reading per letter as the key",
+        "family": "Per-letter keys from a lookup rather than a steady dial (e.g. a Weltzeituhr city or time zone "
+        "per letter)",
         "tier": "open",
-        "scope": "depends on the compass-rose bearing and a reading-to-key rule",
+        "scope": "needs the Weltzeituhr plate order and a reading-to-key rule",
         "evidence": "",
         "module": "",
         "test": "",
     },
     {
         "id": "compass_rose_bearing",
-        "family": "Route or key driven by the CIA compass-rose bearing",
+        "family": "The compass-rose bearing as a key seed in constructions other than a route or a dial",
         "tier": "open",
-        "scope": "blocked on sourcing: the bearing has never been measured",
+        "scope": "routes along any whole-degree bearing and dial keys are eliminated; the measured bearing would "
+        "still narrow other constructions",
         "evidence": "",
         "module": "kryptos.k4.physical_geometry",
         "test": "",

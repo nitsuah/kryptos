@@ -123,6 +123,7 @@ then convert back.
 - **Hypothesis ledger.** `GET /api/k4/ledger` gives a frontend-ready map of what's `eliminated`, `statistical`, `sampled_null` or `open`.
 - **Ranked gaps** in `docs/analysis/K4_NEGATIVE_SPACE.md`.
 - **Second pass, same day:** error-tolerant scans against shuffled controls (no signal), double-periodic keys for *any* keywords (p1 + p2 ≤ 24 eliminated), Quagmire IV, K3-style double rotation, transposition + autokey/running key, nulls, Hill 2×2/3×3, and the 25-letter-output ciphers (K4 uses all 26 letters) are all ruled out over stated ranges (`kryptos.k4.structural_checks`). Jobs now persist to Neon, the ledger reports the latest run, and the scoring word list is a real dictionary. Sanborn's statements are collected with citations in `docs/sources/SANBORN_QUOTES.md`.
+- **Frontier pass:** `kryptos frontier` (API `p22_frontier_checks`) covers most of what was left open. It rules out linear-recurrence keys, periodic keys over any mixed alphabet (letter-swap masking), keys read from a clock, 24-hour or compass dial, routes along every compass bearing, and Hill 4×4; Hill 5×5 and running keys from any English text show no signal. It also tests the published full-plaintext reconstruction ("THE COMPASS ROSE IS HERE…") as known plaintext against every family: none can produce K4 from it.
 
 ---
 
