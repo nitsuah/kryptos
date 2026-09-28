@@ -126,27 +126,49 @@ if not LETTER_FREQ:
         'Z': 0.074,
     }
 
+_FALLBACK_WORDS: set[str] = {
+    'THE',
+    'AND',
+    'YOU',
+    'THAT',
+    'FOR',
+    'WITH',
+    'HAVE',
+    'THIS',
+    'FROM',
+    'CLOCK',
+    'BERLIN',
+    'TIME',
+    'CODE',
+    'DATA',
+    'NEXT',
+    'OVER',
+    'PART',
+    'TEXT',
+}
+
+
+def _dictionary_words(min_len: int = 4) -> set[str]:
+    """English words of ``min_len``+ letters from the MIT ``english-words`` package, if installed.
+
+    ``data/wordlist.txt`` has never existed in this repo, so until 2026-09-28 ``WORDLIST``
+    was only the 18 fallback words above. Calibrated on K1-K3 plaintext against
+    frequency-matched random text (97-letter windows): English/random separation of
+    ``wordlist_hit_rate`` is 1.55 with the 18 words, 1.85 with all 3+ letter words
+    (too many obscure 3-letter words hit random text) and 1.91 with 4+ letter words.
+    """
+    try:
+        from english_words import get_english_words_set
+    except ImportError:
+        return set()
+    return {w.upper() for w in get_english_words_set(["web2", "gcide"], alpha=True) if len(w) >= min_len}
+
+
 if not WORDLIST:
-    WORDLIST = {
-        'THE',
-        'AND',
-        'YOU',
-        'THAT',
-        'FOR',
-        'WITH',
-        'HAVE',
-        'THIS',
-        'FROM',
-        'CLOCK',
-        'BERLIN',
-        'TIME',
-        'CODE',
-        'DATA',
-        'NEXT',
-        'OVER',
-        'PART',
-        'TEXT',
-    }
+    WORDLIST = _dictionary_words() | _FALLBACK_WORDS
+    WORDLIST_SOURCE = "english-words (4+ letters) + fallback" if len(WORDLIST) > len(_FALLBACK_WORDS) else "fallback"
+else:
+    WORDLIST_SOURCE = "data/wordlist.txt"
 
 _UNKNOWN_BIGRAM = -2.0
 _UNKNOWN_TRIGRAM = -2.5
@@ -629,6 +651,7 @@ __all__ = [
     'CRIBS',
     'QUADGRAMS',
     'WORDLIST',
+    'WORDLIST_SOURCE',
     'chi_square_stat',
     'bigram_score',
     'trigram_score',

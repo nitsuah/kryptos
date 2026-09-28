@@ -329,6 +329,25 @@ def _period_survivors(key: np.ndarray, slots: np.ndarray) -> np.ndarray:
     return (np.diff(ks, axis=1) != 0).sum(1) == (np.diff(ss, axis=1) != 0).sum(1)
 
 
+def _min_violations(key: np.ndarray, slots: np.ndarray, period: int, chunk: int = 20_000) -> np.ndarray:
+    """Per row: the fewest crib letters to discard so that equal slots carry equal key values.
+
+    0 means the row is exactly consistent; 1 means it is consistent if one crib letter
+    is wrong (a deliberate error, a masking step, a misread plate).
+    """
+    rows_total, n = key.shape
+    out = np.empty(rows_total, dtype=np.int16)
+    width = period * 26
+    for start in range(0, rows_total, chunk):
+        k = np.asarray(key[start : start + chunk], dtype=np.int64)
+        sl = np.asarray(slots[start : start + chunk], dtype=np.int64)
+        rows = k.shape[0]
+        idx = (np.arange(rows)[:, None] * width + sl * 26 + k).ravel()
+        counts = np.bincount(idx, minlength=rows * width).reshape(rows, period, 26)
+        out[start : start + rows] = n - counts.max(axis=2).sum(axis=1)
+    return out
+
+
 def _scan_mappings(
     cpos: np.ndarray,
     labels: list[Any],
@@ -337,8 +356,13 @@ def _scan_mappings(
     periods: Iterable[int],
     keyword: str,
     max_examples: int,
+    tolerance: int = 0,
 ) -> dict[str, Any]:
-    """cpos[row, t] = ciphertext position holding crib letter t under mapping ``row``."""
+    """cpos[row, t] = ciphertext position holding crib letter t under mapping ``row``.
+
+    With ``tolerance`` > 0, each period also reports ``min_violations`` (best row) and
+    ``within_tolerance`` (rows needing at most ``tolerance`` discarded crib letters).
+    """
     positions = np.array(sorted(plain))
     letters = [plain[i] for i in sorted(plain)]
     result: dict[str, Any] = {}
@@ -359,6 +383,10 @@ def _scan_mappings(
                     "examples": [labels[i] for i in np.flatnonzero(ok)[:max_examples]],
                     "equality_constraints": equalities,
                 }
+                if tolerance:
+                    viol = _min_violations(kv, slots, p)
+                    per_period[p]["min_violations"] = int(viol.min())
+                    per_period[p]["within_tolerance"] = int((viol <= tolerance).sum())
             per_family[name] = per_period
         result[model] = per_family
     return result
@@ -371,6 +399,7 @@ def columnar_period_scan(
     plain: dict[int, str] | None = None,
     keyword: str = "KRYPTOS",
     max_examples: int = 5,
+    tolerance: int = 0,
 ) -> dict[int, Any]:
     """Every column order of every width, both layer orders, every period, every family."""
     plain = plain if plain is not None else crib_letters()
@@ -384,7 +413,7 @@ def columnar_period_scan(
         labels = [list(map(int, p)) for p in perms] if len(perms) <= 50_000 else _LazyLabels(perms)
         out[w] = {
             "permutations": len(perms),
-            **_scan_mappings(cpos, labels, ciphertext, plain, periods, keyword, max_examples),
+            **_scan_mappings(cpos, labels, ciphertext, plain, periods, keyword, max_examples, tolerance),
         }
         logger.info("columnar width %d: %d permutations scanned", w, len(perms))
     return out
@@ -406,6 +435,7 @@ def geometry_period_scan(
     max_examples: int = 5,
     ciphertext: str = K4,
     plain: dict[int, str] | None = None,
+    tolerance: int = 0,
 ) -> dict[str, Any]:
     """The phase 6-7 24-column geometric permutations (trailing/leading remainder, all 24 rotations)."""
     from . import reflection
@@ -428,7 +458,7 @@ def geometry_period_scan(
     cpos = np.array(rows, dtype=np.int64)
     return {
         "mappings": len(rows),
-        **_scan_mappings(cpos, labels, ciphertext, plain, list(periods), keyword, max_examples),
+        **_scan_mappings(cpos, labels, ciphertext, plain, list(periods), keyword, max_examples, tolerance),
     }
 
 
@@ -510,6 +540,167 @@ def keyword_alphabet_scan(
     return out
 
 
+# ── Two-key structures ─────────────────────────────────────────────────────
+
+
+def _solvable_mod_prime(rows: list[list[int]], rhs: list[int], q: int) -> bool:
+    """Is the linear system rows · x = rhs solvable over GF(q)? (Gaussian elimination.)"""
+    m = [[v % q for v in r] + [b % q] for r, b in zip(rows, rhs, strict=True)]
+    ncols = len(rows[0]) if rows else 0
+    piv_row = 0
+    for col in range(ncols):
+        pr = next((r for r in range(piv_row, len(m)) if m[r][col]), None)
+        if pr is None:
+            continue
+        m[piv_row], m[pr] = m[pr], m[piv_row]
+        inv = pow(m[piv_row][col], q - 2, q)
+        m[piv_row] = [(v * inv) % q for v in m[piv_row]]
+        for r in range(len(m)):
+            if r != piv_row and m[r][col]:
+                f = m[r][col]
+                m[r] = [(a - f * b) % q for a, b in zip(m[r], m[piv_row], strict=True)]
+        piv_row += 1
+    return all(any(r[:-1]) or r[-1] == 0 for r in m)
+
+
+def double_periodic_consistency(
+    max_period: int = 20,
+    ciphertext: str = K4,
+    plain: dict[int, str] | None = None,
+    keyword: str = "KRYPTOS",
+) -> dict[str, list[tuple[int, int]]]:
+    """Key = A[i mod p1] + B[i mod p2] (two stacked periodic keys, e.g. PALIMPSEST + ABSCISSA).
+
+    Exhaustive over *every* pair of keys with those lengths, not a keyword list: the 24
+    crib key values give 24 linear equations in p1 + p2 unknowns, solvable over Z26 iff
+    solvable over GF(2) and GF(13). Returns the (p1, p2) pairs, 1 <= p1 < p2 <= max_period,
+    that stay consistent. Pairs with p1 + p2 near 24 have too few equations to mean much.
+    """
+    plain = plain if plain is not None else crib_letters()
+    out: dict[str, list[tuple[int, int]]] = {}
+    for name, (alpha, fn) in families(keyword).items():
+        kv = key_values(alpha, fn, ciphertext, plain)
+        hits = []
+        for p1 in range(1, max_period + 1):
+            for p2 in range(p1 + 1, max_period + 1):
+                rows, rhs = [], []
+                for i, k in kv.items():
+                    row = [0] * (p1 + p2)
+                    row[i % p1] = 1
+                    row[p1 + i % p2] = 1
+                    rows.append(row)
+                    rhs.append(k)
+                if _solvable_mod_prime(rows, rhs, 2) and _solvable_mod_prime(rows, rhs, 13):
+                    hits.append((p1, p2))
+        out[name] = hits
+    return out
+
+
+KRYPTOS_VOCABULARY: list[str] = sorted({
+    "KRYPTOS", "PALIMPSEST", "ABSCISSA", "BERLIN", "CLOCK", "SHADOW", "SANBORN", "SCHEIDT",
+    "LODESTONE", "COMPASS", "WELTZEITUHR", "URANIA", "LANGLEY", "NORTHEAST", "LAYERTWO",
+    "EAST", "IQLUSION", "UNDERGRUUND", "DESPARATLY", "ILLUSION", "UNDERGROUND", "LUCID",
+    "MEMORY", "VIRTUALLY", "INVISIBLE", "DIGETAL", "INTERPRETATION", "POSITION", "SHADOWFORCES",
+    "WEBSTER", "EGYPT", "CARTER", "TUTANKHAMUN", "ALEXANDERPLATZ", "MENGENLEHREUHR", "WALL",
+    "NOVEMBER", "CIA", "LANGLEYVIRGINIA", "MAGNETIC", "NEEDLE", "BURIED", "ENIGMA"
+})  # fmt: skip
+
+
+def quagmire4_scan(
+    words: Iterable[str],
+    anchor_words: Iterable[str] = KRYPTOS_VOCABULARY,
+    periods: Iterable[int] = range(1, 23),
+    ciphertext: str = K4,
+    plain: dict[int, str] | None = None,
+    max_examples: int = 10,
+) -> dict[str, Any]:
+    """Quagmire IV: plain alphabet keyed by one word, cipher alphabet by another, periodic key.
+
+    A full dictionary x dictionary scan is ~5e10 pairs, so one side is drawn from
+    ``anchor_words`` (Kryptos vocabulary) and the other from ``words`` (e.g. the dictionary),
+    in both assignments. Returns survivors per period for each assignment.
+    """
+    plain = plain if plain is not None else crib_letters()
+    positions = np.array(sorted(plain))
+    c_std = [ciphertext[i] for i in positions]
+    p_std = [plain[i] for i in positions]
+    by_alpha: dict[str, str] = {}
+    for w in words:
+        by_alpha.setdefault(keyed_alphabet(w), w.upper())
+    alphabets = list(by_alpha)
+    idx = np.array([[a.index(ch) for ch in STANDARD] for a in alphabets], dtype=np.int64)
+    c_all = idx[:, [STANDARD.index(ch) for ch in c_std]]  # (N, 24) cipher-letter positions in each alphabet
+    p_all = idx[:, [STANDARD.index(ch) for ch in p_std]]
+    result: dict[str, Any] = {"alphabets": len(alphabets), "anchors": 0}
+    anchors = sorted({keyed_alphabet(w): w.upper() for w in anchor_words}.items())
+    result["anchors"] = len(anchors)
+    for role in ("anchor_plain", "anchor_cipher"):
+        per_period: dict[int, dict[str, Any]] = {p: {"survivors": 0, "examples": []} for p in periods}
+        for a_alpha, a_word in anchors:
+            a_idx = np.array([a_alpha.index(ch) for ch in STANDARD])
+            if role == "anchor_plain":
+                kv = (c_all - a_idx[[STANDARD.index(ch) for ch in p_std]][None, :]) % 26
+            else:
+                kv = (a_idx[[STANDARD.index(ch) for ch in c_std]][None, :] - p_all) % 26
+            for p in periods:
+                ok = _period_survivors(kv, np.broadcast_to(positions % p, kv.shape))
+                hits = np.flatnonzero(ok)
+                per_period[p]["survivors"] += int(hits.size)
+                room = max_examples - len(per_period[p]["examples"])
+                per_period[p]["examples"] += [(a_word, by_alpha[alphabets[h]]) for h in hits[:room]]
+        result[role] = per_period
+    return result
+
+
+def tolerance_study(
+    widths: Iterable[int] = range(2, 9),
+    periods: Iterable[int] = range(1, 23),
+    tolerance: int = 2,
+    controls: int = 3,
+    seed: int = 0,
+    include_geometry: bool = True,
+) -> dict[str, Any]:
+    """Allow up to ``tolerance`` wrong crib letters and compare K4 with shuffled-ciphertext controls.
+
+    Sanborn has used deliberate errors before (IQLUSION, DESPARATLY, the K2 "X"). An exact
+    check would reject the true method if one crib letter were affected, so this reports
+    how many (transposition, period, family) rows get within ``tolerance`` errors, for K4
+    and for ``controls`` random reshuffles of K4's own letters. K4 well above its controls
+    would be a signal; within their range is chance.
+
+    2026-09-28 run (widths 2-9, periods 1-22, tolerance 2, 4 controls): columnar 368 rows vs
+    controls 249-365; geometric 325 vs 250-430. Nothing below period 16 came within 2 errors.
+    """
+    periods = list(periods)
+    widths = list(widths)
+
+    def count(ct: str) -> dict[str, int]:
+        out = {"columnar": 0, "geometry": 0}
+        for r in columnar_period_scan(widths=widths, periods=periods, ciphertext=ct, tolerance=tolerance).values():
+            for model in ("sub_then_trans", "trans_then_sub"):
+                out["columnar"] += sum(v["within_tolerance"] for per in r[model].values() for v in per.values())
+        if include_geometry:
+            g = geometry_period_scan(periods=periods, ciphertext=ct, tolerance=tolerance)
+            for model in ("sub_then_trans", "trans_then_sub"):
+                out["geometry"] += sum(v["within_tolerance"] for per in g[model].values() for v in per.values())
+        return out
+
+    real = count(K4)
+    ctl = []
+    for i in range(controls):
+        letters = list(K4)
+        random.Random(seed + i).shuffle(letters)
+        ctl.append(count("".join(letters)))
+    return {
+        "tolerance": tolerance,
+        "widths": widths,
+        "periods": [periods[0], periods[-1]],
+        "k4": real,
+        "controls": ctl,
+        "above_all_controls": {k: real[k] > max(c[k] for c in ctl) for k in real},
+    }
+
+
 # ── Suite ──────────────────────────────────────────────────────────────────
 
 
@@ -573,6 +764,9 @@ def run_crib_constraint_suite(
 
 
 __all__ = [
+    "tolerance_study",
+    "quagmire4_scan",
+    "double_periodic_consistency",
     "ciphertext_autokey",
     "columnar_period_scan",
     "crib_letters",

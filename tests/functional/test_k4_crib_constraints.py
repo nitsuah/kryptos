@@ -195,3 +195,59 @@ def test_suite_records_dictionary_provenance(tmp_path):
     summary = cc.run_crib_constraint_suite(widths=[2], artifact_path=tmp_path / "a.json")
     assert summary["run_params"]["dictionary_source"]
     assert summary["run_params"]["dictionary_words"] > 0
+
+
+class TestTolerance:
+    def test_one_corrupted_crib_letter_is_found_with_tolerance(self):
+        w, perm, period = 6, [4, 1, 5, 0, 3, 2], 7
+        key = [3, 17, 8, 22, 0, 11, 5]
+        ct = list(apply_columnar_permutation_encrypt(_vig(PLAIN_97, [key[i % period] for i in range(97)]), w, perm))
+        plain = _plain_at(PLAIN_97)
+        # corrupt the ciphertext letter carrying crib position 30 (one deliberate "error")
+        from kryptos.k4.crib_constraints import _columnar_pt_to_ct
+
+        start = _columnar_pt_to_ct(w, np.array([perm], dtype=np.int16), 97)[0]
+        j = 30
+        loc = start[j % w] + j // w
+        ct[loc] = S[(S.index(ct[loc]) + 5) % 26]
+        ct = "".join(ct)
+        exact = cc.columnar_period_scan(widths=[w], periods=[period], ciphertext=ct, plain=plain)
+        assert perm not in exact[w]["sub_then_trans"]["vigenere"][period]["examples"]
+        tol = cc.columnar_period_scan(widths=[w], periods=[period], ciphertext=ct, plain=plain, tolerance=1)
+        assert tol[w]["sub_then_trans"]["vigenere"][period]["min_violations"] == 1
+        assert tol[w]["sub_then_trans"]["vigenere"][period]["within_tolerance"] >= 1
+
+    def test_min_violations_counts(self):
+        key = np.array([[1, 1, 2, 2, 3], [1, 1, 1, 1, 1]])
+        slots = np.array([[0, 0, 1, 1, 1], [0, 0, 1, 1, 1]])
+        assert list(cc._min_violations(key, slots, 2)) == [1, 0]
+
+    def test_study_shape_small(self):
+        res = cc.tolerance_study(widths=[2, 3], periods=range(1, 6), controls=1, include_geometry=False)
+        assert set(res["k4"]) == {"columnar", "geometry"} and len(res["controls"]) == 1
+
+
+class TestTwoKeyStructures:
+    def test_double_periodic_positive_control(self):
+        a, b = [3, 11, 7], [5, 0, 19, 2, 8]
+        key = [(a[i % 3] + b[i % 5]) % 26 for i in range(97)]
+        res = cc.double_periodic_consistency(6, ciphertext=_vig(PLAIN_97, key), plain=_plain_at(PLAIN_97))
+        assert (3, 5) in res["vigenere"]
+
+    def test_k4_double_periodic_small_sums_eliminated(self):
+        for hits in cc.double_periodic_consistency(20).values():
+            assert all(p1 + p2 >= 25 for p1, p2 in hits)
+
+    def test_quagmire4_positive_control(self):
+        pa, ca = cc.keyed_alphabet("ZEBRA"), cc.keyed_alphabet("KRYPTOS")
+        key = [2, 9, 14, 21, 6]
+        ct = "".join(ca[(pa.index(c) + key[i % 5]) % 26] for i, c in enumerate(PLAIN_97))
+        res = cc.quagmire4_scan(
+            ["ZEBRA", "APPLE"], anchor_words=["KRYPTOS"], periods=[5], ciphertext=ct, plain=_plain_at(PLAIN_97)
+        )
+        assert ("KRYPTOS", "ZEBRA") in res["anchor_cipher"][5]["examples"]
+
+    def test_k4_quagmire4_small_vocabulary_eliminated(self):
+        res = cc.quagmire4_scan(cc.DIGIT_KEYWORDS, periods=range(1, 23))
+        for role in ("anchor_plain", "anchor_cipher"):
+            assert all(v["survivors"] == 0 for v in res[role].values())

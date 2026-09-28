@@ -129,6 +129,35 @@ LEDGER: list[dict[str, Any]] = [
         "module": "kryptos.k4.crib_constraints.geometry_period_scan",
         "test": "tests/functional/test_k4_crib_constraints.py",
     },
+    {
+        "id": "double_periodic",
+        "family": "Sum of two periodic keys (e.g. PALIMPSEST + ABSCISSA), any keywords",
+        "tier": "eliminated",
+        "scope": "every pair of periods with p1 + p2 <= 24, five families (pairs with p1 + p2 >= 25 have more "
+        "unknowns than crib equations and stay untestable)",
+        "evidence": "the 24 crib key values give a linear system with no solution over GF(2) or GF(13)",
+        "module": "kryptos.k4.crib_constraints.double_periodic_consistency",
+        "test": "tests/functional/test_k4_crib_constraints.py",
+    },
+    {
+        "id": "quagmire4_anchor_dictionary",
+        "family": "Quagmire IV with one keyword from Kryptos vocabulary and the other from the dictionary",
+        "tier": "eliminated",
+        "scope": "43 vocabulary words x 231,933 dictionary alphabets, both roles, periods 1-22",
+        "evidence": "zero survivors",
+        "module": "kryptos.k4.crib_constraints.quagmire4_scan",
+        "test": "tests/functional/test_k4_crib_constraints.py",
+    },
+    {
+        "id": "periodic_transposition_with_errors",
+        "family": "Columnar / geometric transposition + periodic key, allowing up to 2 wrong crib letters",
+        "tier": "statistical",
+        "scope": "widths 2-9 and 7,680 geometric mappings, periods 1-22, five families",
+        "evidence": "near-miss counts (columnar 368, geometric 325) sit inside the range of shuffled-ciphertext "
+        "controls (249-365, 250-430); nothing below period 16 gets within 2 errors",
+        "module": "kryptos.k4.crib_constraints.tolerance_study",
+        "test": "tests/functional/test_k4_crib_constraints.py",
+    },
     # ── sampled nulls ──────────────────────────────────────────────────────
     {
         "id": "berlin_clock_keys",
@@ -187,19 +216,10 @@ LEDGER: list[dict[str, Any]] = [
     },
     # ── open ───────────────────────────────────────────────────────────────
     {
-        "id": "quagmire4_pairs",
-        "family": "Quagmire IV (different keywords for plain and cipher alphabets)",
+        "id": "quagmire4_dictionary_pairs",
+        "family": "Quagmire IV with both keywords from the full dictionary",
         "tier": "open",
-        "scope": "dictionary pairs need pruning (Q1/Q2 partial constraints) before an exhaustive pass",
-        "evidence": "",
-        "module": "",
-        "test": "",
-    },
-    {
-        "id": "double_periodic",
-        "family": "Sum of two periodic keys (e.g. PALIMPSEST + ABSCISSA, effective period above 26)",
-        "tier": "open",
-        "scope": "",
+        "scope": "~5e10 pairs; needs pruning beyond the per-side constraints",
         "evidence": "",
         "module": "",
         "test": "",
