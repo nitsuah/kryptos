@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from kryptos.api.k4_attack_dispatch import run_attack_worker
-from kryptos.api.k4_jobs import get_job, new_job, update_job
+from kryptos.api.k4_jobs import get_job, list_jobs, new_job, update_job
 
 logger = logging.getLogger(__name__)
 
@@ -426,6 +426,11 @@ def create_k4_attack_router() -> APIRouter:
         t.start()
 
         return JobStatusResponse(**get_job(job_id))  # type: ignore[arg-type]
+
+    @router.get("/jobs")
+    def recent_jobs(limit: int = 20) -> dict[str, Any]:
+        """Recent attack jobs, newest first (in-memory plus persisted when DATABASE_URL is set)."""
+        return {"jobs": list_jobs(max(1, min(limit, 200)))}
 
     @router.get("/jobs/{job_id}", response_model=JobStatusResponse)
     def job_status(job_id: str) -> JobStatusResponse:

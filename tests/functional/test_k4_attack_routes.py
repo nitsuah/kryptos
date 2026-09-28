@@ -169,3 +169,11 @@ def test_crib_constraints_attack_is_runnable(client, fast_attacks):
     job = _poll_until_done(client, resp.json()["job_id"])
     assert job["status"] == "complete"
     assert job["summary"] == {"fake": "crib_constraints"}
+
+
+def test_recent_jobs_route(client, fast_attacks):
+    resp = client.post("/api/k4/attacks/run", json={"attack_id": "p18_key_csp"})
+    job_id = resp.json()["job_id"]
+    _poll_until_done(client, job_id)
+    jobs = client.get("/api/k4/attacks/jobs", params={"limit": 5}).json()["jobs"]
+    assert any(j["job_id"] == job_id for j in jobs)

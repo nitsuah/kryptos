@@ -18,6 +18,8 @@ Tiers:
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any, Literal
 
 Tier = Literal["eliminated", "statistical", "sampled_null", "open"]
@@ -158,6 +160,63 @@ LEDGER: list[dict[str, Any]] = [
         "module": "kryptos.k4.crib_constraints.tolerance_study",
         "test": "tests/functional/test_k4_crib_constraints.py",
     },
+    {
+        "id": "short_output_alphabet",
+        "family": "Playfair, Two-Square, Four-Square, 5x5 Bifid, Polybius, ADFGX, ADFGVX as the last layer",
+        "tier": "eliminated",
+        "scope": "any key, with or without a transposition",
+        "evidence": "K4 contains all 26 letters; these ciphers emit at most 25 (or 5-6), and transposition "
+        "cannot change the letter set",
+        "module": "kryptos.k4.structural_checks.output_alphabet_eliminations",
+        "test": "tests/functional/test_k4_structural_checks.py",
+    },
+    {
+        "id": "nulls_between_cribs",
+        "family": "Periodic key with null letters inserted between the two crib blocks (masking)",
+        "tier": "eliminated",
+        "scope": "1-29 nulls, periods 1-23, five families",
+        "evidence": "no null count and period reproduce the crib key values",
+        "module": "kryptos.k4.structural_checks.null_gap_periodic",
+        "test": "tests/functional/test_k4_structural_checks.py",
+    },
+    {
+        "id": "hill_small",
+        "family": "Hill 2x2 and 3x3, no transposition",
+        "tier": "eliminated",
+        "scope": "every block alignment, both directions; 4x4 and up have too few crib blocks to test",
+        "evidence": "the crib blocks give an unsolvable linear system over GF(2) or GF(13)",
+        "module": "kryptos.k4.structural_checks.hill_consistency",
+        "test": "tests/functional/test_k4_structural_checks.py",
+    },
+    {
+        "id": "k3_double_rotation",
+        "family": "K3-style double rotational transposition + periodic key, either order",
+        "tier": "eliminated",
+        "scope": "0-11 null pads (end or start), all divisor widths, 6 rotation types per stage (21,096 layouts), "
+        "periods 1-22, five families",
+        "evidence": "zero survivors",
+        "module": "kryptos.k4.structural_checks.double_rotation_period_scan",
+        "test": "tests/functional/test_k4_structural_checks.py",
+    },
+    {
+        "id": "columnar_autokey",
+        "family": "Ciphertext autokey applied before a columnar transposition",
+        "tier": "eliminated",
+        "scope": "widths 2-7, every column order, every lag with 4+ constraints, every offset, five families",
+        "evidence": "zero survivors",
+        "module": "kryptos.k4.structural_checks.transposition_autokey_scan",
+        "test": "tests/functional/test_k4_structural_checks.py",
+    },
+    {
+        "id": "transposition_plus_running_key",
+        "family": "Columnar transposition composed with a running key from sculpture texts, either order",
+        "tier": "statistical",
+        "scope": "widths 2-6 (all column orders), 22 corpus texts, every alignment and offset, five families",
+        "evidence": "best alignments reproduce 7-10 of 24 crib key values, the same as shuffled-text controls "
+        "(an exact key would reproduce all 24)",
+        "module": "kryptos.k4.structural_checks.transposition_running_key_scan",
+        "test": "tests/functional/test_k4_structural_checks.py",
+    },
     # ── sampled nulls ──────────────────────────────────────────────────────
     {
         "id": "berlin_clock_keys",
@@ -214,6 +273,15 @@ LEDGER: list[dict[str, Any]] = [
         "module": "kryptos.k4.solar_geometry, clock_rotation, bearing_attack",
         "test": "tests/functional/",
     },
+    {
+        "id": "chaocipher",
+        "family": "Chaocipher (self-modifying alphabets)",
+        "tier": "sampled_null",
+        "scope": "1,936 ordered pairs of keyed starting alphabets from Kryptos vocabulary",
+        "evidence": "best pair matches 5 of 24 crib letters; implementation reproduces Byrne's published example",
+        "module": "kryptos.k4.structural_checks.chaocipher_scan",
+        "test": "tests/functional/test_k4_structural_checks.py",
+    },
     # ── open ───────────────────────────────────────────────────────────────
     {
         "id": "quagmire4_dictionary_pairs",
@@ -225,39 +293,12 @@ LEDGER: list[dict[str, Any]] = [
         "test": "",
     },
     {
-        "id": "transposition_plus_nonperiodic",
-        "family": "Transposition composed with a running or autokey key",
+        "id": "hill_large",
+        "family": "Hill 4x4 and larger",
         "tier": "open",
-        "scope": "combine columnar/geometric mappings with the autokey and running-key constraints",
+        "scope": "the cribs contain too few full blocks per alignment to constrain the matrix",
         "evidence": "",
-        "module": "",
-        "test": "",
-    },
-    {
-        "id": "k3_style_rotation",
-        "family": "K3-style double rotational transposition (with padding, since 97 is prime) plus a key",
-        "tier": "open",
-        "scope": "",
-        "evidence": "K3 used this method; never checked against the K4 cribs as a constraint",
-        "module": "",
-        "test": "",
-    },
-    {
-        "id": "chaocipher_family",
-        "family": "Self-modifying alphabets (Chaocipher, Alberti-style progressive disks)",
-        "tier": "open",
-        "scope": "",
-        "evidence": "",
-        "module": "",
-        "test": "",
-    },
-    {
-        "id": "nulls_and_masking_constrained",
-        "family": "Null insertion / masking evaluated as crib constraints",
-        "tier": "open",
-        "scope": "masking was only sampled inside composites",
-        "evidence": "",
-        "module": "",
+        "module": "kryptos.k4.structural_checks.hill_consistency",
         "test": "",
     },
     {
@@ -277,9 +318,51 @@ def ledger(tier: Tier | None = None) -> list[dict[str, Any]]:
     return [dict(e) for e in LEDGER if tier is None or e["tier"] == tier]
 
 
-def ledger_summary() -> dict[str, Any]:
-    """Per-tier counts plus every entry, as served by ``GET /api/k4/ledger``."""
-    return {"counts": {t: sum(1 for e in LEDGER if e["tier"] == t) for t in TIERS}, "entries": ledger()}
+def latest_run(artifact_path: str | Path | None = None) -> dict[str, Any] | None:
+    """Headline numbers from the most recent crib-constraint suite run, if its artifact exists.
+
+    Reads ``K4_CRIB_CONSTRAINTS_NULL.json`` (written by ``kryptos crib-constraints`` and the
+    P21 API job) from the working directory unless a path is given.
+    """
+    from .crib_constraints import DEFAULT_ARTIFACT_PATH
+
+    path = Path(artifact_path or DEFAULT_ARTIFACT_PATH)
+    if not path.exists():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+    def low_period_survivors(block: dict[str, Any]) -> int:
+        return sum(
+            n
+            for model in ("sub_then_trans", "trans_then_sub")
+            for fam in block.get(model, {}).values()
+            for p, n in fam.items()
+            if int(p) <= 22
+        )
+
+    return {
+        "timestamp": data.get("timestamp"),
+        "run_params": data.get("run_params", {}),
+        "columnar_survivors_period_le_22": sum(
+            low_period_survivors(b) for b in data.get("columnar_period", {}).values()
+        ),
+        "geometry_survivors_period_le_22": low_period_survivors(data.get("geometry_period", {})),
+        "running_key_exact_matches": sum(
+            1 for fam in data.get("running_key", {}).values() for v in fam.values() if v.get("exact")
+        ),
+    }
 
 
-__all__ = ["LEDGER", "TIERS", "ledger", "ledger_summary"]
+def ledger_summary(artifact_path: str | Path | None = None) -> dict[str, Any]:
+    """Per-tier counts, every entry, and the latest suite run (if any), as served by ``GET /api/k4/ledger``."""
+    return {
+        "counts": {t: sum(1 for e in LEDGER if e["tier"] == t) for t in TIERS},
+        "entries": ledger(),
+        "latest_run": latest_run(artifact_path),
+    }
+
+
+__all__ = ["LEDGER", "TIERS", "latest_run", "ledger", "ledger_summary"]

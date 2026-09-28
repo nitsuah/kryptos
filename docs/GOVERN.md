@@ -66,6 +66,9 @@ _Completed: 2026-07-01_
 - Monthly review notes are to be added/updated in this file and referenced in ROADMAP.md.
 - Deprecated or legacy code must be retired promptly after migration is confirmed.
 - Community contributions are reviewed according to CONTRIBUTING.md and must meet reproducibility and documentation standards.
+- **Positive controls for eliminations (2026-09-28).** A cipher family may only be marked `eliminated` in `kryptos.k4.hypothesis_ledger` if its check ships a test that plants a known solution and shows the check finds it. A null result from a check that was never shown to detect a real hit doesn't count. Enforced by `tests/functional/test_k4_ledger.py::test_every_eliminated_entry_has_a_positive_control`.
+- **Say how strong a "ruled out" is.** Use the ledger tiers: `eliminated` (exhaustive over a stated range), `statistical` (compared against shuffled-ciphertext controls), `sampled_null` (specific keys tried), `open`. Candidate counts alone are not coverage.
+- **Registry and dispatcher stay in sync.** Every runnable entry in `FRONTIER_VECTORS` needs a branch in `k4_attack_dispatch.py`, and vice versa (`test_attack_registry_matches_dispatcher`).
 
 ---
 

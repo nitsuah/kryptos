@@ -85,6 +85,20 @@ SCHEMA_STATEMENTS: dict[str, str] = {
         CREATE INDEX IF NOT EXISTS idx_candidates_score ON candidates (score DESC);
         CREATE INDEX IF NOT EXISTS idx_candidates_run ON candidates (campaign_run_id);
     """,
+    "k4_attack_jobs": """
+        CREATE TABLE IF NOT EXISTS k4_attack_jobs (
+            job_id           UUID PRIMARY KEY,
+            attack_id        TEXT NOT NULL,
+            status           TEXT NOT NULL,
+            progress_pct     REAL NOT NULL DEFAULT 0,
+            total_candidates BIGINT NOT NULL DEFAULT 0,
+            summary          JSONB,
+            error            TEXT,
+            created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+            updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+        CREATE INDEX IF NOT EXISTS idx_k4_attack_jobs_created ON k4_attack_jobs (created_at DESC);
+    """,
     "vault_payloads": """
         CREATE TABLE IF NOT EXISTS vault_payloads (
             token       UUID PRIMARY KEY,

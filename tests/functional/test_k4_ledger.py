@@ -61,3 +61,34 @@ def test_ledger_route_filter(client):
     data = client.get("/api/k4/ledger", params={"tier": "open"}).json()
     assert data["tier"] == "open" and all(e["tier"] == "open" for e in data["entries"])
     assert client.get("/api/k4/ledger", params={"tier": "bogus"}).status_code == 422
+
+
+def test_latest_run_reads_suite_artifact(tmp_path):
+    from kryptos.k4.crib_constraints import run_crib_constraint_suite
+    from kryptos.k4.hypothesis_ledger import latest_run, ledger_summary
+
+    assert latest_run(tmp_path / "missing.json") is None
+    art = tmp_path / "run.json"
+    run_crib_constraint_suite(widths=[2, 3], artifact_path=art)
+    run = latest_run(art)
+    assert run["timestamp"] and run["columnar_survivors_period_le_22"] == 0
+    assert ledger_summary(art)["latest_run"] == run
+
+
+def test_every_eliminated_entry_has_a_positive_control():
+    """Repo rule: an exhaustive elimination must ship a planted-solution test next to it."""
+    for e in (e for e in LEDGER if e["tier"] == "eliminated"):
+        text = (REPO / e["test"]).read_text(encoding="utf-8").lower()
+        assert "positive" in text and "control" in text, e["id"]
+
+
+def test_attack_registry_matches_dispatcher():
+    """Every runnable frontier vector has a dispatch branch, and vice versa."""
+    import re
+
+    from kryptos.api.k4_attack_routes import FRONTIER_VECTORS
+
+    src = (REPO / "src/kryptos/api/k4_attack_dispatch.py").read_text(encoding="utf-8")
+    dispatched = set(re.findall(r'attack_id == "([a-z0-9_]+)"', src))
+    runnable = {v["id"] for v in FRONTIER_VECTORS if v["runnable"]}
+    assert runnable == dispatched

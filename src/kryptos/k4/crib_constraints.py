@@ -720,6 +720,30 @@ def _summarize_scan(scan: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def _structural_summary() -> dict[str, Any]:
+    """Cheap exact checks from :mod:`kryptos.k4.structural_checks` (a few seconds in total)."""
+    from . import structural_checks as sc
+
+    rot = sc.double_rotation_period_scan()
+    auto = sc.transposition_autokey_scan(widths=range(2, 8))
+    return {
+        "output_alphabet": sc.output_alphabet_eliminations(),
+        "null_gap_periodic": {f: len(v) for f, v in sc.null_gap_periodic().items()},
+        "hill": sc.hill_consistency(),
+        "double_rotation": {
+            "mappings": rot["mappings"],
+            **{
+                m: {f: sum(v["survivors"] for v in per.values()) for f, per in rot[m].items()}
+                for m in ("sub_then_trans", "trans_then_sub")
+            },
+        },
+        "transposition_autokey": {
+            w: {f: v["survivors"] for f, v in r.items() if f != "permutations"} for w, r in auto.items()
+        },
+        "chaocipher": sc.chaocipher_scan(KRYPTOS_VOCABULARY),
+    }
+
+
 def _summarize_keywords(scan: dict[str, Any]) -> dict[str, Any]:
     """Keep only periods with survivors so the suite artifact stays small."""
     out: dict[str, Any] = {"alphabets": scan["alphabets"]}
@@ -751,6 +775,7 @@ def run_crib_constraint_suite(
         "columnar_period": {w: {"permutations": r["permutations"], **_summarize_scan(r)} for w, r in columnar.items()},
         "geometry_period": {"mappings": geometry["mappings"], **_summarize_scan(geometry)},
         "keyword_alphabets": _summarize_keywords(keyword_alphabet_scan(dict_words)),
+        "structural": _structural_summary(),
         "run_params": {
             "widths": widths,
             "periods": [1, 26],

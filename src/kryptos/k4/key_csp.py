@@ -108,7 +108,12 @@ def _keyed_alphabet(keyword: str) -> str:
     return "".join(seen)
 
 
-def periodic_family_consistency(max_period: int = 26, keyword: str = "KRYPTOS") -> dict[str, list[int]]:
+def periodic_family_consistency(
+    max_period: int = 26,
+    keyword: str = "KRYPTOS",
+    ciphertext: str = K4,
+    cribs: dict[str, tuple[str, int]] | None = None,
+) -> dict[str, list[int]]:
     """Which key periods 1..max_period survive the 24 crib letters, per cipher family.
 
     ``solve_key_csp`` only checks a standard-alphabet Vigenère. This checks every
@@ -128,7 +133,8 @@ def periodic_family_consistency(max_period: int = 26, keyword: str = "KRYPTOS") 
         "variant_beaufort": lambda c, p: (STANDARD.index(p) - STANDARD.index(c)) % 26,
         f"quagmire3_{keyword.lower()}": lambda c, p: (ka.index(c) - ka.index(p)) % 26,
     }
-    letters = [(start + i, K4[start + i], p) for word, start in K4_CRIBS.values() for i, p in enumerate(word)]
+    cribs = cribs if cribs is not None else K4_CRIBS
+    letters = [(start + i, ciphertext[start + i], p) for word, start in cribs.values() for i, p in enumerate(word)]
     result: dict[str, list[int]] = {}
     for name, key_value in families.items():
         consistent: list[int] = []

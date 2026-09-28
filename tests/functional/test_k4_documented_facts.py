@@ -62,3 +62,13 @@ class TestCribShifts:
 
     def test_solve_key_csp_agrees(self):
         assert solve_key_csp(key_lengths=range(1, 27)) == {}
+
+
+def test_periodic_consistency_positive_control():
+    std = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    plain = "THEQUICKBROWNFOXJUMPSOVERTHELAZYDOGWHILEASMALLBIRDWATCHESFROMTHEOLDOAKTREENEARTHERIVERBANKTODAYXX"
+    key = [5, 17, 2, 21, 9, 0, 13]
+    ct = "".join(std[(std.index(c) + key[i % 7]) % 26] for i, c in enumerate(plain))
+    cribs = {label: (plain[start : start + len(word)], start) for label, (word, start) in K4_CRIBS.items()}
+    result = periodic_family_consistency(max_period=10, ciphertext=ct, cribs=cribs)
+    assert 7 in result["vigenere"]
