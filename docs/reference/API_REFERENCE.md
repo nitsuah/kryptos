@@ -258,7 +258,7 @@ from kryptos.k4.ic_profile import ic_profile, segment_ics, segment_spread_p_valu
 from kryptos.k4.key_csp import periodic_family_consistency
 ```
 
-Every function accepts a ciphertext and crib dict, so each check can be run on a planted solution (see `tests/functional/test_k4_crib_constraints.py`).
+Every *check* function (everything above except `run_crib_constraint_suite`, `sculpture_corpus` and `dictionary_source`) accepts a ciphertext and crib dict, so each check can be run on a planted solution (see `tests/functional/test_k4_crib_constraints.py`). The suite runner always runs against K4.
 
 ---
 
