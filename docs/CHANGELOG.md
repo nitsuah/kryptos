@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `quagmire4_dictionary_scan()`: exact dictionary × dictionary Quagmire IV via a difference-vector index (about 5.4×10¹⁰ pairs in 13 s).
 - `kryptos.k4.run_store` + `k4_constraint_runs` table: suite runs stored in Neon; `latest_run` falls back to it.
 - `kryptos ledger [--json]`: prints the hypothesis ledger from code.
+- P21 is single-flight: a second `POST /api/k4/attacks/run` for `p21_crib_constraints` while one is queued or running returns 409 with the active job id. The suite artifact is written to a temp file and renamed into place.
 - Rules in `docs/GOVERN.md`, enforced by tests: every `eliminated` ledger entry needs a positive control; the attack registry must match the dispatcher.
 
 ### Fixed (2026-09-28 — second pass)

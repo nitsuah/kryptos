@@ -86,3 +86,20 @@ def test_database_errors_never_break_a_job(monkeypatch):
     k4_jobs.update_job(job_id, status="complete")
     assert k4_jobs.get_job(job_id)["status"] == "complete"
     assert k4_jobs.list_jobs(5)
+
+
+def test_exclusive_new_job_refuses_while_active(monkeypatch):
+    from kryptos.api import k4_jobs
+
+    monkeypatch.setattr(k4_jobs, "_JOBS", {})
+    monkeypatch.setattr(k4_jobs, "_persist", lambda job: None)
+    first = k4_jobs.new_job("exclusive_probe", exclusive=True)
+    assert first is not None
+    assert k4_jobs.new_job("exclusive_probe", exclusive=True) is None
+    assert k4_jobs.active_job("exclusive_probe") == first
+    other = k4_jobs.new_job("exclusive_probe")  # non-exclusive callers are unaffected
+    assert other is not None
+    k4_jobs.update_job(first, status="complete")
+    k4_jobs.update_job(other, status="error")
+    assert k4_jobs.active_job("exclusive_probe") is None
+    assert k4_jobs.new_job("exclusive_probe", exclusive=True) is not None

@@ -177,3 +177,25 @@ def test_recent_jobs_route(client, fast_attacks):
     _poll_until_done(client, job_id)
     jobs = client.get("/api/k4/attacks/jobs", params={"limit": 5}).json()["jobs"]
     assert any(j["job_id"] == job_id for j in jobs)
+
+
+def test_crib_constraints_is_single_flight(client, monkeypatch):
+    import threading as _t
+
+    release = _t.Event()
+
+    def _slow(*a, **k):
+        release.wait(5)
+        return {"fake": "crib_constraints"}
+
+    monkeypatch.setattr("kryptos.k4.crib_constraints.run_crib_constraint_suite", _slow)
+    first = client.post("/api/k4/attacks/run", json={"attack_id": "p21_crib_constraints"})
+    assert first.status_code == 200
+    second = client.post("/api/k4/attacks/run", json={"attack_id": "p21_crib_constraints"})
+    assert second.status_code == 409
+    assert first.json()["job_id"] in second.json()["detail"]
+    release.set()
+    assert _poll_until_done(client, first.json()["job_id"])["status"] == "complete"
+    third = client.post("/api/k4/attacks/run", json={"attack_id": "p21_crib_constraints"})
+    assert third.status_code == 200
+    _poll_until_done(client, third.json()["job_id"])

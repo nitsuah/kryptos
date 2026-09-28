@@ -25,10 +25,29 @@ _JOBS: dict[str, dict[str, Any]] = {}
 _JOBS_LOCK = threading.Lock()
 
 
-def new_job(attack_id: str) -> str:
-    """Register a new job in `queued` status and return its id."""
+def active_job(attack_id: str) -> str | None:
+    """Id of a queued or running in-memory job for `attack_id`, or None."""
+    with _JOBS_LOCK:
+        return _active_locked(attack_id)
+
+
+def _active_locked(attack_id: str) -> str | None:
+    for j in _JOBS.values():
+        if j["attack_id"] == attack_id and j["status"] not in _TERMINAL:
+            return j["job_id"]
+    return None
+
+
+def new_job(attack_id: str, exclusive: bool = False) -> str | None:
+    """Register a new job in `queued` status and return its id.
+
+    With ``exclusive=True`` the check and the insert happen under one lock, and
+    None is returned if a job for the same attack is already queued or running.
+    """
     job_id = str(uuid.uuid4())
     with _JOBS_LOCK:
+        if exclusive and _active_locked(attack_id) is not None:
+            return None
         _JOBS[job_id] = {
             "job_id": job_id,
             "attack_id": attack_id,

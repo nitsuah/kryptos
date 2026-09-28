@@ -31,7 +31,9 @@ from __future__ import annotations
 import itertools
 import json
 import logging
+import os
 import random
+import threading
 from collections.abc import Callable, Iterable
 from datetime import datetime, timezone
 from pathlib import Path
@@ -837,7 +839,11 @@ def run_crib_constraint_suite(
         },
     }
     if artifact_path:
-        Path(artifact_path).write_text(json.dumps(summary, indent=2, default=str))
+        # Write-then-rename so a reader never sees a half-written artifact.
+        path = Path(artifact_path)
+        tmp = path.with_name(f"{path.name}.{os.getpid()}.{threading.get_ident()}.tmp")
+        tmp.write_text(json.dumps(summary, indent=2, default=str))
+        os.replace(tmp, path)
     from .run_store import save_run
 
     save_run(summary)

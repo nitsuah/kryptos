@@ -442,7 +442,7 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 | `GET /api/k4/ledger?tier=open` | One tier only (unknown tier → 422) |
 | `GET /api/k4/attacks/jobs?limit=` | Recent attack jobs, newest first (in memory, plus Neon when `DATABASE_URL` is set) |
 
-The K4 attack router also accepts `POST /api/k4/attacks/run {"attack_id": "p21_crib_constraints"}` to run the crib-constraint suite as a background job.
+The K4 attack router also accepts `POST /api/k4/attacks/run {"attack_id": "p21_crib_constraints"}` to run the crib-constraint suite as a background job. Only one P21 job runs at a time; a second request while one is queued or running gets `409 Conflict` naming the active job.
 
 ### Live log tail (SSE — `kryptos.api.log_stream`)
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import random
 
 import numpy as np
@@ -191,10 +192,23 @@ class TestGeometryPositiveControl:
         assert {"order": order, "reflection": "flip_h", "offset": 5, "remainder": "trailing"} in hit["examples"]
 
 
-def test_suite_records_dictionary_provenance(tmp_path):
-    summary = cc.run_crib_constraint_suite(widths=[2], artifact_path=tmp_path / "a.json")
+def test_suite_records_dictionary_provenance(tmp_path, monkeypatch):
+    # Stub the expensive scans (covered by their own tests); this pins the suite's
+    # provenance fields and the artifact write only.
+    empty_scan = {"mappings": 0}
+    monkeypatch.setattr(cc, "geometry_period_scan", lambda *a, **k: empty_scan)
+    monkeypatch.setattr(cc, "running_key_scan", lambda *a, **k: {})
+    monkeypatch.setattr(cc, "keyword_alphabet_scan", lambda *a, **k: {})
+    monkeypatch.setattr(cc, "_summarize_scan", lambda *a, **k: {})
+    monkeypatch.setattr(cc, "_summarize_keywords", lambda *a, **k: {})
+    monkeypatch.setattr(cc, "_structural_summary", lambda: {})
+    monkeypatch.setattr("kryptos.k4.run_store.save_run", lambda *a, **k: None)
+    out = tmp_path / "a.json"
+    summary = cc.run_crib_constraint_suite(widths=[2], artifact_path=out)
     assert summary["run_params"]["dictionary_source"]
     assert summary["run_params"]["dictionary_words"] > 0
+    assert json.loads(out.read_text())["run_params"]["widths"] == [2]
+    assert not list(tmp_path.glob("*.tmp"))
 
 
 class TestTolerance:

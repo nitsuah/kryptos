@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from kryptos.api.k4_attack_dispatch import run_attack_worker
-from kryptos.api.k4_jobs import get_job, list_jobs, new_job, update_job
+from kryptos.api.k4_jobs import active_job, get_job, list_jobs, new_job, update_job
 
 logger = logging.getLogger(__name__)
 
@@ -393,6 +393,8 @@ def create_k4_attack_router() -> APIRouter:
         )
 
     _RUNNABLE = {v["id"] for v in FRONTIER_VECTORS if v["runnable"]}
+    # Heavy scans that write one shared artifact: at most one job at a time.
+    _SINGLE_FLIGHT = {"p21_crib_constraints"}
 
     @router.post("/run", response_model=JobStatusResponse)
     def run_attack(req: RunAttackRequest) -> JobStatusResponse:
@@ -402,7 +404,12 @@ def create_k4_attack_router() -> APIRouter:
                 detail=f"Attack '{req.attack_id}' is not runnable. Runnable: {sorted(str(x) for x in _RUNNABLE)}",
             )
 
-        job_id = new_job(req.attack_id)
+        job_id = new_job(req.attack_id, exclusive=req.attack_id in _SINGLE_FLIGHT)
+        if job_id is None:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Attack '{req.attack_id}' is already running (job {active_job(req.attack_id)})",
+            )
         update_job(job_id, status="running")
 
         def _worker() -> None:
