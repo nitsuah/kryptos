@@ -48,6 +48,7 @@ Reproduce with `kryptos crib-constraints` (writes `K4_CRIB_CONSTRAINTS_NULL.json
 | Hill 2×2 and 3×3, no transposition | every alignment, both directions | no consistent matrix |
 | Linear-recurrence key K[i] = c1·K[i-1] + … + cn·K[i-n] + d (Gromark / Fibonacci style) | orders 1–7, any coefficients and primer, five families | no solution over GF(2)/GF(13) |
 | Periodic key + an *arbitrary* mixed alphabet (covers letter-for-letter masking such as letter swaps) | plaintext-side alphabet periods 1–12; ciphertext-side alphabet periods 1–15 | inconsistent; random ciphertexts pass 0% at period 12 |
+| Long periodic key spelled from Kryptos words (e.g. PALIMPSESTABSCISSAKRYPTOS) | 24,696 ordered 2–3-word phrases, 27–60 letters, every offset, five families | none |
 | Key read per letter from a dial advancing a fixed step | dials of 12, 24, 60, 360, 720, 1440 positions; every start, step, offset; two reading rules | none |
 | Route along a compass bearing + periodic key, either order | every whole-degree bearing, widths 4–24 (9,111 distinct routes), periods 1–22 | zero survivors |
 | Hill 4×4, no transposition | all four alignments | alignments 1–2: no matrix fits; 0 and 3: only non-invertible matrices fit |
@@ -65,7 +66,7 @@ Nicodemus (Vigenère by column, then columnar read-out) is the sub-then-transpos
 | Columnar + running key from sculpture texts, either order | widths 2–6 | best 7–10 of 24, same as shuffled controls |
 | Running key from *any* English text, no transposition | five families | key letters at the crib runs score as random; fewer than 1 in 2,000 English fragment pairs score that low |
 | Columnar + running key from any English text (key first) | widths 2–8 | best score inside the shuffled-control range |
-| Hill 5×5 | alignments 3–4 | alignment 3: no matrix fits; alignment 4: all 11.9M fitting matrices scored, best 0.36 on the English scale (a planted key scores 0.93) |
+| Hill 5×5 | all five alignments | alignments 2–3: no matrix fits; alignment 4: all 11.9M fitting matrices scored, best 0.36 on the English scale (planted key 0.93); alignments 0–1: row-by-row beam search, K4 0.67 / 0.48 vs 0.50–0.72 on random ciphertexts (planted key 0.94) |
 
 ## Sampled null
 
@@ -90,7 +91,7 @@ So either the reconstruction is wrong past the cribs, or K4's method sits outsid
 | # | Gap | Why it matters | Effort |
 |---|-----|----------------|--------|
 | 1 | **Other long-key rules** | Recurrence, dial, progressive and English running keys are now covered. Any other rule (a keyword-driven procedure, a non-English running text) has to be named before it can be tested. | M |
-| 2 | **Hill 5×5 at alignments 0–2, 6×6 and up** | Too few full crib blocks; needs a transposition hypothesis or partial blocks. | M |
+| 2 | **Hill 6×6 and up** | Too few full crib blocks; needs a transposition hypothesis or partial blocks. | M |
 | 3 | **Masking that isn't letter-for-letter** | Letter-for-letter masking is covered by the mixed-alphabet check; inserted or dropped letters inside words, and respellings that change length, are not modelled. | L |
 | 4 | **Per-letter lookup keys** | A steady dial is eliminated; a lookup per letter (Weltzeituhr city or time zone) needs the plate order. | L |
 

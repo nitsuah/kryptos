@@ -10,6 +10,7 @@ import pytest
 from kryptos.k4 import frontier_checks as fc
 from kryptos.k4.crib_constraints import STANDARD as S
 from kryptos.k4.crib_constraints import crib_letters
+from kryptos.k4.crib_constraints import keyed_alphabet as cc_keyed
 from kryptos.k4.english_model import english_z, reference_english
 from kryptos.k4.physical_grid import K4
 
@@ -129,6 +130,61 @@ class TestBearingRoute:
         assert any(e["bearing"] == 60 for e in res["sub_then_trans"]["vigenere"][5]["examples"])
 
 
+class TestVocabularyPhraseKeys:
+    def test_planted_phrase_key_positive_control(self):
+        phrase = "PALIMPSESTABSCISSAKRYPTOS"
+        ka = cc_keyed("KRYPTOS")
+        key = [ka.index(phrase[(i + 4) % len(phrase)]) for i in range(97)]
+        ct = "".join(ka[(ka.index(c) + k) % 26] for c, k in zip(PLAIN_TEXT, key, strict=True))
+        res = fc.vocabulary_phrase_keys(
+            words=["PALIMPSEST", "ABSCISSA", "KRYPTOS", "BERLIN"],
+            min_len=20,
+            ciphertext=ct,
+            plain=_cribs_of(PLAIN_TEXT),
+        )
+        assert {"phrase": phrase, "family": "quagmire3_kryptos", "offset": 4} in res["hits"]
+
+    def test_k4_no_vocabulary_phrase_key(self):
+        res = fc.vocabulary_phrase_keys(max_words=3)
+        assert res["phrases_tested"] > 20_000 and res["hits"] == []
+
+
+class TestWideColumnar:
+    def test_matches_brute_force_where_both_run(self):
+        from kryptos.k4.crib_constraints import columnar_period_scan
+
+        wide = fc.wide_columnar_scan(widths=[7], periods=[5, 13, 22])[7]
+        brute = columnar_period_scan(widths=[7], periods=[5, 13, 22])[7]
+        for model in ("sub_then_trans", "trans_then_sub"):
+            for fam, per in wide[model].items():
+                for p, entry in per.items():
+                    assert entry["survivors"] == brute[model][fam][p]["survivors"]
+
+    def test_planted_width_11_positive_control_is_found_and_decrypts(self):
+        from kryptos.k4.transposition_analysis import apply_columnar_permutation_encrypt
+
+        order = [4, 9, 0, 7, 2, 10, 5, 1, 8, 3, 6]
+        key = [11, 3, 20, 7, 15, 0, 22]
+        ct = apply_columnar_permutation_encrypt(_vig(PLAIN_TEXT, [key[i % 7] for i in range(97)]), 11, order)
+        res = fc.wide_columnar_scan(widths=[11], periods=[7], ciphertext=ct, plain=_cribs_of(PLAIN_TEXT))
+        entry = res[11]["sub_then_trans"]["vigenere"][7]
+        assert order in entry["examples"] and entry["best_english_z"] > 0.8
+
+    def test_planted_trans_then_sub_is_found(self):
+        from kryptos.k4.transposition_analysis import apply_columnar_permutation_encrypt
+
+        order = [2, 7, 0, 9, 4, 1, 8, 5, 3, 6]
+        key = [5, 18, 2, 9, 24]
+        moved = apply_columnar_permutation_encrypt(PLAIN_TEXT, 10, order)
+        ct = _vig(moved, [key[i % 5] for i in range(97)])
+        res = fc.wide_columnar_scan(widths=[10], periods=[5], ciphertext=ct, plain=_cribs_of(PLAIN_TEXT))
+        assert order in res[10]["trans_then_sub"]["vigenere"][5]["examples"]
+
+    def test_k4_width_10_has_no_survivors_to_period_22(self):
+        res = fc.wide_columnar_scan(widths=[10])
+        assert all(e["survivors"] == 0 for m in res[10].values() for fam in m.values() for e in fam.values())
+
+
 class TestHill:
     def _encrypt(self, key: np.ndarray, pt: str, offset: int = 0) -> str:
         n = len(key)
@@ -168,6 +224,23 @@ class TestHill5:
         res = fc.hill_rowspace_search(5)
         assert res[3]["status"] == "no consistent matrix"
         assert res[4]["best_english_z"] < 0.6
+
+
+class TestHillBeam:
+    @pytest.mark.slow
+    def test_planted_hill5_positive_control_found_by_beam(self):
+        rng = random.Random(7)
+        while True:
+            m = np.array([[rng.randrange(26) for _ in range(5)] for _ in range(5)])
+            if fc._invertible_mod26(m):
+                break
+        ct = TestHill()._encrypt(m, PLAIN_TEXT, offset=1)
+        res = fc.hill_beam_search(5, [1], ciphertext=ct, plain=_cribs_of(PLAIN_TEXT))
+        assert res[0]["best_english_z"] > 0.8
+
+    def test_k4_hill5_alignment_2_has_no_matrix(self):
+        res = fc.hill_beam_search(5, [2])
+        assert res[0]["status"] == "no consistent matrix"
 
 
 class TestReconstruction:

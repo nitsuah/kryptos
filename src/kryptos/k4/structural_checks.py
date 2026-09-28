@@ -200,8 +200,8 @@ def double_rotation_mappings(n_text: int = 97, max_pad: int = 11) -> tuple[list[
             continue
         for where in ("end", "start") if pad else ("end",):
             tokens = list(range(total))
-            is_null = (lambda t: t >= n_text) if where == "end" else (lambda t: t < pad)
-            to_plain = (lambda t: t) if where == "end" else (lambda t: t - pad)
+            is_null = (lambda t: t >= n_text) if where == "end" else (lambda t, pad=pad: t < pad)
+            to_plain = (lambda t: t) if where == "end" else (lambda t, pad=pad: t - pad)
             for wa, ra, wb, rb in itertools.product(widths, ROTATIONS, widths, ROTATIONS):
                 out = _rotate(_rotate(tokens, wa, ra), wb, rb)
                 kept = [t for t in out if not is_null(t)]

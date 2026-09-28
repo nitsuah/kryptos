@@ -473,6 +473,184 @@ def bearing_route_scan(
     return {"mappings": len(maps), **_scan_mappings(cpos, labels, ciphertext, plain, list(periods), keyword, 5)}
 
 
+# ── Long keys spelled from the Kryptos vocabulary ─────────────────────────
+
+
+def vocabulary_phrase_keys(
+    words: Iterable[str] | None = None,
+    max_words: int = 3,
+    min_len: int = 27,
+    max_len: int = 60,
+    ciphertext: str = K4,
+    plain: dict[int, str] | None = None,
+    keyword: str = "KRYPTOS",
+) -> dict[str, Any]:
+    """Keys longer than the cribs can pin down, spelled by chaining 2-3 Kryptos words.
+
+    A key like PALIMPSESTABSCISSAKRYPTOS repeated with period len(phrase) is fully known, so
+    every crib letter checks it directly, at every starting offset. Covers ordered phrases
+    of up to ``max_words`` words from ``crib_constraints.KRYPTOS_VOCABULARY`` whose length
+    is in [min_len, max_len]. Returns the number of phrases tested and any that fit.
+    """
+    from .crib_constraints import KRYPTOS_VOCABULARY
+
+    words = sorted({w.upper() for w in (words or KRYPTOS_VOCABULARY)})
+    plain = plain if plain is not None else crib_letters()
+    fams = {name: (alpha, key_values(alpha, fn, ciphertext, plain)) for name, (alpha, fn) in families(keyword).items()}
+    tested, hits = 0, []
+    for k in range(2, max_words + 1):
+        for combo in itertools.product(words, repeat=k):
+            phrase = "".join(combo)
+            if not min_len <= len(phrase) <= max_len:
+                continue
+            tested += 1
+            n = len(phrase)
+            for name, (alpha, kv) in fams.items():
+                kvals = [alpha.index(ch) for ch in phrase]
+                for off in range(n):
+                    if all(kvals[(i + off) % n] == v for i, v in kv.items()):
+                        hits.append({"phrase": phrase, "family": name, "offset": off})
+    return {"phrases_tested": tested, "hits": hits}
+
+
+# ── Wide columnar transpositions by backtracking ───────────────────────────
+
+
+def _columnar_backtrack(
+    width: int,
+    period: int,
+    model: str,
+    alpha: str,
+    fn: Any,
+    ciphertext: str,
+    plain: dict[int, str],
+    max_solutions: int,
+) -> tuple[list[list[int]], int, bool]:
+    """Column orders consistent with a periodic key, found by depth-first search.
+
+    Columns are placed in reading order; placing a column fixes the ciphertext position of
+    every crib letter in it, so its key value and key slot are known and checked at once.
+    Returns (orders, nodes visited, truncated).
+    """
+    n = len(ciphertext)
+    col_len = [(n - c + width - 1) // width for c in range(width)]
+    cribs_in = [
+        [(j // width, j, alpha.index(p)) for j, p in sorted(plain.items()) if j % width == c] for c in range(width)
+    ]
+    cidx = [alpha.index(ch) for ch in ciphertext]
+    slots: dict[int, int] = {}
+    used = [False] * width
+    order: list[int] = []
+    found: list[list[int]] = []
+    nodes = 0
+    sub_first = model == "sub_then_trans"
+
+    def rec(offset: int) -> bool:
+        nonlocal nodes
+        nodes += 1
+        if len(order) == width:
+            found.append(list(order))
+            return len(found) >= max_solutions
+        for c in range(width):
+            if used[c]:
+                continue
+            added = []
+            ok = True
+            for r, j, pv in cribs_in[c]:
+                cp = offset + r
+                k = fn(cidx[cp], pv)
+                s = j % period if sub_first else cp % period
+                have = slots.get(s)
+                if have is None:
+                    slots[s] = k
+                    added.append(s)
+                elif have != k:
+                    ok = False
+                    break
+            if ok:
+                used[c] = True
+                order.append(c)
+                if rec(offset + col_len[c]):
+                    return True
+                used[c] = False
+                order.pop()
+            for s in added:
+                del slots[s]
+        return False
+
+    truncated = rec(0)
+    return found, nodes, truncated
+
+
+def _decrypt_columnar_periodic(
+    order: list[int], width: int, period: int, alpha: str, fn: Any, ciphertext: str, plain: dict[int, str]
+) -> str | None:
+    """Full decryption for a sub-then-transpose survivor when the cribs fix every key slot."""
+    n = len(ciphertext)
+    col_len = [(n - c + width - 1) // width for c in range(width)]
+    start, off = {}, 0
+    for c in order:
+        start[c], off = off, off + col_len[c]
+    key = {}
+    for j, ch in plain.items():
+        key[j % period] = fn(alpha.index(ciphertext[start[j % width] + j // width]), alpha.index(ch))
+    if len(key) < period:
+        return None
+    inverse = {(cv, k): pv for cv in range(26) for pv in range(26) for k in [fn(cv, pv)]}
+    out = []
+    for j in range(n):
+        cv = alpha.index(ciphertext[start[j % width] + j // width])
+        out.append(alpha[inverse[(cv, key[j % period])]])
+    return "".join(out)
+
+
+def wide_columnar_scan(
+    widths: Iterable[int] = range(10, 13),
+    periods: Iterable[int] = range(1, 23),
+    ciphertext: str = K4,
+    plain: dict[int, str] | None = None,
+    keyword: str = "KRYPTOS",
+    max_solutions: int = 20_000,
+) -> dict[int, Any]:
+    """Columnar widths beyond brute force (10! and up) + periodic key, either order, exactly.
+
+    Depth-first search over column orders with crib-key pruning; gives the same survivors as
+    ``crib_constraints.columnar_period_scan`` where both run. Survivors whose cribs fix every key
+    slot (sub-then-transpose, period <= 17 for K4) are decrypted in full and scored with
+    ``english_z``: a real solution reads as English (about 1), chance survivors as noise.
+    """
+    plain = plain if plain is not None else crib_letters()
+    out: dict[int, Any] = {}
+    for w in widths:
+        per_model: dict[str, Any] = {}
+        for model in ("sub_then_trans", "trans_then_sub"):
+            per_family: dict[str, Any] = {}
+            for name, (alpha, fn) in families(keyword).items():
+                per_period = {}
+                for p in periods:
+                    orders, nodes, truncated = _columnar_backtrack(
+                        w, p, model, alpha, fn, ciphertext, plain, max_solutions
+                    )
+                    entry: dict[str, Any] = {"survivors": len(orders), "nodes": nodes, "truncated": truncated}
+                    if orders and model == "sub_then_trans":
+                        scores = [
+                            english_z(_noncrib_text(t, plain))
+                            for t in (
+                                _decrypt_columnar_periodic(o, w, p, alpha, fn, ciphertext, plain) for o in orders[:500]
+                            )
+                            if t is not None
+                        ]
+                        if scores:
+                            entry["best_english_z"] = round(max(scores), 3)
+                    if orders:
+                        entry["examples"] = orders[:3]
+                    per_period[p] = entry
+                per_family[name] = per_period
+            per_model[model] = per_family
+        out[w] = per_model
+    return out
+
+
 # ── Hill 4x4 and 5x5 ────────────────────────────────────────────────────────
 
 
@@ -643,6 +821,107 @@ def hill_rowspace_search(
     return out
 
 
+def _dense_table(n: int) -> np.ndarray:
+    from .english_model import table
+
+    grams, floor = table(n) if n > 2 else _bigram_table()
+    arr = np.full(26**n, floor, dtype=np.float32)
+    for g, v in grams.items():
+        idx = 0
+        for ch in g:
+            idx = idx * 26 + STANDARD.index(ch)
+        arr[idx] = v
+    return arr
+
+
+def _bigram_table() -> tuple[dict[str, float], float]:
+    from pathlib import Path
+
+    from kryptos.paths import get_repo_root
+
+    path = Path(get_repo_root()) / "data" / "ngrams" / "english_2grams.tsv"
+    grams, floor = {}, -10.0
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.startswith("# floor"):
+            floor = float(line.split("\t")[1])
+        elif line and not line.startswith("#"):
+            g, v = line.split("\t")
+            grams[g] = float(v)
+    return grams, floor
+
+
+def hill_beam_search(
+    n: int = 5,
+    offsets: Iterable[int] | None = None,
+    ciphertext: str = K4,
+    plain: dict[int, str] | None = None,
+    beam: int = 3000,
+) -> list[dict[str, Any]]:
+    """Hill n x n where the cribs leave too many matrices to list: build K row by row.
+
+    Row r of K produces plaintext letter r of every block. Rows are added in order and the
+    partial texts ranked by the English n-gram model over the letters decided so far (bigrams
+    after two rows, trigrams after three, quadgrams after that); the best ``beam`` partial
+    matrices survive each step. A heuristic, so the tier is statistical, but a planted key is
+    recovered (see tests), and K4's best stays near noise.
+    """
+    plain = plain if plain is not None else crib_letters()
+    cv = np.array([STANDARD.index(c) for c in ciphertext])
+    tables = {2: _dense_table(2), 3: _dense_table(3), 4: _dense_table(4)}
+    offsets = list(offsets) if offsets is not None else list(range(n))
+    out = []
+    for offset in offsets:
+        blocks = [b for b in range(offset, len(ciphertext) - n + 1, n) if all(i in plain for i in range(b, b + n))]
+        full = np.array([cv[b : b + n] for b in range(offset, len(ciphertext) - n + 1, n)])  # (nb, n)
+        rows = [
+            _row_solutions(n, np.array([[cv[i] for i in range(b, b + n)] for b in blocks]).reshape(len(blocks), n),
+                           np.array([STANDARD.index(plain[b + r]) for b in blocks]))
+            if blocks else np.array(list(itertools.product(range(26), repeat=n)))
+            for r in range(n)
+        ]  # fmt: skip
+        entry: dict[str, Any] = {"offset": offset, "blocks": len(blocks), "row_solutions": [len(r) for r in rows]}
+        if any(len(r) == 0 for r in rows):
+            out.append({**entry, "status": "no consistent matrix"})
+            continue
+        letters = [(r @ full.T) % 26 for r in rows]  # per row: (choices, nb)
+        states = [(0.0, (i,)) for i in range(len(rows[0]))]
+        for r in range(1, n):
+            size = min(r + 1, 4)
+            cand_scores, cand_states = [], []
+            prev = np.array([s[1] for s in states])  # (S, r)
+            for j in range(len(rows[r])):
+                cols = [letters[q][prev[:, q]] for q in range(r)] + [
+                    np.broadcast_to(letters[r][j], (len(prev), full.shape[0]))
+                ]
+                window = np.stack(cols[-size:], axis=2)  # (S, nb, size)
+                idx = np.zeros(window.shape[:2], dtype=np.int64)
+                for t in range(size):
+                    idx = idx * 26 + window[:, :, t]
+                sc = tables[size][idx].mean(axis=1)
+                cand_scores.append(sc)
+                cand_states.append(j)
+            allsc = np.stack(cand_scores, axis=1)  # (S, J)
+            flat = np.argsort(allsc, axis=None)[-beam:]
+            si, ji = np.unravel_index(flat, allsc.shape)
+            states = [
+                (float(allsc[a, b]), tuple(states[a][1]) + (cand_states[b],)) for a, b in zip(si, ji, strict=True)
+            ]
+        best_z, invertible = -9.0, 0
+        for _, choice in sorted(states)[-200:]:
+            k = np.array([rows[r][choice[r]] for r in range(n)])
+            if not _invertible_mod26(k):
+                continue
+            invertible += 1
+            txt = [""] * len(ciphertext)
+            for b in range(offset, len(ciphertext) - n + 1, n):
+                pv = (k @ cv[b : b + n]) % 26
+                for j in range(n):
+                    txt[b + j] = STANDARD[pv[j]]
+            best_z = max(best_z, english_z(_noncrib_text("".join(txt), plain)))
+        out.append({**entry, "status": "beam", "invertible_in_top": invertible, "best_english_z": round(best_z, 3)})
+    return out
+
+
 # ── The full reconstruction as plaintext ───────────────────────────────────
 
 
@@ -796,6 +1075,7 @@ __all__ = [
     "dial_key_scan",
     "general_alphabet_control_rate",
     "general_alphabet_periodic",
+    "hill_beam_search",
     "hill_rowspace_search",
     "hill_exhaustive",
     "keyed_alphabet",
@@ -807,4 +1087,6 @@ __all__ = [
     "recurrence_testable_orders",
     "running_key_english",
     "transposition_running_key_english",
+    "vocabulary_phrase_keys",
+    "wide_columnar_scan",
 ]

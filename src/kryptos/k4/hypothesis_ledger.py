@@ -356,6 +356,16 @@ LEDGER: list[dict[str, Any]] = [
         "test": "tests/functional/test_k4_frontier_checks.py",
     },
     {
+        "id": "vocabulary_phrase_keys",
+        "family": "Long periodic keys spelled from Kryptos words (e.g. PALIMPSESTABSCISSAKRYPTOS), no transposition",
+        "tier": "eliminated",
+        "scope": "24,696 ordered phrases of 2-3 words from the 43-word Kryptos vocabulary, 27-60 letters, every "
+        "starting offset, five families",
+        "evidence": "no phrase reproduces the 24 crib key values",
+        "module": "kryptos.k4.frontier_checks.vocabulary_phrase_keys",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
         "id": "running_key_unknown_english",
         "family": "Running key taken from any English text (not a known one), no transposition",
         "tier": "statistical",
@@ -378,16 +388,17 @@ LEDGER: list[dict[str, Any]] = [
         "id": "hill_5x5",
         "family": "Hill 5x5, no transposition",
         "tier": "statistical",
-        "scope": "alignments 3 and 4 (alignments 0-2 have too few full crib blocks)",
-        "evidence": "alignment 3: no matrix fits; alignment 4: all 11.9M matrices that fit decrypted and scored, "
-        "best invertible one scores 0.36 on the English scale where a planted key scores 0.93",
-        "module": "kryptos.k4.frontier_checks.hill_rowspace_search",
+        "scope": "all five alignments",
+        "evidence": "alignments 2 and 3: no matrix fits the cribs; alignment 4: all 11.9M fitting matrices scored, "
+        "best 0.36 on the English scale (planted key 0.93); alignments 0-1: a row-by-row beam search finds 0.67 "
+        "and 0.48, inside the 0.50-0.72 it finds on random ciphertexts (planted key 0.94)",
+        "module": "kryptos.k4.frontier_checks.hill_rowspace_search / hill_beam_search",
         "test": "tests/functional/test_k4_frontier_checks.py",
     },
     # ── open ───────────────────────────────────────────────────────────────
     {
         "id": "hill_large",
-        "family": "Hill 5x5 at alignments 0-2, and 6x6 and larger",
+        "family": "Hill 6x6 and larger",
         "tier": "open",
         "scope": "too few full crib blocks per alignment; needs a transposition hypothesis or partial blocks",
         "evidence": "",
