@@ -2,40 +2,95 @@
 
 > 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · [Features](./FEATURES.md) · **Roadmap** · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
 
-Last Updated: 2026-09-28
+Last Updated: 2026-09-30
 Next Review: 2026-10-24
 
-> 2027 planning reset (2026-09-24): completed Phases 1–4, 6 and 7 (all null — every code-executable direction
-> identified so far) and Phase 8's two closed leads were moved verbatim to
-> [archive/2026-completed-roadmap-and-tasks.md](./archive/2026-completed-roadmap-and-tasks.md) and summarized in
-> [FEATURES](./FEATURES.md). What remains open is carried into 2027 Q1 below.
+> 2027 planning reset (2026-09-24): completed Phases 1–4, 6 and 7 (all null) and Phase 8's two closed leads were moved
+> verbatim to [archive/2026-completed-roadmap-and-tasks.md](./archive/2026-completed-roadmap-and-tasks.md) and
+> summarized in [FEATURES](./FEATURES.md). What remains open is carried into 2027 Q1 below.
 
 ---
 
 ## Current Status
 
-**K4 attack phase:** Phases 6 and 7 (Physical/Geometric Pivot, then the shape-changing transpose family + shadow-angle primitives + city-list keywords + cross-vector consensus scoring) are both complete — every code-executable direction identified so far, including the shape-changing transpose family and both readings of the "shadow of the word" hypothesis, has been implemented, executed against real K4, and returned null. Phase 8 (active) opened three primary-source gaps; two closed 2026-09-02 and one (the compass-rose bearing) remains — see below.
+**Method.** Until September 2026 the project mostly sampled: pick a key, decrypt, score the result. A null said only
+that those exact keys were wrong. Since 2026-09-28 the main tool is family-level elimination: for each cipher family,
+check whether *any* key over a stated range can produce the 24 known crib letters, and ship a positive control with
+every check. The result is tracked per family in `kryptos.k4.hypothesis_ledger` (26 eliminated, 7 statistical,
+7 sampled null, 5 open as of 2026-09-30).
 
-**Architecture (corrected 2026-09-27):** What is established is that a flattening, polyalphabetic-like layer exists (K4's IC is 0.0361, near random), and that no direct periodic key of length ≤ 26 fits the cribs under Vigenère, Beaufort, Variant Beaufort, or KRYPTOS-keyed Quagmire III. This line used to say "Confirmed substitution → transposition". That rested on IC figures (≈0.062, and a 0.058/0.071/0.062 segment table) that don't match the ciphertext, so neither the transposition layer nor the layer order is established (see `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` §4–5). The key is not derivable from any standard Mengenlehreuhr row value: crib shifts reach 17, 20, 24, 25, above the maximum row output of 11. Per Sanborn's Nov 2025 clarification, BERLIN CLOCK refers to the Weltzeituhr in any case. The transposition is not a standard rectangular grid in any simple reading order, including both the shape-preserving and shape-changing 24-column geometric families. At minimum one un-parameterized step remains — the most concrete remaining candidate is a genuinely physical fact this repo cannot fully source on its own: the Kryptos compass rose's exact bearing, still unmeasured by anyone as far as any source checked shows. (The World Clock city list, the other primary-source gap this line used to cite, closed 2026-09-02 at 130 of 146 names — see Phase 8.) A precisely-timed historical moment was found 2026-09-02 (see Phase 8).
+**What's established about K4.**
+
+- A flattening layer exists: K4's IC is 0.0361, near random.
+- No periodic key up to period 26 fits the cribs in any of five families, and neither does the sum of two periodic keys
+  (p1 + p2 ≤ 24).
+- Whether a transposition exists, and which layer comes first, is not established. The older "substitution then
+  transposition, confirmed" line rested on IC figures that don't match the ciphertext (corrected 2026-09-27; see
+  `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` §4–5).
+- Per Sanborn (Nov 2025), BERLIN CLOCK is the Weltzeituhr at Alexanderplatz, not the Mengenlehreuhr.
+- The solvekryptos.com reconstruction ("THE COMPASS ROSE IS HERE…") is not Sanborn's text, and used as 97 known letters
+  it fits no tested family.
+
+**What's open.** Two kinds of work are left: new cipher structures the ledger doesn't cover yet (code, below), and
+physical facts only a person can collect (sourcing, below). Ranked detail: `docs/analysis/K4_NEGATIVE_SPACE.md`.
 
 ---
 
-## 2027 Q1 — Phase 8: Primary-Source Sourcing (Active — opened 2026-09-01)
+## 2027 Q1 — Phase 9: Cryptanalysis frontier (code)
 
-Two workstreams remain. The compass-rose bearing needs new source material. Code-side constraint and scoring work also remains, listed further down. Of the three source gaps opened 2026-09-01, two closed 2026-09-02 (World Clock city list at 130/146; sub-minute Nov 9 1989 timestamp). One remains:
+Each item follows the same rules: exact search where the space allows it, shuffled-ciphertext controls where it
+doesn't, a positive-control test either way, and a ledger entry with the right tier.
 
-- [ ] **The Kryptos compass rose's actual measured bearing.** Confirmed via `elonka.com`'s own wishlist to be a still-open *community-wide* question, not just a gap in this repo. One uncertain secondary estimate exists (~220°, explicitly flagged inexact). 2026-09-02: satellite imagery of the CIA courtyard was inspected directly (Google Maps, unblurred) and ruled out — resolution is building/lot-scale, not fine enough for a ground-level stone engraving. Remaining leads: a CIA FOIA/public-affairs request, or contacting Elonka Dunin directly. Outreach drafts for both (the questions to ask Elonka, and the FOIA request text) are ready — see `docs/TASKS.md`.
-- [ ] **Send the three outreach drafts** — FOIA request (foia.cia.gov, asking for the 1990 landscape/installation drawing), Elonka Dunin, and CIA Public Affairs (authorized research visit). All three are drafted in `docs/TASKS.md` (FOIA and Elonka under the compass-rose item, Public Affairs as its own item); each needs a human send.
+- [ ] **Irregular transpositions.** Myszkowski, disrupted and incomplete columnar, keyed route ciphers, turning
+  grilles, each with a periodic key in both layer orders. The width-10–14 backtracking search in `frontier_checks` is
+  the starting point.
+- [ ] **Masking that changes length.** Letters inserted or dropped inside words (K1–K3 all carry deliberate
+  misspellings). Needs a crib search that allows gaps; letter-for-letter swaps are already covered by the mixed-alphabet
+  check.
+- [ ] **Two non-periodic layers.** An autokey or running key on top of a wide or irregular transposition. Columnar plus
+  autokey is covered only to width 7, and plus an English running key to width 8.
+- [ ] **Named key-generation rules.** The K1–K3 ciphertexts, the K0 Morse text or the Cyrillic Projector as running-key
+  sources under transposition. The cribs can't pin down a long key on their own, so each rule has to be named first.
+- [ ] **Hill 6×6 and up.** Too few whole crib blocks per alignment; testable only with a transposition guess or with
+  partial blocks.
+- [ ] **Per-letter Weltzeituhr lookups** (city, zone or hour per letter as the key). Blocked on the photographs in
+  Phase 8; once recorded, they drop into the existing dial and lookup checks.
 
-Inventing more sweep variants over the same structural assumptions (grids, reflections, rotations, clock states) is not expected to help (see Phase 7's zero cross-vector consensus result). The productive code-side direction is testing whole families against the 24 crib key values instead of sampling keys.
+Completed in this phase's lead-up (2026-09-28): the P21 crib-constraint engine, the structural checks, the P22 frontier
+checks, the real scoring tables and word list, and job persistence. See [CHANGELOG](./CHANGELOG.md).
 
-- [x] **Crib-constraint engine (P21, 2026-09-28).** `kryptos.k4.crib_constraints` eliminates, over stated ranges: autokey (both kinds), linear, progressive and digit keys; running keys over the sculpture corpus; dictionary keyword alphabets for Quagmire I–III (231,933 alphabets, periods ≤ 25); and columnar (widths 2–9) or geometric transpositions composed with a periodic key of period ≤ 22, in either layer order. Runnable via `kryptos crib-constraints` or the `p21_crib_constraints` API attack. Machine-readable status: `GET /api/k4/ledger`.
-- [x] **Next constraint checks (2026-09-28).** Double-periodic keys (any keys, p1 + p2 ≤ 24), Quagmire IV (vocabulary × dictionary), K3-style double rotation, columnar + autokey/running key, nulls between cribs, Hill 2×2/3×3, 25-letter output ciphers, error-tolerant scans against controls, Chaocipher (sampled). All null. See [`docs/analysis/K4_NEGATIVE_SPACE.md`](./analysis/K4_NEGATIVE_SPACE.md).
-- [x] **Frontier checks (P22, 2026-09-28)** — recurrence, mixed-alphabet, dial and bearing-route keys, Hill 4×4 eliminated; Hill 5×5 and English running keys statistical; columnar widths 10–14 by exact search; the full-plaintext reconstruction fits no tested family.
-- [ ] **Remaining open families** — long-key rules not yet named, Hill 6×6+, masking that inserts or drops letters, per-letter lookup keys (Weltzeituhr). Ranked in the same doc.
-- [x] **Real scoring word list (2026-09-28)** — 261k-word dictionary, calibrated (see TASKS).
+---
 
-**External developments (2025–2026):** Sanborn's 1990 archival papers were found by independent researchers (Sept 2025, not a cryptographic solve); a Sanborn-confirmed K5 exists; a third-party reconstruction (solvekryptos.com) aligns with all four confirmed crib anchors after this repo's own `K4_CRIBS` off-by-one bug was fixed. Its mechanism is not published in enough detail to reproduce. Its opening line, "THE COMPASS ROSE IS HERE," is part of that reconstruction. It is not Sanborn's recovered text, which Kobek and Byrne have not released, and it is not independent evidence (earlier versions of this doc said it was; corrected 2026-09-27). Paradigm self-identified as the buyer in June 2026 and runs a $1-per-guess K4 verifier alongside its Kryptos CTF. Follow-up rounds 1–3 (2026-09-03) were all null. Full detail: `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "External Developments" sections.
+## 2027 Q1 — Phase 8: Primary-source sourcing (needs a person)
+
+Of the three source gaps opened 2026-09-01, two closed on 2026-09-02 (the World Clock city list at 130 of 146 names,
+and a sub-minute Nov 9 1989 timestamp). What remains:
+
+- [ ] **Weltzeituhr photographs.** Close-ups of every face of the city ring, the date-line plate, and the wind-rose
+  mosaic from above with a straight edge in frame. This unblocks the per-letter lookup keys in Phase 9 and the 16
+  unread city plates.
+- [ ] **The CIA compass rose's measured bearing** and what the lodestone deflects it to. Still an open community
+  question (elonka.com wishlist); the only estimate (~220°) is flagged inexact, and satellite imagery can't resolve it.
+  Routes and dials are already covered for every whole degree, so this matters most for reading a solution, not finding
+  one.
+- [ ] **Send the three outreach drafts**: a FOIA request (asking for the 1990 landscape or installation drawing),
+  Elonka Dunin, and CIA Public Affairs (authorized research visit). All three are in `docs/TASKS.md`; each needs a human
+  send.
+- [ ] **Read Sanborn's quotes against the primary pages.** `docs/sources/SANBORN_QUOTES.md` carries a confidence tier
+  per quote; several pages couldn't be fetched automatically.
+
+---
+
+## 2027 Q1 — Platform
+
+- [x] **Single-page dashboard (2026-09-30).** The tabbed SPA became one screen with a rotating module ring, styled after
+  the Ghost in the Shell interfaces, scaling from phone to wide monitor. Adds ledger and job-history modules. See
+  `docs/reference/DASHBOARD.md`.
+- [ ] **"Try a hypothesis" endpoint.** Pick a family and parameters, get the crib verdict plus a decryption, so the
+  dashboard can test ideas without a new module per idea.
+- [ ] **Candidate submission gate.** Paradigm checks K4 guesses at $1 each. Before any guess, run every crib and ledger
+  check and require the candidate to reproduce from its stated method.
+- [ ] **Re-score stored candidates.** Rankings stored before 2026-09-28 used the placeholder n-gram tables.
 
 ---
 
@@ -47,14 +102,24 @@ Inventing more sweep variants over the same structural assumptions (grids, refle
 
 ---
 
+## External developments (2025–2026)
+
+Sanborn's 1990 archival papers were found by Kobek and Byrne (Sept 2025, not a cryptographic solve); the plaintext is
+sealed and has not been released. A Sanborn-confirmed K5 exists. Paradigm identified itself as the auction buyer in June
+2026 and runs a $1-per-guess K4 verifier alongside its Kryptos CTF. Full detail: `docs/analysis/K4_ACTIVE_RESEARCH.md`,
+"External Developments".
+
+---
+
 ## Key References
 
 | Document | Purpose |
 |----------|---------|
-| `docs/archive/K4_ATTACK_LANDSCAPE.md` | Archived — full 3D fingerprint with evidence basis, historical reference only |
-| `docs/analysis/K4_ACTIVE_RESEARCH.md` | Living null-result log and confirmed facts |
-| `docs/analysis/K4_CAPABILITY_TABLE.md` | Every attack vector/component, status, real candidate count — one scannable table |
-| `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` | Derived shift sequences at all 4 crib windows |
-| `docs/TASKS.md` | Implementation backlog with specific next steps |
-| `frontend/` + Docker | `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 |
+| `docs/analysis/K4_NEGATIVE_SPACE.md` | What's ruled out (by tier) and what's open, ranked |
+| `docs/analysis/K4_ACTIVE_RESEARCH.md` | Narrative log of every phase and run; confirmed facts |
+| `docs/analysis/K4_CAPABILITY_TABLE.md` | Every attack vector and component, status, real candidate count |
+| `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` | Derived shift sequences at all four crib windows; the IC analysis |
+| `docs/TASKS.md` | Execution backlog, including the outreach drafts |
+| `docs/reference/DASHBOARD.md` | Dashboard design and data sources |
 | `docs/archive/2026-completed-roadmap-and-tasks.md` | Verbatim archive of completed Phases 1–4/6/7 and TASKS Done (2026-09-24 reset) |
+| `docs/archive/K4_ATTACK_LANDSCAPE.md` | Archived 3D fingerprint, historical reference only |

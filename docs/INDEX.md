@@ -6,14 +6,16 @@ This is the traversal map for humans and AI agents.
 
 ## Start Here
 
-- [README.md](../README.md) - Project overview and current status
+- [README.md](../README.md) - Project overview, where K4 stands, quick start
+- [analysis/K4_NEGATIVE_SPACE.md](analysis/K4_NEGATIVE_SPACE.md) - The short answer to "what's been ruled out and what's left"; its machine-readable twin is `kryptos ledger` / `GET /api/k4/ledger`
 - [ROADMAP.md](ROADMAP.md) - Canonical roadmap and grouped strategic priorities
 - [TASKS.md](TASKS.md) - Canonical execution backlog
 - [Contributing](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md) - Contribution workflow (nitsuah org-wide)
 
 ## Reference
 
-- [docs/reference/API_REFERENCE.md](reference/API_REFERENCE.md) - Public Python API and CLI reference
+- [docs/reference/API_REFERENCE.md](reference/API_REFERENCE.md) - Public Python API, CLI subcommands, HTTP endpoints and Neon tables
+- [docs/reference/DASHBOARD.md](reference/DASHBOARD.md) - Dashboard design: the single-page Ghost in the Shell interface, its module ring, and which endpoint each module reads
 - [docs/reference/AUTONOMOUS_SYSTEM.md](reference/AUTONOMOUS_SYSTEM.md) - Autonomous agent orchestration
 - [docs/reference/AGENTS_ARCHITECTURE.md](reference/AGENTS_ARCHITECTURE.md) - Agent triumvirate design
 - [docs/reference/PROVENANCE_SYSTEM_EXPLAINED.md](reference/PROVENANCE_SYSTEM_EXPLAINED.md) - Search-space tracking and provenance
@@ -23,10 +25,10 @@ This is the traversal map for humans and AI agents.
 
 ## Analysis
 
-- [docs/analysis/K4_ACTIVE_RESEARCH.md](analysis/K4_ACTIVE_RESEARCH.md) - **The single current source of truth for K4 status: confirmed facts, ruled-out hypotheses, Phase 1-7 results, and open primary-source needs**
-- [docs/analysis/K4_NEGATIVE_SPACE.md](analysis/K4_NEGATIVE_SPACE.md) - What has not been tried, ranked; the "eliminated vs sampled null" distinction; machine-readable twin at `GET /api/k4/ledger`
+- [docs/analysis/K4_ACTIVE_RESEARCH.md](analysis/K4_ACTIVE_RESEARCH.md) - **The narrative log for K4: confirmed facts, ruled-out hypotheses, every phase's runs, and open primary-source needs**
+- [docs/analysis/K4_NEGATIVE_SPACE.md](analysis/K4_NEGATIVE_SPACE.md) - Eliminated, statistical and sampled-null families with their ranges, the full-reconstruction test, and what is still open, ranked
 - [docs/analysis/K4_CAPABILITY_TABLE.md](analysis/K4_CAPABILITY_TABLE.md) - Every K4 attack vector/infrastructure component, status, and real candidate count in one scannable table
-- [docs/analysis/K4_KEYSTREAM_ANALYSIS.md](analysis/K4_KEYSTREAM_ANALYSIS.md) - Confirmed keystream derivation from EAST+NORTHEAST+BERLIN+CLOCK cribs; what it rules out; open questions
+- [docs/analysis/K4_KEYSTREAM_ANALYSIS.md](analysis/K4_KEYSTREAM_ANALYSIS.md) - Keystream derivation from the EAST, NORTHEAST, BERLIN and CLOCK cribs, the IC analysis, and what is and isn't established about the layer structure
 - [docs/analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md) - Classical cipher technique coverage assessment (pre-1990 techniques; see doc for current coverage %)
 - [docs/analysis/K1_2_3_PATTERN_ANALYSIS.md](analysis/K1_2_3_PATTERN_ANALYSIS.md) - K1-K3 pattern extraction used to guide K4
 - [docs/analysis/K1_K2_VALIDATION_RESULTS.md](analysis/K1_K2_VALIDATION_RESULTS.md) - K1/K2 Monte Carlo validation results (100%)
@@ -47,6 +49,7 @@ This is the traversal map for humans and AI agents.
 - [docs/archive/K4-T1.md](archive/K4-T1.md) - Superseded 2026-09-01. Its "2025 Smithsonian Archive"/"K5" premise was flagged unverified/likely-fabricated as of that date — **that flag was wrong**; both are real (see K4_ACTIVE_RESEARCH.md's External Developments section). Its specific mechanism (RIS, ENE routing, Hill 2×2) is still null as originally noted
 - [docs/archive/K4-CLOCKS.html](archive/K4-CLOCKS.html) - Superseded 2026-09-01; NORTHEAST position labels are known incorrect (see K4_KEYSTREAM_ANALYSIS.md §1)
 - [docs/archive/K4-FRONTEND.md](archive/K4-FRONTEND.md) - Superseded 2026-09-01; describes a SQLite schema that was never built (actual: Neon/Postgres)
+- [docs/archive/K4-v2.md](archive/K4-v2.md) - Archived 2026-09-30, never built: the "Akira" CRT dashboard spec, superseded by [reference/DASHBOARD.md](reference/DASHBOARD.md)
 
 ## Sources
 
@@ -61,7 +64,8 @@ This is the traversal map for humans and AI agents.
 
 1. README for the high-level picture.
 2. This index for navigation.
-3. CONTRIBUTING for operating standards and autonomous quickstart.
-4. ROADMAP and TASKS for active priorities and execution queue.
-5. Reference docs for implementation details.
-6. Analysis docs for measured validation and pattern evidence.
+3. K4_NEGATIVE_SPACE for what's ruled out and what's open.
+4. ROADMAP and TASKS for active priorities and the execution queue.
+5. GOVERN for the rules (ledger tiers, positive controls) and CONTRIBUTING (nitsuah/.github) for workflow.
+6. Reference docs for implementation details.
+7. Analysis docs for measured validation and the run-by-run history.

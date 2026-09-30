@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Updated:** 2026-09-28 (frontier pass)
+**Last Updated:** 2026-09-30 (open list re-ranked)
 **Companion page:** [Kryptos State of Research](https://claude.ai/artifact/PBjhWqNYP5zXCdQb9qfMB3), a readable overview with the coverage map and open to-dos. It replaces the earlier briefing pages (K4 Field Notes, Three Open Leads, Three Moves, K4 Ledger Audit), which are kept for history only.
 **Status:** Living document. It records what has *not* been tried, or not tried in a way that settles anything. The machine-readable version is `kryptos.k4.hypothesis_ledger` (`GET /api/k4/ledger`).
 
@@ -92,10 +92,12 @@ So either the reconstruction is wrong past the cribs, or K4's method sits outsid
 
 | # | Gap | Why it matters | Effort |
 |---|-----|----------------|--------|
-| 1 | **Other long-key rules** | Recurrence, dial, progressive and English running keys are now covered. Any other rule (a keyword-driven procedure, a non-English running text) has to be named before it can be tested. | M |
-| 2 | **Hill 6×6 and up** | Too few full crib blocks; needs a transposition hypothesis or partial blocks. | M |
-| 3 | **Masking that isn't letter-for-letter** | Letter-for-letter masking is covered by the mixed-alphabet check; inserted or dropped letters inside words, and respellings that change length, are not modelled. | L |
-| 4 | **Per-letter lookup keys** | A steady dial is eliminated; a lookup per letter (Weltzeituhr city or time zone) needs the plate order. | L |
+| 1 | **Irregular transpositions** | Plain columnar (widths 2–14), the geometric grids, K3's double rotation and compass-bearing routes are covered. Myszkowski, disrupted or incomplete columnar, keyed routes and turning grilles are not, in combination with a key. The width-10–14 backtracking search can take keyed variants. | M |
+| 2 | **Masking that isn't letter-for-letter** | Letter-for-letter masking is covered by the mixed-alphabet check; inserted or dropped letters inside words, and respellings that change length, are not modelled. K1–K3 all carry deliberate misspellings. | M |
+| 3 | **Two non-periodic layers** | For example an autokey or running key on top of a wide or irregular transposition. Columnar plus autokey is covered only to width 7, and plus an English running key to width 8. | M |
+| 4 | **Other long-key rules** | Recurrence, dial, progressive, phrase and English running keys are covered. Any other rule has to be named before it can be tested. Candidates: the K1–K3 ciphertexts as a running source under transposition, the K0 Morse text, the Cyrillic Projector. | M |
+| 5 | **Hill 6×6 and up** | Too few full crib blocks; needs a transposition hypothesis or partial blocks. | M |
+| 6 | **Per-letter lookup keys** | A steady dial is eliminated; a lookup per letter (Weltzeituhr city or time zone) needs the plate order. Blocked on sourcing #2. | L |
 
 ### Evidence and sourcing
 
@@ -110,7 +112,9 @@ So either the reconstruction is wrong past the cribs, or K4's method sits outsid
 
 Done 2026-09-28: `GET /api/k4/ledger` (with the latest suite run, stored in Neon via `k4_constraint_runs` so it survives redeploys), job persistence to Neon plus `GET /api/k4/attacks/jobs`, the registry-matches-dispatcher test, the positive-control rule, and a real scoring word list.
 
-`kryptos ledger` (or `kryptos ledger --json`) prints the ledger from code, so tier tables no longer need hand-editing. `kryptos frontier` / `p22_frontier_checks` runs the frontier checks. No platform gaps from the State of Research list remain open.
+`kryptos ledger` (or `kryptos ledger --json`) prints the ledger from code, so tier tables no longer need hand-editing. `kryptos frontier` / `p22_frontier_checks` runs the frontier checks. Done 2026-09-30: the single-page dashboard with ledger and job-history modules (`docs/reference/DASHBOARD.md`).
+
+Still open: a "try a hypothesis" endpoint (family + parameters in, crib verdict and decryption out), a candidate submission gate for Paradigm's $1 checker, and re-scoring candidates stored before the scoring fix below.
 
 **Scoring tables (finding and fix, 2026-09-28).** `data/ngrams/quadgrams.tsv`, `trigrams.tsv`, `bigrams.tsv` and `quadgrams_high_quality.tsv` held about ten illustrative entries each, and `scoring.combined_plaintext_score` read them, so its n-gram terms barely distinguished English from noise. It now loads tables built from 8.9M letters of public-domain English (`data/ngrams/english_{2,3,4}grams.tsv`): separation of English from shuffled English on 97 letters goes from d = 4.2 to 9.4, with no overlap. Every language-scored sweep before this date ranked candidates with the old tables. Their nulls mostly stand, because they rested on crib matches rather than language scores, but a candidate that was *discarded* on language score alone was judged with a weak scorer.
 

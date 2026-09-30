@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-_Last updated: 2026-05-31_
+_Last updated: 2026-09-30_
 
 This document covers the stable, supported Python entry points and CLI subcommands. Items not listed here are internal and may change without notice.
 
@@ -403,6 +403,8 @@ kryptos crib-constraints [--max-width W] [--out PATH]
 kryptos frontier [--quick] [--dictionary] [--out PATH]
 kryptos ledger [--json]
 kryptos benchmark [--cases CSV] [--out-dir DIR]
+kryptos serve [--host H] [--port P] [--reload]
+kryptos db-init
 ```
 
 `--cipher` is optional on `k4-decrypt` and `sections-decrypt`; omitting it loads the ciphertext from `config/config.json`.
@@ -434,6 +436,7 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 | `GET /api/runs/{run_id}/candidates?limit=` | Candidates for a run, ranked |
 | `GET /api/candidates?limit=` | Highest-scoring candidates across all runs |
 | `POST /api/decrypt` | Body `{section, ciphertext, key?}` → `{section, plaintext}`. K1/K2 require `key`; K3 ignores it; unknown section → 422 |
+| `GET /api/attack-vectors` | The historical attack-vector registry (name, status, artifact, description) |
 
 ### K4 hypothesis ledger (`kryptos.api.ledger_routes`)
 
@@ -442,6 +445,8 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 | `GET /api/k4/ledger` | Latest suite run (`latest_run`) and every hypothesis family with `tier` (`eliminated` / `statistical` / `sampled_null` / `open`), scope, evidence, module and test, plus per-tier counts |
 | `GET /api/k4/ledger?tier=open` | One tier only (unknown tier → 422) |
 | `GET /api/k4/attacks/frontier` | Every attack vector (id, priority, name, status, description, layer count, combo estimate, `runnable`) |
+| `GET /api/k4/attacks/pivot-status` | Physical/Geometric Pivot summary: hypothesis graph (and its Mermaid source), total candidates tested, and the geodesy bearings |
+| `POST /api/k4/attacks/run` | Body `{attack_id, priority_only?, grid_sizes?, max_perms_per_grid?}` → a queued job (`job_id`). 422 if the attack isn't runnable; 409 if a single-flight attack is already running |
 | `GET /api/k4/attacks/jobs?limit=` | Recent attack jobs, newest first (in memory, plus Neon when `DATABASE_URL` is set) |
 | `GET /api/k4/attacks/jobs/{job_id}` | One job: status (`queued` / `running` / `complete` / `error` / `eureka`), progress, summary, error, timestamps; 404 if unknown |
 

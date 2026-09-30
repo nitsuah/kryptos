@@ -4,6 +4,8 @@
 
 **Assessment Date:** October 25, 2025 — _Updated: 2026-08-12_ **Scope:** Pre-1990 Classical Cryptography (Kryptos Era)
 
+> **Historical snapshot (noted 2026-09-30).** This assessment predates the September 2026 audit and the move from sampled sweeps to family-level eliminations. Its coverage percentages and the "95% confident" conclusion were estimates, not measurements. For measured coverage (what is eliminated over which range, with positive controls) see [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md) and `kryptos ledger`.
+
 > **2026-08-12 update:** All single-layer and 2-layer composite vectors are now exhausted (14 null results). Beaufort swept (`run_beaufort_sweep`, null). ADFGVX and Nihilist tested and null. The strategic gap has shifted: **3-layer composites are the primary remaining coverage gap (~0%)** and are the highest-priority next target. *(That strategic gap has since been closed — 3-layer composites and every other identified vector through Phase 7 are now implemented and null; see `docs/analysis/K4_ACTIVE_RESEARCH.md` for current status.)*
 >
 > **2026-05-31 update:** ADFGVX (`kryptos.k4.adfgvx`) and Nihilist (`kryptos.k4.nihilist`) implemented and exposed in the public API. Beaufort implemented (`kryptos.k4.beaufort`). Fractionating cipher coverage updated accordingly.

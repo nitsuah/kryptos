@@ -43,6 +43,9 @@ Key groupings:
 - **Attacks**: test_attack_extractor.py, test_attack_generator.py, test_attack_provenance.py, test_ops_attack_generation.py
 - **Agents**: test_linguist.py, test_ops_agent.py, test_q_agent.py, test_spy_*.py
 - **K4 features**: test_k4_adaptive_weights.py, test_k4_attempt_logging.py, test_k4_berlin_clock.py, test_k4_cribs.py, test_k4_decrypt_best.py, test_k4_entropy.py, test_k4_hill_cipher.py, test_k4_hypotheses.py, test_k4_instructional_scorer.py, test_k4_inverse_transposition_sweep.py, test_k4_keyed_alphabet_realignment.py, test_k4_keystream_validator.py, test_k4_masking.py, test_k4_performance.py, test_k4_positional_crib_bonus.py, test_k4_quadgrams.py, test_k4_scaffolding.py, test_k4_scoring*.py, test_k4_transposition*.py, test_k4_tuning*.py
+- **K4 constraint suites and ledger**: test_k4_crib_constraints.py, test_k4_structural_checks.py, test_k4_frontier_checks.py, test_k4_ledger.py (includes the rule that every eliminated entry has a positive control), test_k4_documented_facts.py
+- **K4 scoring calibration**: test_k4_ngram_calibration.py, test_k4_wordlist_calibration.py
+- **K4 API and jobs**: test_k4_attack_routes.py, test_k4_job_persistence.py, test_k4_run_store.py, test_api*.py
 - **Pipeline stages**: test_pipeline_*.py
 - **Composite**: test_composite_adaptive_reporting.py, test_composite_branch_coverage.py, test_composite_chains.py, test_composite_chain_thresholds.py, test_composite_report_no_weights.py
 - **Infrastructure**: test_logging_setup.py, test_paths_helpers.py, test_public_api.py, test_report_module.py, test_reporting_artifacts.py, test_search_space*.py, test_solver_config.py, test_stage_interface.py
