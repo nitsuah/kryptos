@@ -301,3 +301,19 @@ def test_columnar_decrypt_score_skips_unscorable_lengths():
     text = PLAIN_TEXT[:12]
     plain = {i: text[i] for i in range(10)}  # only 2 non-crib letters
     assert fc._best_columnar_decrypt_z([0, 1, 2], 3, 2, "sub_then_trans", alpha, fn, text, plain) is None
+
+
+def test_row_solutions_batches_match_single_pass():
+    blocks = np.array([[3, 7, 1], [5, 2, 9]])
+    targets = np.array([4, 11])
+    small = fc._row_solutions(3, blocks, targets, batch=7)
+    big = fc._row_solutions(3, blocks, targets)
+    assert small.shape == big.shape and (np.sort(small, axis=0) == np.sort(big, axis=0)).all()
+    assert all(((blocks @ row) % 26 == targets).all() for row in big)
+
+
+def test_hill_search_tolerates_unscorable_lengths():
+    ct = K4[:12]
+    plain = {i: "E" for i in range(10)}  # only 2 non-crib letters
+    res = fc.hill_exhaustive(sizes=(2,), ciphertext=ct, plain=plain)
+    assert all("best_english_z" not in r or r["best_english_z"] == -9.0 for r in res[2])

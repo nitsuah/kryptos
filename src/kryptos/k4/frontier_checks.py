@@ -703,19 +703,35 @@ def _invertible_mod26(m: np.ndarray) -> bool:
     return _det_mod(m, 2) != 0 and _det_mod(m, 13) != 0
 
 
-def _row_solutions(n: int, blocks_c: np.ndarray, targets: np.ndarray) -> np.ndarray:
-    """All rows x in Z26^n with blocks_c @ x == targets (mod 26), by exhaustive search."""
+def _row_solutions(n: int, blocks_c: np.ndarray, targets: np.ndarray, batch: int = 100_000) -> np.ndarray:
+    """All rows x in Z26^n with blocks_c @ x == targets (mod 26), by exhaustive search.
+
+    Candidates are enumerated in batches of ``batch`` rows, so memory stays bounded for any n.
+    """
     sols = []
-    grid = np.array(list(itertools.product(range(26), repeat=n - 1)), dtype=np.int64) if n > 1 else None
     for first in range(26):
-        x = np.concatenate([np.full((len(grid), 1), first), grid], axis=1)
-        ok = np.all((x @ blocks_c.T) % 26 == targets[None, :], axis=1)
-        sols.append(x[ok])
+        tails = itertools.product(range(26), repeat=n - 1)
+        while True:
+            chunk = list(itertools.islice(tails, batch))
+            if not chunk:
+                break
+            grid = np.array(chunk, dtype=np.int64).reshape(len(chunk), n - 1)
+            x = np.concatenate([np.full((len(grid), 1), first), grid], axis=1)
+            ok = np.all((x @ blocks_c.T) % 26 == targets[None, :], axis=1)
+            sols.append(x[ok])
     return np.concatenate(sols) if sols else np.zeros((0, n), dtype=np.int64)
 
 
 def _noncrib_text(text: str, plain: dict[int, str]) -> str:
     return "".join(ch for i, ch in enumerate(text) if i not in plain)
+
+
+def _safe_english_z(text: str) -> float | None:
+    """``english_z`` of the letters, or None when the length is outside its calibrated range."""
+    s = "".join(c for c in text.upper() if c.isalpha())
+    if len(s) < 4 or len(s) >= len(reference_english()):
+        return None
+    return english_z(s)
 
 
 def hill_exhaustive(
@@ -771,7 +787,9 @@ def hill_exhaustive(
                         for j in range(n):
                             text[b + j] = STANDARD[pv[j]]
                     body = _noncrib_text("".join(text), plain)
-                    best = max(best, english_z(body))
+                    z = _safe_english_z(body)
+                    if z is not None:
+                        best = max(best, z)
                 entry.update(
                     {"status": "decrypted", "invertible_matrices": invertible, "best_english_z": round(best, 3)}
                 )
@@ -847,7 +865,9 @@ def hill_rowspace_search(
                 pv = (k @ cv[b : b + n]) % 26
                 for j in range(n):
                     txt[b + j] = STANDARD[pv[j]]
-            best_z = max(best_z, english_z(_noncrib_text("".join(txt), plain)))
+            z = _safe_english_z(_noncrib_text("".join(txt), plain))
+            if z is not None:
+                best_z = max(best_z, z)
         out.append({**entry, "status": "searched", "matrices": total, "invertible_in_top": invertible,
                     "best_english_z": round(best_z, 3)})  # fmt: skip
     return out
@@ -928,7 +948,9 @@ def hill_beam_search(
                 pv = (k @ cv[b : b + n]) % 26
                 for j in range(n):
                     txt[b + j] = STANDARD[pv[j]]
-            best_z = max(best_z, english_z(_noncrib_text("".join(txt), plain)))
+            z = _safe_english_z(_noncrib_text("".join(txt), plain))
+            if z is not None:
+                best_z = max(best_z, z)
         out.append({**entry, "status": "beam", "invertible_in_top": invertible, "best_english_z": round(best_z, 3)})
     return out
 
