@@ -3,7 +3,12 @@ import { api, FrontierVector, JobStatus, AttackCandidate } from "../api";
 
 interface Props {
   vector: FrontierVector;
+  /** Called after a launch and whenever the job's status changes, so the shell can refresh job history. */
+  onJobChange?: (job: JobStatus) => void;
 }
+
+// Suites that don't sweep clock states, so the priority-timestamps option doesn't apply.
+const CLOCKLESS = new Set(["p21_crib_constraints", "p22_frontier_checks"]);
 
 const STATUS_LABELS: Record<string, string> = {
   queued: "Queued",
@@ -28,13 +33,23 @@ function CandidateRow({ c }: { c: AttackCandidate }) {
   );
 }
 
-export default function AttackRunPanel({ vector }: Props) {
+export default function AttackRunPanel({ vector, onJobChange }: Props) {
   const [job, setJob] = useState<JobStatus | null>(null);
   const [launching, setLaunching] = useState(false);
   const [priorityOnly, setPriorityOnly] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const isRunning = job?.status === "running" || job?.status === "queued";
+  const notify = useRef(onJobChange);
+  notify.current = onJobChange;
+  const lastStatus = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (job && job.status !== lastStatus.current) {
+      lastStatus.current = job.status;
+      notify.current?.(job);
+    }
+  }, [job]);
 
   useEffect(() => {
     return () => {
@@ -110,15 +125,17 @@ export default function AttackRunPanel({ vector }: Props) {
     <div style={{ marginTop: "16px" }}>
       {/* Launch controls */}
       <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-        <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", cursor: "pointer" }}>
-          <input
-            type="checkbox"
-            checked={priorityOnly}
-            onChange={(e) => setPriorityOnly(e.target.checked)}
-            disabled={isRunning || launching}
-          />
-          Priority timestamps only (13:00 + 19:00)
-        </label>
+        {!CLOCKLESS.has(vector.id) && (
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={priorityOnly}
+              onChange={(e) => setPriorityOnly(e.target.checked)}
+              disabled={isRunning || launching}
+            />
+            Priority timestamps only (13:00 + 19:00)
+          </label>
+        )}
         <button
           className="small-button"
           onClick={handleRun}
@@ -209,8 +226,16 @@ export default function AttackRunPanel({ vector }: Props) {
       {/* Complete summary */}
       {job?.status === "complete" && (
         <div style={{ marginTop: "10px", fontSize: "12px", color: "var(--accent)" }}>
-          ✓ Sweep complete — {job.total_candidates.toLocaleString()} candidates checked, null result.
+          {job.total_candidates > 0
+            ? `✓ Sweep complete — ${job.total_candidates.toLocaleString()} candidates checked, no Eureka.`
+            : "✓ Complete."}
         </div>
+      )}
+      {job?.status === "complete" && job.summary && (
+        <details className="json-details">
+          <summary>Summary</summary>
+          <pre>{JSON.stringify(job.summary, null, 2)}</pre>
+        </details>
       )}
     </div>
   );

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ApiError, VaultPeekResponse, VaultSealResponse, VaultUnsealResponse, api } from "../api";
 
-// Vault page (docs/analysis/K4-FRONTEND.md): seal a secret under the keyed-
-// alphabet Vigenère, share the opaque token, and unseal it once with the key.
-// Backend: kryptos.api.vault_routes. Requires DATABASE_URL (else 503).
+// Vault: seal a secret under the keyed-alphabet Vigenère, share the opaque
+// token, and unseal it once with the key. Backend: kryptos.api.vault_routes.
+// Requires DATABASE_URL (else 503).
 
 const TTL_OPTIONS: { label: string; seconds: number }[] = [
   { label: "1 hour", seconds: 3600 },
@@ -60,9 +60,9 @@ function SealPanel() {
   }
 
   return (
-    <div className="panel">
-      <h2>Seal a secret</h2>
-      <div className="body">
+    <section className="sub">
+      <h3>Seal a secret</h3>
+      <div>
         <div className="field">
           <label>Plaintext</label>
           <textarea
@@ -119,7 +119,7 @@ function SealPanel() {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -144,9 +144,9 @@ function UnsealPanel() {
   }
 
   return (
-    <div className="panel">
-      <h2>Unseal</h2>
-      <div className="body">
+    <section className="sub">
+      <h3>Unseal</h3>
+      <div>
         <div className="field">
           <label>Token</label>
           <input value={token} onChange={(e) => setToken(e.target.value)} placeholder="vault token (UUID)" />
@@ -172,7 +172,7 @@ function UnsealPanel() {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -196,9 +196,9 @@ function PeekPanel() {
   }
 
   return (
-    <div className="panel">
-      <h2>Status</h2>
-      <div className="body">
+    <section className="sub">
+      <h3>Status</h3>
+      <div>
         <div className="row" style={{ alignItems: "flex-end" }}>
           <div className="field" style={{ flex: 1, marginBottom: 0 }}>
             <label>Token</label>
@@ -222,16 +222,16 @@ function PeekPanel() {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
 export default function Vault() {
   return (
-    <>
+    <div className="grid vault-grid">
       <SealPanel />
       <UnsealPanel />
       <PeekPanel />
-    </>
+    </div>
   );
 }

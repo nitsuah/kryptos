@@ -27,7 +27,7 @@ FRONTIER_VECTORS = [
         "id": "p1_three_layer",
         "priority": 1,
         "name": "P1 — 3-Layer Composite",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "keyed-alphabet substitution → clock-Vigenère → columnar transposition. "
             "CIA timestamp states (13:00 EST, 19:00 Berlin) tested first, then full 24-state sweep. "
@@ -41,7 +41,7 @@ FRONTIER_VECTORS = [
         "id": "p2_shadow_masking",
         "priority": 2,
         "name": "P2 — Shadow / Null Masking",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "8 null-character masking variants (stride-2/3/4, block-8, clock-shadow, arc-fraction) "
             "applied as Layer 0 before the P1 chain. Recalculates crib positions in each residue."
@@ -54,7 +54,7 @@ FRONTIER_VECTORS = [
         "id": "p3_k2_coord_clock",
         "priority": 3,
         "name": "P3 — K2 Coordinate Clock Timestamps",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "K2 plaintext WGS-84 coordinates read as HH:MM clock times: "
             "14:57, 06:05, 17:08, 08:44, 13:57. Each tested as Berlin Clock state for P1."
@@ -67,7 +67,7 @@ FRONTIER_VECTORS = [
         "id": "p4_timezone_offset",
         "priority": 4,
         "name": "P4 — ±6-Hour Berlin/CIA Timezone Offset",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "Berlin (CET=UTC+1) vs CIA Langley (EST=UTC−5) is a 6-hour gap. "
             "Doubles any clock sweep by testing ±6h shifted state alongside base state."
@@ -80,7 +80,7 @@ FRONTIER_VECTORS = [
         "id": "p5_two_crib_filter",
         "priority": 5,
         "name": "P5 — BERLIN+CLOCK 2-Crib Soft Filter",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "Relaxes Eureka threshold from 4 to 2 (BERLIN+CLOCK at positions 63-73). "
             "Surfaces near-misses where the transposition is right but substitution key wrong."
@@ -93,7 +93,7 @@ FRONTIER_VECTORS = [
         "id": "p6_k3_running_key",
         "priority": 6,
         "name": "P6 — K3 Running Key",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "First 97 chars of K3 plaintext (SLOWLYDESPARATLYSLOWLY...) as Vigenère running key. "
             "4 variants: standard/KRYPTOS alphabet × direct/reversed key."
@@ -106,7 +106,7 @@ FRONTIER_VECTORS = [
         "id": "p7_gronsfeld",
         "priority": 7,
         "name": "P7 — Gronsfeld Cipher",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "Vigenère with decimal digit key (0-9 shifts). K2 coordinate digit keys: "
             "385765, 770844, 385706577, 3857. Implemented in kryptos.k4.gronsfeld."
@@ -119,7 +119,7 @@ FRONTIER_VECTORS = [
         "id": "p14_bearing",
         "priority": 14,
         "name": "P14 — CIA→Berlin Bearing",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "Great-circle bearing from CIA HQ to Berlin ≈ 50.7°. Tests: "
             "(1) Caesar shift 50 mod 26 = 24 (Y); "
@@ -134,7 +134,7 @@ FRONTIER_VECTORS = [
         "id": "p13_magnetic_declination",
         "priority": 13,
         "name": "P13 — Magnetic Declination Clock Offset",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "At CIA HQ (38.957°N, 77.145°W) on Nov 3 1990, IGRF magnetic declination ≈ −9.9° west. "
             "Applied to a 12-hour clock face: 9.9° ÷ 360° × 720 min ≈ 20-minute offset. "
@@ -148,7 +148,7 @@ FRONTIER_VECTORS = [
         "id": "p12_misspelling",
         "priority": 12,
         "name": "P12 — Misspelling-Derived Alphabets",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "K1 IQLUSION (I≡L) and K3 DESPARATLY (A≡E) may define partial K4 alphabet constraints. "
             "Tests 9 alphabets: KRYPTOS/PALIMPSEST/ABSCISSA × {I↔L swap, A↔E swap, both swaps}."
@@ -161,7 +161,7 @@ FRONTIER_VECTORS = [
         "id": "p11_alt_keywords",
         "priority": 11,
         "name": "P11 — Alternative Keyed-Alphabet Keywords",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "Tests 11 sculptor/location/crib-derived keywords (SANBORN, LANGLEY, SCHEIDT, WENDELL, "
             "NORTHEAST, BERLIN, CLOCK, SHADOW, BETWEEN, COMPASS, DIGETAL) as keyed-alphabet seeds "
@@ -175,7 +175,7 @@ FRONTIER_VECTORS = [
         "id": "p18_key_csp",
         "priority": 18,
         "name": "P18 — Repeating-Key CSP",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "Constraint satisfaction over the 24 known (position, shift) pairs from all 4 crib windows. "
             "For key lengths 2–20, checks if any period is consistent with EAST/NORTHEAST/BERLIN/CLOCK shifts. "
@@ -189,7 +189,7 @@ FRONTIER_VECTORS = [
         "id": "p21_crib_constraints",
         "priority": 21,
         "name": "P21 — Crib-Constraint Engine",
-        "status": "Active",
+        "status": "Complete",
         "description": (
             "Tests whole cipher families against the 24 crib letters instead of sampling keys: "
             "ciphertext/plaintext autokey (every lag), linear keys, Gronsfeld digit keys, running keys over "
@@ -204,7 +204,7 @@ FRONTIER_VECTORS = [
         "id": "p22_frontier_checks",
         "priority": 22,
         "name": "P22 — Frontier Checks",
-        "status": "Active",
+        "status": "Complete",
         "description": (
             "Covers the gaps P21 left open: linear-recurrence keys, periodic keys with an arbitrary mixed "
             "alphabet (letter-swap masking), dial keys (clock, 24-hour ring, compass degrees), routes along every "
@@ -219,7 +219,7 @@ FRONTIER_VECTORS = [
         "id": "p15_straddling_checkerboard",
         "priority": 15,
         "name": "P15 — K2 Coordinate Straddling Checkerboard",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "K2 coordinate digits 3,8,5,7,6,5 (N) and 7,7,8,4,4 (W) as row-header indices "
             "in a straddling checkerboard. Tests 6 row-header pairs × 3 letter orderings × 2 "
@@ -233,7 +233,7 @@ FRONTIER_VECTORS = [
         "id": "p16_corpus_miner",
         "priority": 16,
         "name": "P16 — Candidate Corpus Fragment Mining",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "Loads all K4_*_NULL.json artifacts, extracts candidate_text from each, "
             "and runs a sliding-window n-gram frequency analysis over positions 0-21 "
@@ -248,7 +248,7 @@ FRONTIER_VECTORS = [
         "id": "p19_advisory_keywords",
         "priority": 19,
         "name": "P19 — Sanborn Advisory Names as Keywords",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "Tests 9 name-derived keyed alphabets: SCHEIDT (most important — designed cipher "
             "with Sanborn), WEBSTER, STUDEMAN, KERR, SANBORN, LANGLEY, ELONKA, OSHEA, KRYPTOS. "
@@ -262,7 +262,7 @@ FRONTIER_VECTORS = [
         "id": "p20_cyrillic_projector",
         "priority": 20,
         "name": "P20 — Cyrillic Projector KGB Keywords",
-        "status": "Active",
+        "status": "Null",
         "description": (
             "Sanborn's UNC Cyrillic Projector (1997) encodes a KGB recruitment manual. "
             "16 transliterated KGB keywords (AGENT, REZIDENT, RAZVEDKA, SLUZHBA, ...) "
@@ -276,10 +276,11 @@ FRONTIER_VECTORS = [
         "id": "p8_myszkowski",
         "priority": 8,
         "name": "P8 — Myszkowski Transposition",
-        "status": "Deferred",
+        "status": "Null",
         "description": (
             "Repeated-letter keywords (ABSCISSA, PALIMPSEST) produce non-standard columnar "
-            "groupings. KRYPTOS has no repeated letters so cannot be used here."
+            "groupings. KRYPTOS has no repeated letters so cannot be used here. Run 2026-08-29 "
+            "behind the geometric front-end (kryptos.k4.myszkowski): null. Not wired to the dashboard."
         ),
         "layer_count": 1,
         "combo_estimate": None,
@@ -289,8 +290,11 @@ FRONTIER_VECTORS = [
         "id": "p9_trifid",
         "priority": 9,
         "name": "P9 — Trifid Cipher",
-        "status": "Deferred",
-        "description": "27-letter cube fractionation cipher. Requires kryptos.k4.trifid implementation.",
+        "status": "Null",
+        "description": (
+            "27-letter cube fractionation cipher. Run 2026-08-29 over 6 keywords x 13 periods "
+            "(kryptos.k4.trifid): null. Not wired to the dashboard."
+        ),
         "layer_count": 1,
         "combo_estimate": None,
         "runnable": False,
@@ -299,8 +303,11 @@ FRONTIER_VECTORS = [
         "id": "p10_straddle",
         "priority": 10,
         "name": "P10 — Straddle Checkerboard",
-        "status": "Deferred",
-        "description": "Variable-length encoding expansion cipher. Requires implementation.",
+        "status": "Null",
+        "description": (
+            "Variable-length encoding expansion cipher (kryptos.k4.straddling_checkerboard). Run against "
+            "K4 with K2 coordinate digits as row headers under P15: null."
+        ),
         "layer_count": 1,
         "combo_estimate": None,
         "runnable": False,

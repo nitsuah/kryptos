@@ -36,21 +36,21 @@ export default function PivotStatusPanel() {
 
   if (error) {
     return (
-      <div className="panel" style={{ marginBottom: "16px" }}>
-        <h2>Physical/Geometric Pivot</h2>
-        <div className="body">
+      <section className="sub">
+        <h3>Physical/Geometric Pivot</h3>
+        <div>
           <span style={{ color: "var(--danger)" }}>Failed to load pivot status: {error}</span>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (!status) {
     return (
-      <div className="panel" style={{ marginBottom: "16px" }}>
-        <h2>Physical/Geometric Pivot</h2>
-        <div className="body">Loading…</div>
-      </div>
+      <section className="sub">
+        <h3>Physical/Geometric Pivot</h3>
+        <div>Loading…</div>
+      </section>
     );
   }
 
@@ -59,9 +59,9 @@ export default function PivotStatusPanel() {
   const nullCount = edgeEntries.filter(([, e]) => e.status === "null").length;
 
   return (
-    <div className="panel" style={{ marginBottom: "16px" }}>
-      <h2>Physical/Geometric Pivot</h2>
-      <div className="body">
+    <section className="sub">
+      <h3>Physical/Geometric Pivot</h3>
+      <div>
         <div className="cards" style={{ marginBottom: "16px" }}>
           <div className="card">
             <div className="label">Candidates Tested</div>
@@ -83,7 +83,7 @@ export default function PivotStatusPanel() {
           </div>
         </div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", marginBottom: "16px" }}>
+        <div className="table-wrap"><table style={{ marginBottom: "16px" }}>
           <thead>
             <tr style={{ borderBottom: "0.5px solid var(--border)" }}>
               <th style={{ textAlign: "left", padding: "6px" }}>Edge</th>
@@ -102,7 +102,7 @@ export default function PivotStatusPanel() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
 
         <div style={{ fontSize: "12px", opacity: 0.85 }}>
           <div>
@@ -115,6 +115,6 @@ export default function PivotStatusPanel() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

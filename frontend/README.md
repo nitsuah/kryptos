@@ -1,60 +1,86 @@
 # Kryptos dashboard (frontend)
 
-Terminal-aesthetic React SPA over the kryptos FastAPI backend
-(`src/kryptos/api/`). Consumes the dashboard endpoints documented in
-`docs/reference/API_REFERENCE.md` (`/api/status`, `/api/runs`,
-`/api/runs/{id}/candidates`, `/api/candidates`, `POST /api/decrypt`).
+A single-page React app over the kryptos FastAPI backend (`src/kryptos/api/`), styled after the Ghost in the Shell
+interfaces. There are no tabs: nine modules sit on a ring, the active one fills the screen and its neighbours show as
+tilted previews. Switch with the dock, the ring dial, the previews, `←`/`→`, or a swipe. The active module is in the
+URL hash (`#ledger`).
 
-Shipped pages: **Ops Center** (status, metric cards, top candidates,
-campaign run history with drill-down, ad-hoc decrypt panel), **Decode**
-(K1–K3 animated decoder), **Database** (Neon connection + per-table row
-counts), and **Vault** (seal a secret under the keyed-alphabet Vigenère,
-share the opaque token, unseal once with the key, and check status). The
-SSE live-log tail from `docs/analysis/K4-FRONTEND.md` is a planned follow-up.
+| Code | Module | Main endpoints |
+|------|--------|----------------|
+| OV | Overview: K4 ciphertext with cribs, ledger totals, open fronts, clocks | `/api/k4/ledger` |
+| LG | Ledger: every hypothesis family by tier | `/api/k4/ledger` |
+| AT | Attacks: the P1–P22 queue, run and follow jobs | `/api/k4/attacks/frontier`, `POST /api/k4/attacks/run` |
+| JB | Jobs: recent attack jobs | `/api/k4/attacks/jobs` |
+| RN | Runs: campaign history and candidates | `/api/runs`, `/api/candidates` |
+| CN | Console: ad-hoc decrypt and the live log | `POST /api/decrypt`, `/api/stream/logs` |
+| DC | Decoder: K1–K3 step by step | `POST /api/decrypt` |
+| VT | Vault: seal and unseal secrets | `/api/vault/*` |
+| SY | System: API, database tables, pivot status | `/api/status`, `/api/k4/attacks/pivot-status` |
 
-## Develop (Docker)
+Design notes (layout, scaling rules, colours, when the CAUTION tag appears, accessibility):
+[`docs/reference/DASHBOARD.md`](../docs/reference/DASHBOARD.md). Endpoint details:
+[`docs/reference/API_REFERENCE.md`](../docs/reference/API_REFERENCE.md).
 
-The backend and the Vite dev server run separately; Vite proxies `/api`
-and `/health` to `http://localhost:8000` (see `vite.config.ts`).
+## Source layout
+
+```text
+src/
+  App.tsx              shell: HUD, carousel stage, dock, keyboard/swipe/hash navigation
+  shell/data.tsx       shared polling (status, ledger, attack registry, jobs)
+  shell/deco.tsx       barcodes, glyph blocks, rings, ONLINE arc, CAUTION tag
+  shell/nav.tsx        lets a module jump to another
+  modules/registry.tsx the module list: code, title, preview numbers, alert rule
+  modules/*.tsx        one file per module
+  components/*.tsx     shared pieces (cipher matrix, tier gauge, run panel, log tail, …)
+  k4.ts                K4 ciphertext, crib positions, tier labels
+  theme.css            all styling; tokens at the top
+```
+
+To add a module, write the component under `modules/` and add an entry to `MODULES` in `modules/registry.tsx`. The
+dock, dial, previews and hash routing pick it up.
+
+## Develop
+
+The backend and the Vite dev server run separately; Vite proxies `/api` and `/health` to `http://localhost:8000`
+(see `vite.config.ts`).
 
 ```bash
-# 1. backend (from repo root) — serves the API on :8000
-kryptos serve            # or: docker run ... kryptos serve
+# 1. backend (from the repo root), API on :8000
+kryptos serve
 
-# 2. frontend dev server on :5173, proxying to the backend
+# 2. frontend dev server on :5173
+cd frontend && npm install && npm run dev
+```
+
+Or in Docker:
+
+```bash
 docker run --rm -it -p 5173:5173 \
   -v "$(pwd)/frontend:/app" -w /app node:22-alpine \
   sh -c "npm install && npm run dev -- --host"
 ```
 
-## Build / typecheck (Docker)
+## Build and typecheck
 
 ```bash
-docker run --rm -v "$(pwd)/frontend:/app" -w /app node:22-alpine \
-  sh -c "npm ci && npm run build"
+cd frontend && npm ci && npm run build    # tsc + vite build → frontend/dist/
 ```
 
-The production bundle is emitted to `frontend/dist/` (gitignored). FastAPI
-serves it automatically: `create_app()` mounts `frontend/dist` at `/`
-(via `StaticFiles(..., html=True)`) when a build is present, so the API
-and SPA ship from a single container. The dist location is discovered from
-`KRYPTOS_FRONTEND_DIST`, then `<repo>/frontend/dist`, then
-`<cwd>/frontend/dist`. The root `Dockerfile` builds the SPA in a
-`node:22-alpine` stage and copies it into the runtime image with
-`KRYPTOS_FRONTEND_DIST=/app/frontend/dist` set.
+CI runs the same command (the `frontend` job in `.github/workflows/ci-fast.yml`).
+
+`frontend/dist/` is gitignored. FastAPI serves it automatically: `create_app()` mounts it at `/` when a build is
+present, so the API and dashboard ship from one container. The dist location is resolved from
+`KRYPTOS_FRONTEND_DIST`, then `<repo>/frontend/dist`, then `<cwd>/frontend/dist`. The root `Dockerfile` builds the SPA in
+a `node:22-alpine` stage and sets `KRYPTOS_FRONTEND_DIST=/app/frontend/dist`.
 
 ## Deploy on Netlify
 
-The root `netlify.toml` builds from `frontend/` and publishes
-`frontend/dist/`, so the dashboard shell is available at the site root.
-
-Netlify's static hosting does not run the FastAPI process from this
-repository. Deploy the backend separately and set `VITE_API_BASE_URL` in
-Netlify to its public origin (for example, `https://api.example.com`). If the
-variable is omitted, the frontend continues to request `/api/*` from the same
-origin, which is appropriate for the existing single-container deployment.
+The root `netlify.toml` builds from `frontend/` and publishes `frontend/dist/`. Netlify doesn't run the FastAPI process,
+so deploy the backend separately (Render, see `render.yaml`) and set `VITE_API_BASE_URL` to its public origin. Without
+the variable the dashboard calls `/api/*` on its own origin, which is right for the single-container deployment.
 
 ## Stack
 
-Vite + React 18 + TypeScript. No runtime UI framework — plain components
-and the palette in `src/theme.css` (from the frontend design spec).
+Vite, React 18 and TypeScript, with no UI framework and no runtime dependencies beyond React. Fonts (Barlow Condensed,
+Share Tech Mono) load from Google Fonts with system fallbacks. Light and dark chassis follow the system setting; the
+◐ button in the header overrides it (stored in `localStorage`).
