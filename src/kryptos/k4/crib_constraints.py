@@ -671,7 +671,8 @@ def tolerance_study(
     would be a signal; within their range is chance.
 
     2026-09-28 run (widths 2-9, periods 1-22, tolerance 2, 4 controls): columnar 368 rows vs
-    controls 249-365; geometric 325 vs 250-430. Nothing below period 16 came within 2 errors.
+    controls 249-365; geometric 325 vs 250-430. Rerun with 15 controls: columnar 368 vs 206-563
+    (6 of 15 at or above), geometric 325 vs 250-449 (12 of 15). Nothing below period 16 came within 2 errors.
     """
     periods = list(periods)
     widths = list(widths)

@@ -158,7 +158,9 @@ def make_transposition_stage(
     max_perms_per_width: int = 720,
     prune: bool = True,
     partial_length: int = 40,
-    partial_min_score: float = -500.0,
+    # Calibrated 2026-09-28 on the real n-gram tables: 40-letter English scores >= -474,
+    # shuffled text has median -740 and 99th percentile -660.
+    partial_min_score: float = -560.0,
     limit: int = 50,
 ) -> Stage:
     """Create a stage performing columnar transposition search.
@@ -260,7 +262,7 @@ def make_masking_stage(name: str = 'masking', null_chars=None, limit: int = 25) 
     def _run(ct: str) -> StageResult:
         cands = score_mask_variants(ct, null_chars)
         for c in cands:
-            c['trace'] = [{'stage': name, 'transformation': f"mask:{c.get('removed','')}"}]
+            c['trace'] = [{'stage': name, 'transformation': f"mask:{c.get('removed', '')}"}]
         best = cands[0] if cands else {'text': ct, 'score': combined_plaintext_score(ct), 'trace': []}
         return StageResult(name=name, output=best['text'], metadata={'candidates': cands[:limit]}, score=best['score'])
 

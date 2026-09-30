@@ -378,7 +378,9 @@ class CompositeChainExecutor:
         min_score_threshold: float | None = None,
         try_all_alphabets: bool = False,
         eureka_snapshot_path: str | Path | None = None,
-        eureka_score_threshold: float = 80.0,
+        # 97-letter English scores >= -1066 and shuffled text <= -1755 on the real n-gram tables. The old
+        # default (80.0) was unreachable on any table, so the Eureka check never ran.
+        eureka_score_threshold: float = -1300.0,
     ) -> list[dict[str, Any]]:
         """S→T→S chain: Vigenère → columnar transposition → Vigenère.
 

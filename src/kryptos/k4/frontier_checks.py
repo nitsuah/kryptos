@@ -582,26 +582,47 @@ def _columnar_backtrack(
     return found, nodes, truncated
 
 
-def _decrypt_columnar_periodic(
-    order: list[int], width: int, period: int, alpha: str, fn: Any, ciphertext: str, plain: dict[int, str]
-) -> str | None:
-    """Full decryption for a sub-then-transpose survivor when the cribs fix every key slot."""
+def _best_columnar_decrypt_z(
+    order: list[int],
+    width: int,
+    period: int,
+    model: str,
+    alpha: str,
+    fn: Any,
+    ciphertext: str,
+    plain: dict[int, str],
+    max_missing: int = 2,
+) -> float | None:
+    """Best ``english_z`` over every full key consistent with a surviving column order.
+
+    Key slots the cribs don't reach (at most ``max_missing``) are enumerated over all 26
+    values each. Works for both layer orders. None if too many slots are free.
+    """
     n = len(ciphertext)
     col_len = [(n - c + width - 1) // width for c in range(width)]
     start, off = {}, 0
     for c in order:
         start[c], off = off, off + col_len[c]
-    key = {}
-    for j, ch in plain.items():
-        key[j % period] = fn(alpha.index(ciphertext[start[j % width] + j // width]), alpha.index(ch))
-    if len(key) < period:
+    pos = [start[i % width] + i // width for i in range(n)]  # plaintext i -> ciphertext position
+    key: dict[int, int] = {}
+    for i, ch in plain.items():
+        slot = i % period if model == "sub_then_trans" else pos[i] % period
+        key[slot] = fn(alpha.index(ciphertext[pos[i]]), alpha.index(ch))
+    missing = [s for s in range(period) if s not in key]
+    if len(missing) > max_missing:
         return None
-    inverse = {(cv, k): pv for cv in range(26) for pv in range(26) for k in [fn(cv, pv)]}
-    out = []
-    for j in range(n):
-        cv = alpha.index(ciphertext[start[j % width] + j // width])
-        out.append(alpha[inverse[(cv, key[j % period])]])
-    return "".join(out)
+    inverse = {(cv, fn(cv, pv)): pv for cv in range(26) for pv in range(26)}
+    cvals = [alpha.index(ch) for ch in ciphertext]
+    best = -9.0
+    for fill in itertools.product(range(26), repeat=len(missing)):
+        full = dict(key)
+        full.update(zip(missing, fill, strict=True))
+        text = "".join(
+            alpha[inverse[(cvals[pos[i]], full[i % period if model == "sub_then_trans" else pos[i] % period])]]
+            for i in range(n)
+        )
+        best = max(best, english_z(_noncrib_text(text, plain)))
+    return best
 
 
 def wide_columnar_scan(
@@ -615,8 +636,8 @@ def wide_columnar_scan(
     """Columnar widths beyond brute force (10! and up) + periodic key, either order, exactly.
 
     Depth-first search over column orders with crib-key pruning; gives the same survivors as
-    ``crib_constraints.columnar_period_scan`` where both run. Survivors whose cribs fix every key
-    slot (sub-then-transpose, period <= 17 for K4) are decrypted in full and scored with
+    ``crib_constraints.columnar_period_scan`` where both run. Survivors are decrypted under every
+    full key consistent with the cribs (up to two unreached key slots enumerated) and scored with
     ``english_z``: a real solution reads as English (about 1), chance survivors as noise.
     """
     plain = plain if plain is not None else crib_letters()
@@ -632,16 +653,18 @@ def wide_columnar_scan(
                         w, p, model, alpha, fn, ciphertext, plain, max_solutions
                     )
                     entry: dict[str, Any] = {"survivors": len(orders), "nodes": nodes, "truncated": truncated}
-                    if orders and model == "sub_then_trans":
+                    if orders:
                         scores = [
-                            english_z(_noncrib_text(t, plain))
-                            for t in (
-                                _decrypt_columnar_periodic(o, w, p, alpha, fn, ciphertext, plain) for o in orders[:500]
+                            z
+                            for z in (
+                                _best_columnar_decrypt_z(o, w, p, model, alpha, fn, ciphertext, plain)
+                                for o in orders[:500]
                             )
-                            if t is not None
+                            if z is not None
                         ]
                         if scores:
                             entry["best_english_z"] = round(max(scores), 3)
+                            entry["decrypted"] = len(scores)
                     if orders:
                         entry["examples"] = orders[:3]
                     per_period[p] = entry
@@ -826,33 +849,7 @@ def hill_rowspace_search(
     return out
 
 
-def _dense_table(n: int) -> np.ndarray:
-    from .english_model import table
-
-    grams, floor = table(n) if n > 2 else _bigram_table()
-    arr = np.full(26**n, floor, dtype=np.float32)
-    for g, v in grams.items():
-        idx = 0
-        for ch in g:
-            idx = idx * 26 + STANDARD.index(ch)
-        arr[idx] = v
-    return arr
-
-
-def _bigram_table() -> tuple[dict[str, float], float]:
-    from pathlib import Path
-
-    from kryptos.paths import get_repo_root
-
-    path = Path(get_repo_root()) / "data" / "ngrams" / "english_2grams.tsv"
-    grams, floor = {}, -10.0
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if line.startswith("# floor"):
-            floor = float(line.split("\t")[1])
-        elif line and not line.startswith("#"):
-            g, v = line.split("\t")
-            grams[g] = float(v)
-    return grams, floor
+_dense_table = _gram_index  # one dense-table builder for every n-gram size
 
 
 def hill_beam_search(
@@ -861,6 +858,7 @@ def hill_beam_search(
     ciphertext: str = K4,
     plain: dict[int, str] | None = None,
     beam: int = 3000,
+    max_row_choices: int = 20_000,
 ) -> list[dict[str, Any]]:
     """Hill n x n where the cribs leave too many matrices to list: build K row by row.
 
@@ -877,6 +875,10 @@ def hill_beam_search(
     out = []
     for offset in offsets:
         blocks = [b for b in range(offset, len(ciphertext) - n + 1, n) if all(i in plain for i in range(b, b + n))]
+        # With 0-1 crib blocks a row can have up to 26**n choices; the first beam step would be (J, J).
+        if len(blocks) <= 1 and 26**n > max_row_choices:
+            out.append({"offset": offset, "blocks": len(blocks), "status": "too many row choices for the beam"})
+            continue
         full = np.array([cv[b : b + n] for b in range(offset, len(ciphertext) - n + 1, n)])  # (nb, n)
         rows = [
             _row_solutions(n, np.array([[cv[i] for i in range(b, b + n)] for b in blocks]).reshape(len(blocks), n),

@@ -179,6 +179,7 @@ class TestWideColumnar:
         ct = _vig(moved, [key[i % 5] for i in range(97)])
         res = fc.wide_columnar_scan(widths=[10], periods=[5], ciphertext=ct, plain=_cribs_of(PLAIN_TEXT))
         assert order in res[10]["trans_then_sub"]["vigenere"][5]["examples"]
+        assert res[10]["trans_then_sub"]["vigenere"][5]["best_english_z"] > 0.8
 
     def test_k4_width_10_has_no_survivors_to_period_22(self):
         res = fc.wide_columnar_scan(widths=[10])
@@ -237,6 +238,10 @@ class TestHillBeam:
         ct = TestHill()._encrypt(m, PLAIN_TEXT, offset=1)
         res = fc.hill_beam_search(5, [1], ciphertext=ct, plain=_cribs_of(PLAIN_TEXT))
         assert res[0]["best_english_z"] > 0.8
+
+    def test_beam_refuses_underconstrained_alignments(self):
+        res = fc.hill_beam_search(5, [0], plain={})
+        assert res[0]["status"] == "too many row choices for the beam"
 
     def test_k4_hill5_alignment_2_has_no_matrix(self):
         res = fc.hill_beam_search(5, [2])

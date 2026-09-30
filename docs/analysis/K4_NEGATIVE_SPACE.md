@@ -41,7 +41,7 @@ Reproduce with `kryptos crib-constraints` (writes `K4_CRIB_CONSTRAINTS_NULL.json
 | Gronsfeld / Gromark digit keys | 15 Kryptos keyword alphabets | every alphabet needs a shift ≥ 23 |
 | Running key from sculpture texts (no transposition) | 22 texts × every alignment × any offset | best 7–8 of 24, equal to a shuffled control |
 | Columnar transposition + periodic key, either order | widths 2–9, all column orders, periods 1–22 | zero survivors (width 10 checked to period 20) |
-| Columnar widths 10–14 + periodic key, either order (exact search over 10!–14! column orders) | key first: periods 1–22; transposition first: periods 1–17 | survivors at period 17 (widths 12–14) fix the whole key and decrypt to noise; width 14 at period 18 leaves 196 orders, about the chance count, that the cribs can't fully key |
+| Columnar widths 10–14 + periodic key, either order (exact search over 10!–14! column orders) | key first: periods 1–22 except 17 (widths 12–14) and 18 (width 14); transposition first: periods 1–17 | no column order fits the cribs |
 | Phase 6–7 geometric permutations + periodic key, either order | 7,680 mappings, periods 1–22 | zero survivors |
 | K3-style double rotation + periodic key, either order | 21,096 layouts (0–11 null pads, all divisor widths, 6 rotations per stage), periods 1–22 | zero survivors |
 | Columnar transposition + ciphertext autokey | widths 2–7, every lag with 4+ constraints, every offset | zero survivors |
@@ -63,10 +63,11 @@ Nicodemus (Vigenère by column, then columnar read-out) is the sub-then-transpos
 | Family | Range | Result |
 |--------|-------|--------|
 | Monoalphabetic + transposition | any | IC 0.0361 vs English 0.066 |
-| Columnar / geometric + periodic key **allowing 1–2 wrong crib letters** | widths 2–9 and 7,680 geometric, periods 1–22 | near-miss counts inside the control range (columnar 368 vs 249–365; geometric 325 vs 250–430); nothing below period 16 within 2 errors; the lowest-period near miss decrypts to noise |
+| Columnar / geometric + periodic key **allowing 1–2 wrong crib letters** | widths 2–9 and 7,680 geometric, periods 1–22 | near-miss counts inside the range of 15 shuffled-ciphertext controls (columnar 368 vs 206–563, with 6 of 15 controls at or above it; geometric 325 vs 250–449, 12 of 15 at or above); nothing below period 16 within 2 errors; the lowest-period near miss decrypts to noise |
 | Columnar + running key from sculpture texts, either order | widths 2–6 | best 7–10 of 24, same as shuffled controls |
 | Running key from *any* English text, no transposition | five families | key letters at the crib runs score as random; fewer than 1 in 2,000 English fragment pairs score that low |
 | Columnar + running key from any English text (key first) | widths 2–8 | best score inside the shuffled-control range |
+| Columnar widths 12–14: the column orders that do fit the cribs | key first: period 17 (46 orders, widths 12–14) and 18 (196, width 14); transposition first: period 18 (91, width 14) | every one decrypted under every key the cribs allow (up to two free key slots); best English score 0.16, where English scores about 1 |
 | Hill 5×5 | all five alignments | alignments 2–3: no matrix fits; alignment 4: all 11.9M fitting matrices scored, best 0.36 on the English scale (planted key 0.93); alignments 0–1: row-by-row beam search, K4 0.67 / 0.48 vs 0.50–0.72 on random ciphertexts (planted key 0.94) |
 
 ## Sampled null

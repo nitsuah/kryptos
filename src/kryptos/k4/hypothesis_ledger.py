@@ -155,8 +155,9 @@ LEDGER: list[dict[str, Any]] = [
         "family": "Columnar / geometric transposition + periodic key, allowing up to 2 wrong crib letters",
         "tier": "statistical",
         "scope": "widths 2-9 and 7,680 geometric mappings, periods 1-22, five families",
-        "evidence": "near-miss counts (columnar 368, geometric 325) sit inside the range of shuffled-ciphertext "
-        "controls (249-365, 250-430); nothing below period 16 gets within 2 errors",
+        "evidence": "near-miss counts sit inside the range of 15 shuffled-ciphertext controls: columnar 368 vs "
+        "206-563 (6 of 15 controls at or above it), geometric 325 vs 250-449 (12 of 15 at or above); nothing "
+        "below period 16 gets within 2 errors",
         "module": "kryptos.k4.crib_constraints.tolerance_study",
         "test": "tests/functional/test_k4_crib_constraints.py",
     },
@@ -359,10 +360,21 @@ LEDGER: list[dict[str, Any]] = [
         "id": "wide_columnar_plus_periodic",
         "family": "Columnar transposition widths 10-14 (10! to 14! column orders) + periodic key, either order",
         "tier": "eliminated",
-        "scope": "key applied first: periods 1-22 (width 14 at period 18 excepted, see evidence); transposition first: periods 1-17",
-        "evidence": "exact depth-first search over column orders. Survivors at period 17 (widths 12-14) fix the whole "
-        "key and decrypt to noise (English score about 0). Width 14 at period 18 leaves 196 orders, about the "
-        "chance count, with the key not fully fixed, so they cannot be decrypted",
+        "scope": "key applied first: periods 1-22 except 17 (widths 12-14) and 18 (width 14); transposition "
+        "first: periods 1-17",
+        "evidence": "exact depth-first search over column orders: no column order fits the cribs in this scope",
+        "module": "kryptos.k4.frontier_checks.wide_columnar_scan",
+        "test": "tests/functional/test_k4_frontier_checks.py",
+    },
+    {
+        "id": "wide_columnar_crib_survivors",
+        "family": "Columnar widths 12-14 + periodic key: the column orders that do fit the cribs",
+        "tier": "statistical",
+        "scope": "key first, period 17 (widths 12-14: 46 orders) and period 18 (width 14: 196 orders); "
+        "transposition first, period 18 (width 14: 91 orders)",
+        "evidence": "every surviving order was decrypted under every key the cribs allow (up to two free key "
+        "slots enumerated); the best English score is 0.16, where English scores about 1 and a planted "
+        "solution is recovered",
         "module": "kryptos.k4.frontier_checks.wide_columnar_scan",
         "test": "tests/functional/test_k4_frontier_checks.py",
     },
