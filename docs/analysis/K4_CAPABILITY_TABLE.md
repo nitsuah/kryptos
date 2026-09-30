@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-Last Updated: 2026-09-03
+Last Updated: 2026-09-28
 
 ---
 
@@ -18,7 +18,7 @@ This table previously lived inline inside K4_ACTIVE_RESEARCH.md's "Existing Infr
 | Transposition adaptive stage | ✅ Working | Tests passing |
 | Berlin clock (single-layer) | ✅ Complete | All 720 states tested; ruled out as standalone |
 | Composite pipeline | ✅ Working | `run_composite_pipeline` + `CompositeChainExecutor` |
-| Quadgram scoring | ✅ Working | High-quality TSV loaded from `data/ngrams/` |
+| Quadgram scoring | ✅ Working (since 2026-09-28) | `scoring` loads real English 2/3/4-gram tables (`data/ngrams/english_{2,3,4}grams.tsv`, 8.9M letters of public-domain text). Before that it read placeholder TSVs of about ten entries each, so earlier language-score rankings were weak. |
 | Positional crib bonus | ✅ Working | `make_transposition_multi_crib_stage` |
 | InstructionalScorer | ✅ Complete | `kryptos.k4.scoring_instructional` — vocabulary, Levenshtein, entropy gate |
 | ENE diagonal transposition | ✅ Complete | `read_ene_diagonal` in `transposition_routes.py`; integrated into `full_sweep` |
@@ -59,7 +59,14 @@ This table previously lived inline inside K4_ACTIVE_RESEARCH.md's "Existing Infr
 | P15 — Coordinate digits as straddling checkerboard | ✅ Complete | `kryptos.k4.straddling_checkerboard` — K2 coordinate digits as row-header indices, 36 combinations. **Null result.** |
 | P16 — Candidate corpus fragment mining | ✅ Complete | `kryptos.k4.corpus_miner.mine_candidate_corpus` — mines null-result artifacts for repeating fragments above a 3% threshold. **No anchor fragment found.** |
 | P17 — QQ/SS bigram hard constraints | ✅ Complete | `kryptos.k4.bigram_constraint` — pre-filters permutations incompatible with K4's doubled-letter positions (QQ@12-13, SS@31-32). **Null result.** |
-| P18 — Repeating-key CSP over crib windows | ✅ Complete | `kryptos.k4.key_csp.solve_key_csp` — arc-consistency + backtracking over the 22 known (position, shift) pairs. **No solution for key lengths 7–15.** |
+| P18 — Repeating-key CSP over crib windows | ✅ Complete | `kryptos.k4.key_csp.solve_key_csp` checks each key slot directly (no search needed) over the 24 known (position, shift) pairs, now derived from `K4_CRIBS`. `periodic_family_consistency()` (2026-09-27) extends this to Beaufort, Variant Beaufort and KRYPTOS-keyed Quagmire III. **No period 1–26 is consistent in any of the four families; the first consistent period is 27.** (This row previously said "arc-consistency + backtracking … 22 pairs … no solution for 7–15"; all three were inaccurate.) |
+| P21 — Crib-constraint engine | ✅ Complete | `kryptos.k4.crib_constraints`: tests whole families against the 24 crib key values, each check with a positive control. Eliminated over stated ranges: ciphertext/plaintext autokey, linear, progressive and digit keys; sculpture-corpus running keys (best 7–8/24, equal to a shuffled control); Quagmire I–III for 231,933 dictionary alphabets (periods ≤ 25); columnar widths 2–9 and 7,680 geometric mappings composed with a periodic key (periods ≤ 22, both orders). CLI `kryptos crib-constraints`; API `p21_crib_constraints`. Artifact `K4_CRIB_CONSTRAINTS_NULL.json`. (2026-09-28) |
+| Structural checks | ✅ Complete | `kryptos.k4.structural_checks` (2026-09-28): K4 uses all 26 letters, so 25-letter/ADFGX-family ciphers are impossible as the last layer; nulls between cribs (periods ≤ 23) eliminated; Hill 2×2/3×3 eliminated; K3-style double rotation (21,096 layouts) + periodic key: zero survivors; columnar + autokey: zero; columnar + running key: chance level; Chaocipher (1,936 vocabulary pairs): best 5/24. |
+| Two-key structures | ✅ Complete | `double_periodic_consistency` (any two periodic keys, p1 + p2 ≤ 24 eliminated) and `quagmire4_scan` (43 vocabulary × 231,933 dictionary alphabets, zero survivors to period 22). |
+| P22 — Frontier checks | ✅ Complete | `kryptos.k4.frontier_checks` (2026-09-28), each with a positive control. Eliminated: recurrence keys (orders 1–7), periodic key + arbitrary mixed alphabet (plaintext side p ≤ 12, ciphertext side p ≤ 15), dial keys (12/24/60/360/720/1440 positions), bearing routes (every whole degree, widths 4–24, 9,111 routes, p ≤ 22), Hill 4×4, vocabulary phrase keys, and columnar widths 10–14 by exact backtracking search (`wide_columnar_scan`). Statistical: running key from any English text (p < 1/2000), columnar + English running key (widths 2–8), Hill 5×5 (alignments 3–4). The solvekryptos.com reconstruction fits no tested family even with all 97 letters as known plaintext. CLI `kryptos frontier`; API `p22_frontier_checks`. Artifact `K4_FRONTIER_NULL.json`. English n-gram tables from a public-domain corpus in `data/ngrams/english_{3,4}grams.tsv` (`kryptos.k4.english_model`). |
+| Error tolerance | ✅ Statistical | `tolerance_study`: allowing 1–2 wrong crib letters, K4's near misses sit inside shuffled-control ranges. |
+| Hypothesis ledger | ✅ Data + API | `kryptos.k4.hypothesis_ledger`, `GET /api/k4/ledger[?tier=]`: every family tagged eliminated / statistical / sampled_null / open. (2026-09-28) |
+| IC profile | ✅ Diagnostic | `kryptos.k4.ic_profile`: IC 0.0361; segment ICs 0.046/0.046/0.034; segment spread p ≈ 0.46 against random reshuffles. Shows a flattening layer exists, says nothing about layer order. (2026-09-27) |
 | P19 — Sanborn advisory names as alphabet keywords | ✅ Complete | `kryptos.k4.advisory_keywords.run_advisory_keyword_sweep` — SCHEIDT/WEBSTER/STUDEMAN/KERR/SANBORN/LANGLEY/ELONKA/OSHEA/KRYPTOS. **Null result.** |
 | P20 — Cyrillic Projector crossover | ✅ Complete | `kryptos.k4.cyrillic_projector.run_cyrillic_projector_sweep` — Roman-alphabet renderings of Sanborn's 1997 KGB-document piece as K4 alphabet seeds. **Null result.** |
 | P21 — Classical-cipher sweep (Playfair/Four-Square/Bifid/Autokey) | ✅ Complete | `kryptos.k4.classical_cipher_sweep.run_classical_cipher_sweep` — closes a real gap: `hypotheses.py`'s classical-cipher hypothesis classes were implemented and unit-tested but never actually run against real K4 with real crib gating. 30-word expanded keyword list. **Null result — 1,065 candidates, zero near-misses.** |
@@ -83,7 +90,7 @@ This table previously lived inline inside K4_ACTIVE_RESEARCH.md's "Existing Infr
 
 ## What's genuinely still open
 
-Everything above is code-executable and done. What's left needs new source material this repo can't generate on its own — see [docs/TASKS.md](../TASKS.md)'s "Primary-source sourcing" section:
+The code-side gaps that remain (long-key rules not yet named, Hill 6×6+, masking that inserts or drops letters, per-letter lookup keys) are ranked in [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md). The rest needs new source material this repo can't generate on its own — see [docs/TASKS.md](../TASKS.md)'s "Primary-source sourcing" section:
 
 1. The Kryptos compass rose's actual measured bearing (FOIA/Elonka outreach drafted, needs a human to send it).
 2. Whether CIA Public Affairs has an authorized research-visit mechanism (draft ready, same).

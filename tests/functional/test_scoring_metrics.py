@@ -4,10 +4,10 @@ import unittest
 
 from kryptos.k4.scoring import (
     baseline_stats,
+    combined_plaintext_score,
     combined_plaintext_score_with_positions,
     letter_entropy,
     positional_crib_bonus,
-    quadgram_score,
     repeating_bigram_fraction,
 )
 
@@ -49,7 +49,7 @@ class TestScoringMetrics(unittest.TestCase):
         self.assertEqual(positional_crib_bonus("NOPE", {"TEST": [0]}), 0.0)
 
     def test_combined_plaintext_score_with_positions(self):
-        score_plain = quadgram_score("TESTTEXT")
+        score_plain = combined_plaintext_score("TESTTEXT")
         score_pos = combined_plaintext_score_with_positions("TESTTEXT", {"TEST": [0]}, window=1)
         self.assertGreaterEqual(score_pos, score_plain)
 

@@ -151,7 +151,8 @@ class BerlinClockTranspositionHypothesis:
                 max_perms_per_width=max_perms_actual,
                 prune=self.prune,
                 partial_length=30,
-                partial_min_score=-400.0,
+                # 30-letter English scores >= -355; shuffled text median -545 (real n-gram tables).
+                partial_min_score=-420.0,
             )
             all_results.extend(results)
         all_results.sort(key=lambda r: r['score'], reverse=True)

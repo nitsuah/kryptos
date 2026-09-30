@@ -10,6 +10,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (2026-09-28 — frontier pass)
+
+- `kryptos.k4.frontier_checks` (P22, `kryptos frontier`, API `p22_frontier_checks`): recurrence keys, periodic key + arbitrary mixed alphabet, dial keys, routes along every compass bearing, Hill 4×4 (exhaustive) and 5×5 (11.9M matrices scored), running keys from any English text (direct and after columnar transposition), and `reconstruction_suite`, which tests the published full-plaintext reconstruction against every family. Each check has a positive control.
+- `frontier_checks.wide_columnar_scan` (exact search over column orders past brute force; widths 10–14 null), `hill_beam_search` (Hill 5×5 at the alignments exhaustive search can't reach), `vocabulary_phrase_keys`.
+- `kryptos.k4.english_model` with English 3- and 4-gram tables built from 8.9M letters of public-domain text (`scripts/data/build_english_ngrams.py`).
+- Ledger: 6 new eliminated entries, 3 new statistical entries; the open entries narrowed to what is actually left.
+
+### Found (2026-09-28)
+
+- The n-gram tables the main scorer read (`data/ngrams/{bi,tri,quad}grams.tsv`) were placeholders of about ten entries each. Fixed: `scoring` now loads `english_{2,3,4}grams.tsv`; English vs shuffled-English separation on 97 letters rises from d = 4.2 to 9.4 with no overlap. Rankings from earlier sweeps used the old tables.
+
+### Added (2026-09-28 — second negative-space pass)
+
+- `crib_constraints`: error tolerance (`_min_violations`, `tolerance=` on the columnar/geometry scans) and `tolerance_study()` against shuffled-ciphertext controls; `double_periodic_consistency()` (any two periodic keys, solved over GF(2)/GF(13)); `quagmire4_scan()`; `monoalphabetic_conflicts()`; structural checks in the suite output.
+- `kryptos.k4.structural_checks`: output-alphabet eliminations, nulls between the crib blocks, Hill 2×2/3×3, K3-style double rotation, columnar + autokey, columnar + running key, Chaocipher (validated against Byrne's published example).
+- Job persistence: `k4_attack_jobs` table, finished jobs saved when `DATABASE_URL` is set, `GET /api/k4/attacks/jobs`.
+- `hypothesis_ledger.latest_run()` in `GET /api/k4/ledger`; new ledger entries and tiers.
+- `docs/sources/SANBORN_QUOTES.md`: Sanborn's statements with citations.
+- `quagmire4_dictionary_scan()`: exact dictionary × dictionary Quagmire IV via a difference-vector index (about 5.4×10¹⁰ pairs in 13 s).
+- `kryptos.k4.run_store` + `k4_constraint_runs` table: suite runs stored in Neon; `latest_run` falls back to it.
+- `kryptos ledger [--json]`: prints the hypothesis ledger from code.
+- P21 is single-flight: a second `POST /api/k4/attacks/run` for `p21_crib_constraints` while one is queued or running returns 409 with the active job id. The suite artifact is written to a temp file and renamed into place.
+- Rules in `docs/GOVERN.md`, enforced by tests: every `eliminated` ledger entry needs a positive control; the attack registry must match the dispatcher.
+
+### Fixed (2026-09-28 — second pass)
+
+- `scoring.WORDLIST` was an 18-word fallback because `data/wordlist.txt` never existed; it now loads a 261k-word dictionary (4+ letters). English/random separation 1.55 → 1.91.
+- `key_csp.periodic_family_consistency` had no positive control (caught by the new rule); it now takes `ciphertext`/`cribs` and has one.
+- Docs overstated the word list's reach ("every sweep leaned on it"); the main scorer uses n-grams.
+
+### Added (2026-09-28 — negative-space pass)
+
+- **P21 crib-constraint engine** (`kryptos.k4.crib_constraints`): tests whole cipher families against the 24 crib key values instead of sampling keys. Every check has a positive-control test. Eliminated over stated ranges: ciphertext/plaintext autokey, linear, progressive and Gronsfeld digit keys; running keys over a sculpture corpus (best 7–8/24, equal to a shuffled control); Quagmire I–III for 231,933 dictionary keyword alphabets (periods ≤ 25); columnar transpositions of width 2–9 and 7,680 geometric mappings composed with a periodic key (periods ≤ 22, both layer orders).
+- `kryptos crib-constraints` CLI command and `p21_crib_constraints` API attack.
+- `kryptos.k4.hypothesis_ledger` and `GET /api/k4/ledger[?tier=]`: every hypothesis family tagged `eliminated` / `statistical` / `sampled_null` / `open`.
+- `docs/analysis/K4_NEGATIVE_SPACE.md`: ranked list of untried or under-tested directions.
+- `english-words` (MIT) dependency for the dictionary keyword scan.
+
+### Fixed (2026-09-28)
+
+- `running_key.K3_PLAINTEXT_FULL` contained invented text after character 97; now the real K3 plaintext. P6 used only the first 97 characters, so its result stands.
+- `cli/main.py`: removed 136 lines of unreachable duplicate parser code after `return parser`.
+- P18 frontier description said 22 crib pairs; there are 24.
+- Elonka Dunin and FOIA outreach drafts moved into `docs/TASKS.md` from a retired briefing page.
+
+### Fixed (2026-09-27 — K4 deep-dive audit)
+
+- **K4 IC figures in the docs were wrong.** The overall IC is 0.0361, not ≈0.062. Segment ICs are 0.046/0.046/0.034, not 0.058/0.071/0.062. The "substitution → transposition confirmed" architecture built on them is downgraded to a working hypothesis in `K4_ACTIVE_RESEARCH.md`, `K4_KEYSTREAM_ANALYSIS.md`, ROADMAP and README.
+- EAST crib release date: Aug 2020, not 2023.
+- "THE COMPASS ROSE IS HERE" was credited to Sanborn's own recovered plaintext in ROADMAP, TASKS and `K4_ACTIVE_RESEARCH.md`. It is solvekryptos.com's reconstruction.
+- ROADMAP attributed the 17/20 crib shifts to EAST/NORTHEAST; they come from BERLIN/CLOCK.
+- `docs/sources/CLOCK.md`: 148 → 146 city names plus a date-line plate; unsourced claims flagged.
+- `key_csp.CRIB_SHIFTS` is derived from `keystream_validator.K4_CRIBS` instead of hand-typed; docstrings said 22 shifts, there are 24.
+- Lint: unused imports, duplicate set items in `bigram_constraint.COMMON_ENGLISH_DOUBLETS`.
+
+### Added (2026-09-27)
+
+- `kryptos.k4.ic_profile`: overall/segment IC and a reshuffle significance test for segment spread.
+- `key_csp.periodic_family_consistency()`: periods 1–26 are inconsistent with the cribs under Vigenère, Beaufort, Variant Beaufort and KRYPTOS-keyed Quagmire III.
+- `keystream_validator.K4_CRIB_RELEASES`: crib ciphertext, release month, venue.
+- `tests/functional/test_k4_documented_facts.py`: pins every number above.
+
 ### Added (2026-08-29 → 2026-09-03 — K4 Phases 6–8, all null)
 
 - **Phase 6 — Physical/Geometric Pivot** (#192, #193, #194, #196): 24-column geometric permutation front-end, precise WGS84 geodesy (`kryptos.k4.geodesy`), Mengenlehreuhr→Weltzeituhr bearing, Nov 9 1989 clock state, Myszkowski/Trifid, SA substitution search; first real executions of P2/P5/P6; dashboard Pivot Status panel.

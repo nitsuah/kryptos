@@ -285,6 +285,20 @@ def run_attack_worker(job_id: str, req: RunAttackRequest) -> None:
         summary = run_key_csp_attack()
         update_job(job_id, progress_pct=100.0)
 
+    elif attack_id == "p21_crib_constraints":
+        from kryptos.k4.crib_constraints import run_crib_constraint_suite
+
+        update_job(job_id, progress_pct=10.0, clock_time="constraint-scan")
+        summary = run_crib_constraint_suite(widths=range(2, 10))
+        update_job(job_id, progress_pct=100.0)
+
+    elif attack_id == "p22_frontier_checks":
+        from kryptos.k4.frontier_checks import run_frontier_suite
+
+        update_job(job_id, progress_pct=10.0, clock_time="frontier-scan")
+        summary = run_frontier_suite()
+        update_job(job_id, progress_pct=100.0)
+
     elif attack_id == "p15_straddling_checkerboard":
         from kryptos.k4.straddling_checkerboard import run_straddling_checkerboard_attack
 

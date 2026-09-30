@@ -24,6 +24,7 @@ This is the traversal map for humans and AI agents.
 ## Analysis
 
 - [docs/analysis/K4_ACTIVE_RESEARCH.md](analysis/K4_ACTIVE_RESEARCH.md) - **The single current source of truth for K4 status: confirmed facts, ruled-out hypotheses, Phase 1-7 results, and open primary-source needs**
+- [docs/analysis/K4_NEGATIVE_SPACE.md](analysis/K4_NEGATIVE_SPACE.md) - What has not been tried, ranked; the "eliminated vs sampled null" distinction; machine-readable twin at `GET /api/k4/ledger`
 - [docs/analysis/K4_CAPABILITY_TABLE.md](analysis/K4_CAPABILITY_TABLE.md) - Every K4 attack vector/infrastructure component, status, and real candidate count in one scannable table
 - [docs/analysis/K4_KEYSTREAM_ANALYSIS.md](analysis/K4_KEYSTREAM_ANALYSIS.md) - Confirmed keystream derivation from EAST+NORTHEAST+BERLIN+CLOCK cribs; what it rules out; open questions
 - [docs/analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md) - Classical cipher technique coverage assessment (pre-1990 techniques; see doc for current coverage %)
@@ -50,6 +51,7 @@ This is the traversal map for humans and AI agents.
 ## Sources
 
 - [docs/sources/SANBORN.md](sources/SANBORN.md) - Sanborn research checklist and artist-clue strategy
+- [docs/sources/SANBORN_QUOTES.md](sources/SANBORN_QUOTES.md) - Sanborn's public statements on K4, with citations and a confidence tier for each
 - [docs/sources/CLOCK.md](sources/CLOCK.md) - World Clock / Berlin Clock geographic and cryptographic interpretation
 
 > **DB-backed sources** (query via `source_chunks`, `sanborn_timeline`, `discovered_cribs` tables):

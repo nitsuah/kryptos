@@ -241,6 +241,32 @@ from kryptos.k4.keystream_validator import (
 
 Confirmed crib positions (0-indexed): EAST 21–24, NORTHEAST 25–33, BERLIN 63–68, CLOCK 69–73.
 
+## Crib-constraint engine and hypothesis ledger
+
+```python
+from kryptos.k4.crib_constraints import (
+    ciphertext_autokey, plaintext_autokey,   # key = earlier letter + constant, every lag
+    linear_key, progressive_key, digit_key,  # arithmetic and Gronsfeld-style keys
+    running_key_scan, sculpture_corpus,      # every alignment of a text, with a shuffled control
+    keyword_alphabet_scan, dictionary_source, # Quagmire I/II/III over a dictionary of keywords
+    columnar_period_scan,                    # every column order x period x family, both layer orders
+    geometry_period_scan,                    # the phase 6-7 geometric permutations x period
+    run_crib_constraint_suite,               # all of the above -> K4_CRIB_CONSTRAINTS_NULL.json
+)
+from kryptos.k4.crib_constraints import (
+    double_periodic_consistency, quagmire4_scan, quagmire4_dictionary_scan, tolerance_study,
+)
+from kryptos.k4.structural_checks import (
+    output_alphabet_eliminations, null_gap_periodic, hill_consistency, double_rotation_period_scan,
+    transposition_autokey_scan, transposition_running_key_scan, chaocipher_scan,
+)
+from kryptos.k4.hypothesis_ledger import LEDGER, ledger, ledger_summary, latest_run  # eliminated / statistical / sampled_null / open
+from kryptos.k4.ic_profile import ic_profile, segment_ics, segment_spread_p_value
+from kryptos.k4.key_csp import periodic_family_consistency
+```
+
+The `crib_constraints` scan functions (`ciphertext_autokey`, `plaintext_autokey`, `linear_key`, `progressive_key`, `digit_key`, `running_key_scan`, `keyword_alphabet_scan`, `columnar_period_scan`, `geometry_period_scan`, `monoalphabetic_conflicts`) accept a ciphertext and crib dict, so each can be run on a planted solution (see `tests/functional/test_k4_crib_constraints.py`). `run_crib_constraint_suite` always runs against K4; the ledger, IC and period helpers take no ciphertext.
+
 ---
 
 ## Inverse transposition sweep
@@ -373,6 +399,10 @@ kryptos spy-extract [--runs PATH] [--min-conf FLOAT]
 kryptos autopilot [--plan TEXT] [--dry-run] [--loop] [--iterations N] [--interval SECS] [--force]
 kryptos autonomous [--max-hours H] [--max-cycles N] [--cycle-interval M] [--ops-cycle M] [--web-intel-hours H]
 kryptos examples-smoke [--limit N] [--keep N]
+kryptos crib-constraints [--max-width W] [--out PATH]
+kryptos frontier [--quick] [--dictionary] [--out PATH]
+kryptos ledger [--json]
+kryptos benchmark [--cases CSV] [--out-dir DIR]
 ```
 
 `--cipher` is optional on `k4-decrypt` and `sections-decrypt`; omitting it loads the ciphertext from `config/config.json`.
@@ -404,6 +434,18 @@ is unset (they return `db_enabled: false` with empty results rather than errorin
 | `GET /api/runs/{run_id}/candidates?limit=` | Candidates for a run, ranked |
 | `GET /api/candidates?limit=` | Highest-scoring candidates across all runs |
 | `POST /api/decrypt` | Body `{section, ciphertext, key?}` → `{section, plaintext}`. K1/K2 require `key`; K3 ignores it; unknown section → 422 |
+
+### K4 hypothesis ledger (`kryptos.api.ledger_routes`)
+
+| Method & path | Purpose |
+|---------------|---------|
+| `GET /api/k4/ledger` | Latest suite run (`latest_run`) and every hypothesis family with `tier` (`eliminated` / `statistical` / `sampled_null` / `open`), scope, evidence, module and test, plus per-tier counts |
+| `GET /api/k4/ledger?tier=open` | One tier only (unknown tier → 422) |
+| `GET /api/k4/attacks/frontier` | Every attack vector (id, priority, name, status, description, layer count, combo estimate, `runnable`) |
+| `GET /api/k4/attacks/jobs?limit=` | Recent attack jobs, newest first (in memory, plus Neon when `DATABASE_URL` is set) |
+| `GET /api/k4/attacks/jobs/{job_id}` | One job: status (`queued` / `running` / `complete` / `error` / `eureka`), progress, summary, error, timestamps; 404 if unknown |
+
+The K4 attack router also accepts `POST /api/k4/attacks/run {"attack_id": "p21_crib_constraints"}` to run the crib-constraint suite as a background job. Only one P21 job runs at a time; a second request while one is queued or running gets `409 Conflict` naming the active job. `p22_frontier_checks` runs `kryptos.k4.frontier_checks.run_frontier_suite` (recurrence, mixed-alphabet, dial and bearing-route keys, Hill 4×4/5×5, English running keys, and the full-plaintext reconstruction against every family; a few minutes) under the same one-at-a-time rule, and writes `K4_FRONTIER_NULL.json`.
 
 ### Live log tail (SSE — `kryptos.api.log_stream`)
 
@@ -463,6 +505,8 @@ Schema defined in `kryptos.db_schema`; create with `kryptos db-init`.
 | `campaign_runs` | `kryptos.persistence` (via `k4.reporting`) | One row per candidate-generating run |
 | `candidates` | `kryptos.persistence` (via `k4.reporting`) | Ranked candidate decryptions per run |
 | `vault_payloads` | `kryptos.vault` (via `POST /api/vault/seal`) | Sealed secrets: ciphertext, verifier, TTL, read limit |
+| `k4_attack_jobs` | `kryptos.api.k4_jobs` (finished K4 attack jobs) | Job status, summary and error, so results survive a restart |
+| `k4_constraint_runs` | `kryptos.k4.run_store` (crib-constraint suite) | Suite summaries, read by `GET /api/k4/ledger` when no local artifact exists |
 | `ops_decisions` | `OpsStrategicDirector` | Strategy decision log |
 | `strategy_kb` | Manual / future agents | Accumulated attack knowledge |
 | `discovered_cribs` | `SpyWebIntel` | Crib candidates with source provenance |

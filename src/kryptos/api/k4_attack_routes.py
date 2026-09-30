@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from kryptos.api.k4_attack_dispatch import run_attack_worker
-from kryptos.api.k4_jobs import get_job, new_job, update_job
+from kryptos.api.k4_jobs import active_job, get_job, list_jobs, new_job, update_job
 
 logger = logging.getLogger(__name__)
 
@@ -177,12 +177,42 @@ FRONTIER_VECTORS = [
         "name": "P18 — Repeating-Key CSP",
         "status": "Active",
         "description": (
-            "Constraint satisfaction over 22 known (position, shift) pairs from all 4 crib windows. "
+            "Constraint satisfaction over the 24 known (position, shift) pairs from all 4 crib windows. "
             "For key lengths 2–20, checks if any period is consistent with EAST/NORTHEAST/BERLIN/CLOCK shifts. "
             "Consistent lengths have their partial key completed via exhaustive enumeration."
         ),
         "layer_count": 1,
         "combo_estimate": 19,
+        "runnable": True,
+    },
+    {
+        "id": "p21_crib_constraints",
+        "priority": 21,
+        "name": "P21 — Crib-Constraint Engine",
+        "status": "Active",
+        "description": (
+            "Tests whole cipher families against the 24 crib letters instead of sampling keys: "
+            "ciphertext/plaintext autokey (every lag), linear keys, Gronsfeld digit keys, running keys over "
+            "the sculpture corpus, and periodic keys composed with every columnar transposition (widths 2-9) "
+            "and the phase 6-7 geometric permutations, in both layer orders."
+        ),
+        "layer_count": 2,
+        "combo_estimate": 46_232,
+        "runnable": True,
+    },
+    {
+        "id": "p22_frontier_checks",
+        "priority": 22,
+        "name": "P22 — Frontier Checks",
+        "status": "Active",
+        "description": (
+            "Covers the gaps P21 left open: linear-recurrence keys, periodic keys with an arbitrary mixed "
+            "alphabet (letter-swap masking), dial keys (clock, 24-hour ring, compass degrees), routes along every "
+            "compass bearing, Hill 4x4 and 5x5, running keys from any English text, and the published "
+            "full-plaintext reconstruction tested against every family."
+        ),
+        "layer_count": 2,
+        "combo_estimate": 11_900_000,
         "runnable": True,
     },
     {
@@ -378,6 +408,8 @@ def create_k4_attack_router() -> APIRouter:
         )
 
     _RUNNABLE = {v["id"] for v in FRONTIER_VECTORS if v["runnable"]}
+    # Heavy scans that write one shared artifact: at most one job at a time.
+    _SINGLE_FLIGHT = {"p21_crib_constraints", "p22_frontier_checks"}
 
     @router.post("/run", response_model=JobStatusResponse)
     def run_attack(req: RunAttackRequest) -> JobStatusResponse:
@@ -387,7 +419,12 @@ def create_k4_attack_router() -> APIRouter:
                 detail=f"Attack '{req.attack_id}' is not runnable. Runnable: {sorted(str(x) for x in _RUNNABLE)}",
             )
 
-        job_id = new_job(req.attack_id)
+        job_id = new_job(req.attack_id, exclusive=req.attack_id in _SINGLE_FLIGHT)
+        if job_id is None:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Attack '{req.attack_id}' is already running (job {active_job(req.attack_id)})",
+            )
         update_job(job_id, status="running")
 
         def _worker() -> None:
@@ -411,6 +448,11 @@ def create_k4_attack_router() -> APIRouter:
         t.start()
 
         return JobStatusResponse(**get_job(job_id))  # type: ignore[arg-type]
+
+    @router.get("/jobs")
+    def recent_jobs(limit: int = 20) -> dict[str, Any]:
+        """Recent attack jobs, newest first (in-memory plus persisted when DATABASE_URL is set)."""
+        return {"jobs": list_jobs(max(1, min(limit, 200)))}
 
     @router.get("/jobs/{job_id}", response_model=JobStatusResponse)
     def job_status(job_id: str) -> JobStatusResponse:

@@ -30,6 +30,17 @@ K4_CRIBS: dict[str, tuple[str, int]] = {
     "CLOCK": ("CLOCK", 69),
 }
 
+# Public provenance for each crib: the ciphertext slice Sanborn paired with the
+# plaintext word, and when it was released. Positions in press coverage are
+# 1-indexed (EAST = "letters 22-25"); K4_CRIBS above is 0-indexed. EAST was
+# released August 2020 -- earlier docs here said 2023, which no source supports.
+K4_CRIB_RELEASES: dict[str, dict[str, str]] = {
+    "BERLIN": {"ciphertext": "NYPVTT", "released": "2010-11", "venue": "The New York Times"},
+    "CLOCK": {"ciphertext": "MZFPK", "released": "2014-11", "venue": "The New York Times"},
+    "NORTHEAST": {"ciphertext": "QQPRNGKSS", "released": "2020-01", "venue": "The New York Times"},
+    "EAST": {"ciphertext": "FLRV", "released": "2020-08", "venue": "Sanborn, widely reported"},
+}
+
 # Derived expected keystreams (shifts mod 26 under standard alphabet)
 K4_EXPECTED_KEYSTREAMS: dict[str, list[int]] = {
     "EAST": [1, 11, 25, 2],

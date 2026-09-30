@@ -319,143 +319,33 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sp_benchmark.set_defaults(func=cmd_benchmark)
 
+    sp_crib = sub.add_parser(
+        "crib-constraints",
+        help="Test whole cipher families against the 24 K4 crib letters (autokey, running key, transposition)",
+    )
+    sp_crib.add_argument("--max-width", type=int, default=9, help="Largest columnar width to scan (default: 9)")
+    sp_crib.add_argument(
+        "--out", type=str, default="K4_CRIB_CONSTRAINTS_NULL.json", help="Artifact path (default: %(default)s)"
+    )
+    sp_crib.set_defaults(func=cmd_crib_constraints)
+
+    sp_frontier = sub.add_parser(
+        "frontier",
+        help="Run the K4 frontier checks (recurrence, mixed-alphabet, dial, bearing-route, Hill 4x4/5x5, "
+        "English running keys) and test the published full-plaintext reconstruction against every family",
+    )
+    sp_frontier.add_argument("--quick", action="store_true", help="Skip Hill 5x5 and the reconstruction suite")
+    sp_frontier.add_argument("--dictionary", action="store_true", help="Add dictionary Quagmire scans (slow)")
+    sp_frontier.add_argument(
+        "--out", type=str, default="K4_FRONTIER_NULL.json", help="Artifact path (default: %(default)s)"
+    )
+    sp_frontier.set_defaults(func=cmd_frontier)
+
+    sp_ledger = sub.add_parser("ledger", help="Print the K4 hypothesis ledger (what is eliminated, sampled, open)")
+    sp_ledger.add_argument("--json", action="store_true", help="Emit JSON (same shape as GET /api/k4/ledger)")
+    sp_ledger.set_defaults(func=cmd_ledger)
+
     return parser
-
-    p = argparse.ArgumentParser(prog="kryptos", description="Kryptos research CLI")
-    p.add_argument("--log-level", type=str, default="INFO", help="Logging level (DEBUG, INFO, WARNING, ERROR)")
-    p.add_argument("--quiet", action="store_true", help="Suppress non-error logging (JSON output only)")
-    sub = p.add_subparsers(dest="command", required=True)
-
-    sp_sections = sub.add_parser("sections", help="List available sections (K1-K4)")
-    sp_sections.set_defaults(func=cmd_sections)
-
-    sp_k4 = sub.add_parser("k4-decrypt", help="Run composite K4 decrypt search")
-    sp_k4.add_argument("--cipher", type=Path, required=True, help="Path to ciphertext file (raw)")
-    sp_k4.add_argument("--limit", type=int, default=50, help="Candidate limit")
-    sp_k4.add_argument("--adaptive", action="store_true", help="Enable adaptive fusion weighting")
-    sp_k4.add_argument("--report", action="store_true", help="Write artifacts (candidates + attempts)")
-    sp_k4.set_defaults(func=cmd_k4_decrypt)
-
-    sp_attempts = sub.add_parser("k4-attempts", help="Persist current in-memory attempt logs")
-    sp_attempts.add_argument("--label", type=str, default="k4", help="Label for attempt log file prefix")
-    sp_attempts.set_defaults(func=cmd_k4_attempts)
-
-    sp_tuning_sweep = sub.add_parser("tuning-crib-weight-sweep", help="Run crib weight sweep over provided weights")
-    sp_tuning_sweep.add_argument("--weights", type=str, default="0.5,1.0,1.5", help="Comma-separated weights")
-    sp_tuning_sweep.add_argument("--cribs", type=str, default="", help="Comma-separated crib tokens")
-    sp_tuning_sweep.add_argument(
-        "--samples",
-        type=str,
-        default="",
-        help="Optional path to newline-delimited samples file",
-    )
-    sp_tuning_sweep.add_argument("--json", action="store_true", help="Emit JSON rows to stdout")
-    sp_tuning_sweep.set_defaults(func=cmd_tuning_crib_weight_sweep)
-
-    sp_tuning_pick = sub.add_parser("tuning-pick-best", help="Pick best weight from a sweep CSV file")
-    sp_tuning_pick.add_argument("--csv", type=Path, required=True, help="Path to crib_weight_sweep.csv")
-    sp_tuning_pick.set_defaults(func=cmd_tuning_pick_best)
-
-    sp_tuning_summary = sub.add_parser(
-        "tuning-summarize-run",
-        help="Clean, summarize, and count crib hits for a run dir",
-    )
-    sp_tuning_summary.add_argument("--run-dir", type=Path, required=True, help="Path to tuning run directory")
-    sp_tuning_summary.add_argument(
-        "--no-write",
-        action="store_true",
-        help="Do not write summary artifacts, just print JSON",
-    )
-    sp_tuning_summary.set_defaults(func=cmd_tuning_summarize_run)
-
-    sp_tuning_tiny = sub.add_parser("tuning-tiny-param-sweep", help="Run tiny deterministic param sweep")
-    sp_tuning_tiny.set_defaults(func=cmd_tuning_tiny_param_sweep)
-
-    sp_tuning_holdout = sub.add_parser("tuning-holdout-score", help="Compute holdout scoring deltas for a crib weight")
-    sp_tuning_holdout.add_argument("--weight", type=float, required=True, help="Crib weight to score")
-    sp_tuning_holdout.add_argument(
-        "--out",
-        type=Path,
-        default=Path("artifacts/reports/holdout.csv"),
-        help="Output CSV path",
-    )
-    sp_tuning_holdout.add_argument(
-        "--no-write",
-        action="store_true",
-        help="Do not write CSV, just print JSON summary",
-    )
-    sp_tuning_holdout.set_defaults(func=cmd_tuning_holdout_score)
-
-    sp_spy_eval = sub.add_parser("spy-eval", help="Evaluate SPY thresholds and print metrics")
-    sp_spy_eval.add_argument("--labels", type=Path, default=Path("data/spy_eval_labels.csv"), help="Labels CSV path")
-    sp_spy_eval.add_argument("--runs", type=Path, default=Path("artifacts/tuning_runs"), help="Root runs directory")
-    sp_spy_eval.add_argument("--thresholds", type=str, default="0.0,0.25,0.5,0.75", help="Comma-separated thresholds")
-    sp_spy_eval.set_defaults(func=cmd_spy_eval)
-
-    sp_spy_extract = sub.add_parser("spy-extract", help="Extract SPY tokens from runs at min confidence")
-    sp_spy_extract.add_argument("--runs", type=Path, default=Path("artifacts/tuning_runs"), help="Root runs directory")
-    sp_spy_extract.add_argument("--min-conf", type=float, default=0.25, help="Minimum confidence threshold")
-    sp_spy_extract.set_defaults(func=cmd_spy_extract)
-
-    sp_tuning_report = sub.add_parser(
-        "tuning-report",
-        help="Generate condensed CSV and top candidates markdown for a run",
-    )
-    sp_tuning_report.add_argument("--run-dir", type=Path, required=True, help="Path to tuning run directory")
-    sp_tuning_report.add_argument("--top-n", dest="top_n", type=int, default=10, help="Top candidates markdown limit")
-    sp_tuning_report.add_argument("--no-markdown", action="store_true", help="Skip markdown generation")
-    sp_tuning_report.set_defaults(func=cmd_tuning_report)
-
-    sp_autopilot = sub.add_parser("autopilot", help="Run a single exchange or loop until safe decision")
-    sp_autopilot.add_argument("--plan", type=str, default=None, help="Optional plan text appended to Q prompt")
-    sp_autopilot.add_argument("--dry-run", action="store_true", help="Dry-run (no destructive actions)")
-    sp_autopilot.add_argument("--loop", action="store_true", help="Loop until safe decision or iterations cap")
-    sp_autopilot.add_argument("--iterations", type=int, default=0, help="Loop iteration cap (0=infinite)")
-    sp_autopilot.add_argument("--interval", type=int, default=300, help="Seconds between loop iterations")
-    sp_autopilot.add_argument("--force", action="store_true", help="Override dry-run inside loop")
-    sp_autopilot.set_defaults(func=cmd_autopilot)
-
-    sp_autonomous = sub.add_parser("autonomous", help="Run autonomous coordination loop (24/7 cryptanalysis)")
-    sp_autonomous.add_argument("--max-hours", type=float, default=None, help="Maximum runtime in hours (None=infinite)")
-    sp_autonomous.add_argument(
-        "--max-cycles",
-        type=int,
-        default=None,
-        help="Maximum coordination cycles (None=infinite)",
-    )
-    sp_autonomous.add_argument(
-        "--cycle-interval",
-        type=float,
-        default=0.25,
-        help="Minutes between cycles (default: 15 sec)",
-    )
-    sp_autonomous.add_argument(
-        "--ops-cycle",
-        type=float,
-        default=0.5,
-        help="Minutes between OPS strategic analyses (default: 30 sec)",
-    )
-    sp_autonomous.add_argument(
-        "--web-intel-hours",
-        type=float,
-        default=0.5,
-        help="Hours between web intelligence checks (default: 30 min)",
-    )
-    sp_autonomous.set_defaults(func=cmd_autonomous)
-
-    sp_examples_smoke = sub.add_parser(
-        "examples-smoke",
-        help="Run fast example demos (sections, tiny sweep, composite) for CI smoke validation",
-    )
-    sp_examples_smoke.add_argument("--limit", type=int, default=5, help="Composite demo candidate limit")
-    sp_examples_smoke.add_argument(
-        "--keep",
-        type=int,
-        default=4,
-        help="Max number of recent demo dirs to keep after run (purge older)",
-    )
-    sp_examples_smoke.set_defaults(func=cmd_examples_smoke)
-    return p
 
 
 def cmd_serve(args: argparse.Namespace) -> int:
@@ -487,6 +377,64 @@ def cmd_benchmark(args: argparse.Namespace) -> int:
     rows = run_benchmarks(names=names, out_dir=args.out_dir)
     print(format_results_table(rows))
     print(f"\nResults written to {args.out_dir}/results.json and {args.out_dir}/results.csv")
+    return 0
+
+
+def cmd_ledger(args: argparse.Namespace) -> int:
+    """Print the hypothesis ledger as Markdown tables or JSON."""
+    import json as _json
+
+    from kryptos.k4.hypothesis_ledger import ledger_markdown, ledger_summary
+
+    print(_json.dumps(ledger_summary(), indent=2, default=str) if args.json else ledger_markdown())
+    return 0
+
+
+def cmd_frontier(args: argparse.Namespace) -> int:
+    """Run the frontier suite and print a short verdict per check."""
+    from kryptos.k4.frontier_checks import run_frontier_suite
+
+    s = run_frontier_suite(artifact_path=args.out, heavy=not args.quick, include_dictionary=args.dictionary)
+    rk = min(v["p_english"] for v in s["running_key_english"]["families"].values())
+    print(f"running key from English text, best p_english:   {rk:.4f}")
+    print(f"recurrence-key survivors (orders 1-7):           {sum(len(v) for v in s['recurrence_key'].values())}")
+    ga = s["general_alphabet_periodic"]
+    print(f"mixed plaintext alphabet, periods <= 12 passing: {[p for p in ga['mixed_plain_alphabet'] if p <= 12]}")
+    dial = sum(n for f in s["dial_keys"].values() for n in f.values())
+    print(f"dial-key survivors:                              {dial}")
+    print(f"bearing routes: {s['bearing_routes']['mappings']} routes, survivors {s['bearing_routes']['survivors']}")
+    hill4 = sum(r.get("invertible_matrices", 0) for r in s["hill_4x4"])
+    print(f"Hill 4x4 invertible matrices fitting the cribs:  {hill4}")
+    if "reconstruction" in s:
+        r = s["reconstruction"]
+        fits = sum(len(v) for v in r["periodic_1_48"].values()) + sum(r["columnar_period_1_48"].values())
+        print(f"reconstruction: periodic / columnar fits:        {fits}")
+    print(f"Artifact written to {args.out}")
+    return 0
+
+
+def cmd_crib_constraints(args: argparse.Namespace) -> int:
+    """Run the crib-constraint suite and print a one-line verdict per test."""
+    from kryptos.k4.crib_constraints import run_crib_constraint_suite
+
+    summary = run_crib_constraint_suite(widths=range(2, args.max_width + 1), artifact_path=args.out)
+    ctx = sum(len(v["survivors"]) for v in summary["ciphertext_autokey"].values())
+    ptx = sum(len(v["survivors"]) for v in summary["plaintext_autokey"].values())
+    lin = sum(len(v) for v in summary["linear_key"].values())
+    dig = sum(1 for v in summary["digit_key"].values() if v["viable"])
+    rk = sum(1 for fam in summary["running_key"].values() for v in fam.values() if v["exact"])
+    print(f"ciphertext autokey survivors (>=2 constraints): {ctx}")
+    print(f"plaintext autokey survivors (>=2 constraints):  {ptx}")
+    print(f"linear key survivors:                            {lin}")
+    print(f"digit-key alphabets viable:                      {dig}")
+    print(f"running-key exact matches:                       {rk}")
+    for w, r in summary["columnar_period"].items():
+        low = {
+            m: sum(n for fam in r[m].values() for p, n in fam.items() if int(p) <= 22)
+            for m in ("sub_then_trans", "trans_then_sub")
+        }
+        print(f"columnar width {w} ({r['permutations']} orders), survivors at period <= 22: {low}")
+    print(f"Artifact written to {args.out}")
     return 0
 
 

@@ -25,7 +25,8 @@ def get_conn() -> Generator:
     except ImportError as exc:
         raise ImportError("psycopg2-binary is required: pip install psycopg2-binary") from exc
 
-    conn = psycopg2.connect(get_db_url())
+    # A finite connect timeout keeps request-path reads (job lookups) from hanging when the DB is unreachable.
+    conn = psycopg2.connect(get_db_url(), connect_timeout=int(os.getenv("DATABASE_CONNECT_TIMEOUT", "5")))
     conn.autocommit = True
     try:
         yield conn

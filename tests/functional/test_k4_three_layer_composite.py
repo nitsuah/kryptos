@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from kryptos.k4.eureka import EurekaSignal
 from kryptos.k4.three_layer_composite import (
     CIA_PRIORITY_TIMES,
     K4,
@@ -16,7 +17,6 @@ from kryptos.k4.three_layer_composite import (
     _vigenere_decrypt_std,
     run_three_layer_composite,
 )
-from kryptos.k4.eureka import EurekaSignal
 from kryptos.k4.vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
 
 STANDARD = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -205,7 +205,6 @@ class TestEurekaTrigger:
         return apply_columnar_permutation_encrypt(step2, n_cols, perm)
 
     def _make_ct(self) -> str:
-        from datetime import time
         from kryptos.k4.berlin_clock import full_berlin_clock_shifts
 
         shifts = full_berlin_clock_shifts(time(0, 0, 0))

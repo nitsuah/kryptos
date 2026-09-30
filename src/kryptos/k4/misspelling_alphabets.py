@@ -30,7 +30,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from .vigenere_key_recovery import KNOWN_KEYED_ALPHABETS, build_keyed_alphabet
+from .vigenere_key_recovery import KNOWN_KEYED_ALPHABETS
 
 logger = logging.getLogger(__name__)
 

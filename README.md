@@ -117,6 +117,28 @@ then convert back.
 
 ## Recent Updates
 
+### K4 Negative-Space Pass (September 2026)
+
+- **P21 crib-constraint engine.** Tests cipher *families* against the 24 known letters rather than decrypting sampled keys. It eliminates, over stated ranges: autokey, linear, progressive, digit and sculpture-text running keys; Quagmire I–III for 231,933 dictionary keyword alphabets; and columnar (widths 2–9) or geometric transpositions composed with a periodic key of period ≤ 22, in either layer order. Run `kryptos crib-constraints`.
+- **Hypothesis ledger.** `GET /api/k4/ledger` gives a frontend-ready map of what's `eliminated`, `statistical`, `sampled_null` or `open`.
+- **Ranked gaps** in `docs/analysis/K4_NEGATIVE_SPACE.md`.
+- **Second pass, same day:** error-tolerant scans against shuffled controls (no signal), double-periodic keys for *any* keywords (p1 + p2 ≤ 24 eliminated), Quagmire IV, K3-style double rotation, transposition + autokey/running key, nulls, Hill 2×2/3×3, and the 25-letter-output ciphers (K4 uses all 26 letters) are all ruled out over stated ranges (`kryptos.k4.structural_checks`). Jobs now persist to Neon, the ledger reports the latest run, and the scoring word list is a real dictionary. Sanborn's statements are collected with citations in `docs/sources/SANBORN_QUOTES.md`.
+- **Frontier pass:** `kryptos frontier` (API `p22_frontier_checks`) covers most of what was left open. It rules out linear-recurrence keys, periodic keys over any mixed alphabet (letter-swap masking), keys read from a clock, 24-hour or compass dial, routes along every compass bearing, and Hill 4×4; Hill 5×5 and running keys from any English text show no signal. It also tests the published full-plaintext reconstruction ("THE COMPASS ROSE IS HERE…") as known plaintext against every family: none can produce K4 from it.
+
+---
+
+### K4 Deep-Dive Audit (September 2026)
+
+**A correctness pass over the K4 claims themselves, not a new sweep:**
+
+- **IC figures corrected.** K4's index of coincidence is **0.0361** (near random), not the ≈0.062 "near-English" the docs quoted. The local-IC table (0.058/0.071/0.062) was never computed from the ciphertext; the real values are 0.046/0.046/0.034, a spread random reshuffles match about 46% of the time. The "substitution → transposition confirmed" architecture rested on those numbers and is downgraded to a working hypothesis. New: `kryptos.k4.ic_profile`.
+- **Stronger periodic-key result.** No direct periodic key of length ≤ 26 fits the 24 crib letters under Vigenère, Beaufort, Variant Beaufort, *or* KRYPTOS-keyed Quagmire III (`key_csp.periodic_family_consistency`). P18 had covered only Vigenère, periods 2–20.
+- **Single source for crib shifts.** `key_csp.CRIB_SHIFTS` is now derived from `K4_CRIBS` rather than hand-typed (the hand-typed copy is how the 2026-09-02 off-by-one was duplicated). Crib release dates are recorded in `keystream_validator.K4_CRIB_RELEASES`. EAST was released Aug 2020, not 2023.
+- **External-fact corrections.** "THE COMPASS ROSE IS HERE" is solvekryptos.com's *reconstruction*, not Sanborn's archival text, which hasn't been released. Paradigm self-identified as the auction buyer in June 2026 and runs a $1-per-guess K4 verifier.
+- Pinned by `tests/functional/test_k4_documented_facts.py`.
+
+---
+
 ### K4 Physical/Geometric Pivot + Phase 7 Complete (August–September 2026)
 
 **All 13 code-executable items of the "Physical/Geometric Pivot" research brief (of 15 — items 10-11 were historical/archival research, satisfied via sourced documentation rather than code), plus a follow-on Phase 7, implemented and executed against real K4 — every result null (2.6M+ candidates total across the two phases):**
@@ -130,7 +152,7 @@ then convert back.
 - World Clock city-list keyword research, cross-vector consensus scoring across every null-result artifact, and a scheduled overnight full-sweep runner
 - New dashboard Pivot Status panel showing the hypothesis graph and geodesy figures
 
-**What's left needs new source material, not new code** — a complete World Clock city list, a sub-minute-precision historical timestamp, or photographic documentation of the Kryptos compass rose's exact bearing. See `docs/ROADMAP.md`'s "Ideas — not yet scheduled" section.
+**What's left** (updated 2026-09-27): two of the three source gaps named here closed on 2026-09-02 (World Clock city list at 130/146, and a sub-minute Nov 9 1989 timestamp). The compass rose's measured bearing is still open. See `docs/ROADMAP.md`'s 2027 Q1 section.
 
 ---
 
@@ -187,10 +209,10 @@ to `IQLUSION` in K1).
 
 ### ℹ️ K4: The unsolved mystery
 
-- **Status**: Unsolved. Every attack vector attempted so far is null — single-layer, 2-layer, 3-layer composite, all 20 frontier vectors (P1–P20), the full 15-item Physical/Geometric Pivot, Phase 7's shape-changing transpose family + shadow-angle primitives + city-list keywords, and the 2026-09-03 Phase 8 follow-ups. The one open lead is the compass rose's measured bearing (primary-source outreach, see ROADMAP 2027 Q1). 1400+ tests passing, all attacks instrumented with permanent provenance artifacts.
-- **Architecture confirmed**: substitution → transposition → K4 ciphertext (IC evidence; transposition-first definitively ruled out)
+- **Status**: Unsolved. Every attack vector attempted so far is null — single-layer, 2-layer, 3-layer composite, all 20 frontier vectors (P1–P20), the full 15-item Physical/Geometric Pivot, Phase 7's shape-changing transpose family + shadow-angle primitives + city-list keywords, and the 2026-09-03 Phase 8 follow-ups. The one open lead is the compass rose's measured bearing (primary-source outreach, see ROADMAP 2027 Q1). 1,670+ fast tests passing, all attacks instrumented with permanent provenance artifacts.
+- **Architecture**: what's established is a flattening, polyalphabetic-like layer (IC 0.0361, near random) that no direct periodic key of length ≤ 26 can explain. Whether there is also a transposition, and in which order, is **not** established. An older "substitution → transposition confirmed" claim rested on IC figures that don't match the ciphertext (corrected 2026-09-27, see `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` §4–5).
 - **Confirmed cribs** (0-indexed): EAST@21–24, NORTHEAST@25–33, BERLIN@63–68, CLOCK@69–73
-- **What's left**: needs new source material, not new code — a complete World Clock city list, a sub-minute-precision historical timestamp, or photographic documentation of the Kryptos compass rose's exact bearing. See `docs/ROADMAP.md`'s "Ideas — not yet scheduled."
+- **What's left**: the compass rose's measured bearing (primary-source outreach). The World Clock city list (130/146) and the sub-minute timestamp closed 2026-09-02. On the code side, the untested family is a non-periodic key with no transposition (see `docs/ROADMAP.md`, 2027 Q1).
 - **Current status**: `docs/analysis/K4_ACTIVE_RESEARCH.md` — the single source of truth for confirmed facts, ruled-out hypotheses, and Phase 1-7 results (older per-vector "3D fingerprint" analysis is archived at `docs/archive/K4_ATTACK_LANDSCAPE.md`).
 - **Live dashboard**: `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 → K4 Dashboard
 

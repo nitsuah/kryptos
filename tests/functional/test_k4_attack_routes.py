@@ -33,6 +33,9 @@ def fast_attacks(monkeypatch):
     lifecycle and dispatch, not attack speed (the real sweeps can take >10s on CI)."""
     monkeypatch.setattr("kryptos.k4.gronsfeld.run_gronsfeld_sweep", lambda *a, **k: {"fake": "gronsfeld"})
     monkeypatch.setattr("kryptos.k4.key_csp.run_key_csp_attack", lambda *a, **k: {"fake": "key_csp"})
+    monkeypatch.setattr(
+        "kryptos.k4.crib_constraints.run_crib_constraint_suite", lambda *a, **k: {"fake": "crib_constraints"}
+    )
 
 
 def _poll_until_done(client: TestClient, job_id: str, timeout: float = 10.0) -> dict:
@@ -156,3 +159,43 @@ def test_run_multiple_jobs_have_independent_state(client, fast_attacks):
     assert job2["attack_id"] == "p18_key_csp"
     assert job1["summary"] == {"fake": "gronsfeld"}
     assert job2["summary"] == {"fake": "key_csp"}
+
+
+def test_crib_constraints_attack_is_runnable(client, fast_attacks):
+    ids = {v["id"] for v in client.get("/api/k4/attacks/frontier").json()["vectors"]}
+    assert "p21_crib_constraints" in ids
+    resp = client.post("/api/k4/attacks/run", json={"attack_id": "p21_crib_constraints"})
+    assert resp.status_code == 200
+    job = _poll_until_done(client, resp.json()["job_id"])
+    assert job["status"] == "complete"
+    assert job["summary"] == {"fake": "crib_constraints"}
+
+
+def test_recent_jobs_route(client, fast_attacks):
+    resp = client.post("/api/k4/attacks/run", json={"attack_id": "p18_key_csp"})
+    job_id = resp.json()["job_id"]
+    _poll_until_done(client, job_id)
+    jobs = client.get("/api/k4/attacks/jobs", params={"limit": 5}).json()["jobs"]
+    assert any(j["job_id"] == job_id for j in jobs)
+
+
+def test_crib_constraints_is_single_flight(client, monkeypatch):
+    import threading as _t
+
+    release = _t.Event()
+
+    def _slow(*a, **k):
+        release.wait(5)
+        return {"fake": "crib_constraints"}
+
+    monkeypatch.setattr("kryptos.k4.crib_constraints.run_crib_constraint_suite", _slow)
+    first = client.post("/api/k4/attacks/run", json={"attack_id": "p21_crib_constraints"})
+    assert first.status_code == 200
+    second = client.post("/api/k4/attacks/run", json={"attack_id": "p21_crib_constraints"})
+    assert second.status_code == 409
+    assert first.json()["job_id"] in second.json()["detail"]
+    release.set()
+    assert _poll_until_done(client, first.json()["job_id"])["status"] == "complete"
+    third = client.post("/api/k4/attacks/run", json={"attack_id": "p21_crib_constraints"})
+    assert third.status_code == 200
+    _poll_until_done(client, third.json()["job_id"])

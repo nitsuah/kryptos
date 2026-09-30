@@ -2,6 +2,8 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
+> **Provenance note (2026-09-27):** this page is an unsourced interpretive summary, kept for its ideas. Checked against sources: the Mengenlehreuhr→Weltzeituhr line runs at 69.0° (current site) or 70.8° (1975–1995 site), within 1.5–3.3° of ENE (67.5°), computed in `kryptos.k4.geodesy`/`clock_rotation`. The clock carries **146** city names plus a date-line plate (German Wikipedia), not 148. The Weltzeituhr stands on a compass-rose mosaic. The claims that Sanborn "explicitly noted" the Berlin Wall's influence on the plaintext, that he misspelled NORTHEAST as "NORTHEST" in his notes, and that decoded materials associate the clocks with "go between the lines" have no source in this repo. Treat them as unverified.
+
 In the context of Jim Sanborn's Kryptos K4 puzzle, the World Clock (Weltzeituhr) is not used as a complex math engine, but rather as a highly tactile, physical, and historical key. When Sanborn formally clarified that the "BERLINCLOCK" clue explicitly pointed to the World Clock, codebreakers and journalists—including those who recently reviewed his original Smithsonian coding scraps—identified how its specific attributes translate cryptographically:
 
 1. Geographic Alignment & Vector Keys
@@ -13,7 +15,7 @@ In the context of Jim Sanborn's Kryptos K4 puzzle, the World Clock (Weltzeituhr)
 2. Historical & Narrative Data Substitution
 
     - Sanborn explicitly noted that the fall of the Berlin Wall heavily influenced his plaintext design. The World Clock was the central public gathering landmark for the crowds during the 1989 protests.
-    - Data Fields as Plaintext: In Kryptos, historical details often mask the final riddle. Names, exact dates (e.g., November 9, 1989), or the specific 148 cities engraved on the World Clock's rotunda can serve as a custom alphabet or a substitution key.
+    - Data Fields as Plaintext: In Kryptos, historical details often mask the final riddle. Names, exact dates (e.g., November 9, 1989), or the specific 146 cities (plus a date-line plate) engraved on the World Clock's rotunda can serve as a custom alphabet or a substitution key.
 
 3. "Go Between the Lines" & The Shadow Rule
 

@@ -212,7 +212,7 @@ class TestGetTzOffsetStates(unittest.TestCase):
     """P4 — TZ offset modifier."""
 
     def setUp(self):
-        from kryptos.k4.k2_clock_states import get_tz_offset_states, clock_state_for_time
+        from kryptos.k4.k2_clock_states import clock_state_for_time, get_tz_offset_states
         self._fn = get_tz_offset_states
         self._base = [clock_state_for_time("13:00")]
 
@@ -253,7 +253,6 @@ class TestRunningKeyDecrypt(unittest.TestCase):
         self.assertEqual(result, "H")
 
     def test_roundtrip(self):
-        from kryptos.k4.running_key import running_key_decrypt
         # Manually encrypt "EAST" with key "ABCD"
         # E+A=E, A+B=C, S+C=U, T+D=W → ciphertext ECUW
         # decrypt ECUW with key ABCD → EAST

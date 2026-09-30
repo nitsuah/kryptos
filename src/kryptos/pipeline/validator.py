@@ -351,7 +351,6 @@ class PlaintextValidator:
 
 def demo_validator():
     import json
-    from pathlib import Path
 
     print("=" * 80)
     print("PLAINTEXT VALIDATOR DEMO")

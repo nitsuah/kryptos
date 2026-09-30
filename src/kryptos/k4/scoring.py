@@ -126,31 +126,79 @@ if not LETTER_FREQ:
         'Z': 0.074,
     }
 
+_FALLBACK_WORDS: set[str] = {
+    'THE',
+    'AND',
+    'YOU',
+    'THAT',
+    'FOR',
+    'WITH',
+    'HAVE',
+    'THIS',
+    'FROM',
+    'CLOCK',
+    'BERLIN',
+    'TIME',
+    'CODE',
+    'DATA',
+    'NEXT',
+    'OVER',
+    'PART',
+    'TEXT',
+}
+
+
+def _dictionary_words(min_len: int = 4) -> set[str]:
+    """English words of ``min_len``+ letters from the MIT ``english-words`` package, if installed.
+
+    ``data/wordlist.txt`` has never existed in this repo, so until 2026-09-28 ``WORDLIST``
+    was only the 18 fallback words above. Calibrated on K1-K3 plaintext against
+    frequency-matched random text (97-letter windows): English/random separation of
+    ``wordlist_hit_rate`` is 1.55 with the 18 words, 1.85 with all 3+ letter words
+    (too many obscure 3-letter words hit random text) and 1.91 with 4+ letter words.
+    """
+    try:
+        from english_words import get_english_words_set
+    except ImportError:
+        return set()
+    return {w.upper() for w in get_english_words_set(["web2", "gcide"], alpha=True) if len(w) >= min_len}
+
+
 if not WORDLIST:
-    WORDLIST = {
-        'THE',
-        'AND',
-        'YOU',
-        'THAT',
-        'FOR',
-        'WITH',
-        'HAVE',
-        'THIS',
-        'FROM',
-        'CLOCK',
-        'BERLIN',
-        'TIME',
-        'CODE',
-        'DATA',
-        'NEXT',
-        'OVER',
-        'PART',
-        'TEXT',
-    }
+    WORDLIST = _dictionary_words() | _FALLBACK_WORDS
+    WORDLIST_SOURCE = "english-words (4+ letters) + fallback" if len(WORDLIST) > len(_FALLBACK_WORDS) else "fallback"
+else:
+    WORDLIST_SOURCE = "data/wordlist.txt"
 
 _UNKNOWN_BIGRAM = -2.0
 _UNKNOWN_TRIGRAM = -2.5
 _UNKNOWN_QUADGRAM = -4.0
+
+
+def _ngram_floor(path: str) -> float | None:
+    try:
+        with open(path, encoding='utf-8') as fh:
+            for line in fh:
+                if line.startswith('# floor'):
+                    return float(line.split('\t')[1])
+    except (FileNotFoundError, ValueError, IndexError):
+        return None
+    return None
+
+
+# Real English n-gram tables (log10 probabilities from ~8.9M letters of public-domain text,
+# built by scripts/data/build_english_ngrams.py). The older bigrams/trigrams/quadgrams TSVs
+# hold about ten illustrative entries each, so they are only a fallback.
+NGRAM_SOURCE = "placeholder tables (data/ngrams/{bi,tri,quad}grams.tsv)"
+_english = {n: os.path.join(NGRAMS_DIR, f'english_{n}grams.tsv') for n in (2, 3, 4)}
+if all(os.path.exists(path) for path in _english.values()):
+    BIGRAMS = _load_ngrams(_english[2])
+    TRIGRAMS = _load_ngrams(_english[3])
+    QUADGRAMS = _load_ngrams(_english[4])
+    _UNKNOWN_BIGRAM = _ngram_floor(_english[2]) or _UNKNOWN_BIGRAM
+    _UNKNOWN_TRIGRAM = _ngram_floor(_english[3]) or _UNKNOWN_TRIGRAM
+    _UNKNOWN_QUADGRAM = _ngram_floor(_english[4]) or _UNKNOWN_QUADGRAM
+    NGRAM_SOURCE = "data/ngrams/english_{2,3,4}grams.tsv"
 
 
 def chi_square_stat(text: str) -> float:
@@ -629,6 +677,7 @@ __all__ = [
     'CRIBS',
     'QUADGRAMS',
     'WORDLIST',
+    'WORDLIST_SOURCE',
     'chi_square_stat',
     'bigram_score',
     'trigram_score',
