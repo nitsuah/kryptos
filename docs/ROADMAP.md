@@ -22,7 +22,7 @@ every check. The result is tracked per family in `kryptos.k4.hypothesis_ledger` 
 **What's established about K4.**
 
 - A flattening layer exists: K4's IC is 0.0361, near random.
-- No periodic key up to period 26 fits the cribs in any of five families, and neither does the sum of two periodic keys
+- No periodic key up to period 26 fits the cribs in any of four families (Vigenère, Beaufort, Variant Beaufort, KRYPTOS-keyed Quagmire III), and neither does the sum of two periodic keys
   (p1 + p2 ≤ 24).
 - Whether a transposition exists, and which layer comes first, is not established. The older "substitution then
   transposition, confirmed" line rested on IC figures that don't match the ciphertext (corrected 2026-09-27; see

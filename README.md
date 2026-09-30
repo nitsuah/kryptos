@@ -29,11 +29,15 @@ This repository is a research toolkit for K4. It solves K1–K3 end to end, and 
   from English (≈0.066). So at least one layer flattens letter frequencies. Whether there is also a transposition, and
   in which order the layers were applied, is **not** established.
 - **Ruled out over stated ranges** (26 ledger entries, each with a positive control):
-  - Periodic keys up to period 26 in five families, and the sum of two periodic keys.
+  - Periodic keys up to period 26 in four families (Vigenère, Beaufort, Variant Beaufort, KRYPTOS-keyed Quagmire III),
+    and the sum of two periodic keys with p1 + p2 ≤ 24.
   - Autokey, linear, progressive, digit, recurrence and dial keys.
-  - Quagmire I–IV over a 231,933-word dictionary, and a periodic key over *any* mixed alphabet.
-  - Columnar transposition (widths 2–14), the geometric grids, K3's double rotation and compass-bearing routes, each
-    combined with a periodic key in either order.
+  - Quagmire I–IV over a 231,933-word dictionary, and a periodic key over *any* mixed alphabet (periods 1–12 with the
+    alphabet on the plaintext side, 1–15 on the ciphertext side).
+  - The geometric grids, K3's double rotation and compass-bearing routes, and columnar transposition of widths 2–9,
+    each combined with a periodic key of period 1–22 in either order.
+  - Columnar widths 10–14 with a periodic key: key first, periods 1–22 except 17 (widths 12–14) and 18 (width 14);
+    transposition first, periods 1–17. The column orders that do fit at those exceptions decrypt to noise.
   - Hill 2×2 to 4×4, nulls between the cribs, and the 25-letter-output ciphers.
 - **No signal against shuffled-ciphertext controls:** running keys from any English text, Hill 5×5, and scans that
   allow one or two wrong crib letters.

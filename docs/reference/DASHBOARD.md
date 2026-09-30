@@ -38,7 +38,8 @@ Build, run and deploy instructions: [`frontend/README.md`](../../frontend/README
   families per tier, the only decoration that carries data) and a glyph block.
 - **Dock.** One tick per module. A yellow/black dot marks a module with a CAUTION.
 
-Switching modules: dock, ring dial, side previews, `←`/`→` (or `[`/`]`) when not typing, or a horizontal swipe. The
+Switching modules: dock, ring dial, side previews, `←`/`→` (or `[`/`]`) when focus isn't inside the module, or a
+horizontal swipe. The
 active module is in the URL hash (`#ledger`). Links from the earlier nine-module layout redirect: `#overview` → K4,
 `#jobs` → Attacks, `#decoder`/`#vault` → Lab, `#runs`/`#console` → System.
 
@@ -121,6 +122,8 @@ are black-outlined and turn orange on hover.
   the active module.
 - The ring dial in the header is a pointer shortcut only (hidden from assistive technology); the dock is the
   keyboard-accessible control.
-- Keyboard: `←`/`→` switch modules unless focus is in a form field; everything else is reachable with Tab.
+- Keyboard: `←`/`→` switch modules unless focus is in a form field or anywhere inside the module's screen (lists,
+  buttons, the cipher matrix), so the module in use is never unmounted by an arrow key; everything else is reachable
+  with Tab.
 - Tier and status colours always come with a text label. `prefers-reduced-motion` stops the carousel, dial, gauge and
   clock-topper animation.

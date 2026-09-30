@@ -215,10 +215,13 @@ function Shell() {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
-  // ←/→ (and [ / ]) switch modules unless the user is typing.
+  // ←/→ (and [ / ]) switch modules unless focus is in a form field or inside a module.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.altKey || e.ctrlKey || e.metaKey || isTyping(e.target)) return;
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || isTyping(e.target)) return;
+      // Inside a module, arrow keys belong to whatever has focus there (lists, the
+      // cipher matrix, buttons); switching modules would unmount it mid-use.
+      if (e.target instanceof HTMLElement && e.target.closest(".screen, .cm-grid")) return;
       if (e.key === "ArrowRight" || e.key === "]") {
         e.preventDefault();
         next();
