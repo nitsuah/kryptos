@@ -52,7 +52,7 @@ function JobRow({ job, open, onToggle }: { job: JobStatus; open: boolean; onTogg
 }
 
 export default function Attacks() {
-  const { vectors, jobs, jobsError, refreshJobs, status } = useDashboard();
+  const { vectors, vectorsError, refreshVectors, jobs, jobsError, refreshJobs, status } = useDashboard();
   const [q, setQ] = useState("");
   const [selId, setSelId] = useState<string | null>(null);
   const [openJob, setOpenJob] = useState<string | null>(null);
@@ -93,7 +93,17 @@ export default function Attacks() {
           </span>
         </div>
         <ul className="rows" aria-label="Attack vectors">
-          {vectors.length === 0 && <li className="muted">Loading the attack registry…</li>}
+          {vectors.length === 0 &&
+            (vectorsError ? (
+              <li className="muted">
+                Attack registry unavailable: {vectorsError}{" "}
+                <button type="button" className="link-button" onClick={refreshVectors}>
+                  retry
+                </button>
+              </li>
+            ) : (
+              <li className="muted">Loading the attack registry…</li>
+            ))}
           {rows.map((v) => (
             <li key={v.id}>
               <button
