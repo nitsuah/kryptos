@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Agent instructions (`.github/copilot-instructions.md`) now require closing tracked work in the same PR: update `docs/TASKS.md`, `docs/ROADMAP.md` and this changelog before the last push, and confirm `git diff origin/main...HEAD --stat` includes them before merge; extended `.github/pull_request_template.md` with a "Closes TASKS item(s)" checklist.
+
 ### Changed (2026-09-30 — dashboard, second pass)
 
 - Nine modules consolidated to five: **K4** (was Overview), **Ledger**, **Attacks** (now includes Jobs), **Lab** (Decoder, ad-hoc decrypt and Vault), **System** (now includes run history and the live log). Old `#jobs`, `#vault`, `#console` etc. links redirect.
