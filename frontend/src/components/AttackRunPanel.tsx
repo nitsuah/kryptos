@@ -113,9 +113,9 @@ export default function AttackRunPanel({ vector, onJobChange }: Props) {
     ? job.status === "complete"
       ? "var(--accent)"
       : job.status === "eureka"
-        ? "#ff4444"
+        ? "var(--danger)"
         : job.status === "error"
-          ? "#ff8800"
+          ? "var(--warning)"
           : job.status === "running"
             ? "var(--warning)"
             : "var(--text)"
@@ -169,7 +169,7 @@ export default function AttackRunPanel({ vector, onJobChange }: Props) {
 
       {/* Error */}
       {job?.status === "error" && (
-        <div style={{ marginTop: "10px", color: "#ff8800", fontSize: "12px", fontFamily: "monospace" }}>
+        <div style={{ marginTop: "10px", color: "var(--danger)", fontSize: "12px", fontFamily: "var(--mono)" }}>
           Error: {job.error}
         </div>
       )}
@@ -179,10 +179,10 @@ export default function AttackRunPanel({ vector, onJobChange }: Props) {
         <div style={{
           marginTop: "12px",
           padding: "12px",
-          border: "2px solid #ff4444",
+          border: "2px solid var(--danger)",
           borderRadius: "4px",
-          background: "rgba(255,68,68,0.1)",
-          color: "#ff4444",
+          background: "color-mix(in srgb, var(--danger) 10%, transparent)",
+          color: "var(--danger)",
           fontWeight: "bold",
           fontSize: "14px",
           animation: "pulse 1s ease-in-out infinite alternate",

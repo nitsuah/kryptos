@@ -94,9 +94,10 @@ open_families = ledger("open")                       # what the ledger still lis
 
 ## Dashboard
 
-A single-page React app over the FastAPI backend, styled after the Ghost in the Shell interfaces: one screen, a
-rotating ring of nine modules (overview, ledger, attacks, jobs, runs, console, decoder, vault, system) that you switch with swipes, arrow
-keys or the ring itself. It scales from a phone to a wide monitor. Design notes:
+A single-page React app over the FastAPI backend, styled after the Ghost in the Shell interfaces. Five modules sit on
+a ring (K4, Ledger, Attacks, Lab, System), and each is laid out to fit the screen without scrolling. The K4 module
+includes a drawing of the Weltzeituhr, the Berlin World Clock that K4 names. Switch modules with the dock, arrow keys
+or a swipe. It scales from a phone to a wide monitor. Design notes:
 [`docs/reference/DASHBOARD.md`](./docs/reference/DASHBOARD.md); build and deploy: [`frontend/README.md`](./frontend/README.md).
 
 ```bash

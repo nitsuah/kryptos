@@ -83,8 +83,9 @@ and a sub-minute Nov 9 1989 timestamp). What remains:
 
 ## 2027 Q1 — Platform
 
-- [x] **Single-page dashboard (2026-09-30).** The tabbed SPA became one screen with a rotating module ring, styled after
-  the Ghost in the Shell interfaces, scaling from phone to wide monitor. Adds ledger and job-history modules. See
+- [x] **Single-page dashboard (2026-09-30).** The tabbed SPA became one fixed-height screen with five modules on a ring,
+  styled after the Ghost in the Shell interfaces, fitting the viewport without page scrolling, with a drawing of the
+  Weltzeituhr and UI for the ledger and job history. See
   `docs/reference/DASHBOARD.md`.
 - [ ] **"Try a hypothesis" endpoint.** Pick a family and parameters, get the crib verdict plus a decryption, so the
   dashboard can test ideas without a new module per idea.

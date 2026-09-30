@@ -1,21 +1,17 @@
 # Kryptos dashboard (frontend)
 
 A single-page React app over the kryptos FastAPI backend (`src/kryptos/api/`), styled after the Ghost in the Shell
-interfaces. There are no tabs: nine modules sit on a ring, the active one fills the screen and its neighbours show as
-tilted previews. Switch with the dock, the ring dial, the previews, `←`/`→`, or a swipe. The active module is in the
-URL hash (`#ledger`).
+interfaces. It is one fixed-height screen: five modules sit on a ring, each laid out to fit the viewport, and only long
+lists scroll inside their own panel. Switch with the dock, the ring dial, the side previews, `←`/`→`, or a swipe. The
+active module is in the URL hash (`#ledger`).
 
 | Code | Module | Main endpoints |
 |------|--------|----------------|
-| OV | Overview: K4 ciphertext with cribs, ledger totals, open fronts, clocks | `/api/k4/ledger` |
-| LG | Ledger: every hypothesis family by tier | `/api/k4/ledger` |
-| AT | Attacks: the P1–P22 queue, run and follow jobs | `/api/k4/attacks/frontier`, `POST /api/k4/attacks/run` |
-| JB | Jobs: recent attack jobs | `/api/k4/attacks/jobs` |
-| RN | Runs: campaign history and candidates | `/api/runs`, `/api/candidates` |
-| CN | Console: ad-hoc decrypt and the live log | `POST /api/decrypt`, `/api/stream/logs` |
-| DC | Decoder: K1–K3 step by step | `POST /api/decrypt` |
-| VT | Vault: seal and unseal secrets | `/api/vault/*` |
-| SY | System: API, database tables, pivot status | `/api/status`, `/api/k4/attacks/pivot-status` |
+| K4 | Ciphertext with cribs, ledger gauge, open fronts, and the Weltzeituhr drawing | `/api/k4/ledger` |
+| LG | Ledger: every hypothesis family by tier, with detail | `/api/k4/ledger` |
+| AT | Attacks: the P1–P22 queue, run controls, recent jobs | `/api/k4/attacks/frontier`, `POST /api/k4/attacks/run`, `/api/k4/attacks/jobs` |
+| LB | Lab: K1–K3 decoder, ad-hoc decrypt, vault | `POST /api/decrypt`, `/api/vault/*` |
+| SY | System: API and database, run history, live log, pivot status | `/api/status`, `/api/runs`, `/api/stream/logs`, `/api/k4/attacks/pivot-status` |
 
 Design notes (layout, scaling rules, colours, when the CAUTION tag appears, accessibility):
 [`docs/reference/DASHBOARD.md`](../docs/reference/DASHBOARD.md). Endpoint details:
@@ -31,8 +27,9 @@ src/
   shell/nav.tsx        lets a module jump to another
   modules/registry.tsx the module list: code, title, preview numbers, alert rule
   modules/*.tsx        one file per module
-  components/*.tsx     shared pieces (cipher matrix, tier gauge, run panel, log tail, …)
+  components/*.tsx     shared pieces (cipher matrix, World Clock, tier gauge, run panel, log tail, …)
   k4.ts                K4 ciphertext, crib positions, tier labels
+  worldclock.ts        Weltzeituhr panels: UTC offsets and engraved city names
   theme.css            all styling; tokens at the top
 ```
 

@@ -21,8 +21,19 @@ import { TIER_LABEL } from "./k4";
 const N = MODULES.length;
 const STEP = 360 / N;
 
+// Links from the nine-module layout (before 2026-09-30) still land somewhere sensible.
+const HASH_ALIASES: Record<string, string> = {
+  overview: "k4",
+  jobs: "attacks",
+  runs: "system",
+  console: "system",
+  decoder: "lab",
+  vault: "lab",
+};
+
 function indexFromHash(): number {
-  const id = window.location.hash.replace(/^#/, "");
+  const raw = window.location.hash.replace(/^#/, "");
+  const id = HASH_ALIASES[raw] ?? raw;
   const i = MODULES.findIndex((m) => m.id === id);
   return i >= 0 ? i : 0;
 }
@@ -150,7 +161,14 @@ function Face({ mod, index, data }: { mod: ModuleDef; index: number; data: Dashb
           <h2 id={`mod-${mod.id}-title`}>{mod.title}</h2>
           <span className="frame-blurb">{mod.blurb}</span>
         </div>
-        <Barcode seed={mod.id} className="frame-barcode" />
+        <div className="frame-tags" aria-hidden="true">
+          <Barcode seed={mod.id} className="frame-barcode" />
+          <div className="frame-tags-row">
+            <Meters data={data} />
+            <Glyph seed={mod.id} className="frame-glyph" />
+          </div>
+          <span className="frame-serial">{serial(mod.id)}</span>
+        </div>
       </header>
       <div className={`frame-main${alert ? " has-alert" : ""}`}>
         <div className="screen">
@@ -160,11 +178,6 @@ function Face({ mod, index, data }: { mod: ModuleDef; index: number; data: Dashb
         </div>
         {alert && <Caution seed={mod.id}>{alert}</Caution>}
       </div>
-      <footer className="frame-foot" aria-hidden="true">
-        <Meters data={data} />
-        <Glyph seed={mod.id} className="frame-glyph" />
-        <span className="frame-serial">{serial(mod.id)}</span>
-      </footer>
     </div>
   );
 }

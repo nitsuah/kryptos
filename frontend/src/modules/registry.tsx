@@ -1,14 +1,10 @@
 import { ComponentType, ReactNode } from "react";
 import { DashboardData } from "../shell/data";
 import Attacks from "./Attacks";
-import Console from "./Console";
-import Decoder from "./Decoder";
-import Jobs from "./Jobs";
+import Lab from "./Lab";
 import Ledger from "./Ledger";
 import Overview from "./Overview";
-import Runs from "./Runs";
 import System from "./System";
-import Vault from "./Vault";
 
 export interface ModuleDef {
   id: string;
@@ -18,7 +14,7 @@ export interface ModuleDef {
   /** One line under the title. */
   blurb: string;
   Component: ComponentType;
-  /** Key numbers shown when this module is a side preview or on the dock tooltip. */
+  /** Key numbers shown when this module is a side preview. */
   preview: (d: DashboardData) => [string, string][];
   /** Content for the CAUTION tag, or null when there's nothing to flag. */
   alert?: (d: DashboardData) => ReactNode | null;
@@ -30,10 +26,10 @@ const activeJobs = (d: DashboardData) => d.jobs.filter((j) => j.status === "queu
 
 export const MODULES: ModuleDef[] = [
   {
-    id: "overview",
-    code: "OV",
-    title: "Overview",
-    blurb: "K4 ciphertext, known letters, ledger totals and clocks",
+    id: "k4",
+    code: "K4",
+    title: "K4",
+    blurb: "Ciphertext, known letters, what's open, and the World Clock",
     Component: Overview,
     preview: (d) => [
       ["Known letters", "24 / 97"],
@@ -43,7 +39,7 @@ export const MODULES: ModuleDef[] = [
     alert: (d) =>
       d.online ? null : (
         <>
-          The API is not answering{d.statusError ? `: ${d.statusError}` : "."} Live data will return when it does.
+          The API is not answering{d.statusError ? `: ${d.statusError}` : "."} Live data returns when it does.
         </>
       ),
   },
@@ -63,74 +59,38 @@ export const MODULES: ModuleDef[] = [
     id: "attacks",
     code: "AT",
     title: "Attacks",
-    blurb: "P1–P22 attack queue; run any runnable vector",
+    blurb: "The P1–P22 queue, runs and recent jobs",
     Component: Attacks,
     preview: (d) => [
       ["Vectors", n(d.vectors.length)],
-      ["Runnable", n(d.vectors.filter((v) => v.runnable).length)],
       ["Running", n(activeJobs(d).length)],
+      ["Recent jobs", n(d.jobs.length)],
     ],
     alert: (d) => {
       const eureka = d.jobs.find((j) => j.status === "eureka");
-      return eureka ? (
-        <>
-          <b>EUREKA</b> from {eureka.attack_id} (job {eureka.job_id.slice(0, 8)}). All four cribs matched. Check the
-          snapshot before anything else.
-        </>
-      ) : null;
-    },
-  },
-  {
-    id: "jobs",
-    code: "JB",
-    title: "Jobs",
-    blurb: "Recent attack jobs, progress and results",
-    Component: Jobs,
-    preview: (d) => [
-      ["Recent", n(d.jobs.length)],
-      ["Running", n(activeJobs(d).length)],
-      ["Errors", n(d.jobs.filter((j) => j.status === "error").length)],
-    ],
-    alert: (d) => {
+      if (eureka) {
+        return (
+          <>
+            <b>EUREKA</b> from {eureka.attack_id} (job {eureka.job_id.slice(0, 8)}). All four cribs matched. Check the
+            snapshot first.
+          </>
+        );
+      }
       const errs = d.jobs.filter((j) => j.status === "error");
       return errs.length ? (
         <>
           {errs.length} job{errs.length === 1 ? "" : "s"} ended in an error. Latest: {errs[0].attack_id}
-          {errs[0].error ? ` — ${errs[0].error.slice(0, 120)}` : ""}.
+          {errs[0].error ? ` — ${errs[0].error.slice(0, 100)}` : ""}.
         </>
       ) : null;
     },
   },
   {
-    id: "runs",
-    code: "RN",
-    title: "Runs",
-    blurb: "Campaign run history and top candidates",
-    Component: Runs,
-    preview: (d) => [
-      ["Runs", d.status?.db_enabled ? n(d.status.table_counts.campaign_runs) : "no DB"],
-      ["Candidates", d.status?.db_enabled ? n(d.status.table_counts.candidates) : "–"],
-    ],
-    alert: (d) =>
-      d.status && !d.status.db_enabled ? <>No DATABASE_URL on this server, so there is no run history to show.</> : null,
-  },
-  {
-    id: "console",
-    code: "CN",
-    title: "Console",
-    blurb: "Ad-hoc decrypt and the live backend log",
-    Component: Console,
-    preview: () => [
-      ["Decrypt", "K1–K4"],
-      ["Log", "live SSE"],
-    ],
-  },
-  {
-    id: "decoder",
-    code: "DC",
-    title: "Decoder",
-    blurb: "How K1–K3 were enciphered, step by step",
-    Component: Decoder,
+    id: "lab",
+    code: "LB",
+    title: "Lab",
+    blurb: "K1–K3 decoder, ad-hoc decrypt and the vault",
+    Component: Lab,
     preview: () => [
       ["K1", "PALIMPSEST"],
       ["K2", "ABSCISSA"],
@@ -138,24 +98,18 @@ export const MODULES: ModuleDef[] = [
     ],
   },
   {
-    id: "vault",
-    code: "VT",
-    title: "Vault",
-    blurb: "Seal a secret under a keyed Vigenère; unseal once",
-    Component: Vault,
-    preview: (d) => [["Status", d.status?.db_enabled ? "available" : "needs DB"]],
-    alert: (d) =>
-      d.status && !d.status.db_enabled ? <>The vault stores sealed text in Neon; without DATABASE_URL it returns 503.</> : null,
-  },
-  {
     id: "system",
     code: "SY",
     title: "System",
-    blurb: "API, database tables and the geometric pivot",
+    blurb: "API and database, run history, live log, geometric pivot",
     Component: System,
     preview: (d) => [
       ["API", d.online ? "online" : "offline"],
       ["Database", d.status ? (d.status.db_enabled ? "connected" : "none") : "–"],
     ],
+    alert: (d) =>
+      d.status && !d.status.db_enabled ? (
+        <>No DATABASE_URL: run history, job persistence and the vault are off. Everything else works.</>
+      ) : null,
   },
 ];

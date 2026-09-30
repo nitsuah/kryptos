@@ -25,7 +25,7 @@ function fmtExpiry(iso: string | null): string {
   return iso ? new Date(iso).toLocaleString() : "never";
 }
 
-function SealPanel() {
+export function SealPanel() {
   const [plaintext, setPlaintext] = useState("");
   const [key, setKey] = useState("");
   const [ttl, setTtl] = useState(86400);
@@ -60,7 +60,7 @@ function SealPanel() {
   }
 
   return (
-    <section className="sub">
+    <div className="form-block">
       <h3>Seal a secret</h3>
       <div>
         <div className="field">
@@ -119,11 +119,11 @@ function SealPanel() {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }
 
-function UnsealPanel() {
+export function UnsealPanel() {
   const [token, setToken] = useState("");
   const [key, setKey] = useState("");
   const [result, setResult] = useState<VaultUnsealResponse | null>(null);
@@ -144,7 +144,7 @@ function UnsealPanel() {
   }
 
   return (
-    <section className="sub">
+    <div className="form-block">
       <h3>Unseal</h3>
       <div>
         <div className="field">
@@ -172,11 +172,11 @@ function UnsealPanel() {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }
 
-function PeekPanel() {
+export function PeekPanel() {
   const [token, setToken] = useState("");
   const [result, setResult] = useState<VaultPeekResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -196,7 +196,7 @@ function PeekPanel() {
   }
 
   return (
-    <section className="sub">
+    <div className="form-block">
       <h3>Status</h3>
       <div>
         <div className="row" style={{ alignItems: "flex-end" }}>
@@ -222,16 +222,6 @@ function PeekPanel() {
           </div>
         )}
       </div>
-    </section>
-  );
-}
-
-export default function Vault() {
-  return (
-    <div className="grid vault-grid">
-      <SealPanel />
-      <UnsealPanel />
-      <PeekPanel />
     </div>
   );
 }

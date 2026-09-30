@@ -128,8 +128,8 @@
 
 ### React SPA (single page, Ghost in the Shell style)
 
-- **One screen, no tabs**: a rotating ring of modules you switch with swipes, arrow keys, the dial or the module ring; the active module fills the stage and the neighbours stay visible at the sides on wide screens
-- **Modules**: Overview (K4 ciphertext with cribs, ledger totals, clocks), Ledger (every family by tier), Attacks (P1–P22 queue with run buttons and live job progress), Jobs (recent attack jobs), Runs (campaign history and top candidates), Console (ad-hoc decrypt and the live log), Decoder (K1–K3 animated), Vault, System (API, database tables, Physical/Geometric Pivot)
+- **One screen, no page scrolling**: five modules on a ring, switched with the dock, arrow keys, the dial or a swipe; each module is laid out to fit the viewport, and long lists scroll inside their own panel
+- **Modules**: K4 (ciphertext with cribs, ledger totals, open fronts, and a drawing of the Weltzeituhr with its city panels and live hour ring), Ledger (every family by tier, master–detail), Attacks (P1–P22 queue, run controls and recent jobs), Lab (K1–K3 decoder, ad-hoc decrypt, vault), System (API and database, run history, live log, geometric pivot)
 - **Responsive**: fluid type and spacing, a single column on phones, reduced motion honoured
 - **Single-container delivery**: FastAPI serves the built `frontend/dist` bundle via `StaticFiles(html=True)`; the root `Dockerfile` builds the SPA in a `node:22-alpine` stage and ships it alongside the API
 - **Stack**: Vite + React 18 + TypeScript, no runtime UI framework. Design notes: `docs/reference/DASHBOARD.md`

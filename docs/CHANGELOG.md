@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed (2026-09-30 — dashboard, second pass)
+
+- Nine modules consolidated to five: **K4** (was Overview), **Ledger**, **Attacks** (now includes Jobs), **Lab** (Decoder, ad-hoc decrypt and Vault), **System** (now includes run history and the live log). Old `#jobs`, `#vault`, `#console` etc. links redirect.
+- Every module is laid out to fit the viewport with no page scrolling; long lists (ledger families, attack vectors, jobs, tables) scroll inside their own panel. Phones and very short screens stack the panels instead.
+- The Mengenlehreuhr lamp clock is replaced by a drawing of the **Weltzeituhr** (the clock Sanborn says BERLIN CLOCK means): a solar-system topper that turns once a minute, the 24-panel drum with the engraved city names read so far, a live hour ring, and the wind-rose mosaic. Starts on Berlin's panel; turns with the arrows or by clicking a panel.
+- The teal screens are gone: content now sits on white panels framed in lavender (near-black in dark mode), with tier and crib colours tuned for each.
+
 ### Changed (2026-09-30 — dashboard and docs)
 
 - **Dashboard rebuilt as a single page** in the style of the Ghost in the Shell interfaces. The five tabs became nine modules on a ring (Overview, Ledger, Attacks, Jobs, Runs, Console, Decoder, Vault, System). The active module fills the stage, neighbours show as tilted previews, and navigation is by dock, ring dial, arrow keys, swipe or URL hash. It scales from phone to wide monitor, follows the system light/dark setting, and honours reduced motion. Only the active module mounts; shared data is polled once. Design notes: `docs/reference/DASHBOARD.md`.

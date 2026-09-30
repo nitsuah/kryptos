@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { SECTION_DATA, decodeK3, decodeVigenere } from "../cipher";
 import { ApiError, api } from "../api";
-import SubstitutionAnimator from "../components/SubstitutionAnimator";
-import GridStages from "../components/GridStages";
+import SubstitutionAnimator from "./SubstitutionAnimator";
+import GridStages from "./GridStages";
 
 type Section = "K1" | "K2" | "K3";
 const SECTIONS: Section[] = ["K1", "K2", "K3"];
@@ -31,7 +31,7 @@ export default function Decoder() {
   }
 
   return (
-    <div className="sub">
+    <div className="decoder">
       <div className="toolbar">
         <div className="seg" role="group" aria-label="Section">
           {SECTIONS.map((s) => (
