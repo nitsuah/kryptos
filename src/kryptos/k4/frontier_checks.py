@@ -596,7 +596,8 @@ def _best_columnar_decrypt_z(
     """Best ``english_z`` over every full key consistent with a surviving column order.
 
     Key slots the cribs don't reach (at most ``max_missing``) are enumerated over all 26
-    values each. Works for both layer orders. None if too many slots are free.
+    values each. Works for both layer orders. None if too many slots are free, or if the
+    non-crib text is too short or too long for ``english_z``.
     """
     n = len(ciphertext)
     col_len = [(n - c + width - 1) // width for c in range(width)]
@@ -611,6 +612,9 @@ def _best_columnar_decrypt_z(
     missing = [s for s in range(period) if s not in key]
     if len(missing) > max_missing:
         return None
+    noncrib_len = sum(i not in plain for i in range(n))
+    if noncrib_len < 4 or noncrib_len >= len(reference_english()):
+        return None  # outside the range english_z is calibrated for
     inverse = {(cv, fn(cv, pv)): pv for cv in range(26) for pv in range(26)}
     cvals = [alpha.index(ch) for ch in ciphertext]
     best = -9.0

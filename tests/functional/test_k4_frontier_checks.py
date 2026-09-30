@@ -292,3 +292,12 @@ def test_english_z_rejects_unsupported_lengths():
         english_z("ABC")
     with pytest.raises(ValueError):
         english_z("A" * 5000)
+
+
+def test_columnar_decrypt_score_skips_unscorable_lengths():
+    from kryptos.k4.crib_constraints import families
+
+    alpha, fn = families()["vigenere"]
+    text = PLAIN_TEXT[:12]
+    plain = {i: text[i] for i in range(10)}  # only 2 non-crib letters
+    assert fc._best_columnar_decrypt_z([0, 1, 2], 3, 2, "sub_then_trans", alpha, fn, text, plain) is None
