@@ -224,7 +224,7 @@ Every committed Markdown doc in this repo (other than this README, `.github/` an
 - [K3 Autonomous Solving Validation Results](./docs/analysis/K3_VALIDATION_RESULTS.md) — `docs/analysis/K3_VALIDATION_RESULTS.md`
 - [K4 Active Research State](./docs/analysis/K4_ACTIVE_RESEARCH.md) — `docs/analysis/K4_ACTIVE_RESEARCH.md`
 - [K4 Capability Table](./docs/analysis/K4_CAPABILITY_TABLE.md) — `docs/analysis/K4_CAPABILITY_TABLE.md`
-- [K4 Keystream Analysis](./docs/analysis/K4_KEYSTREAM_ANALYSIS.md) — `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`
+- [K4 Keystream Analysis — Confirmed Period-13 Window](./docs/analysis/K4_KEYSTREAM_ANALYSIS.md) — `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`
 - [K4 Negative Space](./docs/analysis/K4_NEGATIVE_SPACE.md) — `docs/analysis/K4_NEGATIVE_SPACE.md`
 
 **`docs/archive/`**
@@ -233,9 +233,9 @@ Every committed Markdown doc in this repo (other than this README, `.github/` an
 - [Comprehensive Structure Audit - October 26, 2025](./docs/archive/AUDIT_2025-10-26.md) — `docs/archive/AUDIT_2025-10-26.md`
 - [Kryptos Repository Audit](./docs/archive/AUDIT_2026-05-24.md) — `docs/archive/AUDIT_2026-05-24.md`
 - [src/ Audit — Kryptos Toolkit (2026-06-01)](./docs/archive/AUDIT_2026-06-01.md) — `docs/archive/AUDIT_2026-06-01.md`
-- [K4 makeover (Akira CRT spec, superseded)](./docs/archive/K4-v2.md) — `docs/archive/K4-v2.md`
 - [Frontend design spec](./docs/archive/K4-FRONTEND.md) — `docs/archive/K4-FRONTEND.md`
 - [K4 Theories: Composite Pipeline & Physical-Geometric Resolver Specification](./docs/archive/K4-T1.md) — `docs/archive/K4-T1.md`
+- [K4 makeover](./docs/archive/K4-v2.md) — `docs/archive/K4-v2.md`
 - [K4 Attack Landscape — 3D Fingerprint](./docs/archive/K4_ATTACK_LANDSCAPE.md) — `docs/archive/K4_ATTACK_LANDSCAPE.md`
 
 **`docs/reference/`**
@@ -250,7 +250,7 @@ Every committed Markdown doc in this repo (other than this README, `.github/` an
 
 - [The World Clock (Weltzeituhr) in Kryptos K4](./docs/sources/CLOCK.md) — `docs/sources/CLOCK.md`
 - [Jim Sanborn — notes and research pointers](./docs/sources/SANBORN.md) — `docs/sources/SANBORN.md`
-- [Sanborn quotes](./docs/sources/SANBORN_QUOTES.md) — `docs/sources/SANBORN_QUOTES.md`
+- [Sanborn: Statements on the Record](./docs/sources/SANBORN_QUOTES.md) — `docs/sources/SANBORN_QUOTES.md`
 
 **`benchmarks/`**
 
