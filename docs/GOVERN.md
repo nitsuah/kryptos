@@ -2,8 +2,20 @@
 
 > 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
 
-_Last updated: 2026-08-12_
+_Last updated: 2026-09-30_
 
+
+## Monthly Governance Review (September 2026)
+
+_Completed: 2026-09-30_
+
+- **Audit (2026-09-27).** K4's IC in the docs was wrong (≈0.062 claimed, 0.0361 actual), and the "substitution then transposition, confirmed" architecture built on it was downgraded to a working hypothesis. The "THE COMPASS ROSE IS HERE" plaintext was re-attributed to solvekryptos.com's reconstruction. Numbers pinned by `test_k4_documented_facts.py`.
+- **Method change (2026-09-28).** Family-level elimination replaced key sampling as the main tool (P21 crib constraints, structural checks, P22 frontier checks). Three new rules below: positive controls for eliminations, ledger tiers, registry/dispatcher sync.
+- **Stop doing.** No new sweeps that re-test fixed (permutation, key) pairs under the same structural assumptions; Phase 7's zero cross-vector consensus and the family eliminations make them low-value. Candidate counts are no longer reported as coverage.
+- **Scoring fixed.** The main scorer's n-gram tables were placeholders; replaced with real tables and recalibrated thresholds. Rankings stored before 2026-09-28 are suspect (re-score task in TASKS).
+- **Docs and UI (2026-09-30).** README rewritten around the current state; the unbuilt "Akira" dashboard spec archived; the dashboard rebuilt as a single page (`docs/reference/DASHBOARD.md`).
+- PR #228 merged with CI green and review addressed. No open issues.
+- Next review: October 2026.
 
 ## Monthly Governance Review (May 2026 — Q4 Completion)
 

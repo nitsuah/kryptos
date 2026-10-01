@@ -266,7 +266,7 @@ class TestFrontierVectorsP15P20:
         for v in FRONTIER_VECTORS:
             if v["id"] in new_ids:
                 assert v["runnable"], f"{v['id']} should be runnable"
-                assert v["status"] == "Active", f"{v['id']} should be Active"
+                assert v["status"] == "Null", f"{v['id']} has been run against K4 (null)"
 
     def test_all_new_attacks_have_descriptions(self):
         from kryptos.api.k4_attack_routes import FRONTIER_VECTORS

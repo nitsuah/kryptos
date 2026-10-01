@@ -6,7 +6,7 @@
 > Cryptographic research toolkit for solving the K4 cipher puzzle
 
 ---
-**Last Updated:** 2026-06-25
+**Last Updated:** 2026-09-30
 ---
 
 
@@ -15,7 +15,7 @@
 ### 🔐 Cipher Implementations
 
 - **Vigenère Cipher**: Polyalphabetic substitution with keyed alphabet (KRYPTOS set)
-- **Hill Cipher (2×2, 3×3)**: Matrix-based, supports crib-constrained key solving
+- **Hill Cipher (2×2 to 5×5)**: Matrix-based; crib-constrained key solving, exhaustive to 4×4, beam search at 5×5
 - **Columnar & Route Transposition**: Permutation ciphers with geometric and partial-score/crib pruning
 - **Double Rotational Transposition**: 24×14 grid K3 solution
 - **Beaufort Cipher**: Reciprocal variant
@@ -25,7 +25,8 @@
 
 ### 📊 Scoring & Analysis
 
-- **Frequency & N-gram Analysis**: Unigram–quadgram scoring, letter frequency, chi-squared, index of coincidence
+- **Frequency & N-gram Analysis**: English 2/3/4-gram tables from 8.9M letters of public-domain text (`data/ngrams/english_*grams.tsv`), letter frequency, chi-squared, index of coincidence
+- **Calibrated English score**: `english_model.english_z` puts random text at 0 and English of the same length at 1, so scores compare across lengths
 - **Dictionary & Linguistic Metrics**: Wordlist hit rate, trigram entropy, bigram gap variance, repeating bigram fraction
 - **Crib-Based & Pattern Scoring**: Known plaintext/crib validation, pattern matching
 - **Composite & Multi-Stage Scoring**: Weighted fusion, adaptive weights, and pipeline profiling
@@ -61,6 +62,8 @@
 - **Crib-Constraint Engine (P21)**: Tests whole cipher families against the 24 crib key values, each check with a positive control: autokey, linear/progressive/digit keys, sculpture-corpus running keys, dictionary Quagmire I–III (231,933 alphabets), and columnar/geometric transposition × periodic key in both layer orders (`k4.crib_constraints`, `kryptos crib-constraints`)
 - **Structural Checks**: Output-alphabet eliminations, nulls between cribs, Hill 2×2/3×3, K3-style double rotation, columnar + autokey / running key, Chaocipher; plus double-periodic keys, Quagmire IV and error-tolerant scans against shuffled controls (`k4.structural_checks`, `k4.crib_constraints`)
 - **IC Profile**: Overall/segment IC with a reshuffle significance test (`k4.ic_profile`)
+- **Frontier Checks (P22)**: Recurrence, mixed-alphabet, dial, bearing-route and phrase keys; Hill 4×4 (exhaustive) and 5×5 (sampled + beam search); columnar widths 10–14 by exact backtracking; running keys from any English text; the full-plaintext reconstruction tested against every family (`k4.frontier_checks`, `kryptos frontier`)
+- **Hypothesis Ledger**: every cipher family tagged `eliminated` / `statistical` / `sampled_null` / `open` with scope, evidence, module and test (`k4.hypothesis_ledger`, `kryptos ledger`, `GET /api/k4/ledger`)
 
 ### ⚙️ Pipeline Architecture
 
@@ -123,23 +126,22 @@
 
 ## 🖥️ Dashboard, Web UI & HTTP API
 
-### React SPA (terminal aesthetic)
+### React SPA (single page, Ghost in the Shell style)
 
-- **Ops Center**: Live campaign monitoring, agent status row, top fused candidates, run history with drill-down, and an ad-hoc decrypt panel
-- **K1–K3 Animated Decoder**: Step-by-step visual explainer of how each solved section was encrypted and cracked
-- **Database Admin**: Neon connection status and per-table row counts
-- **Vault**: Seal a secret under the keyed-alphabet Vigenère, share an opaque token, unseal once with the key, and check status — TTL and read-count enforced server-side
-- **Single-container delivery**: FastAPI serves the built `frontend/dist` bundle via `StaticFiles(html=True)`; the root `Dockerfile` builds the SPA in a `node:22-alpine` stage and ships it alongs[...]
-- **Stack**: Vite + React 18 + TypeScript, no runtime UI framework
+- **One screen, no page scrolling**: five modules on a ring, switched with the dock, arrow keys, the dial or a swipe; each module is laid out to fit the viewport, and long lists scroll inside their own panel
+- **Modules**: K4 (ciphertext with cribs, ledger totals, open fronts, and a drawing of the Weltzeituhr with its city panels and live hour ring), Ledger (every family by tier, master–detail), Attacks (P1–P22 queue, run controls and recent jobs), Lab (K1–K3 decoder, ad-hoc decrypt, vault), System (API and database, run history, live log, geometric pivot)
+- **Responsive**: fluid type and spacing, a single column on phones, reduced motion honoured
+- **Single-container delivery**: FastAPI serves the built `frontend/dist` bundle via `StaticFiles(html=True)`; the root `Dockerfile` builds the SPA in a `node:22-alpine` stage and ships it alongside the API
+- **Stack**: Vite + React 18 + TypeScript, no runtime UI framework. Design notes: `docs/reference/DASHBOARD.md`
 
 ### HTTP API (FastAPI)
 
-- **Dashboard endpoints**: `GET /api/status`, `GET /api/runs`, `GET /api/runs/{id}/candidates`, `GET /api/candidates`, `POST /api/decrypt`
+- **Dashboard endpoints**: `GET /api/status`, `GET /api/runs`, `GET /api/runs/{id}/candidates`, `GET /api/candidates`, `POST /api/decrypt`, `GET /api/attack-vectors`
 - **Vault endpoints**: `POST /api/vault/seal`, `POST /api/vault/unseal`, `GET /api/vault/{token}` (503/404/410/403 error mapping for unavailable/missing/gone/wrong-key)
 - **RAG endpoints**: `GET /api/rag/status`, `POST /api/rag/reindex`, `GET /api/rag/search`
 - **SSE log tail**: `GET /api/stream/logs` — `StreamingResponse` (`text/event-stream`) backed by a thread-safe ring buffer fed by a `kryptos`-logger handler; `LogTail` EventSource component on [...]
 - **K4 hypothesis ledger**: `GET /api/k4/ledger[?tier=]` — every family tagged eliminated / statistical / sampled_null / open, with scope, evidence, module and test
-- **K4 attack jobs**: `GET /api/k4/attacks/frontier`, `POST /api/k4/attacks/run` (incl. `p21_crib_constraints`), `GET /api/k4/attacks/jobs`, `GET /api/k4/attacks/jobs/{id}`; finished jobs persist to Neon (`k4_attack_jobs`)
+- **K4 attack jobs**: `GET /api/k4/attacks/frontier`, `GET /api/k4/attacks/pivot-status`, `POST /api/k4/attacks/run` (incl. `p21_crib_constraints` and `p22_frontier_checks`, one at a time), `GET /api/k4/attacks/jobs`, `GET /api/k4/attacks/jobs/{id}`; finished jobs persist to Neon (`k4_attack_jobs`)
 - **Health**: `GET /health`
 
 ### Persistence
@@ -152,7 +154,7 @@
 
 ## Development Tools
 
-- **CLI Interface**: 18 subcommands covering decryption, tuning, provenance, autonomous runs, and reporting
+- **CLI Interface**: 22 subcommands covering decryption, tuning, provenance, autonomous runs, reporting, the K4 constraint suites (`crib-constraints`, `frontier`) and the ledger
 - **Optional `--cipher` flag**: `k4-decrypt` and `sections-decrypt` read from `config/config.json` by default — no file path required
 - **Example Demos**: Runnable analysis patterns and usage examples
 - **Config System**: JSON-driven (`config/config.json`) — single source of truth for all ciphertexts, cribs, and parameters
@@ -166,7 +168,7 @@
 
 - **K1/K2 Vigenère**: 100% deterministic (50-run Monte Carlo validated)
 - **K3 Transposition**: 62–95% (Monte Carlo, parameter-dependent; stochastic SA solver)
-- **Test Suite**: 829 tests, tiered smoke/functional/e2e structure, reliability gates for K1/K2/K3 Sanborn misspellings
+- **Test Suite**: about 1,770 fast tests, tiered smoke/functional/e2e structure, reliability gates for K1/K2/K3 Sanborn misspellings, a positive control for every eliminated ledger entry (current counts: `docs/METRICS.md`)
 
 ### ⚠️ Operational Note
 - NLP dependencies (spaCy/NLTK/transformers) are optional; robust fallback logic
@@ -188,31 +190,25 @@ Condensed from the ROADMAP/TASKS removed in the 2027 planning reset (verbatim te
 - **Phase 6 — Physical/Geometric Pivot** (PRs #192–#196): 24-column geometric front-end × reflections × rotations × physical tableau, precise WGS84 geodesy (`kryptos.k4.geodesy`), Mengenlehreuhr→Weltzeituhr bearing, Nov 9 1989 clock state, Myszkowski, Trifid, SA substitution search — all null
 - **Phase 7 — Shape-changing transposition + shadow hypothesis**: transpose family wired, `solar_geometry` (topper rotation + NOAA/Meeus solar azimuth), World Clock city keywords (130/146 sourced), cross-vector consensus scoring (zero anchors), overnight sweep runner — 2,420,928 candidates, all null
 - **Phase 8 follow-ups (2026-09-03)**: `plaintext_evidence` confidence tiers, known-plaintext inversion over geometric + rectangular grids (3,674,160 permutations), mirrored "read from the back" tableau, reconstructed-plaintext and K0 Morse keyword sources, `classical_cipher_sweep` (Playfair/Four-Square/Bifid/Autokey), `physical_geometry` schema, `constraint_chain` — all null
+- **Negative-space passes (2026-09-27 → 09-28)**: IC audit, P21 crib-constraint engine, structural checks and P22 frontier checks: 26 families eliminated over stated ranges, 7 statistical, each with a positive control; details in `docs/analysis/K4_NEGATIVE_SPACE.md`
 
 ## 🚀 Planned & Upcoming
 
-> The five untested K4 attack vectors, the dashboard pages (Ops Center, K1–K3 Decoder,
-> Database, Vault), the REST API, Neon candidate/run storage, and the K3 double-rotation
-> Monte Carlo have all shipped — see the sections above. What remains:
+Ranked in `docs/ROADMAP.md` (2027 Q1) and `docs/analysis/K4_NEGATIVE_SPACE.md`:
 
-### 🖥️ Dashboard & UI
-- **Dedicated K4 Attack Dashboard**: Visual fingerprint map of attack vectors — plausible vs. covered vs. unknown (live progress, scoring, and artifact lookup are already covered by Ops Center,[...]
-
-### 🧠 AI/ML & Community
-- **LLM-Driven Hypothesis Generation**: Use LLMs to propose new attacks and scoring strategies
-- **Post-Solution Analysis**: Document attack path, key insights, and solution narrative once K4 is solved
+- **Cryptanalysis**: irregular transpositions, length-changing masking, two non-periodic layers, named running-key sources under transposition, Hill 6×6+, per-letter Weltzeituhr lookups
+- **Platform**: a "try a hypothesis" endpoint and dashboard module, a candidate submission gate for Paradigm's $1 checker, re-scoring stored candidates
+- **Post-solution**: document the attack path and narrative once K4 is solved
 
 ## Data & Resources
 
 ### 📚 Linguistic Data
-- **High-Quality Quadgrams**: Auto-loaded TSV for scoring
-- **N-gram Tables**: Unigram, bigram, trigram
-- **English Dictionary**: Word validation with frequency
+- **English N-gram Tables**: 2-, 3- and 4-gram log probabilities built from the NLTK Gutenberg selection (`scripts/data/build_english_ngrams.py`); the older `quadgrams_high_quality.tsv` is still loaded when present
+- **English Dictionary**: 261k-word list (`english-words`, MIT) for word scoring and dictionary keyword scans
 - **Fallback Distributions**: Graceful degradation if missing
 
 ### 🔧 Configuration & Setup
 - **Centralized Config**: JSON-driven (config/config.json)
 - **Artifact Management**: Structured outputs (artifacts/)
-- **Virtual Environment**: Isolated deps (.venv)
-- **Requirements Management**: Pinned deps (requirements.txt)
+- **Requirements Management**: `config/requirements.txt` (runtime), `config/requirements-dev.txt` (dev)
 - **PyPI Packaging**: pyproject.toml

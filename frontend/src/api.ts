@@ -166,6 +166,42 @@ export interface JobStatus {
   top_candidates: AttackCandidate[];
   summary: Record<string, unknown> | null;
   error: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface JobsResponse {
+  jobs: JobStatus[];
+}
+
+// --- K4 hypothesis ledger (GET /api/k4/ledger, kryptos.k4.hypothesis_ledger) ---
+
+export type LedgerTier = "eliminated" | "statistical" | "sampled_null" | "open";
+
+export const LEDGER_TIERS: LedgerTier[] = ["eliminated", "statistical", "sampled_null", "open"];
+
+export interface LedgerEntry {
+  id: string;
+  family: string;
+  tier: LedgerTier;
+  scope: string;
+  evidence: string;
+  module: string;
+  test: string;
+}
+
+export interface LedgerLatestRun {
+  timestamp: string | null;
+  run_params: Record<string, unknown>;
+  columnar_survivors_period_le_22: number;
+  geometry_survivors_period_le_22: number;
+  running_key_exact_matches: number;
+}
+
+export interface LedgerResponse {
+  counts: Record<LedgerTier, number>;
+  entries: LedgerEntry[];
+  latest_run: LedgerLatestRun | null;
 }
 
 
@@ -221,4 +257,7 @@ export const api = {
   pivotStatus: () => getJSON<PivotStatusResponse>("/api/k4/attacks/pivot-status"),
   runAttack: (req: RunAttackRequest) => postJSON<JobStatus>("/api/k4/attacks/run", req),
   jobStatus: (jobId: string) => getJSON<JobStatus>(`/api/k4/attacks/jobs/${jobId}`),
+  jobs: (limit = 20) => getJSON<JobsResponse>(`/api/k4/attacks/jobs?limit=${limit}`),
+  ledger: () => getJSON<LedgerResponse>("/api/k4/ledger"),
+  health: () => getJSON<{ status: string }>("/health"),
 };

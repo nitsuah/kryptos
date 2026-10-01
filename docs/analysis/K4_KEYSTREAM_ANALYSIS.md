@@ -3,7 +3,7 @@
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
 **Status:** Active research finding
-**Last Updated:** 2026-09-27
+**Last Updated:** 2026-09-30
 **Evidence Level:** High — derived directly from Sanborn's confirmed cribs against the K4 ciphertext
 
 **2026-09-27 correction:** §4 (IC) and §5 (architecture ruling) were wrong. The IC figures were never computed from the ciphertext, and the "substitution then transposition" ruling was built on them. Both sections are rewritten below. The EAST release date was also wrong (Aug 2020, not 2023). The numbers are now pinned by `tests/functional/test_k4_documented_facts.py`.
@@ -146,6 +146,8 @@ Computed by `kryptos.k4.ic_profile` (pinned in `tests/functional/test_k4_documen
 
 Every sweep in phases 1–7 assumed the second family. §6 below describes the attack for that family; read it as conditional on that assumption.
 
+**Update 2026-09-28.** Both families have since been tested as families rather than by sampled keys (`crib_constraints`, `structural_checks`, `frontier_checks`). For the first family, autokey, linear, progressive, digit, recurrence (orders 1–7), dial and sculpture-corpus running keys are eliminated, and running keys from any English text show no signal against controls. For the second, columnar transposition of widths 2–9, the geometric mappings, K3's double rotation and compass-bearing routes, each combined with a periodic key of period 1–22 in either order, are eliminated. Columnar widths 10–14 are eliminated for key-first periods 1–22 except 17 (widths 12–14) and 18 (width 14), and for transposition-first periods 1–17; the orders that fit at those exceptions decrypt to noise. What remains of each family is listed in [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md#open-ranked).
+
 ---
 
 ## 6. Key Derivation After Transposition Reversal
@@ -216,7 +218,9 @@ These also look high-entropy under pure Vigenère, consistent with the composite
 
 ---
 
-## 9. Questions — 11 total (6 resolved, 5 open) — as of 2026-08-12
+## 9. Questions — 11 total, all resolved (2026-09-30)
+
+Questions 7–11 were open when this list was written (2026-08-12). All five were then run as frontier attacks P1–P5, and all were null; the answers are added in place.
 
 1. ~~What transposition permutation P maps EAST+NORTHEAST to a recognizable keystream?~~ — Tested: no such permutation found in the grid+route space explored. Either the transposition is not grid-based, or the substitution layer is not Vigenère-equivalent.
 2. ~~Does a keyed alphabet make the keystream structured?~~ — Tested KRYPTOS/PALIMPSEST/ABSCISSA: null result. If a keyed alphabet is involved, it's one not yet tried.
@@ -224,11 +228,11 @@ These also look high-entropy under pure Vigenère, consistent with the composite
 4. ~~Could the clock be used as a Hill matrix key?~~ — Tested via `run_clock_hill_attack`: null result. ~100 invertible states all produced no crib match.
 5. ~~Are there non-standard clock encodings?~~ — Tested via `run_clock_subrow_attack`: 4 sub-row schemes; null result.
 6. ~~Beaufort cipher sweep~~ — Tested via `run_beaufort_sweep`: null result.
-7. **Does the BERLIN+CLOCK keystream (MUYKLGKORNA) become recognizable after any transposition reversal?** — The full sweep validated all 4 cribs simultaneously but did not isolate partial 2-crib matches at positions 63–73. Worth testing in isolation with a softer filter.
-8. **Is there a masking/null-removal layer before the substitution?** — If some K4 characters are nulls inserted as "shadows" (from the World Clock shadow theory), every attack on the full 97-char sequence is attacking padded input. Untested as a pre-step.
-9. **Are 3-layer composites (e.g., keyed-alphabet → clock-Vigenère → columnar transposition) anywhere near exhausted?** — Current composite coverage is 2-layer only. Sanborn's "five or six techniques" may imply 3+ cipher layers rather than 2 with elaborate key derivation.
-10. **Do K2 coordinate digits constrain the clock state?** — The K2 plaintext contains `38 57 6 5 N, 77 8 44 W`. Hours 38%24=14, minutes 57 (and similar) were never used as specific clock timestamp indices to select a Hill or Vigenère key.
-11. **Does the 6-hour Berlin→CIA timezone offset (UTC+1 → UTC-5) act as a cipher shift modifier?** — If Sanborn encoded at Berlin time and the receiver was at CIA HQ, a 6-position shift on the key index may bridge the gap. Untested.
+7. ~~Does the BERLIN+CLOCK keystream (MUYKLGKORNA) become recognizable after any transposition reversal?~~ — Tested as P5 with a 2-crib relaxed gate, against both the brute-force columnar family (34,560 candidates) and the geometric family (69,120): zero near-misses.
+8. ~~Is there a masking/null-removal layer before the substitution?~~ — Tested as P2 (8 masking variants, 6,144 candidates, null) and, as a family, by the nulls-between-cribs check in `structural_checks` (eliminated). Masking that inserts or drops letters inside words is still open.
+9. ~~Are 3-layer composites (e.g., keyed-alphabet → clock-Vigenère → columnar transposition) anywhere near exhausted?~~ — Tested as P1 (3-layer composite, then the geometric variant in the Physical/Geometric Pivot): null. These were sampled, not exhaustive; two non-periodic layers together remain on the open list.
+10. ~~Do K2 coordinate digits constrain the clock state?~~ — Tested as P3 (K2 coordinate digits as HH:MM clock states): null.
+11. ~~Does the 6-hour Berlin→CIA timezone offset (UTC+1 → UTC-5) act as a cipher shift modifier?~~ — Tested as P4 (±6h offsets, 10 states): null.
 
 ---
 
@@ -239,3 +243,4 @@ These also look high-entropy under pure Vigenère, consistent with the composite
 - [`docs/sources/CLOCK.md`](../sources/CLOCK.md) — World Clock geographic interpretation
 - [`docs/sources/SANBORN.md`](../sources/SANBORN.md) — Sanborn clue research checklist
 - [`docs/analysis/30_YEAR_GAP_COVERAGE.md`](30_YEAR_GAP_COVERAGE.md) — Classical cipher coverage assessment
+- [`docs/analysis/K4_NEGATIVE_SPACE.md`](K4_NEGATIVE_SPACE.md) — Family-level eliminations and what is still open

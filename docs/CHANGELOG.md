@@ -14,6 +14,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Agent instructions (`.github/copilot-instructions.md`) now require closing tracked work in the same PR: update `docs/TASKS.md`, `docs/ROADMAP.md` and this changelog before the last push, and confirm `git diff origin/main...HEAD --stat` includes them before merge; extended `.github/pull_request_template.md` with a "Closes TASKS item(s)" checklist.
 
+### Changed (2026-09-30 — dashboard, second pass)
+
+- Nine modules consolidated to five: **K4** (was Overview), **Ledger**, **Attacks** (now includes Jobs), **Lab** (Decoder, ad-hoc decrypt and Vault), **System** (now includes run history and the live log). Old `#jobs`, `#vault`, `#console` etc. links redirect.
+- Every module is laid out to fit the viewport with no page scrolling; long lists (ledger families, attack vectors, jobs, tables) scroll inside their own panel. Phones and very short screens stack the panels instead.
+- The Mengenlehreuhr lamp clock is replaced by a drawing of the **Weltzeituhr** (the clock Sanborn says BERLIN CLOCK means): a solar-system topper that turns once a minute, the 24-panel drum with the engraved city names read so far, a live hour ring, and the wind-rose mosaic. Starts on Berlin's panel; turns with the arrows or by clicking a panel.
+- The teal screens are gone: content now sits on white panels framed in lavender (near-black in dark mode), with tier and crib colours tuned for each.
+
+### Changed (2026-09-30 — dashboard and docs)
+
+- **Dashboard rebuilt as a single page** in the style of the Ghost in the Shell interfaces. The five tabs became nine modules on a ring (Overview, Ledger, Attacks, Jobs, Runs, Console, Decoder, Vault, System). The active module fills the stage, neighbours show as tilted previews, and navigation is by dock, ring dial, arrow keys, swipe or URL hash. It scales from phone to wide monitor, follows the system light/dark setting, and honours reduced motion. Only the active module mounts; shared data is polled once. Design notes: `docs/reference/DASHBOARD.md`.
+- New dashboard views for the hypothesis ledger (`GET /api/k4/ledger`) and attack-job history (`GET /api/k4/attacks/jobs`), which had no UI.
+- `FRONTIER_VECTORS` statuses: P1–P7 and P11–P20 were still marked `Active` although all have run against K4 with null results; they are now `Null`. P21/P22 are `Complete`. P8–P10 were `Deferred` with "requires implementation" descriptions although Myszkowski, Trifid and the straddling checkerboard were implemented and run (null); corrected.
+- README rewritten around where K4 stands; ROADMAP, TASKS, INDEX, FEATURES, METRICS, GOVERN, API_REFERENCE and the analysis docs brought up to date. The unbuilt "Akira" dashboard spec moved to `docs/archive/K4-v2.md`.
+
+### Fixed (2026-09-30)
+
+- The dashboard's K4 visualizer highlighted EAST and NORTHEAST one position too high (22 and 26 instead of 21 and 25), the off-by-one fixed in the backend on 2026-09-02. Crib positions now live in `frontend/src/k4.ts`.
+- README pointed at files that don't exist (`data/k4_cipher.txt`, `ask_triumverate.py`, `scripts/dev/migrate_run_artifacts.py`, `kryptos.examples.sections_demo`) and said the only open lead was the compass rose.
+- TASKS said no score threshold changed with the new n-gram tables. Three did: the pipeline pruning floor (-560 over 40 letters), the hypothesis pruning floor (-420 over 30 letters) and the composite Eureka snapshot floor (-1300; the old 80 was unreachable). `EurekaSignal` itself is crib-based and unchanged.
+- METRICS listed `executor.py` for removal; it no longer exists.
+
 ### Added (2026-09-28 — frontier pass)
 
 - `kryptos.k4.frontier_checks` (P22, `kryptos frontier`, API `p22_frontier_checks`): recurrence keys, periodic key + arbitrary mixed alphabet, dial keys, routes along every compass bearing, Hill 4×4 (exhaustive) and 5×5 (11.9M matrices scored), running keys from any English text (direct and after columnar transposition), and `reconstruction_suite`, which tests the published full-plaintext reconstruction against every family. Each check has a positive control.

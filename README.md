@@ -3,464 +3,201 @@
 > 🧭 **kryptos** · [Index](./docs/INDEX.md) · [Features](./docs/FEATURES.md) · [Roadmap](./docs/ROADMAP.md) · [Tasks](./docs/TASKS.md) · [Changelog](./docs/CHANGELOG.md) · [Metrics](./docs/METRICS.md) <!-- nav -->
 
 [![CI fast](https://github.com/nitsuah/kryptos/actions/workflows/ci-fast.yml/badge.svg)](https://github.com/nitsuah/kryptos/actions)
-
 [![CI (smoke)](https://github.com/nitsuah/kryptos/actions/workflows/demo-smoke.yml/badge.svg)](https://github.com/nitsuah/kryptos/actions)
-
 [![CI (slow)](https://github.com/nitsuah/kryptos/actions/workflows/ci-slow.yml/badge.svg)](https://github.com/nitsuah/kryptos/actions)
-
 [![Netlify Status](https://api.netlify.com/api/v1/badges/0fb1be42-e131-4cf6-ae74-d139c671e1e3/deploy-status)](https://app.netlify.com/projects/kryptos-k4/deploys)
 
-Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos using Python! This project focuses on
-implementing cryptographic techniques, specifically the Vigenère cipher and structural transposition analysis, to
-decrypt the famous Kryptos sculpture.
+Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos using Python.
 
-## TL;DR
+Kryptos is the copper sculpture Jim Sanborn installed at CIA headquarters in 1990. Three of its four passages (K1–K3)
+were solved in the 1990s. The last 97 letters, K4, are still unsolved. Sanborn has published 24 of its plaintext
+letters as hints: `EAST`, `NORTHEAST`, `BERLIN` and `CLOCK`.
 
-This Kryptos repository is a research toolkit for exploring layered cipher hypotheses (Vigenère, Hill, transposition,
-masking, and related hybrids) with an emphasis on reproducible pipelines and scoring heuristics.
+This repository is a research toolkit for K4. It solves K1–K3 end to end, and for K4 it does two kinds of work:
 
-## Autonomous Quickstart
+- **Eliminates cipher families.** For each family (periodic keys, autokey, Hill, columnar transposition plus a key,
+  and so on) it checks whether *any* key over a stated range could produce the 24 known letters. Each check ships a
+  positive control that plants a real solution and shows the check finds it.
+- **Tracks what is left.** A hypothesis ledger tags every family as `eliminated`, `statistical`, `sampled_null` or
+  `open`, and serves it to the dashboard and the CLI.
 
-Run a standard autonomous cycle:
+---
+
+## Where K4 stands (2026-09-30)
+
+- **What the ciphertext tells us.** K4's index of coincidence is **0.0361**, close to random text (0.0385) and far
+  from English (≈0.066). So at least one layer flattens letter frequencies. Whether there is also a transposition, and
+  in which order the layers were applied, is **not** established.
+- **Ruled out over stated ranges** (26 ledger entries, each with a positive control):
+  - Periodic keys up to period 26 in four families (Vigenère, Beaufort, Variant Beaufort, KRYPTOS-keyed Quagmire III),
+    and the sum of two periodic keys with p1 + p2 ≤ 24.
+  - Autokey, linear, progressive, digit, recurrence and dial keys.
+  - Quagmire I–IV over a 231,933-word dictionary, and a periodic key over *any* mixed alphabet (periods 1–12 with the
+    alphabet on the plaintext side, 1–15 on the ciphertext side).
+  - The geometric grids, K3's double rotation and compass-bearing routes, and columnar transposition of widths 2–9,
+    each combined with a periodic key of period 1–22 in either order.
+  - Columnar widths 10–14 with a periodic key: key first, periods 1–22 except 17 (widths 12–14) and 18 (width 14);
+    transposition first, periods 1–17. The column orders that do fit at those exceptions decrypt to noise.
+  - Hill 2×2 to 4×4, nulls between the cribs, and the 25-letter-output ciphers.
+- **No signal against shuffled-ciphertext controls:** running keys from any English text, Hill 5×5, and scans that
+  allow one or two wrong crib letters.
+- **The published full-plaintext reconstruction** ("THE COMPASS ROSE IS HERE…", from solvekryptos.com, not Sanborn)
+  fits none of the tested families when used as 97 known letters.
+- **Still open** (ranked in [`docs/analysis/K4_NEGATIVE_SPACE.md`](./docs/analysis/K4_NEGATIVE_SPACE.md)):
+  irregular transpositions (disrupted columnar, keyed routes, grilles), masking that inserts or drops letters, two
+  non-periodic layers together, key rules nobody has named yet, Hill 6×6 and up, and per-letter lookups from the Berlin
+  Weltzeituhr, which need photographs of its city ring.
+
+The live version of this list: `kryptos ledger` or `GET /api/k4/ledger`. The narrative log with every run:
+[`docs/analysis/K4_ACTIVE_RESEARCH.md`](./docs/analysis/K4_ACTIVE_RESEARCH.md).
+
+### K1–K3
+
+| Section | Plaintext opens | Method | Deliberate misspelling |
+|---------|-----------------|--------|------------------------|
+| K1 | "Between subtle shading and the absence of light lies the nuance of iqlusion" | Vigenère, KRYPTOS-keyed alphabet, key `PALIMPSEST` | IQLUSION |
+| K2 | "It was totally invisible. How's that possible?" | Vigenère, KRYPTOS-keyed alphabet, key `ABSCISSA` | UNDERGRUUND |
+| K3 | "Slowly, desperately slowly, the remains of passage debris…" | Double rotational transposition (24×14 grid, rotate, 8 columns, rotate) | DESPARATLY |
+
+K2 also carries `X` characters as separators between sentences. Treat them as structure, not errors, when looking for
+patterns.
+
+---
+
+## Quick start
 
 ```bash
-python -m kryptos.cli.main autonomous --max-hours 24 --cycle-interval 5
+pip install -r config/requirements.txt
+pip install -e . --no-deps
+
+kryptos sections                      # list K1–K4
+kryptos sections-decrypt --section K3 # decrypt a solved section
+kryptos ledger                        # what is eliminated / statistical / sampled / open for K4
+kryptos crib-constraints              # P21: family-level eliminations (a few minutes)
+kryptos frontier --quick              # P22: frontier checks without Hill 5×5 and the reconstruction suite
+kryptos serve --port 8000             # API + dashboard (if frontend/dist is built)
 ```
 
-Community standards (contributing, code of conduct, security) are centralized in [nitsuah/.github](https://github.com/nitsuah/.github).
+Every subcommand is listed in [`docs/reference/API_REFERENCE.md`](./docs/reference/API_REFERENCE.md#cli-subcommands)
+and with `kryptos --help`.
 
+From Python:
 
-## Repository Structure
+```python
+from kryptos.k4 import decrypt_best
+from kryptos.k4.hypothesis_ledger import ledger
 
-The repository is organized for clarity, reproducibility, and future migration to a database-backed architecture. Key folders and files:
+K4 = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
+result = decrypt_best(K4, limit=40, adaptive=True)   # composite pipeline, best-scoring candidate
+print(result.plaintext, result.score)
 
-- **artifacts/**: Runtime outputs, logs, reports, and temporary artifacts (not git-tracked; will eventually migrate to DB, but required for now)
-- **config/**: Configuration files (config.json, subfolders for meta_coordinator, ops_strategy, etc.). Consider moving root-level config/test/lint files here if tool support allows.
-- **data/**: Static resources for scoring and analysis (n-gram tables, ciphertext, etc.). Will be replaced by DB in 2027.
-- **docs/**: All documentation, analysis, reference, and archive. May migrate to DB for dynamic docs in the future, but static docs remain valuable.
-- **scripts/**: Utility scripts for linting, cleanup, and testing. To be audited and centralized for reusability.
-- **src/**: Main source code. To be reorganized after other cleanup.
-- **tests/**: Test suite. Reorganization planned after repo cleanup.
-- **Root files**: Project metadata, requirements, Docker, and key documentation. Some config/test/lint files may move to config/ if supported.
+open_families = ledger("open")                       # what the ledger still lists as untested
+```
 
-**Planned migrations:**
-- Data and artifacts will move to a database as part of 2027 work.
-- Documentation may be dynamically served from a DB in the future.
+---
 
+## Dashboard
+
+A single-page React app over the FastAPI backend, styled after the Ghost in the Shell interfaces. Five modules sit on
+a ring (K4, Ledger, Attacks, Lab, System), and each is laid out to fit the screen without scrolling. The K4 module
+includes a drawing of the Weltzeituhr, the Berlin World Clock that K4 names. Switch modules with the dock, arrow keys
+or a swipe. It scales from a phone to a wide monitor. Design notes:
+[`docs/reference/DASHBOARD.md`](./docs/reference/DASHBOARD.md); build and deploy: [`frontend/README.md`](./frontend/README.md).
+
+```bash
+docker compose -f config/docker-compose.yml up -d   # API + built dashboard on http://localhost:8000
+```
+
+---
+
+## How the K4 work is organised
+
+| Layer | Where | What it does |
+|-------|-------|--------------|
+| Family eliminations (P21) | `kryptos.k4.crib_constraints`, `structural_checks` | Periodic, autokey, linear, progressive, digit and running keys; dictionary Quagmires; transposition × periodic key; nulls; Hill 2×2/3×3; error-tolerant scans against controls |
+| Frontier checks (P22) | `kryptos.k4.frontier_checks` | Recurrence, mixed-alphabet, dial, bearing-route and phrase keys; Hill 4×4/5×5; wide columnar (10–14); English running keys; the full-plaintext reconstruction |
+| Hypothesis ledger | `kryptos.k4.hypothesis_ledger` | One entry per family with tier, scope, evidence, module and test |
+| Scoring | `kryptos.k4.scoring`, `english_model` | English 2/3/4-gram tables from 8.9M letters of public-domain text; `english_z` puts random text at 0 and English at 1 |
+| Earlier sweeps (P1–P20, Phases 1–8) | `kryptos.k4.*` | Clock, geometric, keyed-alphabet, masking and composite sweeps. All null; see the capability table |
+| Agents | `kryptos.agents` | SPY / OPS / Q / LINGUIST for autonomous campaigns ([architecture](./docs/reference/AGENTS_ARCHITECTURE.md)) |
+| API | `kryptos.api` | Dashboard, ledger, attack jobs, vault, RAG search, SSE log tail |
+
+Rules that keep the ledger honest are in [`docs/GOVERN.md`](./docs/GOVERN.md) and enforced by tests: an `eliminated`
+entry needs a positive control, and the attack registry must match the dispatcher.
+
+---
+
+## Principles
 
 Kryptos is a long-horizon cryptanalysis program, not a promise machine.
 
-### What We Optimize For
-
-1. **Truth over narrative**
-  - We prefer uncomfortable results over comforting stories.
-  - "Did it improve validated signal?" is the first question.
-
-1. **Reproducibility over heroics**
-  - Every claim should be backed by deterministic commands, artifacts, and provenance.
-  - If a result cannot be reproduced, it does not count.
-
-1. **Known-cipher reliability before unknown-cipher ambition**
-  - K1-K3 performance is the quality gate for K4 campaigns.
-  - We do not scale strategies that fail on validated baselines.
-
-1. **AI as amplifier, not oracle**
-  - AI accelerates hypothesis generation, coding, and experiment operations.
-  - AI output is always treated as a proposal that must survive measurement.
-
-1. **Small, compounding iterations**
-  - Prefer narrow changes with clear acceptance criteria.
-  - Ship improvements that make the next experiment faster and cleaner.
-
-1. **Kill weak hypotheses quickly**
-  - Retire approaches that repeatedly underperform controls.
-  - Preserve a decision trail so retired ideas are not re-litigated without new evidence.
-
-### Operating Commitments
-
-- Every significant change includes a validation path (tests, benchmark deltas, or reproducible artifact evidence).
-- Every campaign run writes traceable outputs under `artifacts/`.
-- Every roadmap claim ties to measurable criteria, not adjectives.
-- Every phase includes at least one explicit "stop doing" decision.
-
-For governance and maintenance policy, see `docs/GOVERN.md` (with historical references in `docs/archive/`).
-
-## docs
-
-All Related documents / quick links can generally be found in `docs/`:
-
-- Docs index: `docs/INDEX.md`
-- Roadmap: `docs/ROADMAP.md`
-- Tasks: `docs/TASKS.md`
-- Agents Architecture: `docs/reference/AGENTS_ARCHITECTURE.md`
-- API Reference: `docs/reference/API_REFERENCE.md`
-- Autonomous System: `docs/reference/AUTONOMOUS_SYSTEM.md`
-- Changelog: `docs/CHANGELOG.md`
-
-**K4 is the last unsolved piece of a CIA sculpture puzzle.** Imagine a secret message carved in copper that nobody has
-cracked in 30+ years. We're using Python to systematically try every reasonable decryption method – techniques that
-crypto analysts may have attempted manually but couldn't exhaustively explore. Our approach combines automated testing
-with intelligent scoring to measure how "English-like" each result appears:
-
-1. **Hill Cipher** - Matrix-based substitution where letters become numbers, transform through matrix multiplication,
-then convert back.
-
-1. **Transposition** - Systematic letter rearrangement (write in columns, read in rows, or more complex patterns)
-
-1. **Masking** - Identifying and removing dummy letters that serve as padding or obfuscation
-
-1. **Berlin Clock** - Using the iconic clock's binary time pattern as a cryptographic key
-
-1. **Combo Attacks** - Chaining multiple methods together (K4 likely uses 2-3 techniques layered in sequence)
-
-  - We evaluate candidates using linguistic patterns – common letter pairs, trigram frequencies, real word detection – to identify promising decryptions. Think of it as trying thousands of lock combinations, but guided by cryptanalytic intuition rather than brute force. After all, humans design puzzles with intention, not randomness!
-
-## Recent Updates
-
-### K4 Negative-Space Pass (September 2026)
-
-- **P21 crib-constraint engine.** Tests cipher *families* against the 24 known letters rather than decrypting sampled keys. It eliminates, over stated ranges: autokey, linear, progressive, digit and sculpture-text running keys; Quagmire I–III for 231,933 dictionary keyword alphabets; and columnar (widths 2–9) or geometric transpositions composed with a periodic key of period ≤ 22, in either layer order. Run `kryptos crib-constraints`.
-- **Hypothesis ledger.** `GET /api/k4/ledger` gives a frontend-ready map of what's `eliminated`, `statistical`, `sampled_null` or `open`.
-- **Ranked gaps** in `docs/analysis/K4_NEGATIVE_SPACE.md`.
-- **Second pass, same day:** error-tolerant scans against shuffled controls (no signal), double-periodic keys for *any* keywords (p1 + p2 ≤ 24 eliminated), Quagmire IV, K3-style double rotation, transposition + autokey/running key, nulls, Hill 2×2/3×3, and the 25-letter-output ciphers (K4 uses all 26 letters) are all ruled out over stated ranges (`kryptos.k4.structural_checks`). Jobs now persist to Neon, the ledger reports the latest run, and the scoring word list is a real dictionary. Sanborn's statements are collected with citations in `docs/sources/SANBORN_QUOTES.md`.
-- **Frontier pass:** `kryptos frontier` (API `p22_frontier_checks`) covers most of what was left open. It rules out linear-recurrence keys, periodic keys over any mixed alphabet (letter-swap masking), keys read from a clock, 24-hour or compass dial, routes along every compass bearing, and Hill 4×4; Hill 5×5 and running keys from any English text show no signal. It also tests the published full-plaintext reconstruction ("THE COMPASS ROSE IS HERE…") as known plaintext against every family: none can produce K4 from it.
+1. **Truth over narrative.** Prefer uncomfortable results. "Did it improve validated signal?" comes first.
+2. **Reproducibility over heroics.** Every claim is backed by deterministic commands, artifacts and provenance.
+3. **Known ciphers before unknown ones.** K1–K3 reliability is the gate for K4 campaigns.
+4. **AI as amplifier, not oracle.** AI output is a proposal that has to survive measurement.
+5. **Small, compounding iterations** with clear acceptance criteria.
+6. **Kill weak hypotheses quickly,** and record why, so they are not re-argued without new evidence.
+7. **Say how strong a "ruled out" is.** Candidate counts are not coverage; use the ledger tiers.
 
 ---
 
-### K4 Deep-Dive Audit (September 2026)
-
-**A correctness pass over the K4 claims themselves, not a new sweep:**
-
-- **IC figures corrected.** K4's index of coincidence is **0.0361** (near random), not the ≈0.062 "near-English" the docs quoted. The local-IC table (0.058/0.071/0.062) was never computed from the ciphertext; the real values are 0.046/0.046/0.034, a spread random reshuffles match about 46% of the time. The "substitution → transposition confirmed" architecture rested on those numbers and is downgraded to a working hypothesis. New: `kryptos.k4.ic_profile`.
-- **Stronger periodic-key result.** No direct periodic key of length ≤ 26 fits the 24 crib letters under Vigenère, Beaufort, Variant Beaufort, *or* KRYPTOS-keyed Quagmire III (`key_csp.periodic_family_consistency`). P18 had covered only Vigenère, periods 2–20.
-- **Single source for crib shifts.** `key_csp.CRIB_SHIFTS` is now derived from `K4_CRIBS` rather than hand-typed (the hand-typed copy is how the 2026-09-02 off-by-one was duplicated). Crib release dates are recorded in `keystream_validator.K4_CRIB_RELEASES`. EAST was released Aug 2020, not 2023.
-- **External-fact corrections.** "THE COMPASS ROSE IS HERE" is solvekryptos.com's *reconstruction*, not Sanborn's archival text, which hasn't been released. Paradigm self-identified as the auction buyer in June 2026 and runs a $1-per-guess K4 verifier.
-- Pinned by `tests/functional/test_k4_documented_facts.py`.
-
----
-
-### K4 Physical/Geometric Pivot + Phase 7 Complete (August–September 2026)
-
-**All 13 code-executable items of the "Physical/Geometric Pivot" research brief (of 15 — items 10-11 were historical/archival research, satisfied via sourced documentation rather than code), plus a follow-on Phase 7, implemented and executed against real K4 — every result null (2.6M+ candidates total across the two phases):**
-
-- 24-column geometric permutation front-end (20 fill-orders/routes) composed with reflections (both shape-preserving *and* shape-changing transpose families), rotations, and remainder modes, combined with the 108-route physical tableau — up to 414,720 candidates per run
-- Precise WGS84 geodesy (`geographiclib`) computing the Mengenlehreuhr → Weltzeituhr bearing at both the clock's current and 1990/Sanborn-era locations (both land within 1.5–3.3° of exact ENE)
-- November 9 1989 (Berlin Wall fall) added as a sourced priority clock state
-- Myszkowski transposition, Trifid cipher, and a simulated-annealing substitution-key search behind the geometric front-end
-- P2 shadow/null masking, P5's 2-crib relaxed gate (against both transposition families), and P6's K3-running-key attack — all wired in earlier phases but executed for real for the first time
-- A re-examined, computationally-modeled "shadow of the word" hypothesis: the World Clock topper's rotation (verified 1 rev/min, mechanically deterministic) and real solar position at CIA HQ — both tractable without physical site access, correcting an earlier "out of scope" call
-- World Clock city-list keyword research, cross-vector consensus scoring across every null-result artifact, and a scheduled overnight full-sweep runner
-- New dashboard Pivot Status panel showing the hypothesis graph and geodesy figures
-
-**What's left** (updated 2026-09-27): two of the three source gaps named here closed on 2026-09-02 (World Clock city list at 130/146, and a sub-minute Nov 9 1989 timestamp). The compass rose's measured bearing is still open. See `docs/ROADMAP.md`'s 2027 Q1 section.
-
----
-
-### K4 Phase 2 Frontier Open (August 2026)
-
-**P1–P7 attacks implemented, tested, and live in Docker dashboard:**
-
-- P1: 3-layer composite (keyed-alphabet → Berlin Clock Vigenère → columnar transposition), CIA timestamps priority-tested
-- P2: 8 shadow/null masking variants (stride-2/3/4, block-8, clock-shadow×2, arc-fraction×2)
-- P3/P4: K2 coordinate digits as HH:MM clock times + ±6h timezone offsets (10 states)
-- P5: 2-crib soft filter for near-miss surfacing (BERLIN+CLOCK threshold=2)
-- P6: K3 plaintext running key (4 variants)
-- P7: Gronsfeld cipher with K2 coordinate digit keys
-
-All null results. Keystream analysis confirms Berlin Clock alone is insufficient (shifts reach 17, 20, 25 — exceeding max row output of 11). Phase 2 opens 10 new directions: alternative alphabet keywords (SANBORN, SCHEIDT, SHADOW), coordinate exploitation (magnetic declination, CIA→Berlin bearing), and candidate corpus mining.
-
-**Live dashboard**: `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 → K4 Dashboard — live Berlin Clock, K4 cipher with crib highlights, Frontier queue with Run Attack buttons.
-
----
-
-### Phase 6 Comprehensive Cleanup (October 2025)
-
-**Code Optimization**: Removed **3,554 lines** of unnecessary code while preserving all functionality
-
-- Automated cleanup: -2,877 lines (docstrings, comments, verbose logging) across 65 files
-- Deprecated code removal: -677 lines (unused configs, obsolete tests)
-- Fixed K3 ciphertext correction (336 chars)
-
-**Test Suite Optimization**: 633 collected (**631 fast-selected** / 10 slow tests gated by `KRYPTOS_RUN_SLOW_MONTE_CARLO` / 2 deselected in fast run mode)
-
-- Added `@pytest.mark.slow` to long-running statistical validation tests
-- Fast iteration: `pytest -m "not slow"` currently runs 631 tests in ~45-60s on a typical dev machine
-- Slow Monte Carlo modules are opt-in via `KRYPTOS_RUN_SLOW_MONTE_CARLO=1` and can be run directly in CI or locally when needed
-
-**Result**: Leaner codebase, faster development cycle, maintained 100% test pass rate
-
-## Current Progress
-
-### ✅ K1: "Between subtle shading and the absence of light lies the nuance of iqlusion"
-
-- **Status**: Solved.
-- **Details**: Vigenère cipher with keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ` (keyword: `KRYPTOS`) and Vigenère key `PALIMPSEST`. Intentional misspelling preserved: `IQLUSION`.
-
-### ✅ K2: "It was totally invisible. How's that possible?"
-
-- **Status**: Solved.
-- **Details**: Vigenère cipher with keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ` (keyword: `KRYPTOS`) and Vigenère key `ABSCISSA`. Includes embedded null/structural padding (`X`, and some `Y`) for historical alignment. Contains geospatial coordinates and narrative text.
-
-### ✅ K3: "Slowly, desperately slowly, the remains of passage debris..."
-
-- **Status**: Solved (double rotational transposition method).
-- **Details**: Implemented the documented 24×14 grid → 90° rotation → reshape to 8-column grid → second 90° rotation. Resulting plaintext matches known solution including deliberate misspelling `DESPARATLY` (analogous
-to `IQLUSION` in K1).
-
-### ℹ️ K4: The unsolved mystery
-
-- **Status**: Unsolved. Every attack vector attempted so far is null — single-layer, 2-layer, 3-layer composite, all 20 frontier vectors (P1–P20), the full 15-item Physical/Geometric Pivot, Phase 7's shape-changing transpose family + shadow-angle primitives + city-list keywords, and the 2026-09-03 Phase 8 follow-ups. The one open lead is the compass rose's measured bearing (primary-source outreach, see ROADMAP 2027 Q1). 1,670+ fast tests passing, all attacks instrumented with permanent provenance artifacts.
-- **Architecture**: what's established is a flattening, polyalphabetic-like layer (IC 0.0361, near random) that no direct periodic key of length ≤ 26 can explain. Whether there is also a transposition, and in which order, is **not** established. An older "substitution → transposition confirmed" claim rested on IC figures that don't match the ciphertext (corrected 2026-09-27, see `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` §4–5).
-- **Confirmed cribs** (0-indexed): EAST@21–24, NORTHEAST@25–33, BERLIN@63–68, CLOCK@69–73
-- **What's left**: the compass rose's measured bearing (primary-source outreach). The World Clock city list (130/146) and the sub-minute timestamp closed 2026-09-02. On the code side, the untested family is a non-periodic key with no transposition (see `docs/ROADMAP.md`, 2027 Q1).
-- **Current status**: `docs/analysis/K4_ACTIVE_RESEARCH.md` — the single source of truth for confirmed facts, ruled-out hypotheses, and Phase 1-7 results (older per-vector "3D fingerprint" analysis is archived at `docs/archive/K4_ATTACK_LANDSCAPE.md`).
-- **Live dashboard**: `docker compose -f config/docker-compose.yml up -d` → http://localhost:8000 → K4 Dashboard
-
-## Deliberate Misspellings / Anomalies
-
-| Section | Cipher Plaintext Form | Expected Modern Spelling | Note |
-|---------|-----------------------|---------------------------|------|
-| K1      | IQLUSION              | ILLUSION                  | Intentional artistic alteration |
-| K3      | DESPARATLY            | DESPERATELY               | Preserved from sculpture transcription |
-
-### K2 Structural Padding
-
-K2 contains systematic X (and some Y) insertions serving as alignment/null separators rather than mistakes. They should
-be treated as structural artifacts when analyzing pattern continuity or constructing transposition hypotheses.
-
-## Features
-
-- **Vigenère Cipher** with keyed alphabet handling ([learn more](https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher))
-- **K3 Double Rotational Transposition** implementation ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher))
-- **Config-driven** (`config/config.json`) for ciphertexts, keys, and parameters ([learn more](https://en.wikipedia.org/wiki/Configuration_file))
-- **Test Suite** validating K1–K3 solutions ([learn more](https://en.wikipedia.org/wiki/Unit_testing))
-- **Frequency, n-gram, and crib-based scoring utilities** ([learn more](https://en.wikipedia.org/wiki/Frequency_analysis) | [n-grams](https://en.wikipedia.org/wiki/N-gram) | [cribs](https://en.wikipedia.org/wiki/Crib_(cryptanalysis)))
-- **Hill cipher (2x2 & 3x3)** encryption/decryption + key solving from crib segments ([learn more](https://en.wikipedia.org/wiki/Hill_cipher))
-- **3x3 Hill assembly variants & pruning** (row/col/diagonal constructions + partial score pruning) ([learn more](https://en.wikipedia.org/wiki/Hill_cipher))
-- **Constrained Hill key derivation** from `BERLIN` / `CLOCK` cribs (single & pairwise) with caching ([learn more](https://en.wikipedia.org/wiki/Crib_(cryptanalysis)))
-- **Modular pipeline architecture** (stage factories for all hypothesis families) ([learn more](https://en.wikipedia.org/wiki/Pipeline_(computing)))
-- **Columnar transposition** search (partial-score pruning) and crib-constrained inversion utilities ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher#Columnar_transposition))
-- **Multi-crib positional transposition stage** (anchors multiple cribs simultaneously) ([learn more](https://en.wikipedia.org/wiki/Transposition_cipher))
-- **Adaptive transposition search** (`make_transposition_adaptive_stage`) with sampling prefix caching heuristics ([learn more](https://en.wikipedia.org/wiki/Heuristic))
-- **Masking/null-removal stage** exploring structural padding elimination variants ([learn more](https://en.wikipedia.org/wiki/Null_cipher))
-- **Berlin Clock shift hypothesis** (full lamp state enumeration + dual-direction application) ([learn more](https://en.wikipedia.org/wiki/Mengenlehreuhr))
-- **Weighted multi-stage fusion utilities** (`normalize_scores`, `fuse_scores_weighted`) for score aggregation ([learn more](https://en.wikipedia.org/wiki/Ensemble_learning))
-- **High-quality quadgram table** auto-loaded when present (`data/quadgrams_high_quality.tsv`) ([learn more](https://en.wikipedia.org/wiki/N-gram))
-- **Advanced linguistic metrics** (wordlist hit rate, trigram entropy, bigram gap variance, entropy, repeating bigram fraction) ([learn more](https://en.wikipedia.org/wiki/Entropy_(information_theory)))
-- **Memoized scoring** (LRU cache for repeated candidate evaluation) ([learn more](https://en.wikipedia.org/wiki/Cache_(computing)))
-- **Pipeline profiling** (per-stage duration metadata) ([learn more](https://en.wikipedia.org/wiki/Profiling_(computer_programming)))
-- **Transformation trace & lineage** (each candidate records stage + transformation chain) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
-- **Attempt logging & persistence** (Hill, Clock, Transposition permutations → timestamped JSON) ([learn more](https://en.wikipedia.org/wiki/Logging))
-- **Candidate reporting artifacts** (JSON + optional CSV summaries) ([learn more](https://en.wikipedia.org/wiki/Reproducibility))
-- **Adaptive fusion weighting** (optional `adaptive=True` in composite run) leveraging wordlist hit rate & trigram entropy heuristics
-
-## K4 Analysis Toolkit (New / Updated Modules)
-
-Located under `kryptos/k4/` (migrated from `src/k4/`):
-
-See `docs/reference/API_REFERENCE.md` for code-level API documentation.
-
-## Roadmap
-
-See `ROADMAP.md` for the current roadmap and milestones.
-
-## CLI Usage Examples
-
-The `kryptos` CLI aggregates decryption, tuning, and SPY analysis workflows. Use `kryptos --help` to view all
-subcommands. Below are common end‑to‑end examples.
-
-### List Sections
+## Testing
 
 ```bash
-kryptos sections
+pytest -m "not slow"          # fast suite (about 1,770 tests)
+pytest tests/smoke/           # seconds
+KRYPTOS_RUN_SLOW_MONTE_CARLO=1 pytest -m slow   # opt-in slow suites
 ```
 
-### Composite K4 Decrypt
-
-Decrypt K4 ciphertext from a file, limit candidates, enable adaptive fusion, and write artifacts:
-
-```bash
-kryptos k4-decrypt --cipher data/k4_cipher.txt --limit 40 --adaptive --report
-```
-
-Outputs JSON containing top plaintext, score, lineage, and artifact paths. Artifacts (candidates, attempts) are written
-under `artifacts/` when `--report` is used.
-
-### Persist Attempt Logs
-
-Flush in-memory attempt logs to a timestamped JSON file:
-
-```bash
-kryptos k4-attempts --label k4
-```
-
-### Tuning: Crib Weight Sweep
-
-Run a sweep across candidate weights for optional cribs and samples:
-
-```bash
-kryptos tuning-crib-weight-sweep --weights 0.25,0.5,1.0,1.5 \
-  --cribs BERLIN,CLOCK \
-  --samples data/holdout_samples.txt --json
-```
-
-Emits JSON rows: each weight with baseline vs with‑crib deltas.
-
-Select best performing weight from a prior sweep CSV:
-
-```bash
-kryptos tuning-pick-best --csv artifacts/tuning_runs/run_20251023T120000/crib_weight_sweep.csv
-```
-
-Clean and summarize a tuning run directory (crib hit counts, aggregates). Writes artifacts unless `--no-write` is
-provided:
-
-### Tuning: Tiny Param Sweep
-
-Deterministic miniature parameter sweep (debug/demo):
-
-```bash
-kryptos tuning-tiny-param-sweep
-```
-
-### Tuning: Holdout Score
-
-Compute mean scoring deltas for a chosen crib weight over representative holdout samples:
-
-```bash
-kryptos tuning-holdout-score --weight 1.25 --out artifacts/reports/holdout.csv
-```
-
-Use `--no-write` to skip CSV output and only print JSON.
-
-### SPY Evaluation
-
-Evaluate extraction confidence thresholds against labeled runs:
-
-```bash
-kryptos spy-eval --labels data/spy_eval_labels.csv --runs artifacts/tuning_runs --thresholds 0.10,0.25,0.40,0.55
-```
-
-Outputs precision/recall/F1 per threshold plus `best_threshold`.
-
-### SPY Extraction
-
-Extract SPY tokens at minimum confidence from all run_* directories:
-
-```bash
-kryptos spy-extract --runs artifacts/tuning_runs --min-conf 0.30
-```
-
-Returns mapping of run directory → extracted tokens.
-
-### End‑to‑End Flow (Example)
-
-```bash
-cp data/k4_cipher.txt work_cipher.txt
-kryptos k4-decrypt --cipher work_cipher.txt --limit 50 --adaptive --report > decrypt.json
-kryptos k4-attempts --label k4
-kryptos tuning-crib-weight-sweep --weights 0.5,1.0,1.5 --cribs BERLIN,CLOCK --json > sweep.json
-# Assume sweep CSV written separately; pick best
-kryptos tuning-pick-best --csv artifacts/tuning_runs/run_*/crib_weight_sweep.csv
-kryptos tuning-holdout-score --weight 1.0 --no-write > holdout.json
-kryptos spy-eval --labels data/spy_eval_labels.csv --runs artifacts/tuning_runs --thresholds 0.0,0.25,0.5,0.75 > spy_eval.json
-kryptos spy-extract --runs artifacts/tuning_runs --min-conf 0.25 > spy_tokens.json
-```
-
-You now have: decrypt.json, sweep.json, holdout.json, spy_eval.json, spy_tokens.json summarizing the pipeline, tuning,
-and extraction outputs.
-
-## RAG API (turbovec)
-
-A lightweight FastAPI app provides semantic search over `artifacts/` (decisions, hypotheses, logs, reports), backed by
-a [turbovec](https://pypi.org/project/turbovec/) compressed vector index and `sentence-transformers` embeddings.
-
-Start the server:
-
-```bash
-kryptos serve --port 8000
-```
-
-Build (or rebuild) the index from the current `artifacts/` contents — required before searching, and after any
-`artifacts/` changes:
-
-```bash
-curl -X POST localhost:8000/api/rag/reindex
-```
-
-Check index status:
-
-```bash
-curl localhost:8000/api/rag/status
-```
-
-Semantic search:
-
-```bash
-curl "localhost:8000/api/rag/search?q=Hill+cipher+key+matrix&k=5"
-```
-
-Health check:
-
-```bash
-curl localhost:8000/health
-```
-
-The index is stored under `data/turbovec/` (gitignored, derived from `artifacts/`).
-
-## Recent Changes
-
-- **2026-09-24**: 2027 planning reset — completed ROADMAP phases and TASKS Done archived verbatim (`docs/archive/2026-completed-roadmap-and-tasks.md`) and summarized in FEATURES; Phase 8 (compass-rose bearing + outreach) carried into 2027 Q1; linked breadcrumb navigation on every doc.
-- **2026-09-03**: Phase 8 follow-ups (three rounds) — plaintext evidence tiers, known-plaintext inversion over geometric and rectangular grids (3.67M permutations), mirrored "read from the back" tableau, K0 Morse and reconstructed-plaintext keyword sources, classical cipher sweep (Playfair/Four-Square/Bifid/Autokey). All null; `K4_CRIBS` off-by-one fixed 2026-09-02.
-- **2026-09-01**: K4 Physical/Geometric Pivot (Phase 6) and its Phase 7 follow-on both complete — shape-changing transpose family wired, "shadow of the word" computationally modeled (World Clock topper rotation + real solar position), World Clock city-list keywords tested, cross-vector consensus scoring built, scheduled overnight sweep runner built. 2.6M+ candidates across both phases, all null. ROADMAP/TASKS refreshed.
-- **2026-08-12**: Documentation refresh — created `docs/analysis/K4_ATTACK_LANDSCAPE.md` (3D fingerprint of all completed null-result vectors and 10 frontier directions: P1–P7 active, P8–P10 deferred); updated ROADMAP, TASKS, GOVERN, METRICS, K4_ACTIVE_RESEARCH, K4_KEYSTREAM_ANALYSIS, and INDEX for accuracy
-- **2026-06-01**: src/ audit baseline — 829 tests passing (0 failures); Quagmire I–IV, physical-grid tableau walk, SA columnar seeding, early-crib locking verified; all clock-based attack variants complete
-- **2026-05-25**: All K4-ATTACK-1 through K4-ATTACK-7 complete; 3-layer composite chain (S→T→S), ADFGVX, Nihilist, Beaufort, Quagmire implementations added
-- **2025-10-24**: Fixed CI failures by correcting `.gitignore` pattern - added agents source code (SPY, OPS, Q agents)
-
-## Autopilot (Q / OPS / SPY) Summary
-
-The repository includes an offline autopilot flow (Q / OPS / SPY) to recommend and execute safe tuning and extraction
-steps. `ask_triumverate.py` implements a lightweight driver that can run a deterministic OPS tuning sweep and then
-invoke the conservative SPY extractor. If `SPY_MIN_CONF` is not set, the autopilot will compute a conservative threshold
-using the evaluation harness; it falls back to `0.25` when no labeled runs are available. See
-`docs/reference/AGENTS_ARCHITECTURE.md` for full details and CLI examples.
-
-## Contributing
-
-Community contribution guidelines are maintained in [nitsuah/.github](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md).
-
-## Deployment
-
-The app is split across two hosts. Both were verified live on 2026-09-24.
-
-- **Frontend (static SPA):** Netlify, https://kryptos-k4.netlify.app. Configured in `netlify.toml`, whose `VITE_API_BASE_URL` points the SPA at the backend below.
-- **Backend (FastAPI, `/api/*` and `/health`):** Render free-tier Docker web service `kryptos-api`, https://kryptos-kg8t.onrender.com, defined by the `render.yaml` blueprint (#204, #205, #206). CORS is limited to the Netlify origin via `KRYPTOS_CORS_ORIGINS`. `DATABASE_URL` and the LLM provider keys are optional; without a database the backend runs with `db_enabled:false`, and without LLM keys the ops director uses its rule-based fallback.
-- Render's free plan spins the service down after about 15 minutes idle, and spinning back up can take up to about a minute. For this deployment, `/health` took 22s cold on 2026-09-24.
-
-## Docker Fast Coverage
-
-Run the fast test suite with coverage in a lightweight Docker container:
+In Docker:
 
 ```bash
 docker run --rm -v "${PWD}:/app" -w /app python:3.13-slim sh -lc \
-  "pip install --no-cache-dir pytest pytest-cov numpy matplotlib requests beautifulsoup4 spacy nltk pyyaml fastapi httpx geographiclib && \
+  "pip install --no-cache-dir -r config/requirements.txt pytest pytest-cov && \
    python -m spacy download en_core_web_sm && \
    pip install --no-cache-dir -e . --no-deps && \
    pytest tests/ -m 'not slow' --cov=kryptos --cov-report=term"
 ```
 
-Note: `tests/test_k4_performance.py` contains a micro-benchmark guard that is automatically skipped in container
-environments to avoid false regressions from container scheduling variance.
+Test tiers are described in [`tests/README.md`](./tests/README.md); current counts and coverage in
+[`docs/METRICS.md`](./docs/METRICS.md).
 
-## Scoring Metrics Snapshot
+---
 
-Use `baseline_stats(text)` to inspect metrics including advanced linguistic features.
+## Deployment
 
-## Data Sources
+- **Frontend:** Netlify, https://kryptos-k4.netlify.app, built from `frontend/` (`netlify.toml`). `VITE_API_BASE_URL`
+  points it at the backend.
+- **Backend:** Render free-tier Docker service `kryptos-api`, https://kryptos-kg8t.onrender.com (`render.yaml`). CORS is
+  limited to the Netlify origin via `KRYPTOS_CORS_ORIGINS`. The free plan sleeps after about 15 minutes idle, and the
+  first request can take up to a minute.
+- **Single container:** the root `Dockerfile` builds the SPA and serves it from FastAPI alongside `/api/*`.
+- **Optional:** `DATABASE_URL` (Neon/Postgres) enables run history, attack-job persistence and the vault; without it
+  the API reports `db_enabled: false` and everything else works. LLM keys are optional; without them the ops director
+  uses rule-based logic.
 
-Frequency & n-gram data in `data/` (TSV). High-quality quadgrams loaded automatically if `quadgrams_high_quality.tsv`
-exists. Fallback unigram distribution used if files absent.
+---
+
+## Data and artifacts
+
+- `config/config.json`: ciphertexts, cribs and parameters (the single source for section data).
+- `data/ngrams/english_{2,3,4}grams.tsv`: the scoring tables, rebuilt by `scripts/data/build_english_ngrams.py`.
+- `artifacts/` and `K4_*_NULL.json`: run outputs. Both are gitignored and regenerated by the commands that write them.
+- `data/turbovec/`: the RAG index over `artifacts/` (gitignored; build with `POST /api/rag/reindex`).
+
+---
+
+## References
+
+- [Kryptos on Wikipedia](https://en.wikipedia.org/wiki/Kryptos)
+- [UCSD Crypto Project by Karl Wang](https://mathweb.ucsd.edu/~crypto/Projects/KarlWang/index2.html)
+- [Kryptosfan blog, K3 solution](https://kryptosfan.wordpress.com/k3/k3-solution-3/)
+- [Elonka Dunin's Kryptos pages](https://elonka.com/kryptos/)
+- Sanborn's statements, with citations: [`docs/sources/SANBORN_QUOTES.md`](./docs/sources/SANBORN_QUOTES.md)
+- [Vigenère cipher](https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher) ·
+  [Hill cipher](https://en.wikipedia.org/wiki/Hill_cipher) ·
+  [Index of coincidence](https://en.wikipedia.org/wiki/Index_of_coincidence) ·
+  [Weltzeituhr](https://en.wikipedia.org/wiki/Weltzeituhr)
 
 <!-- docs-index:start -->
 
@@ -474,7 +211,6 @@ Every committed Markdown doc in this repo (other than this README, `.github/` an
 - [KRYPTOS Features](./docs/FEATURES.md) — `docs/FEATURES.md`
 - [Governance and Maintenance Notes](./docs/GOVERN.md) — `docs/GOVERN.md`
 - [Kryptos Docs Index](./docs/INDEX.md) — `docs/INDEX.md`
-- [K4 makeover](./docs/K4-v2.md) — `docs/K4-v2.md`
 - [Metrics](./docs/METRICS.md) — `docs/METRICS.md`
 - [Kryptos Roadmap](./docs/ROADMAP.md) — `docs/ROADMAP.md`
 - [Tasks](./docs/TASKS.md) — `docs/TASKS.md`
@@ -488,7 +224,8 @@ Every committed Markdown doc in this repo (other than this README, `.github/` an
 - [K3 Autonomous Solving Validation Results](./docs/analysis/K3_VALIDATION_RESULTS.md) — `docs/analysis/K3_VALIDATION_RESULTS.md`
 - [K4 Active Research State](./docs/analysis/K4_ACTIVE_RESEARCH.md) — `docs/analysis/K4_ACTIVE_RESEARCH.md`
 - [K4 Capability Table](./docs/analysis/K4_CAPABILITY_TABLE.md) — `docs/analysis/K4_CAPABILITY_TABLE.md`
-- [K4 Keystream Analysis — Confirmed Period-13 Window](./docs/analysis/K4_KEYSTREAM_ANALYSIS.md) — `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`
+- [K4 Keystream Analysis](./docs/analysis/K4_KEYSTREAM_ANALYSIS.md) — `docs/analysis/K4_KEYSTREAM_ANALYSIS.md`
+- [K4 Negative Space](./docs/analysis/K4_NEGATIVE_SPACE.md) — `docs/analysis/K4_NEGATIVE_SPACE.md`
 
 **`docs/archive/`**
 
@@ -496,6 +233,7 @@ Every committed Markdown doc in this repo (other than this README, `.github/` an
 - [Comprehensive Structure Audit - October 26, 2025](./docs/archive/AUDIT_2025-10-26.md) — `docs/archive/AUDIT_2025-10-26.md`
 - [Kryptos Repository Audit](./docs/archive/AUDIT_2026-05-24.md) — `docs/archive/AUDIT_2026-05-24.md`
 - [src/ Audit — Kryptos Toolkit (2026-06-01)](./docs/archive/AUDIT_2026-06-01.md) — `docs/archive/AUDIT_2026-06-01.md`
+- [K4 makeover (Akira CRT spec, superseded)](./docs/archive/K4-v2.md) — `docs/archive/K4-v2.md`
 - [Frontend design spec](./docs/archive/K4-FRONTEND.md) — `docs/archive/K4-FRONTEND.md`
 - [K4 Theories: Composite Pipeline & Physical-Geometric Resolver Specification](./docs/archive/K4-T1.md) — `docs/archive/K4-T1.md`
 - [K4 Attack Landscape — 3D Fingerprint](./docs/archive/K4_ATTACK_LANDSCAPE.md) — `docs/archive/K4_ATTACK_LANDSCAPE.md`
@@ -505,12 +243,14 @@ Every committed Markdown doc in this repo (other than this README, `.github/` an
 - [Agents Architecture](./docs/reference/AGENTS_ARCHITECTURE.md) — `docs/reference/AGENTS_ARCHITECTURE.md`
 - [Kryptos Public API Reference](./docs/reference/API_REFERENCE.md) — `docs/reference/API_REFERENCE.md`
 - [Autonomous Cryptanalysis System](./docs/reference/AUTONOMOUS_SYSTEM.md) — `docs/reference/AUTONOMOUS_SYSTEM.md`
+- [Dashboard](./docs/reference/DASHBOARD.md) — `docs/reference/DASHBOARD.md`
 - [Provenance and Search-Space Tracking](./docs/reference/PROVENANCE_SYSTEM_EXPLAINED.md) — `docs/reference/PROVENANCE_SYSTEM_EXPLAINED.md`
 
 **`docs/sources/`**
 
 - [The World Clock (Weltzeituhr) in Kryptos K4](./docs/sources/CLOCK.md) — `docs/sources/CLOCK.md`
 - [Jim Sanborn — notes and research pointers](./docs/sources/SANBORN.md) — `docs/sources/SANBORN.md`
+- [Sanborn quotes](./docs/sources/SANBORN_QUOTES.md) — `docs/sources/SANBORN_QUOTES.md`
 
 **`benchmarks/`**
 
@@ -538,94 +278,13 @@ Every committed Markdown doc in this repo (other than this README, `.github/` an
 
 <!-- docs-index:end -->
 
+## Contributing and community
+
+Shared policies live in [nitsuah/.github](https://github.com/nitsuah/.github):
+[Contributing](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md) ·
+[Code of Conduct](https://github.com/nitsuah/.github/blob/main/CODE_OF_CONDUCT.md) ·
+[Security](https://github.com/nitsuah/.github/blob/main/SECURITY.md)
+
 ## License
 
-See `LICENSE`.
-
-## Other Documentation
-
-- `docs/ROADMAP.md` — Current roadmap and phase objectives
-- `docs/TASKS.md` — Implementation backlog and K4 attack queue
-- `docs/CHANGELOG.md` — Change history and version tracking
-- `docs/reference/AGENTS_ARCHITECTURE.md` — SPY/OPS/Q agent design and implementation
-- `docs/reference/API_REFERENCE.md` — Python API and CLI command reference
-- `docs/reference/AUTONOMOUS_SYSTEM.md` — Autonomous coordination system
-
-## Code Examples
-
-If you prefer to run an example pipeline, use the example script:
-
-```bash
-python -m kryptos.examples.sections_demo
-```
-
-Or invoke the composite K4 search directly:
-
-```python
-from kryptos.k4 import decrypt_best
-result = decrypt_best(K4_CIPHERTEXT, limit=40, adaptive=True)
-print(result.plaintext, result.score)
-```
-
-Minimal lower-level pipeline construction (for experimentation):
-
-```python
-from kryptos.k4.pipeline import (
-  make_hill_constraint_stage,
-  make_masking_stage,
-  make_transposition_adaptive_stage,
-  make_transposition_stage,
-  Pipeline,
-)
-from kryptos.k4.composite import run_composite_pipeline
-
-stages = [
-  make_masking_stage(limit=20),
-  make_transposition_adaptive_stage(),
-  make_transposition_stage(),
-  make_hill_constraint_stage(partial_len=50, partial_min=-850.0),
-]
-out = run_composite_pipeline(K4_CIPHERTEXT, stages, report=False, limit=30, adaptive=True)
-print(out['aggregated'][0]['text'])
-```
-
-### Artifact Layout
-
-Pipeline-generated run directories may be grouped under an optional subdirectory for clarity:
-
-```text
-artifacts/
-  k4_runs/          # pipeline executor runs (run_YYYYMMDDTHHMMSS when artifact_run_subdir is set)
-  tuning_runs/      # tuning/daemon sweep runs (run_*)
-  reports/          # reporting outputs (top candidates, aggregated attempts) (now under artifacts/)
-  decisions/        # autopilot / plan artifacts (JSON summaries)
-  logs/             # runtime / diagnostic logs
-  output/           # miscellaneous generated outputs / crib extracts
-```
-
-Enable grouping by passing `artifact_run_subdir="k4_runs"` to `PipelineConfig`. If you have legacy `artifacts/run_*`
-directories from older versions, migrate them safely with:
-
-```bash
-python scripts/dev/migrate_run_artifacts.py --dry-run
-python scripts/dev/migrate_run_artifacts.py
-```
-
-If no legacy directories are present, the script reports that there is nothing to move.
-
-## References & Research
-
-- [UCSD Crypto Project by Karl Wang](https://mathweb.ucsd.edu/~crypto/Projects/KarlWang/index2.html)
-- [Kryptos Wiki](https://en.wikipedia.org/wiki/Kryptos)
-- [Vigenère Cipher Explanation](https://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher)
-- [Kryptosfan Blog](https://kryptosfan.wordpress.com/k3/k3-solution-3/)
-- [Berlin Clock](https://en.wikipedia.org/wiki/Mengenlehreuhr)
-- [Hill Cipher](https://en.wikipedia.org/wiki/Hill_cipher)
-- [Index of Coincidence](https://en.wikipedia.org/wiki/Index_of_coincidence)
-- [Entropy](https://en.wikipedia.org/wiki/Entropy_(information_theory))
-## Community Standards
-
-Shared community policies are centralized in [nitsuah/.github](https://github.com/nitsuah/.github):
-- [Contributing](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md)
-- [Code of Conduct](https://github.com/nitsuah/.github/blob/main/CODE_OF_CONDUCT.md)
-- [Security](https://github.com/nitsuah/.github/blob/main/SECURITY.md)
+MIT. See `LICENSE`.

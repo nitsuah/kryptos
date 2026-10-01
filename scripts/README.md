@@ -11,6 +11,10 @@ Status: active and intentionally small.
 	- `autofix_unused_vars.py`: optional unused-variable helper.
 - `scripts/testing/`
 	- Testing convenience artifacts and notes.
+- `scripts/data/`
+	- `build_english_ngrams.py`: rebuilds `data/ngrams/english_{2,3,4}grams.tsv` (the
+	  scoring tables) from the NLTK Gutenberg selection. Needs network access once.
+- `find_free_port.py`, `run_kryptos.sh`: local dev helpers.
 - `run_k4_overnight_sweeps.py`: thin CLI entry point for
 	`kryptos.k4.overnight_runner.run_all_pending_sweeps` — runs every
 	registered K4 full-scope attack sweep in order, halting on a
@@ -50,5 +54,5 @@ python scripts/run_k4_overnight_sweeps.py
 
 ## References
 
-- `CONTRIBUTING.md`
+- [Contributing](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md) (nitsuah org-wide)
 - `docs/INDEX.md`

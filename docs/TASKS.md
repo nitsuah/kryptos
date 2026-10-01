@@ -2,19 +2,56 @@
 
 > 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · **Tasks** · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
 
-Last Updated: 2026-09-28
+Last Updated: 2026-09-30
 
 ---
 
 ## In Progress
 
-- _None yet._
+- _None._
 
 ## Todo
 
-One of the three primary-source gaps opened 2026-09-01 remains open; the timestamp one closed 2026-09-02, and the World Clock *segment*-sourcing gap (the ~4 of 24 segments with no legible photo) closed 2026-09-02 too — not the complete 146-name city list itself, which stands at 130/146 confirmed (see the [2026 archive](./archive/2026-completed-roadmap-and-tasks.md)). See `docs/analysis/K4_ACTIVE_RESEARCH.md`'s "Primary Sources Needed" and "External Developments (2025–2026)" sections for full detail and sourcing rationale. Action items below are split by who actually has to do them — Claude's automatable queue vs. the send that genuinely needs a human.
+Two queues: code that can be built here (Phase 9 and platform), and sourcing that needs a person (Phase 8). The ranked
+rationale for the code items is in [`docs/analysis/K4_NEGATIVE_SPACE.md`](./analysis/K4_NEGATIVE_SPACE.md#open-ranked).
 
-### Primary-source sourcing (opened 2026-09-01) — 2027 Q1
+### Cryptanalysis frontier — code (Phase 9)
+
+Each item needs exact search or shuffled-ciphertext controls, a positive-control test, and a ledger entry with the
+right tier (see `docs/GOVERN.md`).
+
+- [ ] **Irregular transpositions + periodic key** — Myszkowski, disrupted/incomplete columnar, keyed route ciphers and turning grilles, both layer orders. Extend `frontier_checks._columnar_backtrack` to keyed variants.
+  - Priority: P2
+  - Type: Code
+- [ ] **Length-changing masking** — letters inserted or dropped inside words, the way K1–K3 carry misspellings. Build a crib alignment that allows gaps and test it against shuffled controls.
+  - Priority: P2
+  - Type: Code
+- [ ] **Two non-periodic layers** — autokey or running key on top of a wide or irregular transposition. Today columnar + autokey stops at width 7 and columnar + English running key at width 8.
+  - Priority: P3
+  - Type: Code
+- [ ] **Named running-key sources under transposition** — the K1–K3 ciphertexts, the K0 Morse text and the Cyrillic Projector as running keys after a columnar or geometric transposition.
+  - Priority: P3
+  - Type: Code
+- [ ] **Hill 6×6+ with partial blocks** — combine with a transposition hypothesis or use partial crib blocks.
+  - Priority: P4
+  - Type: Code
+- [ ] **Per-letter Weltzeituhr lookup keys** — blocked on the photographs below.
+  - Priority: P3
+  - Type: Code (blocked)
+
+### Platform
+
+- [ ] **"Try a hypothesis" endpoint** — `POST /api/k4/hypothesis` taking a family and parameters and returning the crib verdict and a decryption; a dashboard module on top.
+  - Priority: P3
+  - Type: Code
+- [ ] **Candidate submission gate** — before any $1 Paradigm guess, run every crib and ledger check and require the candidate to reproduce from its stated method. Also needs a written policy from the owner.
+  - Priority: P3
+  - Type: Code + policy
+- [ ] **Re-score stored candidates** — anything in `candidates` ranked before 2026-09-28 used the placeholder n-gram tables.
+  - Priority: P4
+  - Type: Code
+
+### Primary-source sourcing — needs you (Phase 8)
 
 - [ ] **Source the Kryptos compass rose's actual measured bearing** — per `elonka.com/kryptos/wishlist.html`, this is a still-open community question, not just gapped in this repo. `elonka.com/kryptos/KryptosAerial.html` already has one uncertain secondary estimate (~220°, explicitly flagged "not exact"). 2026-09-02 update: satellite/overhead imagery of the CIA New Headquarters Building courtyard was inspected directly (Google Maps, unblurred) — confirmed insufficient resolution for ground-level engraving detail (building/lot-scale only), ruling out that specific lead; the underlying reason is resolution physics, not a one-off check — resolving a thin engraved line on a ~1m stone to a useful few degrees needs sub-centimeter, near-nadir imagery of that one feature, and no public satellite/aerial/lidar source gets close (best commercial imagery is ~15-30cm/px). A physical on-site GPS/compass measurement isn't a viable alternative either: the courtyard is inside the CIA's secured grounds, not publicly accessible, and a consumer phone compass is only accurate to roughly ±5-10° regardless. External-plaintext note: solvekryptos.com's *reconstructed* plaintext opens "THE COMPASS ROSE IS HERE". That reconstruction is not Sanborn's archival text (Kobek and Byrne haven't released it), so this is consistent with the lead but doesn't confirm it (corrected 2026-09-27). Also, the Weltzeituhr that Sanborn says BERLIN CLOCK refers to stands on its own compass-rose mosaic, so any "compass rose" in the plaintext may not mean the CIA courtyard stone. **[You — the only send]** A FOIA request to CIA (foia.cia.gov) or contacting Elonka Dunin directly (active community liaison to Sanborn/CIA contacts) — both drafted in full below (moved here 2026-09-28 from the retired "Three Open Leads" briefing page). The FOIA draft specifically asks for the original 1990 landscape/installation architectural drawing (which may already have the bearing annotated), not just a photo — a drawing is far more likely to exist and to actually answer the question than commissioning new imagery.
   - Priority: P3
@@ -57,41 +94,26 @@ One of the three primary-source gaps opened 2026-09-01 remains open; the timesta
   > [Your name and contact information]
   - Priority: P3
   - Type: Research
-
-### Cryptanalysis (opened 2026-09-27)
-
-- [x] **Scope the "non-periodic key, no transposition" family** — done 2026-09-28 as the P21 crib-constraint engine (`kryptos.k4.crib_constraints`): autokey, linear, progressive, digit and running keys over the sculpture corpus are eliminated over the ranges in `docs/analysis/K4_NEGATIVE_SPACE.md`. Per-position clock/bearing procedures remain open, and depend on the compass-rose bearing.
-  - Priority: P3
-  - Type: Research + code
-- [x] **Load a real scoring word list** — done 2026-09-28: `scoring.WORDLIST` loads `english-words` (4+ letters, 261k words) when `data/wordlist.txt` is absent; English/random separation 1.55 → 1.91, pinned by `test_k4_wordlist_calibration.py`. (The earlier "every sweep leaned on it" framing was overstated; the main scorer uses n-grams.)
+- [ ] **Photograph the Weltzeituhr** — close-ups of every face of the city ring (16 of 146 city plates are still unread; `kryptos.k4.world_clock_cities`), the International Date Line plate, and the wind-rose mosaic from above with a straight edge in frame so its orientation can be measured. This is the only input that blocks the per-letter lookup keys in Phase 9 (a city, time zone or hour per letter). Anyone in Berlin with a phone can do it in about 30 minutes; Wikimedia Commons photos already cover most plates but not the ring order or the mosaic orientation.
   - Priority: P2
-  - Type: Code + calibration
-- [x] **Quagmire IV and double-periodic keys as constraint checks** — done 2026-09-28: `double_periodic_consistency` (any keys, p1 + p2 ≤ 24 eliminated) and `quagmire4_scan` (vocabulary × dictionary, zero survivors to period 22).
-  - Priority: P3
-  - Type: Code
-- [x] **K3-style double rotation and transposition + non-periodic key as constraint checks** — done 2026-09-28 in `structural_checks`: double rotation (zero survivors), columnar + autokey (zero), columnar + running key (chance level), plus nulls, Hill 2×2/3×3, output-alphabet eliminations and Chaocipher.
-  - Priority: P3
-  - Type: Code
-- [x] **Error-tolerant constraint checks** — done 2026-09-28: `tolerance_study` allows 1–2 wrong crib letters and compares with shuffled controls; K4 sits inside the control range.
-  - Priority: P3
-  - Type: Code
-- [x] **Quagmire IV, dictionary × dictionary** — done 2026-09-28: `quagmire4_dictionary_scan` indexes alphabets by the crib-forced position differences; about 5.4×10¹⁰ pairs in 13 s, zero survivors except 5 chance pairs at period 16 that decrypt to noise.
-  - Priority: P3
-  - Type: Code
-- [x] **Store crib-constraint artifacts in Neon** — done 2026-09-28: `kryptos.k4.run_store` + `k4_constraint_runs`; `latest_run` falls back to the newest stored run.
+  - Type: Research (physical)
+- [ ] **Check Sanborn's quotes against the primary pages** — `docs/sources/SANBORN_QUOTES.md` gives each quote a confidence tier; several source pages blocked automated fetches. A manual read of those pages would firm up the "masking" and "not a math solution" statements the open fronts lean on.
   - Priority: P4
-  - Type: Code
-- [x] **Frontier checks (P22)** — done 2026-09-28 in `kryptos.k4.frontier_checks`: recurrence keys, periodic key + arbitrary mixed alphabet, dial keys, bearing routes and Hill 4×4 eliminated; running keys from any English text and Hill 5×5 statistical; the full-plaintext reconstruction fits no tested family.
-  - Priority: P2
-  - Type: Code
-- [x] **Switch the main scorer to real n-gram tables** — done 2026-09-28: `scoring` loads `data/ngrams/english_{2,3,4}grams.tsv` (the old tables held about ten entries each). English vs shuffled English on 97 letters: Cohen's d 4.2 → 9.4, overlap 30/300 → 0 (`test_k4_ngram_calibration.py`). EurekaSignal is crib-based, so no threshold changed. Stored top candidates from earlier sweeps were ranked with the old tables; re-score them if any are revisited.
-  - Priority: P2
-  - Type: Code + calibration
+  - Type: Research
 
 ---
 
 ## Done
 
-_Completed tasks were moved verbatim to [archive/2026-completed-roadmap-and-tasks.md](./archive/2026-completed-roadmap-and-tasks.md)
+- **2026-09-30 — Single-page dashboard.** Tabs replaced by one fixed-height screen: five modules (K4, Ledger, Attacks, Lab, System) on a ring, each fitting the viewport without page scrolling; a drawing of the Weltzeituhr replaces the Mengenlehreuhr lamp clock; paper-and-lavender styling instead of teal screens; ledger and job history now have UI (`docs/reference/DASHBOARD.md`).
+- **2026-09-30 — Docs pass.** README rewritten around where K4 stands; ROADMAP, TASKS, INDEX, FEATURES, METRICS, GOVERN and the analysis docs brought up to date; the unbuilt Akira spec archived.
+- **2026-09-28 — Frontier checks (P22)** in `kryptos.k4.frontier_checks`: recurrence keys, periodic key + arbitrary mixed alphabet, dial keys, bearing routes and Hill 4×4 eliminated; wide columnar widths 10–14 by exact search; running keys from any English text and Hill 5×5 statistical; the full-plaintext reconstruction fits no tested family.
+- **2026-09-28 — Main scorer on real n-gram tables.** `scoring` loads `data/ngrams/english_{2,3,4}grams.tsv` (the old tables held about ten entries each). English vs shuffled English on 97 letters: Cohen's d 4.2 → 9.4, overlap 30/300 → 0 (`test_k4_ngram_calibration.py`). Score thresholds that depended on the old scale were recalibrated: the pipeline's partial-score pruning floor (-560 over 40 letters), the hypothesis pruning floor (-420 over 30 letters), and the composite Eureka snapshot floor (-1300; the old 80 could never be reached). `EurekaSignal` itself is crib-based and unchanged. Stored top candidates from earlier sweeps were ranked with the old tables.
+- **2026-09-28 — Crib-constraint engine (P21)** in `kryptos.k4.crib_constraints`: autokey, linear, progressive, digit and sculpture-corpus running keys; dictionary Quagmire I–III (231,933 alphabets); columnar (2–9) and geometric transposition × periodic key.
+- **2026-09-28 — Structural checks** in `kryptos.k4.structural_checks`: double periodic keys (p1 + p2 ≤ 24), Quagmire IV (vocabulary × dictionary and dictionary × dictionary), K3-style double rotation, columnar + autokey/running key, nulls, Hill 2×2/3×3, output-alphabet eliminations, Chaocipher (sampled), error-tolerant scans against 15 shuffled controls.
+- **2026-09-28 — Real scoring word list**: 261k words (`english-words`), English/random separation 1.55 → 1.91.
+- **2026-09-28 — Persistence**: crib-constraint runs in `k4_constraint_runs`, attack jobs in `k4_attack_jobs`.
+
+_Earlier completed tasks were moved verbatim to [archive/2026-completed-roadmap-and-tasks.md](./archive/2026-completed-roadmap-and-tasks.md)
 in the 2027 planning reset (2026-09-24) and summarized in [FEATURES](./FEATURES.md); per-vector results live in
 `docs/analysis/K4_ACTIVE_RESEARCH.md` / `K4_CAPABILITY_TABLE.md`._

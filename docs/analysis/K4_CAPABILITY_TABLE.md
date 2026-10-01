@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-Last Updated: 2026-09-28
+Last Updated: 2026-09-30
 
 ---
 
@@ -90,9 +90,10 @@ This table previously lived inline inside K4_ACTIVE_RESEARCH.md's "Existing Infr
 
 ## What's genuinely still open
 
-The code-side gaps that remain (long-key rules not yet named, Hill 6×6+, masking that inserts or drops letters, per-letter lookup keys) are ranked in [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md). The rest needs new source material this repo can't generate on its own — see [docs/TASKS.md](../TASKS.md)'s "Primary-source sourcing" section:
+The code-side gaps that remain (irregular transpositions, masking that inserts or drops letters, two non-periodic layers, long-key rules not yet named, Hill 6×6+, per-letter lookup keys) are ranked in [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md). The rest needs new source material this repo can't generate on its own — see [docs/TASKS.md](../TASKS.md)'s "Primary-source sourcing" section:
 
-1. The Kryptos compass rose's actual measured bearing (FOIA/Elonka outreach drafted, needs a human to send it).
-2. Whether CIA Public Affairs has an authorized research-visit mechanism (draft ready, same).
+1. Photographs of the Weltzeituhr's city ring, date-line plate and wind-rose mosaic (unblocks the per-letter lookup keys).
+2. The Kryptos compass rose's actual measured bearing (FOIA/Elonka outreach drafted, needs a human to send it).
+3. Whether CIA Public Affairs has an authorized research-visit mechanism (draft ready, same).
 
 Full narrative detail, sourcing, and verification history for every row above: [K4_ACTIVE_RESEARCH.md](K4_ACTIVE_RESEARCH.md).

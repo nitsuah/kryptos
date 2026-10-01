@@ -6,28 +6,28 @@
 
 **Note:** Data and artifacts are planned to migrate to a database as part of the 2027 roadmap. Current metrics reflect the file-based structure.
 
-**Last Validated:** 2026-09-16 (PMO audit, full re-run — see below); file counts re-derived by static analysis. Test-function count reflects all `def test_*` functions; pytest-collected count (after marks/deselection/parametrization) is higher and may differ.
+**Last Validated:** 2026-09-30 (fast suite re-run locally, Python 3.11; file and line counts re-derived). Coverage was last measured 2026-09-28. Test-function count reflects all `def test_*` functions; the pytest-collected count is higher because parametrized tests expand.
 
 ## Core Metrics
 
 | Metric              | Value   | Notes                                      |
 | ------------------- | ------- | ------------------------------------------ |
-| Code Coverage       | 89.27%  | Measured with pytest-cov (Docker, 2026-09-16, PMO audit): README's "Docker Fast Coverage" `python:3.13-slim` command — `pytest tests/ -m 'not slow' --cov=kryptos --cov-report=term`; 13,216 statements, 1,418 missed. Essentially flat vs. the 2026-08-22 reading (89.35%) despite substantial test growth in between. |
-| Source Files        | 136     | 2026-09-27: +`k4_jobs`, `k4_attack_dispatch`, `ic_profile` since 2026-09-16 (155 incl. `__init__.py`). Previous note: Python modules in src/ excl. `__init__.py` (152 total incl. `__init__.py`) — re-derived 2026-09-16, up from 112/131 on 2026-08-22 (Phase 6/7/8 modules: geodesy, solar_geometry, cross_vector_consensus, classical_cipher_sweep, k0_morse_keywords, plaintext_evidence, known_plaintext_inversion, physical_geometry, constraint_chain, overnight_runner, and others) |
-| Test Files          | 218     | 2026-09-28: `test_*.py` modules under tests/ (includes the new K4 constraint, frontier, ledger, persistence and calibration tests). Previous note: `test_*.py` modules in tests/ (re-derived 2026-09-16, up from 184) |
-| Test Functions      | 1552    | 2026-09-27 static count. Previous note: `def test_*` functions across all test files (static count 2026-09-16, up from 1271 on 2026-08-22) |
-| Test Cases (Fast)   | 1761 passed | 2026-09-28: `-m "not slow"`, 33 skipped, RAG-index tests deselected locally (they need `turbovec`); coverage 89% (local Python 3.11 run, frontier pass). Previous note: 0 failures, 34 skipped (Docker run 2026-09-16, PMO audit; slow-marked tests excluded via `-m 'not slow'`). Pytest-collected count exceeds the static function count above because parametrized tests expand into multiple items. |
-| Test Cases (Slow)   | 26      | `@pytest.mark.slow`-marked test items, deselected by the fast run above (was estimated "~22" on 2026-08-22; now an exact count from the same run) |
-| Lines of Code       | ~54K    | `wc -l` over all `.py`, 2026-09-27: src 31.3K + tests 22.5K. The earlier ~65K figure could not be reproduced |
-| Documentation Files | 40+     | Comprehensive docs in docs/ directory      |
-| Subdirectories      | 40      | `find src -type d` count, 2026-09-16 (was 33 on 2026-08-22; grew with new K4 modules — methodology not otherwise changed) |
+| Code Coverage       | 89%     | 2026-09-28 local run, `pytest -m "not slow" --cov=kryptos`. Previous reading 89.27% (Docker, 2026-09-16, 13,216 statements, 1,418 missed). |
+| Source Files        | 143     | Python modules in `src/kryptos` excluding `__init__.py` (162 including), 2026-09-30. Up from 136 on 2026-09-27 with `crib_constraints`, `structural_checks`, `frontier_checks`, `english_model`, `hypothesis_ledger`, `run_store` and the API modules. |
+| Test Files          | 218     | `test_*.py` modules under `tests/`, 2026-09-30 |
+| Test Functions      | 1653    | Static count of `def test_*`, 2026-09-30 (1552 on 2026-09-27) |
+| Test Cases (Fast)   | 1773 passed | 2026-09-30: `pytest -m "not slow"`, 33 skipped, 0 failures, 243 s; RAG-index tests deselected locally because they need `turbovec`. |
+| Test Cases (Slow)   | 31      | `@pytest.mark.slow` markers in `tests/` (static count, 2026-09-30); includes the reconstruction suite, dictionary Quagmires and the Hill 5×5 planted key |
+| Lines of Code       | ~58K    | `wc -l` over all `.py`, 2026-09-30: src 34.7K + tests 23.7K |
+| Documentation Files | 40      | Committed Markdown files (`git ls-files '*.md'`), 2026-09-30 |
+| Subdirectories      | 21      | `find src -type d` excluding `__pycache__`, 2026-09-30. The earlier figure of 40 counted `__pycache__` directories. |
 | Total Package Size  | 712 KB  | Source code only (excl. data/artifacts) — not re-measured this cycle, TBD re-verify |
 
 ## Performance Metrics
 
 | Metric                      | Value         | Notes                                |
 | --------------------------- | ------------- | ------------------------------------ |
-| Fast Test Duration          | 261.37s (4:21)| Full `-m 'not slow'` suite, Docker, 2026-09-16 (1658 passed + 34 skipped). Not directly comparable to the 48.51s/631-test 2026-05-25 baseline — the fast suite has grown substantially since (now 1692 collected non-slow items) as Phase 6-8 K4 attack modules and their tests were added. |
+| Fast Test Duration          | 243 s (4:03)  | Full `-m 'not slow'` suite, local, 2026-09-30 (1773 passed + 33 skipped). 261 s in Docker on 2026-09-16. |
 | Full Test Duration          | N/A (slow suites are opt-in) | Run with `KRYPTOS_RUN_SLOW_MONTE_CARLO=1` when you want the Monte Carlo path |
 | K4 Attack Throughput        | 2.5 atk/sec   | Sequential execution baseline        |
 | SA Speedup vs Hill-Climbing | 30-45%        | Simulated annealing optimization     |
@@ -52,20 +52,20 @@
 | Agents                | 8     | ~4K   | SPY, OPS, Q, LINGUIST intelligence   |
 | Pipeline              | 4     | ~1.6K | Orchestration and validation         |
 | Provenance            | 2     | ~836  | Attack logging and search tracking   |
-| K4 Toolkit            | 29    | ~15K  | Cipher implementations and scoring   |
+| K4 Toolkit            | 84    | ~20K  | Cipher implementations, constraint suites, scoring (`src/kryptos/k4/*.py`, 2026-09-30) |
 | Research              | 4     | ~2K   | Academic paper analysis              |
-| Tests                 | 218   | ~25K+ | Comprehensive test coverage (file count re-derived 2026-09-28; same scope as the Test Files row above) |
+| Tests                 | 218   | ~24K  | Smoke / functional / e2e tiers (2026-09-30) |
 
 ## Code Quality
 
 | Metric                 | Value    | Notes                                    |
 | ---------------------- | -------- | ---------------------------------------- |
 | Linting Status         | Clean    | Pre-commit hooks enforced                |
-| Test Pass Rate         | 100%     | 1658 passed, 0 failures (Docker run 2026-09-16, PMO audit; 1535 functions as of 2026-09-16 static count) |
-| Deprecated Code        | Minimal  | executor.py marked for removal (legacy, retiring after migration confirmation) |
+| Test Pass Rate         | 100%     | 1773 passed, 0 failures (local fast suite, 2026-09-30) |
+| Deprecated Code        | Minimal  | `executor.py` was listed here for removal; it no longer exists (checked 2026-09-30). `kryptos.deprecation` holds the remaining warning helpers. |
 | TODO/FIXME Count       | Low      | No critical technical debt               |
 | Module Independence    | High     | Clear boundaries, no shadow imports      |
-| Documentation Coverage | Extensive| 40+ docs, 3,500+ lines academic writing |
+| Documentation Coverage | Extensive| 40 Markdown docs; every doc outside `archive/` carries the breadcrumb nav (`test_docs_breadcrumbs.py`) |
 
 ## Health
 
@@ -73,8 +73,8 @@
 | ---------------- | ---------- | ---------------------------------------- |
 | Open Issues      | 0          | `gh issue list` — no open issues as of 2026-09-16 |
 | PR Turnaround    | <1 day     | Typical PR review time (last measured 2026-08-22, not re-sampled this cycle) |
-| Skipped Tests    | 34         | Fast-run skips (Docker, 2026-09-16) — DATABASE_URL-gated, torch/transformers-gated, and a few environment-conditional tests; was reported as "10" on 2026-08-22, which undercounted vs. the actual fast-run skip list |
+| Skipped Tests    | 33         | Fast-run skips (local, 2026-09-30): DATABASE_URL-gated, torch/transformers-gated, and a few environment-conditional tests |
 | Health Score     | 95/100     | Overseer compliance score (not re-scored this cycle) |
-| Last Updated     | 2026-09-16 | PMO audit: full re-run in Docker (README's "Docker Fast Coverage" command, after fixing a missing `geographiclib` dependency in that same command — see README.md) |
-| Project Status   | Active     | Phase 8 (2027 Q1) open: one primary-source gap remains; code-side frontier rescoped by the 2026-09-27 audit |
-| K4 Readiness     | 8.5/10     | Full pipeline, dashboard, RAG; Phases 1–7 complete (all null), 3-layer composites done. Open: compass-rose bearing (sourcing) and the untested non-periodic-key family (2026-09-27) |
+| Last Updated     | 2026-09-30 | Fast suite re-run, counts re-derived |
+| Project Status   | Active     | 2027 Q1: Phase 9 (cryptanalysis frontier, code), Phase 8 (primary-source sourcing, needs a person), platform work |
+| K4 Readiness     | 8.5/10     | Ledger: 26 eliminated, 7 statistical, 7 sampled null, 5 open. Open code fronts and sourcing needs are in ROADMAP 2027 Q1 |

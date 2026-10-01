@@ -2,10 +2,18 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Updated:** 2026-09-28
+**Last Updated:** 2026-09-30
 **Status:** Living document — update after each meaningful run or finding
 
-This document tracks what is currently known, what has been tested and ruled out, and the active attack queue for K4 cryptanalysis.
+This document tracks what is currently known, what has been tested and ruled out, and the run-by-run history of K4 cryptanalysis. The newest material is in the tables near the top; the phase sections further down are a chronological log and are kept as written, with correction notes where later work changed a conclusion.
+
+## Status at a glance (2026-09-30)
+
+- **Ledger:** 26 families eliminated over stated ranges, 7 statistical, 7 sampled null, 5 open (`kryptos ledger`, `GET /api/k4/ledger`). Ranges and the ranked open list: [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md).
+- **Established:** a flattening layer (IC 0.0361); no periodic key to period 26 in four families (Vigenère, Beaufort, Variant Beaufort, KRYPTOS-keyed Quagmire III); no sum of two periodic keys with p1 + p2 ≤ 24.
+- **Not established:** whether there is a transposition, or the layer order.
+- **Open, code:** irregular transpositions, length-changing masking, two non-periodic layers, named running-key sources under transposition, Hill 6×6+.
+- **Open, sourcing:** Weltzeituhr photographs (ring order, date-line plate, mosaic orientation; they unblock per-letter lookup keys), the CIA compass rose's measured bearing, and the three outreach drafts in `docs/TASKS.md`.
 
 ---
 
@@ -101,7 +109,7 @@ substituted-but-not-transposed text
 plaintext
 ```
 
-**Key insight:** The 13 characters at K4 positions 21–33 (FLRVQQPRNGKSS) that produce EASTNORTHEAST under some key were NOT contiguous in the pre-transposition text. The transposition pulled them from scattered positions. Reversing the transposition first is the prerequisite for clean substitution key recovery.
+**Key insight (conditional on the transposition model above; see the 2026-09-27 note):** The 13 characters at K4 positions 21–33 (FLRVQQPRNGKSS) that produce EASTNORTHEAST under some key were NOT contiguous in the pre-transposition text. The transposition pulled them from scattered positions. Reversing the transposition first is the prerequisite for clean substitution key recovery.
 
 *(2026-09-02: this section previously read positions 22–34/LRVQQPRNGKSSO and a different keystream — that was the same one-position-high bug fixed in `keystream_validator.K4_CRIBS`; see "External Developments" below. Values below are corrected.)*
 
@@ -143,7 +151,7 @@ Rows 1–3 and 6–14 are cipher-attack sweeps that returned null results. Rows 
 
 ---
 
-## Active Attack Queue — FRONTIER (as of 2026-08-12)
+## Frontier Attack Queue P1–P10 (opened 2026-08-12, all complete)
 
 Every clean 2-layer composite and every direct clock-keying variant has now returned null. The frontier shifts to: (a) 3-layer composites, (b) pre-cipher masking/null removal, and (c) clock key derivation approaches that treat K2 coordinates or timezone offsets as secondary inputs.
 
@@ -205,7 +213,7 @@ These three directions are structurally distinct but lower-probability given the
 
 - ✅ **P8 — Myszkowski Transposition (COMPLETE — NULL RESULT, 2026-08-29):** Repeated-letter keywords (ABSCISSA, PALIMPSEST) with Myszkowski column-grouping (tied-rank columns read row-by-row together rather than one at a time). Note: KRYPTOS itself has no repeated letters and does not demonstrate Myszkowski behavior. Implemented as a self-contained `kryptos.k4.myszkowski` module (the grouped-row read pattern isn't reducible to `transposition.py`'s whole-column-read `apply_columnar_permutation`, so "reuse the columnar solver" from the original scoping note didn't hold up once the primitive was actually written). See Ruled Out table above.
 - ✅ **P9 — Trifid Cipher (COMPLETE — NULL RESULT, 2026-08-29):** 27-cell (3×3×3) cube fractionation extending Bifid to triples. Implemented in `kryptos.k4.trifid` — keyword-mixed cube (reuses `quagmire.keyword_alphabet`) + a filler 27th symbol, block-wise encrypt/decrypt, swept across 6 keyword candidates × 13 period lengths. See Ruled Out table above.
-- **P10 — Straddle Checkerboard:** Implemented in an earlier session (`kryptos.k4.straddling_checkerboard`) — out of scope for this pass, not touched here.
+- ✅ **P10 — Straddle Checkerboard (COMPLETE — NULL RESULT):** `kryptos.k4.straddling_checkerboard`; run against K4 with K2 coordinate digits as row headers under P15 (36 combinations). See `K4_CAPABILITY_TABLE.md`.
 
 ---
 
@@ -419,7 +427,7 @@ Artifacts: `K4_MASK_*_NULL.json` (8 files), `K4_P5_2CRIB_NULL.json`, `K4_P5_GEOM
 
 **Bug fixed in passing**: the P2 API handler in `k4_attack_routes.py` aggregated near-miss candidates with `best.extend(result.get("best_candidates", []))` *inside* the per-candidate loop instead of `best.append(c)` — an O(n²) duplication that corrupted the dashboard's near-miss reporting for this attack specifically (did not affect the null/non-null verdict itself). Fixed.
 
-**Still open, not attempted this round** (see the "K4 Field Notes" artifact for full detail): `reflection.py`'s shape-changing transpose family was fully built in Phase 1 but `geometry_combined_sweep.DEFAULT_REFLECTIONS` only ever exercises the shape-preserving four — the single largest untested slice of the pivot's own search space. Deferred to keep this round scoped.
+**Still open, not attempted this round** *(closed in Phase 7 below: the shape-changing family was wired and run, 639,360 candidates across three runs, null)* (see the "K4 Field Notes" artifact for full detail): `reflection.py`'s shape-changing transpose family was fully built in Phase 1 but `geometry_combined_sweep.DEFAULT_REFLECTIONS` only ever exercises the shape-preserving four — the single largest untested slice of the pivot's own search space. Deferred to keep this round scoped.
 
 ### Phase 7 (2026-09-01): shape-changing transpose, shadow-angle primitives, city-list keywords, cross-vector consensus
 
@@ -475,7 +483,7 @@ Artifacts: `K4_WORLD_CLOCK_CITIES_NULL.json`, `K4_GEOMETRY_COMBINED_WORLDCLOCK_N
 
 Phases 1-7 have exhausted what's *inferable* from already-sourced material. What's left needs new primary source material this repo cannot generate on its own — code alone won't move these three forward. This section records concrete leads found by digging (not just "someone should go look"), so the next session doesn't have to re-research from scratch. See `docs/TASKS.md`'s Active section for these as tracked tasks.
 
-**Status as of 2026-09-02: items 1 and 2 below are closed** (see "Combined sweep results" above for item 1's final 130-name count, and Phase 7's Nov 9 1989 entry for item 2). Item 1's leads are kept below as a record of what actually worked (the first two bullets) and what wasn't tried/didn't pan out (the patent, the panorama) rather than rewritten. Item 3 (compass bearing) remains the one open gap — see Phase 8 in `docs/ROADMAP.md` and the drafted outreach in `docs/TASKS.md`.
+**Status as of 2026-09-02: items 1 and 2 below are closed** (see "Combined sweep results" above for item 1's final 130-name count, and Phase 7's Nov 9 1989 entry for item 2). Item 1's leads are kept below as a record of what actually worked (the first two bullets) and what wasn't tried/didn't pan out (the patent, the panorama) rather than rewritten. Item 3 (compass bearing) is still open. A fourth need was added 2026-09-28: photographs of the Weltzeituhr's city ring, date-line plate and wind-rose mosaic, which the per-letter lookup keys depend on. See Phase 8 in `docs/ROADMAP.md` and the drafted outreach in `docs/TASKS.md`.
 
 ### 1. A complete World Clock (Weltzeituhr) city list — closed 2026-09-02
 
