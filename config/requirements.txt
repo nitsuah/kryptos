@@ -15,4 +15,4 @@ fastapi>=0.141.1  # `kryptos serve` API
 uvicorn[standard]>=0.54.0  # ASGI server for `kryptos serve`
 psycopg2-binary>=2.9.13  # PostgreSQL driver for kryptos.db (DATABASE_URL / Neon storage)
 geographiclib>=2.1  # WGS84 geodesic bearing/distance for kryptos.k4.geodesy (pure-Python, no compiled deps)
-english-words>=2.0  # MIT word list (web2 + GCIDE) for kryptos.k4.crib_constraints dictionary keyword scan
+english-words>=2.0.2  # MIT word list (web2 + GCIDE) for kryptos.k4.crib_constraints dictionary keyword scan
