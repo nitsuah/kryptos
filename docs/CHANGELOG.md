@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Agent instructions (`.github/copilot-instructions.md`) now require closing tracked work in the same PR: update `docs/TASKS.md`, `docs/ROADMAP.md` and this changelog before the last push, and confirm `git diff origin/main...HEAD --stat` includes them before merge; extended `.github/pull_request_template.md` with a "Closes TASKS item(s)" checklist.
+- `docs/analysis/K4_KEYSTREAM_ANALYSIS.md` section 9 heading changed from "all resolved" to "all investigated" (#235). The intro now says Q8 is still open for masking that inserts or drops letters inside words, and Q9 is only partly covered (three-layer composites sampled, not exhaustive; two non-periodic layers together still open). Null results and tested scope are unchanged.
 
 ### Changed (2026-09-30 — dashboard, second pass)
 
