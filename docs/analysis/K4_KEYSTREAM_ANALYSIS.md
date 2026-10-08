@@ -218,9 +218,9 @@ These also look high-entropy under pure Vigenère, consistent with the composite
 
 ---
 
-## 9. Questions — 11 total, all resolved (2026-09-30)
+## 9. Questions — 11 total, all investigated (2026-09-30)
 
-Questions 7–11 were open when this list was written (2026-08-12). All five were then run as frontier attacks P1–P5, and all were null; the answers are added in place.
+Questions 7–11 were open when this list was written (2026-08-12). All five were then run as frontier attacks P1–P5, and all were null; the answers are added in place. Investigated is not the same as resolved: each question has had the tests listed below, but two still have open parts. Q8 is open for masking that inserts or drops letters inside words, which has not been tested. Q9 is only partly covered: the three-layer composites were sampled, not exhaustive, and combinations of two non-periodic layers are still open.
 
 1. ~~What transposition permutation P maps EAST+NORTHEAST to a recognizable keystream?~~ — Tested: no such permutation found in the grid+route space explored. Either the transposition is not grid-based, or the substitution layer is not Vigenère-equivalent.
 2. ~~Does a keyed alphabet make the keystream structured?~~ — Tested KRYPTOS/PALIMPSEST/ABSCISSA: null result. If a keyed alphabet is involved, it's one not yet tried.
