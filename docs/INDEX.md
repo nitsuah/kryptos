@@ -25,6 +25,7 @@ This is the traversal map for humans and AI agents.
 
 ## Analysis
 
+- [docs/analysis/K4_WORLD_CLOCK_FACE_TRANSCRIPTION.md](analysis/K4_WORLD_CLOCK_FACE_TRANSCRIPTION.md) - Attributed 2017 top/bottom World Clock transcription, provenance, uncertainty, and limitations for per-letter lookup experiments
 - [docs/analysis/K4_ACTIVE_RESEARCH.md](analysis/K4_ACTIVE_RESEARCH.md) - **The narrative log for K4: confirmed facts, ruled-out hypotheses, every phase's runs, and open primary-source needs**
 - [docs/analysis/K4_NEGATIVE_SPACE.md](analysis/K4_NEGATIVE_SPACE.md) - Eliminated, statistical and sampled-null families with their ranges, the full-reconstruction test, and what is still open, ranked
 - [docs/analysis/K4_CAPABILITY_TABLE.md](analysis/K4_CAPABILITY_TABLE.md) - Every K4 attack vector/infrastructure component, status, and real candidate count in one scannable table
