@@ -70,3 +70,5 @@ This is the traversal map for humans and AI agents.
 5. GOVERN for the rules (ledger tiers, positive controls) and CONTRIBUTING (nitsuah/.github) for workflow.
 6. Reference docs for implementation details.
 7. Analysis docs for measured validation and the run-by-run history.
+
+- [K4 Open5 Frontier](./analysis/K4_OPEN5_FRONTIER.md) — bounded diagnostics for the five remaining K4 hypothesis families.
