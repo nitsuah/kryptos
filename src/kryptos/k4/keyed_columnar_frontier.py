@@ -179,7 +179,11 @@ def run_keyed_columnar_frontier(
                 alphabet_keyword,
                 max_examples=len(labels),
             )
-            checks_run += len(labels) * len(period_values) * 5 * 2
+            checks_run += len(labels) * sum(
+                len(by_period)
+                for families in scan.values()
+                for by_period in families.values()
+            )
             for layer_order, families in scan.items():
                 for family, by_period in families.items():
                     for period, result in by_period.items():
