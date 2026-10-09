@@ -132,3 +132,6 @@ An earlier version of this doc said the 18-word scoring list meant "every sweep'
 - [K4_CAPABILITY_TABLE.md](K4_CAPABILITY_TABLE.md): every module and its status
 - [K4_KEYSTREAM_ANALYSIS.md](K4_KEYSTREAM_ANALYSIS.md): the crib keystreams and what IC does and doesn't show
 - [../sources/SANBORN_QUOTES.md](../sources/SANBORN_QUOTES.md): Sanborn's statements with citations
+
+
+**Open5 diagnostic pass:** [K4_OPEN5_FRONTIER.md](K4_OPEN5_FRONTIER.md) adds bounded edit-gap alignment, Hill 6×6–10 partial-block coverage, per-letter label-stream generation from an explicitly supplied order, and named scalar compass-bearing seeds. These are diagnostics, not eliminations; physical plate order and global edit/transposition search remain open.
