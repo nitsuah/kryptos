@@ -1,3 +1,5 @@
+> 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) <!-- nav -->
+
 # K4 Keyed-Columnar Frontier: Long Clue-Derived Keys
 
 **Status:** bounded exact crib test; current result is a null, not a family-wide elimination.
