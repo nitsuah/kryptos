@@ -1,7 +1,9 @@
 """Exact crib-gated frontier for long, clue-derived columnar keys.
 
-The generic columnar search has exhaustively covered widths 2–14, but larger
-widths are too expensive to enumerate over every permutation. This module tests
+The existing columnar searches enumerate all column orders for widths 2–14
+within their documented period ranges; some high-period cases remain
+underconstrained. Larger widths are too expensive to enumerate over every
+permutation. This module tests
 a narrower, falsifiable family instead: column orders induced by longer
 Weltzeituhr city labels and by those labels concatenated with the already-known
 K1/K2 key words.
