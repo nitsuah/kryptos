@@ -33,6 +33,11 @@ The functional tests include planted insertion/deletion alignments, partial Hill
 - The compass bearing could seed a non-route transformation. Existing whole-degree route scans do not rule that out.
 - Missing or deliberate misspellings, dropped/inserted letters, plate order and front/back reading are distinct variables and should not be bundled into one unconstrained search.
 
+
+### Geometry/orientation hypothesis carried forward from the investigation
+
+The working interpretation discussed alongside this branch is that the compass rose's ENE direction (67.5° on a 16-point rose) may determine an orientation or key/alphabet setting, not necessarily a route. A geographic ray from the CIA installation toward the Russian Far East/Kamchatka is a separate consequence to map-check; it is not evidence that K4 uses a route cipher. Likewise, the Weltzeituhr faceplate/clock orientation may define a phase, alphabet rotation, or reading order. These are candidate variables to enumerate only once the actual faceplate orientation and the relevant bearing are sourced. Existing whole-degree route and steady-dial scans do not eliminate these non-route orientation constructions.
+
 ## Reproduction
 
 ```bash
