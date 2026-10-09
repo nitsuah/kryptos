@@ -41,6 +41,13 @@ def test_hill_partial_block_report_never_claims_full_matrix_solution():
     assert all("no matrix elimination performed" in row["status"] for row in report[6])
 
 
+def test_hill_report_counts_fully_known_eastnortheast_blocks():
+    """Count complete six-character Hill blocks inside the confirmed EASTNORTHEAST crib."""
+    crib = dict(enumerate("EASTNORTHEAST", start=21))
+    report = hill_partial_block_coverage(crib, sizes=(6,))
+    assert any(row["fully_known_plaintext_blocks"] > 0 for row in report[6])
+
+
 def test_per_letter_lookup_preserves_supplied_physical_order():
     """Preserve supplied city-label order when generating lookup streams."""
     result = keyed_lookup_streams(["BERLIN", "TOKYO"], 4, transforms=("first", "last", "length"))
