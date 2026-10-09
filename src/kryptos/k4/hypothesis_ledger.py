@@ -418,6 +418,17 @@ LEDGER: list[dict[str, Any]] = [
         "module": "kryptos.k4.frontier_checks.hill_rowspace_search / hill_beam_search",
         "test": "tests/functional/test_k4_frontier_checks.py",
     },
+    {
+        "id": "keyed_columnar_frontier",
+        "family": "Long World Clock city-derived keyed columnar orders combined with periodic substitution",
+        "tier": "sampled_null",
+        "scope": "widths 15–26; transcribed city labels and city+KRYPTOS/PALIMPSEST/ABSCISSA in both orders; "
+        "periods 1–22; three keyed-alphabet seeds; five substitution families; both layer orders",
+        "evidence": "no sufficiently constrained K4 crib-consistent hit in this finite candidate set; "
+        "underconstrained matches are reported separately; a planted positive control recovers a known order",
+        "module": "kryptos.k4.keyed_columnar_frontier.run_keyed_columnar_frontier",
+        "test": "tests/functional/test_k4_keyed_columnar_frontier.py",
+    },
     # ── open ───────────────────────────────────────────────────────────────
     {
         "id": "hill_large",
