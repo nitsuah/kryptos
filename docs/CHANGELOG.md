@@ -293,3 +293,9 @@ For detailed phase planning and technical documentation, see:
 
 - [ROADMAP.md](./ROADMAP.md) - Current roadmap and phase objectives
 - [CONTRIBUTING.md](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md) (nitsuah org default) - Active workflow, standards, and quickstart guidance
+
+## 2026-10-09 — Open5 frontier diagnostics
+
+- Added `kryptos.k4.open5_frontier` for bounded edit-gap crib alignment, Hill 6×6–10 partial-block coverage, ordered per-letter label streams, and named scalar bearing seeds.
+- Added planted functional tests and `docs/analysis/K4_OPEN5_FRONTIER.md`.
+- These additions do not eliminate the five open families; global masking/transposition search and physical clock/bearing evidence remain open.
