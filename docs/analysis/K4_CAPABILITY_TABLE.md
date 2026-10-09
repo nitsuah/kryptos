@@ -98,3 +98,6 @@ The code-side gaps that remain (irregular transpositions, masking that inserts o
 3. Whether CIA Public Affairs has an authorized research-visit mechanism (draft ready, same).
 
 Full narrative detail, sourcing, and verification history for every row above: [K4_ACTIVE_RESEARCH.md](K4_ACTIVE_RESEARCH.md).
+
+
+| Open5 diagnostic primitives | 🧪 Bounded | `kryptos.k4.open5_frontier`: edit-gap crib alignments, Hill 6×6–10 partial-block coverage, ordered label lookup streams, and scalar bearing seeds. Planted unit tests; no family-wide elimination claimed. Details: [K4_OPEN5_FRONTIER.md](K4_OPEN5_FRONTIER.md). |
