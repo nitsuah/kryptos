@@ -18,10 +18,10 @@ The implementation is `kryptos.k4.keyed_columnar_frontier`.
 - **Substitution layer:** Vigenère, Beaufort, Variant Beaufort, and the two existing KRYPTOS-tableau Quagmire III variants.
 - **Alphabet seeds:** KRYPTOS, PALIMPSEST, and ABSCISSA.
 - **Layer order:** substitution before transposition and transposition before substitution.
-- **Periods:** 1–22, so the test does not mistake underconstrained periods for meaningful survivors.
-- **Acceptance gate:** all 24 confirmed K4 crib letters must agree. Language scoring is not used to rescue a mismatch.
+- **Periods:** 1–22.
+- **Acceptance gate:** all 24 confirmed K4 crib letters must agree, and at least eight of the crib constraints must be repeated-key-slot constraints for the candidate layer order. We report underconstrained crib-consistent matches separately instead of treating them as discoveries. Language scoring is not used to rescue a mismatch.
 
-Equivalent keywords that induce the same column permutation are deduplicated. The result reports the number of candidate strings, unique permutations, and checks so coverage is auditable.
+Equivalent keywords that induce the same column permutation are deduplicated. The result reports the number of candidate strings, unique permutations, checks, raw crib-consistent candidates, and any underconstrained examples so coverage is auditable.
 
 ## Validation
 
