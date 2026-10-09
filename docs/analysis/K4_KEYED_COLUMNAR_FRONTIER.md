@@ -6,7 +6,7 @@
 
 Could a World Clock city label (or a combination of a city label and a known K1/K2 key) determine a conventional column-read order for a wide grid, while a periodic substitution supplies the other layer?
 
-The ordinary columnar search has exhaustively covered all column permutations for widths 2–14, but cannot enumerate every permutation at widths 15–26. A keyword-derived order gives one explicit permutation per key, making a finite exact test possible without sampling random column orders.
+The existing columnar searches enumerate all column orders for widths 2–14 within their documented period ranges, though some high-period cases remain underconstrained. They cannot enumerate every permutation at widths 15–26. A keyword-derived order gives one explicit permutation per key, making a finite exact test possible without sampling random column orders.
 
 ## What the new check tests
 
