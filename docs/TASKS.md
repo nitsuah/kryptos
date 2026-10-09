@@ -35,9 +35,9 @@ right tier (see `docs/GOVERN.md`).
 - [ ] **Hill 6×6+ with partial blocks** — partial-block coverage diagnostics now exist for sizes 6–10; combine with a named transposition and modular equation solver to test matrices.
   - Priority: P3
   - Type: Code
-- [ ] **Per-letter Weltzeituhr lookup keys** — blocked on the photographs below.
+- [ ] **Per-letter Weltzeituhr lookup keys** — a provisional 2017 top/bottom transcription is now available in `kryptos.k4.world_clock_faces_2017`; test only explicitly declared traversals with exact cribs and shuffled controls. Pre-1997 order remains unverified.
   - Priority: P3
-  - Type: Code (blocked)
+  - Type: Code
 
 ### Platform
 
@@ -94,7 +94,7 @@ right tier (see `docs/GOVERN.md`).
   > [Your name and contact information]
   - Priority: P3
   - Type: Research
-- [ ] **Photograph the Weltzeituhr** — close-ups of every face of the city ring (16 of 146 city plates are still unread; `kryptos.k4.world_clock_cities`), the International Date Line plate, and the wind-rose mosaic from above with a straight edge in frame so its orientation can be measured. This is the only input that blocks the per-letter lookup keys in Phase 9 (a city, time zone or hour per letter). Anyone in Berlin with a phone can do it in about 30 minutes; Wikimedia Commons photos already cover most plates but not the ring order or the mosaic orientation.
+- [ ] **Source the Weltzeituhr's pre-1997 faces and physical orientation** — the 2017 top/bottom transcription is now captured as provisional data in `kryptos.k4.world_clock_faces_2017`, but the clock was renovated in 1997 and the 1990 city names/zone assignments are not established. Find pre-1997 photos (look for LENINGRAD, ALMA ATA and BRATISLAVA), complete the physical ring order, and document the relevant orientation. The wind-rose mosaic's bearing is also still unmeasured.
   - Priority: P2
   - Type: Research (physical)
 - [ ] **Check Sanborn's quotes against the primary pages** — `docs/sources/SANBORN_QUOTES.md` gives each quote a confidence tier; several source pages blocked automated fetches. A manual read of those pages would firm up the "masking" and "not a math solution" statements the open fronts lean on.
