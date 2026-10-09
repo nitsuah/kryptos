@@ -39,7 +39,7 @@ def test_hill_partial_block_report_never_claims_full_matrix_solution():
 
 def test_per_letter_lookup_preserves_supplied_physical_order():
     result = keyed_lookup_streams(["BERLIN", "TOKYO"], 4, transforms=("first", "last", "length"))
-    assert [item["stream"] for item in result] == ["BTBT", "NYNY", "FGFG"]
+    assert [item["stream"] for item in result] == ["BTBT", "NONO", "FEFE"]
     assert all(item["requires_confirmed_physical_order"] for item in result)
 
 
@@ -48,7 +48,7 @@ def test_bearing_seeds_are_named_and_modular_not_routes():
     assert len(result) == 3
     assert {item["encoding"] for item in result} == {"degrees", "tenths", "hundredths"}
     assert all(item["route_assumption"] is False for item in result)
-    assert {item["seed"] for item in result} == {16, 25, 22}
+    assert {item["seed"] for item in result} == {16, 25}
 
 
 def test_bearing_outside_range_rejected():
