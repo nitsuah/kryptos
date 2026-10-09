@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Bounded keyed-columnar frontier for long World Clock city-derived keywords and city+K1/K2-key combinations (widths 15–26), with exact crib constraints, both layer orders, underconstraint reporting, and a planted positive-control test. See `docs/analysis/K4_KEYED_COLUMNAR_FRONTIER.md`.
+
 ### Changed
 
 - Agent instructions (`.github/copilot-instructions.md`) now require closing tracked work in the same PR: update `docs/TASKS.md`, `docs/ROADMAP.md` and this changelog before the last push, and confirm `git diff origin/main...HEAD --stat` includes them before merge; extended `.github/pull_request_template.md` with a "Closes TASKS item(s)" checklist.
