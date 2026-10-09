@@ -29,6 +29,7 @@ This is the traversal map for humans and AI agents.
 - [docs/analysis/K4_NEGATIVE_SPACE.md](analysis/K4_NEGATIVE_SPACE.md) - Eliminated, statistical and sampled-null families with their ranges, the full-reconstruction test, and what is still open, ranked
 - [docs/analysis/K4_CAPABILITY_TABLE.md](analysis/K4_CAPABILITY_TABLE.md) - Every K4 attack vector/infrastructure component, status, and real candidate count in one scannable table
 - [docs/analysis/K4_KEYSTREAM_ANALYSIS.md](analysis/K4_KEYSTREAM_ANALYSIS.md) - Keystream derivation from the EAST, NORTHEAST, BERLIN and CLOCK cribs, the IC analysis, and what is and isn't established about the layer structure
+- [docs/analysis/K4_KEYED_COLUMNAR_FRONTIER.md](analysis/K4_KEYED_COLUMNAR_FRONTIER.md) - Exact crib-gated test of long, clock-derived keyword column orders combined with known K1/K2 keys; bounded nulls and limits
 - [docs/analysis/30_YEAR_GAP_COVERAGE.md](analysis/30_YEAR_GAP_COVERAGE.md) - Classical cipher technique coverage assessment (pre-1990 techniques; see doc for current coverage %)
 - [docs/analysis/K1_2_3_PATTERN_ANALYSIS.md](analysis/K1_2_3_PATTERN_ANALYSIS.md) - K1-K3 pattern extraction used to guide K4
 - [docs/analysis/K1_K2_VALIDATION_RESULTS.md](analysis/K1_K2_VALIDATION_RESULTS.md) - K1/K2 Monte Carlo validation results (100%)
