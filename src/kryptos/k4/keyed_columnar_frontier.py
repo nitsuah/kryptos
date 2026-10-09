@@ -104,6 +104,7 @@ def run_keyed_columnar_frontier(
     periods: Iterable[int] = PERIODS,
     min_width: int = MIN_WIDTH,
     max_width: int = MAX_WIDTH,
+    min_key_slot_collisions: int = 8,
 ) -> dict[str, Any]:
     """Test clue-derived column orders against all confirmed crib constraints.
 
@@ -145,8 +146,13 @@ def run_keyed_columnar_frontier(
         order = keyed_columnar_order(keyword)
         grouped[len(keyword)][order].append(keyword)
 
+    if min_key_slot_collisions < 0 or min_key_slot_collisions > len(normalized_plain):
+        raise ValueError("min_key_slot_collisions must be between zero and the crib-letter count")
+
     crib_positions = np.array(sorted(normalized_plain), dtype=np.int64)
     hits: list[dict[str, Any]] = []
+    underconstrained_examples: list[dict[str, Any]] = []
+    raw_survivors = 0
     orders_tested = 0
     checks_run = 0
     for width in sorted(grouped):
@@ -158,6 +164,7 @@ def run_keyed_columnar_frontier(
             {"width": width, "order": list(order), "keywords": sorted(grouped[width][order])}
             for order in orders
         ]
+        positions_by_order = {order: cpos[i] for i, order in enumerate(orders)}
         orders_tested += len(orders)
 
         for alphabet_keyword in alphabet_keywords:
@@ -174,15 +181,40 @@ def run_keyed_columnar_frontier(
             for layer_order, families in scan.items():
                 for family, by_period in families.items():
                     for period, result in by_period.items():
-                        if result["survivors"]:
+                        if not result["survivors"]:
+                            continue
+                        raw_survivors += result["survivors"]
+                        robust_examples = []
+                        for example in result["examples"]:
+                            order = tuple(example["order"])
+                            slots = (
+                                crib_positions % period
+                                if layer_order == "sub_then_trans"
+                                else positions_by_order[order] % period
+                            )
+                            collisions = len(crib_positions) - len(np.unique(slots))
+                            enriched = {**example, "repeated_key_slot_constraints": int(collisions)}
+                            if collisions >= min_key_slot_collisions:
+                                robust_examples.append(enriched)
+                            elif len(underconstrained_examples) < 25:
+                                underconstrained_examples.append(
+                                    {
+                                        "alphabet_keyword": alphabet_keyword,
+                                        "layer_order": layer_order,
+                                        "family": family,
+                                        "period": period,
+                                        **enriched,
+                                    }
+                                )
+                        if robust_examples:
                             hits.append(
                                 {
                                     "alphabet_keyword": alphabet_keyword,
                                     "layer_order": layer_order,
                                     "family": family,
                                     "period": period,
-                                    "survivors": result["survivors"],
-                                    "examples": result["examples"],
+                                    "survivors": len(robust_examples),
+                                    "examples": robust_examples,
                                 }
                             )
 
@@ -194,7 +226,10 @@ def run_keyed_columnar_frontier(
         "unique_column_orders": orders_tested,
         "alphabet_keywords": list(alphabet_keywords),
         "periods": period_values,
+        "minimum_repeated_key_slot_constraints": min_key_slot_collisions,
         "checks_run": checks_run,
+        "raw_crib_consistent_survivors": raw_survivors,
+        "underconstrained_examples_sample": underconstrained_examples,
         "widths": sorted(grouped),
         "hits": hits,
         "scope_note": (
