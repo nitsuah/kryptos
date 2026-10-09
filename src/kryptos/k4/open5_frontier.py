@@ -83,6 +83,7 @@ def hill_partial_block_coverage(
         if n < 2:
             raise ValueError("Hill matrix size must be at least 2")
         alignments = []
+        known_positions = set(positions)
         for offset in range(n):
             rows = [0] * n
             blocks: set[int] = set()
@@ -99,7 +100,11 @@ def hill_partial_block_coverage(
                 "crib_characters_used": sum(rows),
                 "distinct_blocks_touched": len(blocks),
                 "equations_per_row": rows,
-                "fully_known_plaintext_blocks": 0,
+                "fully_known_plaintext_blocks": sum(
+                    1
+                    for block_start in blocks
+                    if all(block_start + k in known_positions for k in range(n))
+                ),
                 "status": "partial-block constraints only; no matrix elimination performed",
             })
         out[n] = alignments
