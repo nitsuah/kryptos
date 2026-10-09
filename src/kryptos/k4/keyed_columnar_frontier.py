@@ -27,7 +27,7 @@ MIN_WIDTH = 15
 MAX_WIDTH = 26
 ALPHABET_SEEDS = ("KRYPTOS", "PALIMPSEST", "ABSCISSA")
 KNOWN_KEYWORDS = ("KRYPTOS", "PALIMPSEST", "ABSCISSA")
-PERIODS = tuple(range(1, 27))
+PERIODS = tuple(range(1, 23))
 
 
 def _letters(value: str) -> str:
