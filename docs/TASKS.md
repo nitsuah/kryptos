@@ -32,7 +32,7 @@ right tier (see `docs/GOVERN.md`).
 - [ ] **Named running-key sources under transposition** — the K1–K3 ciphertexts, the K0 Morse text and the Cyrillic Projector as running keys after a columnar or geometric transposition.
   - Priority: P3
   - Type: Code
-- [ ] **Hill 6×6+ with partial blocks** — combine with a transposition hypothesis or use partial crib blocks.
+- [ ] **Hill 6×6+ with partial blocks** — partial-block coverage diagnostics now exist for sizes 6–10; combine with a named transposition and modular equation solver to test matrices.
   - Priority: P3
   - Type: Code
 - [ ] **Per-letter Weltzeituhr lookup keys** — blocked on the photographs below.
