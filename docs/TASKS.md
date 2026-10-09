@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · **Tasks** · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
 
-Last Updated: 2026-10-01
+Last Updated: 2026-10-09
 
 ---
 
@@ -105,6 +105,7 @@ right tier (see `docs/GOVERN.md`).
 
 ## Done
 
+- **2026-10-09 — Long clue-derived columnar frontier.** Added an exact crib-gated test of conventional column orders derived from transcribed World Clock city labels and city+K1/K2-key combinations at widths 15–26. Tests both layer orders, periods 1–22, three alphabet seeds and five substitution families; a planted control verifies the checker. This is a bounded null/coverage expansion, not closure of the broader irregular-transposition or per-letter-clock-key tasks. See `docs/analysis/K4_KEYED_COLUMNAR_FRONTIER.md`.
 - **2026-09-30 — Single-page dashboard.** Tabs replaced by one fixed-height screen: five modules (K4, Ledger, Attacks, Lab, System) on a ring, each fitting the viewport without page scrolling; a drawing of the Weltzeituhr replaces the Mengenlehreuhr lamp clock; paper-and-lavender styling instead of teal screens; ledger and job history now have UI (`docs/reference/DASHBOARD.md`).
 - **2026-09-30 — Docs pass.** README rewritten around where K4 stands; ROADMAP, TASKS, INDEX, FEATURES, METRICS, GOVERN and the analysis docs brought up to date; the unbuilt Akira spec archived.
 - **2026-09-28 — Frontier checks (P22)** in `kryptos.k4.frontier_checks`: recurrence keys, periodic key + arbitrary mixed alphabet, dial keys, bearing routes and Hill 4×4 eliminated; wide columnar widths 10–14 by exact search; running keys from any English text and Hill 5×5 statistical; the full-plaintext reconstruction fits no tested family.
