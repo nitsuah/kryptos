@@ -74,6 +74,8 @@ Nicodemus (Vigenère by column, then columnar read-out) is the sub-then-transpos
 
 Mengenlehreuhr lamp keys; geometric/tableau keystream sweeps (~2.4M candidates); fractionating ciphers with Kryptos keywords; Hill with BERLIN/CLOCK-derived matrices; keyword-seeded composites (World Clock cities, K0 Morse, advisory names, Cyrillic Projector); physical readings (shadow, solar, bearings); Chaocipher with 1,936 vocabulary alphabet pairs (best 5/24; implementation reproduces Byrne's published example).
 
+**New bounded branch (PR #247: keyed clock-columnar frontier):** `kryptos.k4.keyed_columnar_frontier` tests stable alphabetical column orders derived from transcribed World Clock city labels and city+K1/K2-key concatenations, widths 15–26, periods 1–22, three alphabet seeds, five substitution families, both layer orders. It deduplicates equivalent orders, requires at least eight repeated key-slot constraints before promoting a crib-consistent mapping, and has a planted positive control. Underconstrained matches are reported separately. A null result rejects only this finite candidate set; it does not cover arbitrary wide permutations, country labels, irregular transpositions, or per-letter clock lookup. Details: [K4_KEYED_COLUMNAR_FRONTIER.md](K4_KEYED_COLUMNAR_FRONTIER.md).
+
 ---
 
 ## The full reconstruction as known plaintext
@@ -130,3 +132,6 @@ An earlier version of this doc said the 18-word scoring list meant "every sweep'
 - [K4_CAPABILITY_TABLE.md](K4_CAPABILITY_TABLE.md): every module and its status
 - [K4_KEYSTREAM_ANALYSIS.md](K4_KEYSTREAM_ANALYSIS.md): the crib keystreams and what IC does and doesn't show
 - [../sources/SANBORN_QUOTES.md](../sources/SANBORN_QUOTES.md): Sanborn's statements with citations
+
+
+**Open5 diagnostic pass:** [K4_OPEN5_FRONTIER.md](K4_OPEN5_FRONTIER.md) adds bounded edit-gap alignment, Hill 6×6–10 partial-block coverage, per-letter label-stream generation from an explicitly supplied order, and named scalar compass-bearing seeds. These are diagnostics, not eliminations; physical plate order and global edit/transposition search remain open.

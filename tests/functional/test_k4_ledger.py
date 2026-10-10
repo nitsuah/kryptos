@@ -92,3 +92,11 @@ def test_attack_registry_matches_dispatcher():
     dispatched = set(re.findall(r'attack_id == "([a-z0-9_]+)"', src))
     runnable = {v["id"] for v in FRONTIER_VECTORS if v["runnable"]}
     assert runnable == dispatched
+
+
+def test_keyed_columnar_frontier_is_registered_as_sampled_null():
+    """Keep the bounded long-key experiment traceable without overclaiming elimination."""
+    entry = next(e for e in LEDGER if e["id"] == "keyed_columnar_frontier")
+    assert entry["tier"] == "sampled_null"
+    assert entry["test"] == "tests/functional/test_k4_keyed_columnar_frontier.py"
+    assert "widths 15–26" in entry["scope"]

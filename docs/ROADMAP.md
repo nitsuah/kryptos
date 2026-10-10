@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · [Features](./FEATURES.md) · **Roadmap** · [Tasks](./TASKS.md) · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
 
-Last Updated: 2026-09-30
+Last Updated: 2026-10-09
 Next Review: 2026-10-24
 
 > 2027 planning reset (2026-09-24): completed Phases 1–4, 6 and 7 (all null) and Phase 8's two closed leads were moved
@@ -56,8 +56,7 @@ doesn't, a positive-control test either way, and a ledger entry with the right t
 - [ ] **Per-letter Weltzeituhr lookups** (city, zone or hour per letter as the key). Blocked on the photographs in
   Phase 8; once recorded, they drop into the existing dial and lookup checks.
 
-Completed in this phase's lead-up (2026-09-28): the P21 crib-constraint engine, the structural checks, the P22 frontier
-checks, the real scoring tables and word list, and job persistence. See [CHANGELOG](./CHANGELOG.md).
+Completed in this phase's lead-up (2026-09-28–2026-10-09): the P21 crib-constraint engine, structural checks, P22 frontier checks, real scoring tables and word list, job persistence, and the bounded long clue-derived keyed-columnar frontier (widths 15–26; see [K4_KEYED_COLUMNAR_FRONTIER](./analysis/K4_KEYED_COLUMNAR_FRONTIER.md)). The frontier narrows one finite hypothesis but does not close the broader irregular-transposition task. See [CHANGELOG](./CHANGELOG.md).
 
 ---
 
