@@ -13,7 +13,8 @@ a confirmed blank side. These states must not be conflated.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Literal
+from collections.abc import Iterable
+from typing import Literal
 
 FaceSide = Literal["top", "bottom"]
 
