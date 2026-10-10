@@ -68,3 +68,12 @@ def test_bearing_outside_range_rejected():
     """Reject bearings outside the compass range."""
     with pytest.raises(ValueError):
         bearing_seed_candidates([360])
+
+
+def test_default_lookup_streams_do_not_duplicate_first_letter_transform():
+    """Avoid counting the same first-letter stream twice under different names."""
+    result = keyed_lookup_streams(["NEW YORK", "SAN FRANCISCO"], 4)
+    assert [item["transform"] for item in result] == ["first", "last", "length"]
+    assert len({item["stream"] for item in result}) == len(result)
+    with pytest.raises(ValueError, match="unknown label transform"):
+        keyed_lookup_streams(["NEW YORK"], 1, transforms=("initials",))
