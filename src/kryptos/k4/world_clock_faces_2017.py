@@ -44,6 +44,17 @@ WORLD_CLOCK_FACES_2017: dict[str, dict[FaceSide, tuple[str, ...] | None]] = {
     "+12": {"top": ("KAMTSCHATKA",), "bottom": ("DATUMSGRENZE", "WELLINGTON")},
 }
 
+# The source marks these city labels with a "+30′" annotation. Preserve that
+# detail separately so the label-stream helper does not silently fold it into
+# a city's spelling or label-length transform.
+HALF_HOUR_MARKED_LABELS_2017: frozenset[tuple[str, FaceSide, str]] = frozenset({
+    ("+3", "bottom", "TEHERAN"),
+    ("+4", "bottom", "KABUL"),
+    ("+5", "bottom", "NEW DELHI"),
+    ("+5", "bottom", "COLOMBO"),
+    ("+6", "bottom", "RANGUN"),
+})
+
 TRANSCRIPTION_SOURCE = (
     "https://github.com/zeyeteam-debug/kryptos-k4-eliminations"
     "#11-weltzeituhr-alexanderplatz-face-transcription-2017-state-and-the-1990-problem"
@@ -79,6 +90,7 @@ def ordered_face_labels(
 
 
 __all__ = [
+    "HALF_HOUR_MARKED_LABELS_2017",
     "TRANSCRIPTION_SOURCE",
     "WORLD_CLOCK_FACES_2017",
     "face_labels",
