@@ -138,9 +138,10 @@ def test_genetic_algorithm_hill3x3():
 
     Note: This is a slow test (~10-30 seconds) due to GA iterations.
     """
-    # The GA draws from the global `random` module; seed it so the score
-    # threshold below is deterministic rather than a lottery across runs.
-    # Seed 40 produces a best score around -80 with the improved GA.
+    # The GA draws from the global `random` module; seed it so the run is
+    # reproducible. The September 2026 switch to full English n-gram tables
+    # changed the score scale; seed 40 now scores around -159, so use the
+    # previously calibrated -200 floor rather than the obsolete -100 cutoff.
     random.seed(40)
 
     # Create a simple known plaintext/ciphertext pair (15 chars = 5 complete blocks).
@@ -168,7 +169,7 @@ def test_genetic_algorithm_hill3x3():
 
     # Top result should have a reasonable score
     best_key, best_score, best_plaintext = results[0]
-    assert best_score > -100  # Not a total failure
+    assert best_score > -200  # Plausible candidate under the current scorer
 
     # Best key should be invertible
     assert matrix_inv_mod(best_key) is not None
