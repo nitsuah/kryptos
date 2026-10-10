@@ -1,5 +1,7 @@
 # World Clock Face Transcription (2017 Snapshot)
 
+> 🧭 [kryptos](../../README.md) <!-- nav -->
+
 **Status:** provisional ordered input data; not a confirmed 1990 transcription and not a K4 result.
 
 ## Why this exists
