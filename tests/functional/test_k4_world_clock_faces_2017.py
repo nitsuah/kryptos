@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from kryptos.k4.world_clock_faces_2017 import (
+    HALF_HOUR_MARKED_LABELS_2017,
     WORLD_CLOCK_FACES_2017,
     face_labels,
     ordered_face_labels,
@@ -48,3 +49,14 @@ def test_invalid_face_requests_are_rejected():
 
 def test_face_map_has_both_sides_for_every_record():
     assert all(set(face) == {"top", "bottom"} for face in WORLD_CLOCK_FACES_2017.values())
+
+
+def test_half_hour_marks_are_preserved_as_metadata():
+    """Keep the source's +30-minute annotations without corrupting city labels."""
+    assert HALF_HOUR_MARKED_LABELS_2017 == frozenset({
+        ("+3", "bottom", "TEHERAN"),
+        ("+4", "bottom", "KABUL"),
+        ("+5", "bottom", "NEW DELHI"),
+        ("+5", "bottom", "COLOMBO"),
+        ("+6", "bottom", "RANGUN"),
+    })
