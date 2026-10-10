@@ -114,7 +114,7 @@ def hill_partial_block_coverage(
 def keyed_lookup_streams(
     labels: Iterable[str],
     length: int,
-    transforms: Iterable[str] = ("first", "last", "initials", "length"),
+    transforms: Iterable[str] = ("first", "last", "length"),
 ) -> list[dict[str, Any]]:
     """Create explicit per-position streams from an ordered physical lookup list.
 
@@ -136,8 +136,6 @@ def keyed_lookup_streams(
                 ch = label[0]
             elif transform == "last":
                 ch = label[-1]
-            elif transform == "initials":
-                ch = label[0]
             elif transform == "length":
                 ch = chr(ord("A") + (len(label) - 1) % 26)
             else:
