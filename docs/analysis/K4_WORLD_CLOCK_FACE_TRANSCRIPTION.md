@@ -24,7 +24,7 @@ The source repository reports null results for several tests using city names as
 
 ## How to use it
 
-`face_labels(offset, side)` returns the labels in the source's stated order. `ordered_face_labels(offsets, side)` flattens a caller-supplied offset order, preserving blanks and returning `None` if any requested face is unknown. The resulting labels can be passed to the existing `kryptos.k4.open5_frontier.keyed_lookup_streams` helper to generate explicitly named first/last/initial/length streams.
+`face_labels(offset, side)` returns the labels in the source's stated order. `ordered_face_labels(offsets, side)` flattens a caller-supplied offset order, preserving blanks and returning `None` if any requested face is unknown. The resulting labels can be passed to the existing `kryptos.k4.open5_frontier.keyed_lookup_streams` helper to generate explicitly named first/last/length streams.
 
 Example:
 
