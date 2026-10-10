@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added an attributed, provisional 2017 top/bottom Weltzeituhr face transcription with ordered-label helpers and tests. Unknown faces remain unknown, confirmed blanks remain blank, and documentation explicitly separates the 2017 snapshot from the unresolved 1990 state. See `docs/analysis/K4_WORLD_CLOCK_FACE_TRANSCRIPTION.md`.
+- Removed the duplicate first-letter lookup transform from the Open5 stream defaults so the same candidate stream is not counted twice.
 - Bounded keyed-columnar frontier for long World Clock city-derived keywords and city+K1/K2-key combinations (widths 15–26), with exact crib constraints, both layer orders, underconstraint reporting, and a planted positive-control test. See `docs/analysis/K4_KEYED_COLUMNAR_FRONTIER.md`.
 - Added `kryptos.k4.open5_frontier` for bounded edit-gap crib alignment, Hill 6×6–10 partial-block coverage, ordered per-letter label streams, and named scalar bearing seeds.
 - Added planted functional tests and `docs/analysis/K4_OPEN5_FRONTIER.md`.
