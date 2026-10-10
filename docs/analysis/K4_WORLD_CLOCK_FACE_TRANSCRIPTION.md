@@ -16,7 +16,7 @@ The caller must choose face order and traversal direction. The code does not sor
 
 ## Provenance and limits
 
-The table is attributed to the README's author and its photo-based transcription; it is not independently verified against the original photographs in this repository. See the [source section](https://github.com/zeyeteam-debug/kryptos-k4-eliminations#11-weltzeituhr-alexanderplatz-face-transcription-2017-state-and-the-1990-problem).
+The table is attributed to the README's author and its photo-based transcription; it is not independently verified against the original photographs in this repository. The source reports the clearest order for offsets −6 through +5 and lower confidence for the order within +6 through +10. The source's five `+30′` city annotations are preserved separately as `HALF_HOUR_MARKED_LABELS_2017` so they are not silently treated as part of a city's spelling or label length. See the [source section](https://github.com/zeyeteam-debug/kryptos-k4-eliminations#11-weltzeituhr-alexanderplatz-face-transcription-2017-state-and-the-1990-problem).
 
 Most importantly, the clock was renovated in 1997, after Kryptos was dedicated in 1990. The source notes changes to city names and zone assignments, including Leningrad/St. Petersburg, Alma Ata/Almaty, Bratislava/Pressburg, and cities added after renovation. Thus the data is a candidate source for experiments, not evidence of what Sanborn could have used in 1990. The grouped `-12/-11/-10/-9` entry is intentionally left unknown rather than assigning unreadable labels to individual faces.
 
