@@ -24,6 +24,10 @@ The existing `world_clock_faces_2017.py` transcription is explicitly provisional
    [AKG Images: Weltzeituhr, photographed circa 1986/1990](https://www.akg-images.de/asset/668482/Berlin%2C-Weltzeituhr--Foto-um-1986)  
    The catalog describes a photograph of the clock by Erhard Pansegrau. The catalog lists high-resolution image versions, but access/licensing may be restricted.
 
+5. **Seitz / ullstein bild, 1996**  
+   [Getty Images: “Weltzeituhr- 1996”](https://www.gettyimages.com.mx/detail/fotograf%C3%ADa-de-noticias/weltzeituhr-1996-fotograf%C3%ADa-de-noticias/545062933)  
+   The catalog dates the image to 1996, before the restoration. It is another potential pre-restoration visual reference; licensing applies and the catalog page alone does not establish that every plate is readable.
+
 ## What can and cannot be inferred
 
 - **Supported:** pre-1997 photographic records exist; the 1997 restoration changed city labels and time-zone assignments; at least one 1990 view exposes several adjacent sectors.
