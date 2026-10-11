@@ -1,5 +1,7 @@
 # Historical World Clock Photo Leads (Pre-1997)
 
+> 🧭 [kryptos](../../README.md) <!-- nav -->
+
 **Status:** sourced research leads; no complete face transcription or cipher result established.
 
 ## Why this matters
