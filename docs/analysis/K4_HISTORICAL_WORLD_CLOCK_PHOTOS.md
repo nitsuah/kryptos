@@ -40,6 +40,8 @@ The [Bridgeman catalog page](https://www.bridgemanimages.com/en/peter/the-world-
 
 - `GUATEMALA`, `MANAGUA`, `PANAMA`, `BOGOTA`, `GALAPAGOS-INSELN`, `QUITO`, `LIMA`, `CARACAS`, `LA-PAZ`, `ASUNCION`, `SANTIAGO`, `RIO DE JANEIRO`, `SAO PAULO`, `MONTEVIDEO`, `BUENOS AIRES`
 
+**Cross-check against the later transcription:** the provisional 2017 table places `GALAPAGOS I.` on its `-6` bottom list, while this preview appears to place `GALAPAGOS-INSELN` visually nearer the neighboring lower-label group containing Panama/Bogota/Quito/Lima. Because the plate boundaries are foreshortened and the preview is small, this is a **possible discrepancy to re-check**, not a conclusion that the city was reassigned. Do not silently harmonize the two sources.
+
 **Confidence and limits:** this is a preliminary human reading of the displayed preview, not a verified full-resolution transcription. The list is not assigned to individual UTC offsets or plate indices; perspective makes those boundaries uncertain. Preserve original spellings in any future transcription, and re-check every entry against a licensed high-resolution original or an independent photograph before using it as cryptanalytic input. The preview is watermarked and is cited here as a source locator, not copied into the repository.
 
 ## What can and cannot be inferred
