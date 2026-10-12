@@ -30,6 +30,10 @@ The existing `world_clock_faces_2017.py` transcription is explicitly provisional
    [Getty Images: “Weltzeituhr- 1996”](https://www.gettyimages.com.mx/detail/fotograf%C3%ADa-de-noticias/weltzeituhr-1996-fotograf%C3%ADa-de-noticias/545062933)  
    The catalog dates the image to 1996, before the restoration. It is another potential pre-restoration visual reference; licensing applies and the catalog page alone does not establish that every plate is readable.
 
+6. **Lothar M. Peter / Süddeutsche Zeitung Photo, circa 1990**  
+   [Bridgeman Images: “The World Clock in Berlin, 1990”](https://www.bridgemanimages.com/en/peter/the-world-clock-in-berlin-1990-photo/photograph/asset/11782728)  
+   The catalog identifies the photographer, approximate shooting date, and a largest listed format of 5382 × 8224 pixels. This is a promising high-resolution pre-restoration lead for inspecting the cylinder's labels and local adjacency. The listed high-resolution image is offered under licensing terms; this entry records the source lead, not a locally copied image or a completed transcription.
+
 ## What can and cannot be inferred
 
 - **Supported:** pre-1997 photographic records exist; the 1997 restoration changed city labels and time-zone assignments; at least one 1990 view exposes several adjacent sectors.
