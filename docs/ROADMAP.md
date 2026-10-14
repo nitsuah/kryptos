@@ -53,8 +53,9 @@ doesn't, a positive-control test either way, and a ledger entry with the right t
   sources under transposition. The cribs can't pin down a long key on their own, so each rule has to be named first.
 - [ ] **Hill 6×6 and up.** Too few whole crib blocks per alignment; testable only with a transposition guess or with
   partial blocks.
-- [ ] **Per-letter Weltzeituhr lookups** (city, zone or hour per letter as the key). Blocked on the photographs in
-  Phase 8; once recorded, they drop into the existing dial and lookup checks.
+- [ ] **Per-letter Weltzeituhr lookups** (city, zone or hour per letter as the key). Provisional candidate testing can
+  proceed on the 2017 transcription; validation against the pre-1997 clock state and physical orientation waits on the
+  photographs in Phase 8, and once recorded they drop into the existing dial and lookup checks.
 
 Completed in this phase's lead-up (2026-09-28–2026-10-09): the P21 crib-constraint engine, structural checks, P22 frontier checks, real scoring tables and word list, job persistence, and the bounded long clue-derived keyed-columnar frontier (widths 15–26; see [K4_KEYED_COLUMNAR_FRONTIER](./analysis/K4_KEYED_COLUMNAR_FRONTIER.md)). The frontier narrows one finite hypothesis but does not close the broader irregular-transposition task. See [CHANGELOG](./CHANGELOG.md).
 
@@ -66,7 +67,7 @@ Of the three source gaps opened 2026-09-01, two closed on 2026-09-02 (the World 
 and a sub-minute Nov 9 1989 timestamp). What remains:
 
 - [ ] **Weltzeituhr photographs.** Close-ups of every face of the city ring, the date-line plate, and the wind-rose
-  mosaic from above with a straight edge in frame. This unblocks the per-letter lookup keys in Phase 9 and the 16
+  mosaic from above with a straight edge in frame. The provisional 2017 transcription (`kryptos.k4.world_clock_faces_2017`) already lets per-letter candidate testing in Phase 9 proceed; validating those candidates against the pre-1997 clock state and the physical orientation still needs the photographs. They also unlock the 16
   unread city plates.
 - [ ] **The CIA compass rose's measured bearing** and what the lodestone deflects it to. Still an open community
   question (elonka.com wishlist); the only estimate (~220°) is flagged inexact, and satellite imagery can't resolve it.
