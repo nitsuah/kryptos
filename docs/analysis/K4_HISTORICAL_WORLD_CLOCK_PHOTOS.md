@@ -22,9 +22,9 @@ The existing `world_clock_faces_2017.py` transcription is explicitly provisional
    [Berliner Zeitung, 12 December 1997: “Frisch poliert: Die Weltzeituhr dreht sich bald”](https://www.berliner-zeitung.de/article/20-staedtenamen-wurden-bei-der-restaurierung-ergaenzt-frisch-poliert-die-weltzeituhr-dreht-sich-bald-7079)  
    The report says 20 city names were added during restoration and that some city-to-time-zone assignments changed. This independently reinforces that a modern transcription must not be assumed to match the 1990 clock.
 
-4. **Additional pre-renovation photo lead**  
-   [AKG Images: Weltzeituhr, photographed circa 1986/1990](https://www.akg-images.de/asset/668482/Berlin%2C-Weltzeituhr--Foto-um-1986)  
-   The catalog describes a photograph of the clock by Erhard Pansegrau. The catalog lists high-resolution image versions, but access/licensing may be restricted.
+4. **Erhard Pansegrau / AKG Images, circa 1986/1990**  
+   [AKG Images: Weltzeituhr, photographed circa 1986/1990](https://www.akg-images.de/asset/668482/Berlin%2C-Weltzeituhr--Foto-um-1986) · [catalog preview](https://www.akg-images.de/previews/768x768/c/v/e/o/668482%400.jpg)  
+   The catalog identifies Erhard Pansegrau as photographer and lists a 4961 × 3239 high-resolution version plus a 5395 × 3523 lossless version. The publicly displayed preview is 768 × 768 and shows a broad, comparatively front-facing view of the hour ring and lower city-label band. This makes it a useful independent cross-check candidate, although the preview is still too small and oblique to claim a complete transcription. Full-resolution access/licensing may be restricted.
 
 5. **Seitz / ullstein bild, 1996**  
    [Getty Images: “Weltzeituhr- 1996”](https://www.gettyimages.com.mx/detail/fotograf%C3%ADa-de-noticias/weltzeituhr-1996-fotograf%C3%ADa-de-noticias/545062933)  
@@ -33,6 +33,12 @@ The existing `world_clock_faces_2017.py` transcription is explicitly provisional
 6. **Lothar M. Peter / Süddeutsche Zeitung Photo, circa 1990**  
    [Bridgeman Images: “The World Clock in Berlin, 1990”](https://www.bridgemanimages.com/en/peter/the-world-clock-in-berlin-1990-photo/photograph/asset/11782728)  
    The catalog identifies the photographer, approximate shooting date, and a largest listed format of 5382 × 8224 pixels. This is a promising high-resolution pre-restoration lead for inspecting the cylinder's labels and local adjacency. The listed high-resolution image is offered under licensing terms; this entry records the source lead, not a locally copied image or a completed transcription.
+
+## Preliminary visual observation: AKG circa-1986/1990 preview
+
+The [AKG preview](https://www.akg-images.de/previews/768x768/c/v/e/o/668482%400.jpg) is a distinct image from the Bridgeman/Lothar M. Peter photograph. It shows the clock from a broad street-level viewpoint, with the hour ring and several adjacent city-label plates visible in the same frame. The composition appears more front-facing for the visible lower band than the Bridgeman preview, so it may help check local adjacency and disputed readings across independent photographs.
+
+**What this does not establish:** the 768 × 768 preview is not an orthographic view, does not expose all 24 faces, and does not by itself identify a true-north orientation or UTC offset for every visible plate. No new city-to-sector assignment is made here. Treat it as a second visual lead, not as cryptanalytic input; request or license the listed high-resolution image before attempting a confident transcription.
 
 ## Preliminary visual observation: 1990 catalog preview
 
