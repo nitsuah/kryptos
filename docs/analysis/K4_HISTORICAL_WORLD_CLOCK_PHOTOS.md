@@ -50,6 +50,14 @@ The [Bridgeman catalog page](https://www.bridgemanimages.com/en/peter/the-world-
 
 **Confidence and limits:** this is a preliminary human reading of the displayed preview, not a verified full-resolution transcription. The list is not assigned to individual UTC offsets or plate indices; perspective makes those boundaries uncertain. Preserve original spellings in any future transcription, and re-check every entry against a licensed high-resolution original or an independent photograph before using it as cryptanalytic input. The preview is watermarked and is cited here as a source locator, not copied into the repository.
 
+## Historical cross-checks for the pre-1997 clock
+
+The [official World Clock history](https://www.weltzeituhr-berlin.de/en/urania-worldtimeclock) says the original clock displayed **80 city names across all 24 time zones**; the current rotunda has 146 city/region names. Berlin's [official city guide](https://www.berlin.de/sehenswuerdigkeiten/3561749-3558930-weltzeituhr.html) describes a 24-sided cylinder, with the city's names placed approximately where they fall geographically. These facts make it important to distinguish a face's visible geographic layout from a cipher-specific reading order: the modern 146-name display cannot simply be projected backward onto the 1990 object.
+
+The [1997 restoration report](https://www.berliner-zeitung.de/article/20-staedtenamen-wurden-bei-der-restaurierung-ergaenzt-frisch-poliert-die-weltzeituhr-dreht-sich-bald-7079) confirms that 20 names were added and some city-to-zone assignments changed. A [historical photo gallery from n-tv](https://www.n-tv.de/mediathek/bilderserien/panorama/Die-Weltzeituhr-Berliner-Treffpunkt-seit-1969-article21253682.html) specifically notes the renaming of **Leningrad to St. Petersburg** and **Alma Ata to Almaty**. Those spellings are practical markers for identifying a pre-restoration image, but their presence/absence must be read from the image itself; a catalog date alone does not prove which plates are visible or legible.
+
+This cross-check narrows the transcription protocol, not the cipher: preserve the spelling printed on the historical plate, separately record its apparent plate/face and any proposed UTC assignment, and do not infer a missing name or sector from the modern clock. The clock's 24 faces and rotating hour ring are separate structures; a photograph of the city band does not, by itself, establish the dial's angular phase or the clock's orientation to true north.
+
 ## What can and cannot be inferred
 
 - **Supported:** pre-1997 photographic records exist; the 1997 restoration changed city labels and time-zone assignments; at least one 1990 view exposes several adjacent sectors.
