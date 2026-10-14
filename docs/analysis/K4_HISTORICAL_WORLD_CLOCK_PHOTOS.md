@@ -92,3 +92,35 @@ The archive explains that copyright restrictions prevent it from publishing some
 **Next action:** request access to both inventories **Mi-A 245** and **Mi-A I615**, explicitly asking whether the full-resolution scan can be viewed or supplied for research and whether reproduction/online publication is permitted. Do not assume the catalog dimensions guarantee the full-resolution file is distributable. If the image is obtained, record the supplied file's provenance and license/permission before transcribing labels or committing any image to this repository.
 
 This is a promising independent pre-restoration source, but the catalog metadata alone does not show that the face labels are legible. No transcription, sector mapping, or cryptanalytic result is claimed from it.
+
+## New candidate to stress-test: six-segment clock lookup (October 2026)
+
+A community hypothesis posted in [r/KryptosK4](https://www.reddit.com/r/KryptosK4/comments/1vk2jiq/alexanderplatz_clock/) proposes that the five ciphertext **W** characters become **X** under the standard KRYPTOS keyed-alphabet relabeling, and that the Xs delimit six sections. It then groups the 24 World Clock sectors into six groups of four, treats each city label as offering its first or last letter, and proposes that a clock traversal supplies a non-repeating additive key. This is a candidate mechanism, not a demonstrated solve.
+
+### Independently checked arithmetic
+
+Using the keyed alphabet `KRYPTOSABCDEFGHIJLMNQUVWXZ`, relabel each ciphertext character by taking its index in that alphabet and emitting the corresponding ordinary A–Z letter. This reproduces the post's transformed stream:
+
+```text
+FIABVFYFNOVRIGFRPMIIXMRBWUUDBTNAGGFEXEUGQUGGLAZZXHEQARVKPHXPTMITCDWEESZMDAXNKAZYEQJKPNAVOVHVLAJHB
+```
+
+The five Xs are at zero-based positions 20, 36, 48, 58, and 74. Splitting on X gives lengths **20 / 15 / 11 / 9 / 15 / 22** (92 non-X letters total). For the two confirmed plaintext cribs, ordinary-alphabet subtraction from this transformed stream requires key fragments `IRJDHGMIMJAON` for `EASTNORTHEAST` and `SYMLWRQOYBQ` for `BERLINCLOCK`. These arithmetic checks reproduce the community post; they do **not** validate the clock-key claim.
+
+### What still needs to be established
+
+- **Historical label-count discrepancy:** the [official World Clock history](https://www.weltzeituhr-berlin.de/en/urania-worldtimeclock) says the original display had 80 city names across 24 time zones. The proposed six segment lengths sum to 92. Before treating “each section's city-line count matches the segment length” as evidence, the hypothesis needs to identify exactly what is counted, provide its dated 1969 city/label inventory, and reconcile the 80-versus-92 difference. Do not substitute the post-1997 list.
+- **The start point is explicitly unresolved:** the post says it does not yet have a rule that independently fixes the start alignment. That is a central missing prediction, not a minor implementation detail.
+- **The 24/24 front-or-back match is crib-conditioned:** the two key fragments are derived from the known cribs. A match is probative only if the clock year, sector grouping, traversal, starting point, city-line inventory, and first/last-letter selection rule are specified independently of the crib positions and then tested on held-out text or against shuffled controls.
+- **The six-section grouping is a search choice:** 24 sectors divided into six groups of four is a natural partition, but the analysis must account for other plausible partitions, rotations, directions, and label-selection rules before assigning a meaningful chance level.
+- **Keep the physical and cryptographic layers separate:** the keyed-alphabet relabeling is reproducible, but it is not itself evidence that X is punctuation, that the five W positions are intended separators, or that the clock provides the subsequent key.
+
+### Recommended falsification sequence
+
+1. Obtain and cite the complete dated city inventory used by the hypothesis; preserve exact original spellings and whether each visible line is a city, region, or date-line label.
+2. Freeze the proposed 24-sector-to-six-group mapping and traversal **without using the cribs**.
+3. Define a deterministic rule for selecting each city's first/last letter and for advancing the clock mechanism; no per-position choice after seeing the desired key.
+4. Test all 24 known crib letters, then report the result on shuffled controls and on a held-out interval. Count all tried starts, rotations, directions, and alternate historical inventories as multiple testing.
+5. Only if it survives should it be compared with the pre-1997 photo leads documented above.
+
+Source: [community hypothesis and its stated unresolved start point](https://www.reddit.com/r/KryptosK4/comments/1vk2jiq/alexanderplatz_clock/); [official World Clock history](https://www.weltzeituhr-berlin.de/en/urania-worldtimeclock). No plaintext beyond the public cribs, no city transcription, and no cipher solution is asserted here.
