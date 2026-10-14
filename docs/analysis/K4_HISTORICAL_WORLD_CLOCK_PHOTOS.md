@@ -34,6 +34,16 @@ The existing `world_clock_faces_2017.py` transcription is explicitly provisional
    [Bridgeman Images: “The World Clock in Berlin, 1990”](https://www.bridgemanimages.com/en/peter/the-world-clock-in-berlin-1990-photo/photograph/asset/11782728)  
    The catalog identifies the photographer, approximate shooting date, and a largest listed format of 5382 × 8224 pixels. This is a promising high-resolution pre-restoration lead for inspecting the cylinder's labels and local adjacency. The listed high-resolution image is offered under licensing terms; this entry records the source lead, not a locally copied image or a completed transcription.
 
+## Preliminary visual observation: 1990 catalog preview
+
+The [Bridgeman catalog page](https://www.bridgemanimages.com/en/peter/the-world-clock-in-berlin-1990-photo/photograph/asset/11782728) exposes a small, watermarked preview of the Lothar M. Peter photograph. In that preview, the lower city-label band on the visible front arc appears to contain these German-language spellings, in approximate left-to-right visual order:
+
+- `GUATEMALA`, `MANAGUA`, `PANAMA`, `BOGOTA`, `GALAPAGOS-INSELN`, `QUITO`, `LIMA`, `CARACAS`, `LA-PAZ`, `ASUNCION`, `SANTIAGO`, `RIO DE JANEIRO`, `SAO PAULO`, `MONTEVIDEO`, `BUENOS AIRES`
+
+**Cross-check against the later transcription:** the provisional 2017 table places `GALAPAGOS I.` on its `-6` bottom list, while this preview appears to place `GALAPAGOS-INSELN` visually nearer the neighboring lower-label group containing Panama/Bogota/Quito/Lima. Because the plate boundaries are foreshortened and the preview is small, this is a **possible discrepancy to re-check**, not a conclusion that the city was reassigned. Do not silently harmonize the two sources.
+
+**Confidence and limits:** this is a preliminary human reading of the displayed preview, not a verified full-resolution transcription. The list is not assigned to individual UTC offsets or plate indices; perspective makes those boundaries uncertain. Preserve original spellings in any future transcription, and re-check every entry against a licensed high-resolution original or an independent photograph before using it as cryptanalytic input. The preview is watermarked and is cited here as a source locator, not copied into the repository.
+
 ## What can and cannot be inferred
 
 - **Supported:** pre-1997 photographic records exist; the 1997 restoration changed city labels and time-zone assignments; at least one 1990 view exposes several adjacent sectors.
