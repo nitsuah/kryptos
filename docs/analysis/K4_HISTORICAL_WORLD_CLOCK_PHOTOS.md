@@ -68,3 +68,17 @@ The [Bridgeman catalog page](https://www.bridgemanimages.com/en/peter/the-world-
 ## Existing project context
 
 See [K4 World Clock Face Transcription](K4_WORLD_CLOCK_FACE_TRANSCRIPTION.md), which documents the limitations of the 2017 snapshot, and [active K4 research state](K4_ACTIVE_RESEARCH.md), which lists historical World Clock photos and orientation as open sourcing work.
+
+
+## Additional archival lead: Berlin history society slide, 1980s
+
+The Verein für die Geschichte Berlins digital photo archive catalogs **“Alexanderplatz mit Weltzeituhr und Laternen”**, inventory **Mi-A 245**: a color slide dated to the 1980s, credited to Dietrich Krüger, cataloged at **4912 × 3276 pixels**. The catalog describes a view across Alexanderplatz eastward, with the World Clock centered in the frame.
+
+- [Catalog entry (page 66 of the archive results)](https://www.diegeschichteberlins.de/geschichteberlins/datenbanken/digitales-fotoarchiv.html?start=650)
+- [Archive information and access policy](https://www.diegeschichteberlins.de/geschichteberlins/datenbanken/digitales-fotoarchiv.html)
+
+The archive explains that copyright restrictions prevent it from publishing some digitized images directly on the website. It invites inquiries about specific items and says the photo-library director, Lothar Semmel, can be contacted at **Semmel@DieGeschichteBerlins.de**. Depending on public-domain status or rights held by the association, digitized copies may be supplied by email; where rights prevent that, an archive viewing appointment may be possible. Guests may be asked for a donation.
+
+**Next action:** request access to inventory **Mi-A 245**, explicitly asking whether the full-resolution scan can be viewed or supplied for research and whether reproduction/online publication is permitted. Do not assume the catalog dimensions guarantee the full-resolution file is distributable. If the image is obtained, record the supplied file's provenance and license/permission before transcribing labels or committing any image to this repository.
+
+This is a promising independent pre-restoration source, but the catalog metadata alone does not show that the face labels are legible. No transcription, sector mapping, or cryptanalytic result is claimed from it.
