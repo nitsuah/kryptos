@@ -36,7 +36,7 @@ The existing `world_clock_faces_2017.py` transcription is explicitly provisional
 
 ## Preliminary visual observation: AKG circa-1986/1990 preview
 
-The [AKG preview](https://www.akg-images.de/previews/768x768/c/v/e/o/668482%400.jpg) is a distinct image from the Bridgeman/Lothar M. Peter photograph. It shows the clock from a broad street-level viewpoint, with the hour ring and several adjacent city-label plates visible in the same frame. The composition appears more front-facing for the visible lower band than the Bridgeman preview, so it may help check local adjacency and disputed readings across independent photographs.
+The [AKG preview](https://www.akg-images.de/previews/768x768/c/v/e/o/668482%400.jpg) is a distinct image from the Bridgeman/Lothar M. Peter photograph. It shows the clock from a broad street-level viewpoint, with the hour ring and several adjacent city-label plates visible in the same frame. The AKG image provides a broader street-level context, while the Bridgeman preview shows its visible label band more front-on. Comparing the two may help check local adjacency and disputed readings across independent photographs.
 
 **What this does not establish:** the 768 × 768 preview is not an orthographic view, does not expose all 24 faces, and does not by itself identify a true-north orientation or UTC offset for every visible plate. No new city-to-sector assignment is made here. Treat it as a second visual lead, not as cryptanalytic input; request or license the listed high-resolution image before attempting a confident transcription.
 
