@@ -31,6 +31,7 @@ def main() -> int:
         "historical_city_count": report["historical_baseline"]["original_city_names"],
         "segment_letters_total": report["historical_baseline"]["segment_letters_total"],
         "matches_recorded_segment_lengths": report["matches_recorded_segment_lengths"],
+        "rotation_control": report["rotation_control"],
     }, indent=2))
     return 0
 
