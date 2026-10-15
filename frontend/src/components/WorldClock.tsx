@@ -8,7 +8,7 @@
 // current standard time.
 
 import { useEffect, useRef, useState } from "react";
-import { api, WorldClockHypothesisResponse } from "../api";
+import { api, type WorldClockHypothesisResponse } from "../api";
 import { BERLIN_FACE, WORLD_CLOCK_FACES, faceHour, offsetLabel } from "../worldclock";
 
 const N = WORLD_CLOCK_FACES.length; // 24
