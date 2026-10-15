@@ -1,6 +1,7 @@
 """Tests for the deterministic six-segment World Clock diagnostic."""
 
 import json
+from collections import Counter
 
 import pytest
 
@@ -8,8 +9,9 @@ from kryptos.k4.world_clock_hypothesis import (
     CIPHERTEXT,
     EXPECTED_SEGMENT_LENGTHS,
     analyze_world_clock_hypothesis,
-    split_on_delimiter,
+    iter_shuffled_streams,
     shuffled_delimiter_control,
+    split_on_delimiter,
     transform_through_keyed_alphabet,
     write_world_clock_diagnostic,
 )
@@ -55,6 +57,22 @@ def test_shuffled_control_is_reproducible_and_preserves_delimiter_count():
     assert 0 <= first["exact_signature_hits"] <= 200
     assert first["observed_hit_rate"] == first["exact_signature_hits"] / 200
     assert "selection" in first["interpretation"]
+
+
+def test_shuffled_samples_are_seeded_and_preserve_every_character_count():
+    stream = transform_through_keyed_alphabet()
+    expected_counts = Counter(stream)
+
+    first = list(iter_shuffled_streams(stream, sample_size=50, seed=123))
+    second = list(iter_shuffled_streams(stream, sample_size=50, seed=123))
+    other_seed = list(iter_shuffled_streams(stream, sample_size=50, seed=124))
+
+    assert first == second
+    assert first != other_seed
+    assert len(first) == 50
+    for sample in first:
+        assert Counter(sample) == expected_counts
+        assert sample.count("X") == stream.count("X") == 5
 
 
 def test_shuffled_control_rejects_invalid_inputs():

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import random
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
@@ -37,6 +38,28 @@ def split_on_delimiter(stream: str, delimiter: str = EXPECTED_DELIMITER) -> list
     return stream.split(delimiter)
 
 
+def iter_shuffled_streams(
+    stream: str,
+    sample_size: int = 5000,
+    seed: int = 20261015,
+) -> Iterator[str]:
+    """Yield seeded uniform permutations of ``stream``'s characters.
+
+    The same ``stream``, ``sample_size`` and ``seed`` always yield the same sequence.
+    """
+    if sample_size < 1:
+        raise ValueError("sample_size must be at least 1")
+    if not stream or any(ch not in ALPHABET for ch in stream):
+        raise ValueError("stream must contain uppercase A-Z letters only")
+
+    rng = random.Random(seed)
+    characters = list(stream)
+    for _ in range(sample_size):
+        shuffled = characters.copy()
+        rng.shuffle(shuffled)
+        yield "".join(shuffled)
+
+
 def shuffled_delimiter_control(
     stream: str,
     sample_size: int = 5000,
@@ -49,18 +72,9 @@ def shuffled_delimiter_control(
     control, not a p-value: the target signature was noticed after inspecting the
     stream, and the broader search over transformations/delimiters is unaccounted for.
     """
-    if sample_size < 1:
-        raise ValueError("sample_size must be at least 1")
-    if not stream or any(ch not in ALPHABET for ch in stream):
-        raise ValueError("stream must contain uppercase A-Z letters only")
-
-    rng = random.Random(seed)
-    characters = list(stream)
     hits = 0
-    for _ in range(sample_size):
-        shuffled = characters.copy()
-        rng.shuffle(shuffled)
-        lengths = [len(part) for part in "".join(shuffled).split(EXPECTED_DELIMITER)]
+    for shuffled in iter_shuffled_streams(stream, sample_size=sample_size, seed=seed):
+        lengths = [len(part) for part in shuffled.split(EXPECTED_DELIMITER)]
         if lengths == EXPECTED_SEGMENT_LENGTHS:
             hits += 1
 
@@ -163,6 +177,7 @@ __all__ = [
     "EXPECTED_SEGMENT_LENGTHS",
     "transform_through_keyed_alphabet",
     "split_on_delimiter",
+    "iter_shuffled_streams",
     "shuffled_delimiter_control",
     "analyze_world_clock_hypothesis",
     "write_world_clock_diagnostic",
