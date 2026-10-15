@@ -2279,3 +2279,26 @@ code {
     flex-direction: column;
   }
 }
+
+
+.wc-face-index {
+  fill: var(--ink-muted);
+  font-family: var(--mono);
+  font-size: 7.5px;
+  letter-spacing: 0.08em;
+}
+
+.wc-model-note {
+  color: var(--ink-muted);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.025em;
+  text-align: center;
+}
+
+@media (max-width: 719px) {
+  .wc-model-note {
+    max-width: 115px;
+    line-height: 1.25;
+  }
+}
