@@ -8,6 +8,7 @@
 // current standard time.
 
 import { useEffect, useRef, useState } from "react";
+import { api, WorldClockHypothesisResponse } from "../api";
 import { BERLIN_FACE, WORLD_CLOCK_FACES, faceHour, offsetLabel } from "../worldclock";
 
 const N = WORLD_CLOCK_FACES.length; // 24
@@ -121,6 +122,17 @@ function WindRose() {
 export default function WorldClock() {
   const now = useTicker(prefersReducedMotion() ? 10_000 : 150);
   const [target, setTarget] = useState(BERLIN_FACE);
+  const [diagnostic, setDiagnostic] = useState<WorldClockHypothesisResponse | null>(null);
+  const [diagnosticError, setDiagnosticError] = useState<string | null>(null);
+  useEffect(() => {
+    let current = true;
+    api.worldClockHypothesis().then((data) => {
+      if (current) setDiagnostic(data);
+    }).catch((error: unknown) => {
+      if (current) setDiagnosticError(error instanceof Error ? error.message : "Diagnostic unavailable");
+    });
+    return () => { current = false; };
+  }, []);
   const rot = useDrumRotation(target);
   const centred = WORLD_CLOCK_FACES[((Math.round(rot) % N) + N) % N];
 
@@ -248,6 +260,41 @@ export default function WorldClock() {
           </button>
         )}
       </figcaption>
+      <details className="wc-research">
+        <summary>
+          <span>K4 research lens</span>
+          <span className="wc-research-tag">X-DELIMITER HYPOTHESIS</span>
+        </summary>
+        {diagnosticError && <p className="muted small">Backend diagnostic unavailable: {diagnosticError}</p>}
+        {!diagnostic && !diagnosticError && <p className="muted small">Loading reproducible diagnostic…</p>}
+        {diagnostic && (
+          <div className="wc-research-body">
+            <div className="wc-research-stats">
+              <span><b>{diagnostic.ciphertext_length}</b> input letters</span>
+              <span><b>{diagnostic.delimiter_count}</b> X delimiters</span>
+              <span><b>{diagnostic.historical_baseline.segment_letters_total}</b> segment letters</span>
+              <span><b>{diagnostic.historical_baseline.original_city_names}</b> original city names</span>
+            </div>
+            <p className="wc-research-warning">
+              Diagnostic only: {diagnostic.historical_baseline.difference_letters_minus_city_names} more segment letters than the documented original city-name count. No physical plate order or solution is inferred.
+            </p>
+            <div className="wc-segments" aria-label="Six transformed ciphertext segments">
+              {diagnostic.segments.map((segment) => (
+                <section className="wc-segment" key={segment.index}>
+                  <span className="wc-segment-index">SEG {String(segment.index + 1).padStart(2, "0")}</span>
+                  <b>{segment.length} chars</b>
+                  <code>{segment.text}</code>
+                </section>
+              ))}
+            </div>
+            <div className="wc-transformed">
+              <span className="wc-segment-index">TRANSFORMED STREAM · ZERO-BASED X POSITIONS {diagnostic.delimiter_positions_zero_based.join(", ")}</span>
+              <code>{diagnostic.transformed_stream}</code>
+            </div>
+            <p className="muted small">{diagnostic.limitations[0]} {diagnostic.limitations[1]}</p>
+          </div>
+        )}
+      </details>
     </figure>
   );
 }
