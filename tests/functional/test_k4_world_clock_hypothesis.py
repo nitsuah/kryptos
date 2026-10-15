@@ -1,0 +1,52 @@
+"""Tests for the deterministic six-segment World Clock diagnostic."""
+
+import json
+
+import pytest
+
+from kryptos.k4.world_clock_hypothesis import (
+    CIPHERTEXT,
+    EXPECTED_SEGMENT_LENGTHS,
+    analyze_world_clock_hypothesis,
+    split_on_delimiter,
+    transform_through_keyed_alphabet,
+    write_world_clock_diagnostic,
+)
+
+
+def test_transform_reproduces_recorded_stream_and_delimiters():
+    report = analyze_world_clock_hypothesis()
+    assert report["transformed_stream"] == (
+        "FIABVFYFNOVRIGFRPMIIXMRBWUUDBTNAGGFEXEUGQUGGLAZZXHEQARVKPHXPTMITCDWEESZMDAXNKAZYEQJKPNAVOVHVLAJHB"
+    )
+    assert report["delimiter_positions_zero_based"] == [20, 36, 48, 58, 74]
+    assert report["segment_lengths"] == EXPECTED_SEGMENT_LENGTHS
+    assert report["matches_recorded_segment_lengths"] is True
+    assert report["ciphertext_length"] == 97
+
+
+def test_historical_count_mismatch_is_explicit_not_silently_resolved():
+    report = analyze_world_clock_hypothesis()
+    baseline = report["historical_baseline"]
+    assert baseline["original_city_names"] == 80
+    assert baseline["segment_letters_total"] == 92
+    assert baseline["difference_letters_minus_city_names"] == 12
+    assert "not a match" in baseline["interpretation"]
+
+
+def test_transform_rejects_non_keyed_alphabet_input():
+    with pytest.raises(ValueError, match="outside the keyed alphabet"):
+        transform_through_keyed_alphabet("ABC?")
+
+
+def test_split_requires_single_uppercase_delimiter():
+    assert split_on_delimiter("ABXCDX") == ["AB", "CD", ""]
+    with pytest.raises(ValueError, match="one uppercase"):
+        split_on_delimiter("AB", "xx")
+
+
+def test_execution_artifact_is_same_as_api_report(tmp_path):
+    target = tmp_path / "runs" / "world_clock.json"
+    written = write_world_clock_diagnostic(target)
+    persisted = json.loads(target.read_text(encoding="utf-8"))
+    assert persisted == written == analyze_world_clock_hypothesis(CIPHERTEXT)
