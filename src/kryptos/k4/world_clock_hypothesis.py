@@ -45,6 +45,14 @@ def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, An
     segments = split_on_delimiter(stream)
     lengths = [len(segment) for segment in segments]
     mismatch = sum(lengths) - HISTORICAL_CITY_COUNT
+    rotation_signatures = [
+        [len(part) for part in (stream[offset:] + stream[:offset]).split(EXPECTED_DELIMITER)]
+        for offset in range(len(stream))
+    ]
+    matching_rotations = [
+        offset for offset, signature in enumerate(rotation_signatures)
+        if signature == EXPECTED_SEGMENT_LENGTHS
+    ]
     return {
         "hypothesis_id": "world_clock_keyed_relabel_x_delimiters_v1",
         "status": "diagnostic_only",
@@ -61,6 +69,15 @@ def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, An
         ],
         "segment_lengths": lengths,
         "matches_recorded_segment_lengths": lengths == EXPECTED_SEGMENT_LENGTHS,
+        "rotation_control": {
+            "tested_circular_offsets": len(stream),
+            "offsets_matching_recorded_segment_lengths": matching_rotations,
+            "unique_segment_length_signatures": len({tuple(signature) for signature in rotation_signatures}),
+            "interpretation": (
+                "Circular-alignment sensitivity check only. The target segment lengths were observed from this same stream, "
+                "so this is not an independent significance test."
+            ),
+        },
         "historical_baseline": {
             "original_city_names": HISTORICAL_CITY_COUNT,
             "source": "Official Urania World Clock history page; original display described as 80 city names across 24 time zones.",
