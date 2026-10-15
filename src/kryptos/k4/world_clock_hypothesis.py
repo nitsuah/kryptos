@@ -78,7 +78,10 @@ def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, An
         },
         "historical_baseline": {
             "original_city_names": HISTORICAL_CITY_COUNT,
-            "source": "Official Urania World Clock history page; original display described as 80 city names across 24 time zones.",
+            "source": (
+                "Official Urania World Clock history page; original display described as 80 city names "
+                "across 24 time zones."
+            ),
             "source_url": "https://www.weltzeituhr-berlin.de/en/urania-worldtimeclock",
             "segment_letters_total": sum(lengths),
             "difference_letters_minus_city_names": mismatch,
