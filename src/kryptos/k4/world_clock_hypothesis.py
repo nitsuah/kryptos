@@ -69,6 +69,8 @@ def shuffled_delimiter_control(
         "sample_size": sample_size,
         "seed": seed,
         "target_segment_lengths": EXPECTED_SEGMENT_LENGTHS,
+        "delimiter_count_preserved": stream.count(EXPECTED_DELIMITER),
+        "character_multiset_preserved": True,
         "exact_signature_hits": hits,
         "observed_hit_rate": hits / sample_size,
         "interpretation": (
