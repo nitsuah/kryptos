@@ -26,6 +26,9 @@ class TestPendingSweepsRegistry:
         for name, fn in PENDING_SWEEPS.items():
             assert callable(fn), name
 
+    def test_world_clock_diagnostic_is_in_overnight_registry(self):
+        assert "world_clock_six_segment_diagnostic" in PENDING_SWEEPS
+
     def test_consensus_scoring_runs_last(self):
         # cross_vector_consensus scans artifacts every other sweep writes --
         # it must not run before them.
