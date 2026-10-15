@@ -200,6 +200,9 @@ export default function WorldClock() {
               <polygon points={poly} className="wc-panel" />
               <g clipPath={`url(#${clipId})`}>
                 <g transform={`translate(${mid} ${midTop + 20}) scale(${Math.max(lit, 0.05)} 1)`}>
+                  <text y={-14} className="wc-face-index" textAnchor="middle">
+                    FACE {String(i + 1).padStart(2, "0")}
+                  </text>
                   <text y={-2} className="wc-offset" textAnchor="middle">
                     {offsetLabel(f.offset)}
                   </text>
@@ -254,6 +257,7 @@ export default function WorldClock() {
         <button type="button" onClick={() => setTarget((t) => (t + 1) % N)} aria-label="Turn the drum east">
           ▶
         </button>
+        <span className="wc-model-note">APPROX. GROUPING · NOT A HISTORICAL TRANSCRIPTION</span>
         {target !== BERLIN_FACE && (
           <button type="button" className="link-button" onClick={() => setTarget(BERLIN_FACE)}>
             Berlin
