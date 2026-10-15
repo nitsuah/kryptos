@@ -224,6 +224,12 @@ export interface WorldClockHypothesisResponse {
   segments: WorldClockDiagnosticSegment[];
   segment_lengths: number[];
   matches_recorded_segment_lengths: boolean;
+  rotation_control: {
+    tested_circular_offsets: number;
+    offsets_matching_recorded_segment_lengths: number[];
+    unique_segment_length_signatures: number;
+    interpretation: string;
+  };
   historical_baseline: {
     original_city_names: number;
     source: string;
