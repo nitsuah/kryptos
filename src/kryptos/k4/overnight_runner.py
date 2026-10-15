@@ -107,6 +107,21 @@ def _world_clock_city_sweep() -> dict[str, Any]:
     return run_world_clock_city_sweep()
 
 
+def _world_clock_six_segment_diagnostic() -> dict[str, Any]:
+    from .world_clock_hypothesis import write_world_clock_diagnostic
+
+    artifact = "K4_WORLD_CLOCK_SIX_SEGMENT_DIAGNOSTIC.json"
+    report = write_world_clock_diagnostic(artifact)
+    return {
+        "status": "diagnostic_only",
+        "artifact_path": artifact,
+        "delimiter_count": report["delimiter_count"],
+        "segment_lengths": report["segment_lengths"],
+        "historical_city_count": report["historical_baseline"]["original_city_names"],
+        "segment_letters_total": report["historical_baseline"]["segment_letters_total"],
+    }
+
+
 def _advisory_keyword_sweep() -> dict[str, Any]:
     from .advisory_keywords import run_advisory_keyword_sweep
 
@@ -132,6 +147,7 @@ PENDING_SWEEPS: dict[str, SweepFn] = {
     "three_layer_composite_geometric_full": _three_layer_composite_geometric_full,
     "three_layer_composite_geometric_shape_changing": _three_layer_composite_geometric_shape_changing,
     "world_clock_city_sweep": _world_clock_city_sweep,
+    "world_clock_six_segment_diagnostic": _world_clock_six_segment_diagnostic,
     "advisory_keyword_sweep": _advisory_keyword_sweep,
     "cross_vector_consensus": _cross_vector_consensus,
 }
