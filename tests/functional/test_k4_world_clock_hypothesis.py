@@ -34,9 +34,9 @@ def test_historical_count_mismatch_is_explicit_not_silently_resolved():
     assert "not a match" in baseline["interpretation"]
 
 
-def test_transform_rejects_non_keyed_alphabet_input():
-    with pytest.raises(ValueError, match="outside the keyed alphabet"):
-        transform_through_keyed_alphabet("ABC?")
+def test_transform_rejects_empty_input_after_normalization():
+    with pytest.raises(ValueError, match="at least one letter"):
+        transform_through_keyed_alphabet("!? 123")
 
 
 def test_split_requires_single_uppercase_delimiter():
