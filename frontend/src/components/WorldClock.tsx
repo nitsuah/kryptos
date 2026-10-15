@@ -295,6 +295,7 @@ export default function WorldClock() {
               <span className="wc-segment-index">TRANSFORMED STREAM · ZERO-BASED X POSITIONS {diagnostic.delimiter_positions_zero_based.join(", ")}</span>
               <code>{diagnostic.transformed_stream}</code>
             </div>
+            <p className="muted small">Rotation control: {diagnostic.rotation_control.tested_circular_offsets} circular offsets; the observed segment-length signature occurs at offset {diagnostic.rotation_control.offsets_matching_recorded_segment_lengths.join(", ") || "none"}. {diagnostic.rotation_control.interpretation}</p>
             <p className="muted small">{diagnostic.limitations[0]} {diagnostic.limitations[1]}</p>
           </div>
         )}
