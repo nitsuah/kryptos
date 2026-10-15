@@ -35,7 +35,7 @@ def test_historical_count_mismatch_is_explicit_not_silently_resolved():
     assert baseline["original_city_names"] == 80
     assert baseline["segment_letters_total"] == 92
     assert baseline["difference_letters_minus_city_names"] == 12
-    assert "not a match" in baseline["interpretation"]
+    assert "do not map one-to-one" in baseline["interpretation"]
 
 
 def test_transform_rejects_empty_input_after_normalization():
