@@ -124,3 +124,11 @@ The five Xs are at zero-based positions 20, 36, 48, 58, and 74. Splitting on X g
 5. Only if it survives should it be compared with the pre-1997 photo leads documented above.
 
 Source: [community hypothesis and its stated unresolved start point](https://www.reddit.com/r/KryptosK4/comments/1vk2jiq/alexanderplatz_clock/); [official World Clock history](https://www.weltzeituhr-berlin.de/en/urania-worldtimeclock). No plaintext beyond the public cribs, no city transcription, and no cipher solution is asserted here.
+
+## Preliminary visual observation: 1970 photograph (31 January)
+
+The [Wikimedia Commons original](https://commons.wikimedia.org/wiki/File:19700131040NR_Berlin_Weltzeituhr_am_Alexanderplatz.jpg) is a dated photograph by Jörg Blobelt, recorded as **31 January 1970**, with an original image size of **2,329 × 3,054 pixels**. The image page records the photographer, date, location, and a CC BY-SA 4.0 license. This is a useful near-contemporary source: it predates the 1997 restoration by more than 27 years and is independent of the later 2017 transcription.
+
+In the displayed original, the clock’s upper city-label band and lower city-label band are both visible, along with the numbered hour ring and the world-map decoration. The upper band includes North American labels; the lower band visibly contains a run of South American labels. The view is detailed enough to establish that a dated early photograph exposes real label text, but perspective, image contrast, and the curved cylinder prevent this single view from serving as a complete, reliable 24-face transcription. I am not recording individual spellings from this view as confirmed data until they can be checked against a crop or an independent photograph.
+
+**Cryptanalytic boundary:** the photo confirms an early physical display and may support local label/adjacency checks. It does not establish a complete plate sequence, UTC offsets for every plate, a true-north bearing, or any mapping from the clock to K4. The clock’s original 80 city names across 24 time zones remain the historical baseline documented by the [official World Clock history](https://www.weltzeituhr-berlin.de/en/urania-worldtimeclock); the photo must not be used to fill unseen labels by borrowing from the post-1997 display.
