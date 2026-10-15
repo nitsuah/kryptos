@@ -282,6 +282,7 @@ export default function WorldClock() {
             <p className="wc-research-warning">
               Diagnostic only: {diagnostic.historical_baseline.difference_letters_minus_city_names} more segment letters than the documented original city-name count. No physical plate order or solution is inferred.
             </p>
+            <a className="wc-source-link" href={diagnostic.historical_baseline.source_url} target="_blank" rel="noreferrer">Official World Clock history ↗</a>
             <div className="wc-segments" aria-label="Six transformed ciphertext segments">
               {diagnostic.segments.map((segment) => (
                 <section className="wc-segment" key={segment.index}>
