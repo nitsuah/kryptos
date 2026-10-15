@@ -205,6 +205,35 @@ export interface LedgerResponse {
 }
 
 
+export interface WorldClockDiagnosticSegment {
+  index: number;
+  text: string;
+  length: number;
+}
+
+export interface WorldClockHypothesisResponse {
+  hypothesis_id: string;
+  status: string;
+  ciphertext_length: number;
+  keyed_alphabet: string;
+  transformation: string;
+  delimiter: string;
+  delimiter_positions_zero_based: number[];
+  delimiter_count: number;
+  transformed_stream: string;
+  segments: WorldClockDiagnosticSegment[];
+  segment_lengths: number[];
+  matches_recorded_segment_lengths: boolean;
+  historical_baseline: {
+    original_city_names: number;
+    source: string;
+    segment_letters_total: number;
+    difference_letters_minus_city_names: number;
+    interpretation: string;
+  };
+  limitations: string[];
+}
+
 export class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -259,5 +288,6 @@ export const api = {
   jobStatus: (jobId: string) => getJSON<JobStatus>(`/api/k4/attacks/jobs/${jobId}`),
   jobs: (limit = 20) => getJSON<JobsResponse>(`/api/k4/attacks/jobs?limit=${limit}`),
   ledger: () => getJSON<LedgerResponse>("/api/k4/ledger"),
+  worldClockHypothesis: () => getJSON<WorldClockHypothesisResponse>("/api/k4/world-clock/hypothesis"),
   health: () => getJSON<{ status: string }>("/health"),
 };
