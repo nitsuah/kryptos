@@ -233,6 +233,7 @@ export interface WorldClockHypothesisResponse {
   historical_baseline: {
     original_city_names: number;
     source: string;
+    source_url: string;
     segment_letters_total: number;
     difference_letters_minus_city_names: number;
     interpretation: string;
