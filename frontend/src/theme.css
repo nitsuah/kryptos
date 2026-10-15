@@ -2302,3 +2302,13 @@ code {
     line-height: 1.25;
   }
 }
+
+
+.wc-source-link {
+  align-self: flex-start;
+  color: var(--highlight);
+  font-family: var(--mono);
+  font-size: 10px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
