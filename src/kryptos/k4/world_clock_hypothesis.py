@@ -26,8 +26,6 @@ def transform_through_keyed_alphabet(ciphertext: str = CIPHERTEXT) -> str:
     clean = "".join(ch for ch in ciphertext.upper() if ch.isalpha())
     if not clean:
         raise ValueError("ciphertext must contain at least one letter")
-    if any(ch not in KEYED_ALPHABET for ch in clean):
-        raise ValueError("ciphertext contains a letter outside the keyed alphabet")
     return "".join(ALPHABET[KEYED_ALPHABET.index(ch)] for ch in clean)
 
 
@@ -74,22 +72,28 @@ def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, An
             "offsets_matching_recorded_segment_lengths": matching_rotations,
             "unique_segment_length_signatures": len({tuple(signature) for signature in rotation_signatures}),
             "interpretation": (
-                "Circular-alignment sensitivity check only. The target segment lengths were observed from this same stream, "
-                "so this is not an independent significance test."
+                "Circular-alignment sensitivity check only. The target segment lengths were observed "
+                "from this same stream, so this is not an independent significance test."
             ),
         },
         "historical_baseline": {
             "original_city_names": HISTORICAL_CITY_COUNT,
             "source": "Official Urania World Clock history page; original display described as 80 city names across 24 time zones.",
+            "source_url": "https://www.weltzeituhr-berlin.de/en/urania-worldtimeclock",
             "segment_letters_total": sum(lengths),
             "difference_letters_minus_city_names": mismatch,
-            "interpretation": "The 92 non-delimiter letters do not map one-to-one to the documented 80 original city names without an additional, independently justified rule.",
+            "interpretation": (
+                "The 92 non-delimiter letters do not map one-to-one to the documented 80 original city "
+                "names without an additional, independently justified rule."
+            ),
         },
         "limitations": [
-            "The inverse keyed-alphabet relabeling and X delimiter choice are a specified candidate, not an established K4 mechanism.",
+            "The inverse keyed-alphabet relabeling and X delimiter choice are a specified candidate, "
+            "not an established K4 mechanism.",
             "The segment lengths are not a match to the documented 80-city original display.",
             "No physical plate order, UTC assignment, clock orientation, or plaintext is inferred.",
-            "A crib-conditioned fit is not independent validation; rotation and shuffled controls are still required before any evidentiary promotion.",
+            "A crib-conditioned fit is not independent validation; rotation and shuffled controls are "
+            "still required before any evidentiary promotion.",
         ],
     }
 
