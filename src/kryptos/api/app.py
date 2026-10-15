@@ -17,6 +17,7 @@ from kryptos.api.k4_attack_routes import create_k4_attack_router
 from kryptos.api.ledger_routes import create_ledger_router
 from kryptos.api.log_stream import install_log_streaming, log_event_stream
 from kryptos.api.vault_routes import create_vault_router
+from kryptos.k4.world_clock_hypothesis import analyze_world_clock_hypothesis
 from kryptos.rag.index import ArtifactIndex
 
 logger = logging.getLogger(__name__)
@@ -71,6 +72,11 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
     app.include_router(create_vault_router())
     app.include_router(create_k4_attack_router())
     app.include_router(create_ledger_router())
+
+    @app.get("/api/k4/world-clock/hypothesis")
+    def world_clock_hypothesis() -> dict:
+        """Return the deterministic six-segment World Clock diagnostic."""
+        return analyze_world_clock_hypothesis()
 
     @app.get("/health")
     def health() -> dict:
