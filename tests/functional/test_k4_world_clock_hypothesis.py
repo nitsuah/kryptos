@@ -50,7 +50,7 @@ def test_shuffled_control_is_reproducible_and_preserves_delimiter_count():
     assert first == second
     assert first["sample_size"] == 200
     assert first["seed"] == 123
-    assert first["delimiter_count_preserved"] == stream.count("X") == 5
+    assert first["input_delimiter_count"] == stream.count("X") == 5
     assert first["character_multiset_preserved"] is True
     assert 0 <= first["exact_signature_hits"] <= 200
     assert first["observed_hit_rate"] == first["exact_signature_hits"] / 200
