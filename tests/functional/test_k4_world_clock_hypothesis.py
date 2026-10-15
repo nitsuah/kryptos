@@ -22,6 +22,10 @@ def test_transform_reproduces_recorded_stream_and_delimiters():
     assert report["delimiter_positions_zero_based"] == [20, 36, 48, 58, 74]
     assert report["segment_lengths"] == EXPECTED_SEGMENT_LENGTHS
     assert report["matches_recorded_segment_lengths"] is True
+    assert report["rotation_control"]["tested_circular_offsets"] == 97
+    assert report["rotation_control"]["offsets_matching_recorded_segment_lengths"] == [0]
+    assert report["rotation_control"]["unique_segment_length_signatures"] == 97
+    assert "not an independent significance test" in report["rotation_control"]["interpretation"]
     assert report["ciphertext_length"] == 97
 
 
