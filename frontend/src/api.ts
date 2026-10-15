@@ -229,7 +229,7 @@ export interface WorldClockHypothesisResponse {
     sample_size: number;
     seed: number;
     target_segment_lengths: number[];
-    delimiter_count_preserved: number;
+    input_delimiter_count: number;
     character_multiset_preserved: boolean;
     exact_signature_hits: number;
     observed_hit_rate: number;
