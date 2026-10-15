@@ -28,7 +28,7 @@ def main() -> int:
         snapshot_path = result["results"][sweep]["snapshot_path"]
         print(f"\n*** BREAKTHROUGH in sweep '{sweep}' -- snapshot: {snapshot_path} ***")
         return 1
-    print(f"\nAll {len(result['sweeps_run'])} sweeps complete, all null.")
+    print(f"\nAll {len(result['sweeps_run'])} sweeps complete; no EurekaSignal. Check each sweep status (diagnostics are not null-result claims).")
     return 0
 
 
