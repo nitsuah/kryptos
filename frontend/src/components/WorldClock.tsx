@@ -297,6 +297,7 @@ export default function WorldClock() {
               <code>{diagnostic.transformed_stream}</code>
             </div>
             <p className="muted small">Rotation control: {diagnostic.rotation_control.tested_circular_offsets} circular offsets; the observed segment-length signature occurs at offset {diagnostic.rotation_control.offsets_matching_recorded_segment_lengths.join(", ") || "none"}. {diagnostic.rotation_control.interpretation}</p>
+            <p className="muted small">Shuffled control: {diagnostic.shuffled_control.sample_size.toLocaleString()} seeded permutations; {diagnostic.shuffled_control.exact_signature_hits} exact signature hits ({(diagnostic.shuffled_control.observed_hit_rate * 100).toFixed(2)}%). {diagnostic.shuffled_control.interpretation}</p>
             <p className="muted small">{diagnostic.limitations[0]} {diagnostic.limitations[1]}</p>
           </div>
         )}

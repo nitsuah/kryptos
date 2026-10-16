@@ -224,6 +224,17 @@ export interface WorldClockHypothesisResponse {
   segments: WorldClockDiagnosticSegment[];
   segment_lengths: number[];
   matches_recorded_segment_lengths: boolean;
+  shuffled_control: {
+    method: string;
+    sample_size: number;
+    seed: number;
+    target_segment_lengths: number[];
+    input_delimiter_count: number;
+    character_multiset_preserved: boolean;
+    exact_signature_hits: number;
+    observed_hit_rate: number;
+    interpretation: string;
+  };
   rotation_control: {
     tested_circular_offsets: number;
     offsets_matching_recorded_segment_lengths: number[];

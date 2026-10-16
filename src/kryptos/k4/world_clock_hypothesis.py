@@ -5,15 +5,17 @@ map each K4 ciphertext letter through the inverse KRYPTOS keyed alphabet, then
 treat resulting X symbols as delimiters. The fixed transformation and source are
 kept explicit so backend, execution artifacts, tests, and the dashboard agree.
 """
+
 from __future__ import annotations
 
 import json
+import random
+from collections import Counter
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-CIPHERTEXT = (
-    "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
-)
+CIPHERTEXT = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
 EXPECTED_SEGMENT_LENGTHS = [20, 15, 11, 9, 15, 22]
@@ -36,6 +38,67 @@ def split_on_delimiter(stream: str, delimiter: str = EXPECTED_DELIMITER) -> list
     return stream.split(delimiter)
 
 
+def iter_shuffled_streams(
+    stream: str,
+    sample_size: int = 5000,
+    seed: int = 20261015,
+) -> Iterator[str]:
+    """Yield seeded uniform permutations of ``stream``'s characters.
+
+    The same ``stream``, ``sample_size`` and ``seed`` always yield the same sequence.
+    """
+    if sample_size < 1:
+        raise ValueError("sample_size must be at least 1")
+    if not stream or any(ch not in ALPHABET for ch in stream):
+        raise ValueError("stream must contain uppercase A-Z letters only")
+
+    rng = random.Random(seed)
+    characters = list(stream)
+    for _ in range(sample_size):
+        shuffled = characters.copy()
+        rng.shuffle(shuffled)
+        yield "".join(shuffled)
+
+
+def shuffled_delimiter_control(
+    stream: str,
+    sample_size: int = 5000,
+    seed: int = 20261015,
+) -> dict[str, Any]:
+    """Compare the fixed segment-length target against shuffled-character controls.
+
+    Each permutation preserves the exact stream character multiset (including the
+    delimiter count), while randomizing positions. This is a descriptive conditional
+    control, not a p-value: the target signature was noticed after inspecting the
+    stream, and the broader search over transformations/delimiters is unaccounted for.
+    """
+    hits = 0
+    expected_counts = Counter(stream)
+    multiset_preserved = True
+    for shuffled in iter_shuffled_streams(stream, sample_size=sample_size, seed=seed):
+        multiset_preserved = multiset_preserved and Counter(shuffled) == expected_counts
+        lengths = [len(part) for part in shuffled.split(EXPECTED_DELIMITER)]
+        if lengths == EXPECTED_SEGMENT_LENGTHS:
+            hits += 1
+
+    return {
+        "method": "uniform random permutation of stream characters; exact character multiset preserved",
+        "sample_size": sample_size,
+        "seed": seed,
+        "target_segment_lengths": EXPECTED_SEGMENT_LENGTHS,
+        "input_delimiter_count": stream.count(EXPECTED_DELIMITER),
+        "character_multiset_preserved": multiset_preserved,
+        "exact_signature_hits": hits,
+        "observed_hit_rate": hits / sample_size,
+        "interpretation": (
+            "Descriptive conditional control only, not a p-value or independent evidence. "
+            "The target signature was observed after inspecting this stream, and selection "
+            "across delimiters, alphabets, transformations, orientations, and other patterns "
+            "is not accounted for."
+        ),
+    }
+
+
 def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, Any]:
     """Return a deterministic, serializable report for the six-segment hypothesis."""
     stream = transform_through_keyed_alphabet(ciphertext)
@@ -48,8 +111,7 @@ def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, An
         for offset in range(len(stream))
     ]
     matching_rotations = [
-        offset for offset, signature in enumerate(rotation_signatures)
-        if signature == EXPECTED_SEGMENT_LENGTHS
+        offset for offset, signature in enumerate(rotation_signatures) if signature == EXPECTED_SEGMENT_LENGTHS
     ]
     return {
         "hypothesis_id": "world_clock_keyed_relabel_x_delimiters_v1",
@@ -61,12 +123,10 @@ def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, An
         "delimiter_positions_zero_based": positions,
         "delimiter_count": len(positions),
         "transformed_stream": stream,
-        "segments": [
-            {"index": i, "text": segment, "length": len(segment)}
-            for i, segment in enumerate(segments)
-        ],
+        "segments": [{"index": i, "text": segment, "length": len(segment)} for i, segment in enumerate(segments)],
         "segment_lengths": lengths,
         "matches_recorded_segment_lengths": lengths == EXPECTED_SEGMENT_LENGTHS,
+        "shuffled_control": shuffled_delimiter_control(stream),
         "rotation_control": {
             "tested_circular_offsets": len(stream),
             "offsets_matching_recorded_segment_lengths": matching_rotations,
@@ -96,7 +156,7 @@ def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, An
             "The segment lengths are not a match to the documented 80-city original display.",
             "No physical plate order, UTC assignment, clock orientation, or plaintext is inferred.",
             "A crib-conditioned fit is not independent validation; rotation and shuffled controls are "
-            "still required before any evidentiary promotion.",
+            "descriptive only and do not account for hypothesis-selection bias.",
         ],
     }
 
@@ -116,6 +176,8 @@ __all__ = [
     "EXPECTED_SEGMENT_LENGTHS",
     "transform_through_keyed_alphabet",
     "split_on_delimiter",
+    "iter_shuffled_streams",
+    "shuffled_delimiter_control",
     "analyze_world_clock_hypothesis",
     "write_world_clock_diagnostic",
 ]

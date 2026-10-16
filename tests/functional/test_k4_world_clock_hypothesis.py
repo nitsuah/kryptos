@@ -1,6 +1,7 @@
 """Tests for the deterministic six-segment World Clock diagnostic."""
 
 import json
+from collections import Counter
 
 import pytest
 
@@ -8,6 +9,8 @@ from kryptos.k4.world_clock_hypothesis import (
     CIPHERTEXT,
     EXPECTED_SEGMENT_LENGTHS,
     analyze_world_clock_hypothesis,
+    iter_shuffled_streams,
+    shuffled_delimiter_control,
     split_on_delimiter,
     transform_through_keyed_alphabet,
     write_world_clock_diagnostic,
@@ -26,6 +29,8 @@ def test_transform_reproduces_recorded_stream_and_delimiters():
     assert report["rotation_control"]["offsets_matching_recorded_segment_lengths"] == [0]
     assert report["rotation_control"]["unique_segment_length_signatures"] == 97
     assert "not an independent significance test" in report["rotation_control"]["interpretation"]
+    assert report["shuffled_control"]["sample_size"] == 5000
+    assert "not a p-value" in report["shuffled_control"]["interpretation"]
     assert report["ciphertext_length"] == 97
 
 
@@ -36,6 +41,45 @@ def test_historical_count_mismatch_is_explicit_not_silently_resolved():
     assert baseline["segment_letters_total"] == 92
     assert baseline["difference_letters_minus_city_names"] == 12
     assert "do not map one-to-one" in baseline["interpretation"]
+
+
+
+def test_shuffled_control_is_reproducible_and_preserves_delimiter_count():
+    stream = transform_through_keyed_alphabet()
+    first = shuffled_delimiter_control(stream, sample_size=200, seed=123)
+    second = shuffled_delimiter_control(stream, sample_size=200, seed=123)
+
+    assert first == second
+    assert first["sample_size"] == 200
+    assert first["seed"] == 123
+    assert first["input_delimiter_count"] == stream.count("X") == 5
+    assert first["character_multiset_preserved"] is True
+    assert 0 <= first["exact_signature_hits"] <= 200
+    assert first["observed_hit_rate"] == first["exact_signature_hits"] / 200
+    assert "selection" in first["interpretation"]
+
+
+def test_shuffled_samples_are_seeded_and_preserve_every_character_count():
+    stream = transform_through_keyed_alphabet()
+    expected_counts = Counter(stream)
+
+    first = list(iter_shuffled_streams(stream, sample_size=50, seed=123))
+    second = list(iter_shuffled_streams(stream, sample_size=50, seed=123))
+    other_seed = list(iter_shuffled_streams(stream, sample_size=50, seed=124))
+
+    assert first == second
+    assert first != other_seed
+    assert len(first) == 50
+    for sample in first:
+        assert Counter(sample) == expected_counts
+        assert sample.count("X") == stream.count("X") == 5
+
+
+def test_shuffled_control_rejects_invalid_inputs():
+    with pytest.raises(ValueError, match="at least 1"):
+        shuffled_delimiter_control("ABC", sample_size=0)
+    with pytest.raises(ValueError, match="uppercase A-Z"):
+        shuffled_delimiter_control("abc")
 
 
 def test_transform_rejects_empty_input_after_normalization():
