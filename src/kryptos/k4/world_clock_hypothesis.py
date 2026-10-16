@@ -5,17 +5,17 @@ map each K4 ciphertext letter through the inverse KRYPTOS keyed alphabet, then
 treat resulting X symbols as delimiters. The fixed transformation and source are
 kept explicit so backend, execution artifacts, tests, and the dashboard agree.
 """
+
 from __future__ import annotations
 
 import json
 import random
+from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-CIPHERTEXT = (
-    "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
-)
+CIPHERTEXT = "OBKRUOXOGHULBSOLIFBBWFLRVQQPRNGKSSOTWTQSJQSSEKZZWATJKLUDIAWINFBNYPVTTMZFPKWGDKZXTJCDIGKUHUAUEKCAR"
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 KEYED_ALPHABET = "KRYPTOSABCDEFGHIJLMNQUVWXZ"
 EXPECTED_SEGMENT_LENGTHS = [20, 15, 11, 9, 15, 22]
@@ -73,7 +73,10 @@ def shuffled_delimiter_control(
     stream, and the broader search over transformations/delimiters is unaccounted for.
     """
     hits = 0
+    expected_counts = Counter(stream)
+    multiset_preserved = True
     for shuffled in iter_shuffled_streams(stream, sample_size=sample_size, seed=seed):
+        multiset_preserved = multiset_preserved and Counter(shuffled) == expected_counts
         lengths = [len(part) for part in shuffled.split(EXPECTED_DELIMITER)]
         if lengths == EXPECTED_SEGMENT_LENGTHS:
             hits += 1
@@ -84,7 +87,7 @@ def shuffled_delimiter_control(
         "seed": seed,
         "target_segment_lengths": EXPECTED_SEGMENT_LENGTHS,
         "input_delimiter_count": stream.count(EXPECTED_DELIMITER),
-        "character_multiset_preserved": True,
+        "character_multiset_preserved": multiset_preserved,
         "exact_signature_hits": hits,
         "observed_hit_rate": hits / sample_size,
         "interpretation": (
@@ -108,8 +111,7 @@ def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, An
         for offset in range(len(stream))
     ]
     matching_rotations = [
-        offset for offset, signature in enumerate(rotation_signatures)
-        if signature == EXPECTED_SEGMENT_LENGTHS
+        offset for offset, signature in enumerate(rotation_signatures) if signature == EXPECTED_SEGMENT_LENGTHS
     ]
     return {
         "hypothesis_id": "world_clock_keyed_relabel_x_delimiters_v1",
@@ -121,10 +123,7 @@ def analyze_world_clock_hypothesis(ciphertext: str = CIPHERTEXT) -> dict[str, An
         "delimiter_positions_zero_based": positions,
         "delimiter_count": len(positions),
         "transformed_stream": stream,
-        "segments": [
-            {"index": i, "text": segment, "length": len(segment)}
-            for i, segment in enumerate(segments)
-        ],
+        "segments": [{"index": i, "text": segment, "length": len(segment)} for i, segment in enumerate(segments)],
         "segment_lengths": lengths,
         "matches_recorded_segment_lengths": lengths == EXPECTED_SEGMENT_LENGTHS,
         "shuffled_control": shuffled_delimiter_control(stream),
