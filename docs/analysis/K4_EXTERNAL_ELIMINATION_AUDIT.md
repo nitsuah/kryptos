@@ -77,6 +77,14 @@ I independently ported `stackT.check` and the published `gen.colperms` permutati
 | KA | inverse of order (2, 3, 5, 0, 4, 6, 1) | +1 | 2 |
 | KA | inverse of order (2, 3, 5, 1, 4, 6, 0) | +1 | 2 |
 
+One of the width-7 cases is a concrete witness to the consistency claim. Using the forward columnar order `(2, 5, 0, 3, 1, 6, 4)` (where (M[i]) is the ciphertext position of plaintext position (i)), ST arithmetic, Beaufort sign, and ciphertext-indexed periods 11 and 12, one union-find assignment gives:
+
+- period-11 key: `QQWQUPTBQLT`
+- period-12 key: `FAMTEATDSNDO`
+- decrypted text: `GAHMEOYOJPEYCYDXYEKLJEASTNORTHEASTGLOBFNSYFMPDWHURWQPPBGZRCMZIKBERLINCLOCKSGPUATAUAYWVUSPQQAREQET`
+
+The resulting text has `EASTNORTHEAST` at zero-based positions 21–33 and `BERLINCLOCK` at positions 63–73, exactly. It is not plausible English; its value here is narrowly logical: **a consistent key/transposition assignment exists**, so this family is not exactly eliminated under the issue's stated definition. This witness was independently generated from the published union-find constraints, not copied from the external README.
+
 This is a source-level scope correction backed by an independent reproduction of the small exact constraint check. It does not claim that these low-redundancy fits are plausible English decryptions or that the broader PK family is solved.
 
 ### Running key + transposition: bounded corpus, no null in the inspected entry point
