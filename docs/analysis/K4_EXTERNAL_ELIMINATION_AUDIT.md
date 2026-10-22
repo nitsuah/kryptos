@@ -45,8 +45,8 @@ I reimplemented the pairwise condition directly from the ciphertext and the 24 c
 The current `scripts/anyalpha.py` defines `run(..., Pmax=12, strong=4)`; `runall()` calls it without overriding `Pmax`. Therefore its main transposition campaign covers periods **1–12**, consistent with README section 5, not periods 1–24. The issue's compact summary can be read more broadly than that actual campaign. README section 5 separately lists some direct periods as inconsistent and says the other periods have no check; it must not be summarized as an elimination of all direct periods 1–24.
 
 I also independently enumerated the equality-preservation constraints from the 24 known letters for direct position-modulo periods 1–24. The result is:
-- **Contradictory under a bijective per-period alphabet:** periods 1–7, 9, 10, 14, 15, 17, and 21.
-- **Underdetermined by these crib pairs:** periods 8, 11–13, 16, 18, and 20, 22–24 (there are no crib pairs in the same residue class to compare).
+- **Contradictory under a bijective per-period alphabet:** periods 1–7, 9, 10, 14, 15, 17, 21, and 25.
+- **Underdetermined by these crib pairs:** periods 8, 11–13, 16, 18, 20, and 22–24 (there are no crib pairs in the same residue class to compare).
 - **Period 19 remains underdetermined:** one same-letter pair, R at positions 27 and 65, has the same ciphertext P at both positions and creates no contradiction. The two positions are 38 apart, exactly (2\times19).
 
 This small independent check supports the README's period-19 caution and identifies why the remaining direct periods must not be called eliminated. There is a reproducibility nuance: the visible `anyalpha.py` runner only evaluates a class when it meets a configurable minimum of same-plaintext coincidences. Some periods that are contradicted solely by an injectivity violation have zero such coincidences and are skipped by that runner; the README's broader direct-period classification therefore needs a separate emitted certificate or an explicit pairwise audit like the one above. The exact direct result can be derived, but the existing runner output alone does not document all those eliminations.
