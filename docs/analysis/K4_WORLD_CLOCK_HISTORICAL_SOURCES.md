@@ -49,6 +49,24 @@ The current official site says the clock originally had 80 city names. A 2019 B.
 
 Do not infer a complete original list by subtracting a short list of politically sensitive cities from the 2017 transcription. The mismatch may reflect changes across multiple periods, different definitions/counting conventions, or incomplete secondary summaries. A dated primary source or direct plate-by-plate transcription is needed to resolve it.
 
+## Provisional partial read from the 1970 Fortepan image
+
+I made a first-pass visual read of the visible, near-facing plates in [Fortepan 60040](https://commons.wikimedia.org/wiki/File:Kelet-Berlin,_Alexanderplatz._Fortepan_60040.jpg). These are **provisional candidate readings from the preview**, not a second-reader-verified transcription of the full-resolution original and not evidence of the clock's 1990 state. Face/zone numbers are intentionally omitted because the photograph does not establish a complete orientation around the cylinder.
+
+| Visible plate | First-pass text in the photographed spelling | Confidence / limitation |
+|---|---|---|
+| Upper, left-side panel | AZOREN | Legible in preview; verify at original resolution. |
+| Upper, near-facing panel | REYKJAVIK | Legible in preview; verify at original resolution. |
+| Upper, near-facing panel | DUBLIN · LISSABON · ALGIER | Line breaks are visible; preserve the historical German spellings. |
+| Upper, broad near-facing panel | AMSTERDAM · BERLIN · BRUSSEL · BUDAPEST · MADRID · PARIS · PRAG · STOCKHOLM · WARSCHAU | The individual lines are legible in the preview; verify letters and line order at original resolution. |
+| Upper, near-facing panel | BUKAREST · HELSINKI · SOFIA | Legible in preview; verify at original resolution. |
+| Upper, right-side panel | LENINGRAD · MOSKAU | Legible in preview; verify at original resolution. |
+| Lower, near-facing panel | CASABLANCA · CONAKRY · DAKAR | Legible in preview; verify at original resolution. |
+| Lower, near-facing panel | KOPENHAGEN · LONDON · WIEN · ROM · BELGRAD · TUNIS | Legible in preview; verify letters and line order at original resolution. |
+| Lower, near-facing panel | ANKARA · DAMASKUS · KAIRO | Legible in preview; verify at original resolution. |
+
+This is a **candidate transcription only**. Before it is used as a cipher key or merged into the main transcription, a second pass must compare the original-resolution image, preserve per-line geometry, and record crop coordinates. Panels partly turned away from the camera, hidden by the hour ring, or too small to read remain unknown rather than being filled from a modern list.
+
 ## Transcription protocol for the next pass
 
 When a source image is acquired and examined, record each candidate label with:
