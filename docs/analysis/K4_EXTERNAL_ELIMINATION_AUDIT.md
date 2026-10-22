@@ -59,6 +59,12 @@ This small independent check supports the README's period-19 caution and identif
 
 `scripts/hillx.py` tests direct aligned Hill blocks of sizes 2–5, all offsets, ST/KA, and an affine/block-period extension parameter (L=0\ldots6). It only includes blocks whose positions are all within the known crib positions; it does not itself compose Hill with transposition. It reports a “hit” only when a consistent system has redundancy at least 2, while separately retaining lower-redundancy consistency in the `tested` list. Accordingly, a count of zero **strong hits** is not, by itself, proof that every matrix/affine configuration is inconsistent. The broader README claim about Hill plus columnar transposition depends on other scripts and needs to be audited separately, including the exact width/order ranges and all underconstrained cases.
 
+### Hill + columnar: a README/code dimension mismatch at width 9
+
+The external README's section 3 says the Hill-3×3 → columnar family has no hits at widths 2–8, then describes width-9 hits with “3 equations for 2 unknowns” and 276 invertible matrices that decrypt to gibberish. The code resolves the dimension ambiguity: `scripts/hillchk.py` calls `run(CT0,[9],(2,),'K4')`, so the width-9 follow-up is specifically **2×2 Hill**, not 3×3 Hill. In `scripts/hillT.py`, the transposition-first `orderA` path is only invoked for `n == 2` or widths `W <= 8`, so the 3×3 width-9 path is not executed there.
+
+This means the issue body's compressed statement “Hill ... with columnar widths 2–9 in both orders: 0 valid” is too broad. The README itself describes a width-9 case with **276 invertible matrix candidates that satisfy the crib equations**, then rejects them on English-scoring grounds. That can support “no plausible English output among these tested width-9 fits,” not “zero valid configurations.” The 3×3 width-9 path should remain explicitly untested unless another source file supplies that run.
+
 ### Period-19 experiment: scope and clean-checkout inputs
 
 The current README's section 35 points to `p19sa.py` and `numcode.py`; both exist at the inspected upstream revision. Although the latest upstream commit deleted `scripts/q4p19.py` and `scripts/trisa.py`, those deletions alone do **not** invalidate section 35. The current references need to be distinguished from older script names rather than treating a deletion as proof that the result disappeared.
