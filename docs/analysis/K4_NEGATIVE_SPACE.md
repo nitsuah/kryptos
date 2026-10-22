@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Updated:** 2026-09-30 (open list re-ranked)
+**Last Updated:** 2026-10-22 (external elimination audit; open list updated)
 **Companion page:** [Kryptos State of Research](https://claude.ai/artifact/PBjhWqNYP5zXCdQb9qfMB3), a readable overview with the coverage map and open to-dos. It replaces the earlier briefing pages (K4 Field Notes, Three Open Leads, Three Moves, K4 Ledger Audit), which are kept for history only.
 **Status:** Living document. It records what has *not* been tried, or not tried in a way that settles anything. The machine-readable version is `kryptos.k4.hypothesis_ledger` (`GET /api/k4/ledger`).
 
@@ -100,13 +100,14 @@ So either the reconstruction is wrong past the cribs, or K4's method sits outsid
 | 4 | **Other long-key rules** | Recurrence, dial, progressive, phrase and English running keys are covered. Any other rule has to be named before it can be tested. Candidates: the K1–K3 ciphertexts as a running source under transposition, the K0 Morse text, the Cyrillic Projector. | M |
 | 5 | **Hill 6×6 and up** | Too few full crib blocks; needs a transposition hypothesis or partial blocks. | M |
 | 6 | **Per-letter lookup keys** | A steady dial is eliminated; a lookup per letter (Weltzeituhr city or time zone) needs the plate order. Blocked on sourcing #2. | L |
+| 7 | **PK4-style T → Q(a) → Q(b), both keys ciphertext-indexed** | External `stack2ct.py` reports only cases with ≥4 redundant constraints. Independent audit found 17 consistent width-7 period-(11,12) fits at redundancy 2–3, including a concrete crib-matching but gibberish decryption. Not an English candidate, but not an exact elimination under the stated “no consistent configuration” definition; see [external audit](K4_EXTERNAL_ELIMINATION_AUDIT.md). | M |
 
 ### Evidence and sourcing
 
 | # | Gap | Owner |
 |---|-----|-------|
 | 1 | Compass-rose bearing (FOIA, Elonka Dunin, CIA Public Affairs drafts in TASKS). Likely matters after decryption rather than for it (see `docs/sources/SANBORN_QUOTES.md` #14). Routes and dial keys along *any* whole-degree bearing are already eliminated, so the measurement would only narrow other constructions. | you |
-| 2 | Weltzeituhr: the last 16 city plates, plate order, the wind-rose mosaic's bearing (a Berlin contact with a camera) | you |
+| 2 | Weltzeituhr: full pre-1997 face transcription and plate order; PR #273 adds a provisional 1970 partial read, dated 1990 context photos, and leads to the Erich John archive / 1983 public-clocks catalogue. Original-resolution second-reader verification remains outstanding. | you |
 | 3 | Upgrade `SANBORN_QUOTES.md` entries from "reported" to "checked" against primary pages | Claude, when page access allows |
 | 4 | Submission policy for Paradigm's $1 checker (only fully validated candidates) | you |
 
