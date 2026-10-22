@@ -32,6 +32,37 @@ This is deliberately **not** a statement that the external results are wrong. It
 - “Zero matches” is not the same as “no valid solution” when some configurations are underconstrained, omitted, sampled rather than exhaustive, or fail to represent all possible mappings.
 - Source comments and README summaries are evidence of author intent, not substitutes for rerunning commands and preserving outputs.
 
+## Second-pass checks against the published scripts (2026-10-22)
+
+**Inspected upstream revision:** [`00696f393c861db2dcfaf3adfef29823c601cf7a`](https://github.com/zeyeteam-debug/kryptos-k4-eliminations/commit/00696f393c861db2dcfaf3adfef29823c601cf7a) (latest commit returned by GitHub when this pass was made). The shell environment could not reach GitHub to clone the external repository, so this is a source audit plus independent small constraint checks, not a full dependency-backed execution of their campaign. Relevant file blobs at that revision include `stack.py` (`ea039c5f5061e8950fe0c200f7efde8139bca412`), `gen.py` (`24615f881c2ff5ff5d17caeb447fb0e1693a50ca`), `anyalpha.py` (`d57d9346de17b3cbe1121af9272cef61f056f908`), `hillx.py` (`5877b1cee459a0b6a333b226732979b3d867a136`), and `rk_trans.py` (`5a7963c531edfe94cb9031ee888e173ecea6d4c3`).
+
+### Independently checked: W-segment equality constraints
+
+I reimplemented the pairwise condition directly from the ciphertext and the 24 confirmed crib letters. The five W positions are zero-based 20, 36, 48, 58, and 74; segment lengths are 20, 15, 11, 9, 15, and 22. Comparing the two crib blocks at equal within-segment offsets yields **9 cross-block pairs**. There are **0 equality contradictions** and exactly **1 same-plaintext/same-ciphertext coincidence**: plaintext R at positions 27 and 65 (zero-based) corresponds to ciphertext P at both positions. This reproduces the reported R→P observation, but it is one post-hoc coincidence, not a key recovery. The shuffle/null significance in the external README was not independently rerun.
+
+### Any-alphabet periodic key: the visible runner does not certify every prose label
+
+The current `scripts/anyalpha.py` defines `run(..., Pmax=12, strong=4)`; `runall()` calls it without overriding `Pmax`. Therefore its main transposition campaign covers periods **1–12**, consistent with README section 5, not periods 1–24. The issue's compact summary can be read more broadly than that actual campaign. README section 5 separately lists some direct periods as inconsistent and says the other periods have no check; it must not be summarized as an elimination of all direct periods 1–24.
+
+I also independently enumerated the equality-preservation constraints from the 24 known letters for direct position-modulo periods 1–24. The result is:
+- **Contradictory under a bijective per-period alphabet:** periods 1–7, 9, 10, 14, 15, 17, and 21.
+- **Underdetermined by these crib pairs:** periods 8, 11–13, 16, 18, and 20, 22–24 (there are no crib pairs in the same residue class to compare).
+- **Period 19 remains underdetermined:** one same-letter pair, R at positions 27 and 65, has the same ciphertext P at both positions and creates no contradiction. The two positions are 38 apart, exactly (2\times19).
+
+This small independent check supports the README's period-19 caution and identifies why the remaining direct periods must not be called eliminated. There is a reproducibility nuance: the visible `anyalpha.py` runner only evaluates a class when it meets a configurable minimum of same-plaintext coincidences. Some periods that are contradicted solely by an injectivity violation have zero such coincidences and are skipped by that runner; the README's broader direct-period classification therefore needs a separate emitted certificate or an explicit pairwise audit like the one above. The exact direct result can be derived, but the existing runner output alone does not document all those eliminations.
+
+### Running key + transposition: bounded corpus, no null in the inspected entry point
+
+`scripts/rk_trans.py` searches a finite set of local corpora: NLTK Gutenberg texts, inaugural addresses, State of the Union texts, and concatenated K1–K3 plaintext. It strips non-A–Z characters and inserts separators between files. It enumerates the requested columnar permutations and three key arithmetic rules against the 24 crib-implied key values. Its `__main__` path constructs and checks a planted width-6 running-key control, then runs the K4 searches; it does **not** run a shuffled-ciphertext null in that path. Thus the defensible result is “no match in these loaded sources, normalizations, widths, permutations, and arithmetic rules,” not “no running key exists.” A full independent rerun also requires the external NLTK corpus files, which were not present in this environment.
+
+### Hill script: distinguish a strong hit from every consistent system
+
+`scripts/hillx.py` tests direct aligned Hill blocks of sizes 2–5, all offsets, ST/KA, and an affine/block-period extension parameter (L=0\ldots6). It only includes blocks whose positions are all within the known crib positions; it does not itself compose Hill with transposition. It reports a “hit” only when a consistent system has redundancy at least 2, while separately retaining lower-redundancy consistency in the `tested` list. Accordingly, a count of zero **strong hits** is not, by itself, proof that every matrix/affine configuration is inconsistent. The broader README claim about Hill plus columnar transposition depends on other scripts and needs to be audited separately, including the exact width/order ranges and all underconstrained cases.
+
+### Repository freshness caveat
+
+At the inspected latest upstream commit, GitHub reports deletion of `scripts/q4p19.py` and `scripts/trisa.py`, while the README still directs readers to a later section for the period-19 Quagmire IV test. This is not enough to conclude the period-19 work vanished (a replacement may exist), but it is a concrete documentation/reproducibility check: the README's section 35 and current script inventory must be reconciled before a reader can rerun that claim from a clean checkout.
+
 ## Reproduction plan
 
 Before adding a row to docs/analysis/K4_NEGATIVE_SPACE.md or the machine-readable hypothesis ledger:
