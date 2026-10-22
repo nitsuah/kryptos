@@ -67,6 +67,19 @@ I made a first-pass visual read of the visible, near-facing plates in [Fortepan 
 
 This is a **candidate transcription only**. Before it is used as a cipher key or merged into the main transcription, a second pass must compare the original-resolution image, preserve per-line geometry, and record crop coordinates. Panels partly turned away from the camera, hidden by the hour ring, or too small to read remain unknown rather than being filled from a modern list.
 
+## Documented 1997 changes (partial, not a complete change log)
+
+Contemporary reporting gives a few concrete deltas, but not the full 20-name list:
+
+| Change type | Documented detail | Evidence and limit |
+|---|---|---|
+| Added names | A 12 December 1997 report says 20 city names were added; examples explicitly named are Oslo, Jerusalem, and Cape Town. | [Berliner Zeitung, 12 Dec 1997](https://www.berliner-zeitung.de/article/20-staedtenamen-wurden-bei-der-restaurierung-ergaenzt-frisch-poliert-die-weltzeituhr-dreht-sich-bald-7079). It is contemporary reporting, but not a full list of all 20. |
+| Political omission | Erich John later said Bonn and Athens were not permitted on the original plates for political reasons. | [B.Z. interview (2019)](https://www.bz-berlin.de/archiv-artikel/so-tickt-die-weltzeituhr-auf-dem-alexanderplatz). This explains two exclusions, not the complete original city inventory. |
+| Renamed cities | Leningrad became St. Petersburg; Alma-Ata became Almaty. | [n-tv restoration/history summary](https://www.n-tv.de/mediathek/bilderserien/panorama/Die-Weltzeituhr-Berliner-Treffpunkt-seit-1969-article21253682.html). Secondary retrospective source; seek the restoration plate schedule for the exact engraving and timing. |
+| Zone correction | Kyiv/Kiev moved from Moscow-time alignment to a zone one hour closer to Berlin after the Soviet Union dissolved. | [Berliner Zeitung, 12 Dec 1997](https://www.berliner-zeitung.de/article/20-staedtenamen-wurden-bei-der-restaurierung-ergaenzt-frisch-poliert-die-weltzeituhr-dreht-sich-bald-7079). This is a change in zone assignment, not necessarily a name addition. |
+
+These examples prove that the restoration included additions, renamings and time-zone corrections. They do **not** explain the numerical difference between 80 original names, 97 originally mentioned names, 146 current names, and the reported 20 additions. Do not treat these examples as a complete diff.
+
 ## Transcription protocol for the next pass
 
 When a source image is acquired and examined, record each candidate label with:
