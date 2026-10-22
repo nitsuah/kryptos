@@ -141,6 +141,22 @@ Before adding a row to docs/analysis/K4_NEGATIVE_SPACE.md or the machine-readabl
 6. Independently review the mathematical coverage claim, especially modulus assumptions for Hill constraints and the repeated-letter invariants for arbitrary alphabets.
 7. Compare the verified ranges against the existing ledger to avoid duplicating work or overstating coverage.
 
+## Closure gate for issue #244
+
+Progress from this PR is deliberately split between completed checks and outstanding closure requirements:
+
+- [x] Pin an immutable external source revision and the audited script blob SHAs.
+- [x] Independently verify W-restart key mismatches and direct arbitrary-alphabet period constraints.
+- [x] Independently reproduce the Hill row-system scan and distinguish underconstrained systems from contradictions.
+- [x] Independently reproduce both PK-style two-period-key models, including the 17 under-threshold consistent cases and one explicit gibberish witness.
+- [x] Add dated archival leads, a provisional 1970 partial read, and the unresolved 1991-captioned-photo provenance conflict.
+- [ ] Re-run the full external campaign from a clean checkout with exact commands, corpus hashes/versions, positive controls, shuffled nulls, and machine-readable outputs; the dictionary-scale PK9 width-7/8 command and running-key corpora are not independently reproduced yet.
+- [ ] Verify a complete pre-1997 city-plate transcription from original-resolution imagery or a primary schedule, with a second reader, exact line order, and plate orientation.
+- [ ] Resolve the 80-versus-97 original-count conflict and the current 146-versus-148 discrepancy against the original designer/restoration documentation or another primary record.
+- [ ] Only then decide whether each remaining family can be moved into the local “eliminated” ledger and whether issue #244 is complete.
+
+The photo captioned 1991 is **not** accepted as a verified pre-1997 source until the apparent post-1997 label conflict is resolved. The 1970 plate list is explicitly provisional and cannot satisfy the 1990 transcription requirement by itself.
+
 ## Scope decision
 
 Do not close issue #244 solely because PR #249 merged or because the external repository reports zero matches. PR #249 added useful 2017 transcription infrastructure, but this repository still needs a sourced historical transcription and a verified, scope-specific reproduction of the independent elimination claims before the whole issue can be considered complete.
