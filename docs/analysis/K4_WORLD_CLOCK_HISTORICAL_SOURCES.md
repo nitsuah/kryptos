@@ -64,11 +64,13 @@ Do not silently normalize historical spellings, move a city to another zone, fil
 
 ## Recommended next actions
 
-1. Inspect the 1970 Commons original at full resolution and create a partial transcription only for labels that can actually be read.
-2. Ask the Verein für die Geschichte Berlins archive about Mi-A 245 (1980s slide) and Mi-A I615 (1976 full-frame view); ask whether the catalogued scans show the city plates sharply enough for transcription.
-3. Ask AKG about licensed research access to Pansegrau's ca. 1986/1990 lossless image. This is the highest-priority near-period candidate, but its approximate date must be retained.
-4. Search the official designer / restoration records for an original 1969 label schedule or 1997 replacement list. A change log could resolve the 80-versus-current-count discrepancy more reliably than photo inference.
-5. Only after a label table is independently checked should the project generate explicit per-letter streams. Declare face start, traversal direction, top/bottom selection, spelling normalization and treatment of unknowns before testing the cribs.
+1. Inspect the [Fortepan 60040 original](https://commons.wikimedia.org/wiki/File:Kelet-Berlin,_Alexanderplatz._Fortepan_60040.jpg) at full resolution and create a partial 1970 transcription only for labels that can actually be read. Preserve crop coordinates and mark obscured panels unreadable.
+2. Obtain and inspect Hans-Werner Klünner and Gerhard Ullmann, *Straßenmöbel in Berlin* (1983), the catalogue cited by Berlin's monument database; its section on public clocks is catalogued at pp. 38–45. Check library copies or ask the relevant Berlin archive whether the pages can be consulted or scanned.
+3. Request access to the primary documentation identified in a 2009 study bibliography as “Privatarchiv Prof. em. Erich John – Dokumentation Urania-Weltzeituhr.” Prioritize an original city-name schedule, plate layout, and 1997 change list; these could resolve the 80-versus-current-count discrepancy without inference.
+4. Ask the Verein für die Geschichte Berlins archive about Mi-A 245 (1980s slide) and Mi-A I615 (1976 full-frame view); ask whether the original scans show the city plates sharply enough for transcription.
+5. Ask AKG about licensed research access to Pansegrau's ca. 1986/1990 lossless image. It remains the highest-priority near-period image candidate, but its approximate catalogue date must be retained.
+6. Use the two dated 1990 Bundesarchiv images for contextual cross-checks only; their current 785 × 537 and 784 × 532 px versions are not sharp enough for reliable label transcription.
+7. Only after a label table is independently checked should the project generate explicit per-letter streams. Declare face start, traversal direction, top/bottom selection, spelling normalization and treatment of unknowns before testing the cribs.
 
 ## References
 
@@ -77,6 +79,10 @@ Do not silently normalize historical spellings, move a city to another zone, fil
 - Berliner Zeitung, 12 Dec 1997, contemporaneous report of 20 added city names: https://www.berliner-zeitung.de/article/20-staedtenamen-wurden-bei-der-restaurierung-ergaenzt-frisch-poliert-die-weltzeituhr-dreht-sich-bald-7079
 - Berlin State Monument Database, object 09020854: https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020854
 - n-tv history and 1997 restoration summary: https://www.n-tv.de/mediathek/bilderserien/panorama/Die-Weltzeituhr-Berliner-Treffpunkt-seit-1969-article21253682.html
+- Fortepan 60040 1970 photograph (4,955 × 5,000 px, CC BY-SA 3.0): https://commons.wikimedia.org/wiki/File:Kelet-Berlin,_Alexanderplatz._Fortepan_60040.jpg
+- Bundesarchiv 24 April 1990 photo (Weltzeituhr explicitly in background, CC BY-SA 3.0): https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_183-1990-0424-036,_Berlin,_Demonstranten_gegen_Ausländerfeindlichkeit.jpg
+- Bundesarchiv 30 September 1990 photo (CC BY-SA 3.0): https://commons.wikimedia.org/wiki/File:Bundesarchiv_Bild_183-1990-0930-014,_Berlin,_Alexanderplatz,_letzter_zugelassener_Trabbi.jpg
+- Bibliographic lead identifying the private Erich John archive: https://bc.pollub.pl/Content/634/PDF/zabytki.pdf
 - Wikimedia Commons 1970 photograph and licence: https://commons.wikimedia.org/wiki/File:19700131040NR_Berlin_Weltzeituhr_am_Alexanderplatz.jpg
 - AKG catalogue record: https://www.akg-images.de/asset/668482/Berlin%2C-Weltzeituhr--Foto-um-1986
 - Verein für die Geschichte Berlins digital photo archive: https://www.diegeschichteberlins.de/geschichteberlins/datenbanken/digitales-fotoarchiv.html?start=650
