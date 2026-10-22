@@ -59,9 +59,11 @@ This small independent check supports the README's period-19 caution and identif
 
 `scripts/hillx.py` tests direct aligned Hill blocks of sizes 2–5, all offsets, ST/KA, and an affine/block-period extension parameter (L=0\ldots6). It only includes blocks whose positions are all within the known crib positions; it does not itself compose Hill with transposition. It reports a “hit” only when a consistent system has redundancy at least 2, while separately retaining lower-redundancy consistency in the `tested` list. Accordingly, a count of zero **strong hits** is not, by itself, proof that every matrix/affine configuration is inconsistent. The broader README claim about Hill plus columnar transposition depends on other scripts and needs to be audited separately, including the exact width/order ranges and all underconstrained cases.
 
-### Repository freshness caveat
+### Period-19 experiment: scope and clean-checkout inputs
 
-At the inspected latest upstream commit, GitHub reports deletion of `scripts/q4p19.py` and `scripts/trisa.py`, while the README still directs readers to a later section for the period-19 Quagmire IV test. This is not enough to conclude the period-19 work vanished (a replacement may exist), but it is a concrete documentation/reproducibility check: the README's section 35 and current script inventory must be reconciled before a reader can rerun that claim from a clean checkout.
+The current README's section 35 points to `p19sa.py` and `numcode.py`; both exist at the inspected upstream revision. Although the latest upstream commit deleted `scripts/q4p19.py` and `scripts/trisa.py`, those deletions alone do **not** invalidate section 35. The current references need to be distinguished from older script names rather than treating a deletion as proof that the result disappeared.
+
+There is, however, a concrete clean-checkout reproducibility detail: the README's generic run instructions mention `quad.pkl`, while `p19sa.py` reads or creates `quad.npy` and builds the quadgram model from `texts/nltk_data/packages/corpora/gutenberg/*.txt` if that file is absent. Its planted control also reads `texts/carter_vol1.txt`. Those corpus inputs and the generated/model file must be present or documented for the advertised control and period-19 run to reproduce. The reported 1-success-in-12 planted-control rate is itself a material limitation: the README estimates about a 35% chance that 12 runs would all miss a valid solution at that observed success rate. Therefore “no crib-consistent English decryption found in these annealing runs” is a bounded stochastic result, not an exhaustive elimination of period-19 Quagmire IV.
 
 ## Reproduction plan
 
