@@ -51,6 +51,34 @@ I also independently enumerated the equality-preservation constraints from the 2
 
 This small independent check supports the README's period-19 caution and identifies why the remaining direct periods must not be called eliminated. There is a reproducibility nuance: the visible `anyalpha.py` runner only evaluates a class when it meets a configurable minimum of same-plaintext coincidences. Some periods that are contradicted solely by an injectivity violation have zero such coincidences and are skipped by that runner; the README's broader direct-period classification therefore needs a separate emitted certificate or an explicit pairwise audit like the one above. The exact direct result can be derived, but the existing runner output alone does not document all those eliminations.
 
+### PK4-style two-period-key stack: the wrapper's threshold hides consistent width-7 cases
+
+The issue's convention defines “excluded” as **no configuration in the stated space consistent with all 24 cribs**. The external `scripts/stack2ct.py` does not report every consistent configuration: it calls the exact union-find `check`, which returns `-1` on a contradiction and a nonnegative cycle/redundancy count for a consistent system, but `scan` only records results when `r >= thr` with `thr=4`. Therefore “zero hits” from this wrapper means zero configurations meeting the four-redundant-check threshold, not necessarily zero consistent key assignments.
+
+I independently ported `stackT.check` and the published `gen.colperms` permutation generator, then enumerated the width-7 columnar orders and inverses against the confirmed crib. At width 7, across ST/KA, both signs, and all permitted key lengths, I found **17 consistent cases** for periods (a=11,b=12), each with only 2 or 3 redundant checks. They are intentionally filtered out by the wrapper's threshold. The cases are underconstrained and do not constitute a recovered plaintext, but they contradict a strict reading of “no configuration consistent with all 24 cribs.” The claim should be scoped to “no candidate with at least four redundant checks”; the under-threshold consistent cases should be retained in the audit ledger rather than silently treated as eliminated.
+
+| Alphabet | Columnar order (0-based columns) | Direction/sign (e) in (D=C-eP) | Redundancy |
+|---|---|---:|---:|
+| ST | (2, 5, 0, 3, 1, 6, 4) | -1 | 2 |
+| ST | (3, 1, 6, 5, 0, 4, 2) | +1 | 3 |
+| ST | (4, 2, 5, 3, 1, 0, 6) | -1 | 2 |
+| ST | (6, 0, 2, 3, 5, 1, 4) | +1 | 2 |
+| ST | inverse of order (1, 4, 0, 2, 3, 5, 6) | +1 | 2 |
+| ST | inverse of order (2, 4, 0, 1, 3, 5, 6) | +1 | 2 |
+| KA | (1, 4, 5, 0, 2, 6, 3) | -1 | 2 |
+| KA | (1, 6, 4, 0, 5, 3, 2) | -1 | 2 |
+| KA | (4, 1, 3, 2, 5, 0, 6) | +1 | 3 |
+| KA | (4, 6, 2, 1, 5, 3, 0) | +1 | 2 |
+| KA | (6, 5, 2, 4, 0, 3, 1) | +1 | 2 |
+| KA | inverse of order (0, 3, 5, 1, 4, 6, 2) | +1 | 2 |
+| KA | inverse of order (0, 3, 5, 2, 4, 6, 1) | +1 | 2 |
+| KA | inverse of order (1, 3, 5, 0, 4, 6, 2) | +1 | 2 |
+| KA | inverse of order (1, 3, 5, 2, 4, 6, 0) | +1 | 2 |
+| KA | inverse of order (2, 3, 5, 0, 4, 6, 1) | +1 | 2 |
+| KA | inverse of order (2, 3, 5, 1, 4, 6, 0) | +1 | 2 |
+
+This is a source-level scope correction backed by an independent reproduction of the small exact constraint check. It does not claim that these low-redundancy fits are plausible English decryptions or that the broader PK family is solved.
+
 ### Running key + transposition: bounded corpus, no null in the inspected entry point
 
 `scripts/rk_trans.py` searches a finite set of local corpora: NLTK Gutenberg texts, inaugural addresses, State of the Union texts, and concatenated K1–K3 plaintext. It strips non-A–Z characters and inserts separators between files. It enumerates the requested columnar permutations and three key arithmetic rules against the 24 crib-implied key values. Its `__main__` path constructs and checks a planted width-6 running-key control, then runs the K4 searches; it does **not** run a shuffled-ciphertext null in that path. Thus the defensible result is “no match in these loaded sources, normalizations, widths, permutations, and arithmetic rules,” not “no running key exists.” A full independent rerun also requires the external NLTK corpus files, which were not present in this environment.
