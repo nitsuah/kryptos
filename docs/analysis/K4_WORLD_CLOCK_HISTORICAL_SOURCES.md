@@ -84,7 +84,7 @@ Do not silently normalize historical spellings, move a city to another zone, fil
 
 1. Inspect the [Fortepan 60040 original](https://commons.wikimedia.org/wiki/File:Kelet-Berlin,_Alexanderplatz._Fortepan_60040.jpg) at full resolution and create a partial 1970 transcription only for labels that can actually be read. Preserve crop coordinates and mark obscured panels unreadable.
 2. Obtain and inspect Hans-Werner Klünner and Gerhard Ullmann, *Straßenmöbel in Berlin* (1983), the catalogue cited by Berlin's monument database; its section on public clocks is catalogued at pp. 38–45. Check library copies or ask the relevant Berlin archive whether the pages can be consulted or scanned.
-3. Request access to the primary documentation identified in a 2009 study bibliography as “Privatarchiv Prof. em. Erich John – Dokumentation Urania-Weltzeituhr.” Prioritize an original city-name schedule, plate layout, and 1997 change list; these could resolve the 80-versus-current-count discrepancy without inference.
+3. Request access to the primary documentation identified in a 2009 study bibliography as “Privatarchiv Prof. em. Erich John – Dokumentation Urania-Weltzeituhr.” The official rights-holder site says Erich John entrusted it with the clock's commercial rights and invites historical questions, so it is a practical route for requesting an original city-name schedule, plate layout, and 1997 change list. No outreach has been sent. These records could resolve the 80-versus-current-count discrepancy without inference.
 4. Ask the Verein für die Geschichte Berlins archive about Mi-A 245 (1980s slide) and Mi-A I615 (1976 full-frame view); ask whether the original scans show the city plates sharply enough for transcription.
 5. Ask AKG about licensed research access to Pansegrau's ca. 1986/1990 lossless image. It remains the highest-priority near-period image candidate, but its approximate catalogue date must be retained.
 6. Use the two dated 1990 Bundesarchiv images for contextual cross-checks only; their current 785 × 537 and 784 × 532 px versions are not sharp enough for reliable label transcription.
@@ -93,6 +93,8 @@ Do not silently normalize historical spellings, move a city to another zone, fil
 ## References
 
 - Erich John / official World Clock history: https://www.weltzeituhr-berlin.de/en/urania-worldtimeclock
+- Official current city/region list (modern comparison baseline only): https://www.weltzeituhr-berlin.de/en/places-worldtimeclock
+- Official rights-holder / history contact: https://www.weltzeituhr-berlin.de/en/node/30
 - B.Z. interview with Erich John (2019), including original-count discrepancy: https://www.bz-berlin.de/archiv-artikel/so-tickt-die-weltzeituhr-auf-dem-alexanderplatz
 - Berliner Zeitung, 12 Dec 1997, contemporaneous report of 20 added city names: https://www.berliner-zeitung.de/article/20-staedtenamen-wurden-bei-der-restaurierung-ergaenzt-frisch-poliert-die-weltzeituhr-dreht-sich-bald-7079
 - Berlin State Monument Database, object 09020854: https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020854
