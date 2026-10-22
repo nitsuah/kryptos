@@ -87,6 +87,12 @@ The resulting text has `EASTNORTHEAST` at zero-based positions 21–33 and `BERL
 
 This is a source-level scope correction backed by an independent reproduction of the small exact constraint check. It does not claim that these low-redundancy fits are plausible English decryptions or that the broader PK family is solved.
 
+### Companion PK-style stack: (Q(a)_{PT} ightarrow T ightarrow Q(b)_{CT}) is inconsistent in the stated range
+
+To keep the previous under-threshold result from being overgeneralized, I separately ported `stackT.py`'s model, where the first periodic key is indexed by plaintext position, then a columnar transposition is applied, then the second key is indexed by ciphertext position. For widths 2–7, every column order and inverse, periods (a,b=2\ldots8), both ST/KA alphabets, and both signs, the independent check evaluated **2,317,504 configurations and found zero consistent systems**. Unlike `stack2ct.py`, this wrapper's result is not just a four-redundancy filter: the union-find check returned contradiction for every configuration in the stated search range.
+
+This is a bounded exact elimination for **(Q(a)_{PT} ightarrow T ightarrow Q(b)_{CT})** under those width/period/alphabet constraints. It is a different model from the preceding **(T ightarrow Q(a)_{CT} ightarrow Q(b)_{CT})** search, which has 17 under-threshold consistent width-7 cases and must not be called exactly eliminated. The published `stackT.py` planted control uses periods 5 and 9, so its second period lies just outside this scan's (b\leq8) range; that control validates the solver path but not every searched parameter combination.
+
 ### Running key + transposition: bounded corpus, no null in the inspected entry point
 
 `scripts/rk_trans.py` searches a finite set of local corpora: NLTK Gutenberg texts, inaugural addresses, State of the Union texts, and concatenated K1–K3 plaintext. It strips non-A–Z characters and inserts separators between files. It enumerates the requested columnar permutations and three key arithmetic rules against the 24 crib-implied key values. Its `__main__` path constructs and checks a planted width-6 running-key control, then runs the K4 searches; it does **not** run a shuffled-ciphertext null in that path. Thus the defensible result is “no match in these loaded sources, normalizations, widths, permutations, and arithmetic rules,” not “no running key exists.” A full independent rerun also requires the external NLTK corpus files, which were not present in this environment.
