@@ -19,7 +19,7 @@ That does not mean Sanborn fabricated every component alone. Reporting on the co
 |---|---|---|
 | Credited artist / creator | Jim (James) Sanborn | CIA and GSA both credit Sanborn with the artwork. |
 | Physical construction | Sanborn and workshop assistants | Contemporary/historical accounts describe Sanborn's hands-on construction and assistants cutting the copper letters. |
-| Named fabrication assistant | David Sheldon | A 2025 *Financial Times* account identifies Sheldon as an expert cutter and close assistant during construction and installation. Confirm against primary records before treating this as a complete crew list. |
+| Named fabrication assistant | David Sheldon | Sheldon's own professional biography lists him as “Principal Sculptor’s Assistant to James Sanborn” on the Kryptos installation in 1990–91. A 2025 *Financial Times* account further identifies him as an expert copper-letter cutter and close assistant through construction and installation. This confirms a key hands-on collaborator, not a complete crew list. |
 | Cryptographic collaborator | Edward M. Scheidt | A retired CIA cryptographer who worked with Sanborn to devise the cipher systems; not the credited sculptor. |
 | Commissioning / public-art administration | U.S. General Services Administration, Art in Architecture Program; CIA Fine Arts Commission participated in selection | GSA catalogue records the commission through Art in Architecture; CIA history describes the joint selection process. |
 | Archive / primary documentation | Archives of American Art, Smithsonian Institution | The Jim Sanborn papers include commission files, contracts, designs/sketches, budgets, correspondence, notes, and multiple *Kryptos*-specific folders. This is the best located archival route for a more precise fabrication record. |
@@ -38,13 +38,15 @@ That does not mean Sanborn fabricated every component alone. Reporting on the co
 4. **Smithsonian oral history interview with Jim Sanborn (14–16 July 2009):** https://www.aaa.si.edu/collections/interviews/oral-history-interview-jim-sanborn-15700  
    Useful first-person source for Sanborn's fabrication practices and working methods. It discusses his later water-jet cutting vendor for other works, but that statement alone does **not** identify the fabricator of the original 1990 *Kryptos* copper screen.
 
-5. **The *Financial Times*, “Jim Sanborn has a secret” (2025; archived copy):** https://archive.is/2025.08.16-065226/https%3A/www.ft.com/content/552635c5-d2e3-4d32-9e14-982040a5c710  
-   Reports that construction took place in a warehouse studio in northeast Washington, D.C., involved multiple assistants cutting thick copper, and identifies David Sheldon as an expert cutter and close assistant through construction and installation. Treat this as a lead to verify against Sanborn's papers, not as an official complete fabrication roster.
+5. **David Sheldon's professional biography:** https://www.sheldonstudioworks.com/about  
+   His own CV explicitly lists “Principal Sculptor’s Assistant to James Sanborn, ‘Kryptos’, sculptural installation” in 1990–91. This is the clearest direct role confirmation found in this pass. The *Financial Times*'s [2025 account (archived copy)](https://archive.is/2025.08.16-065226/https%3A/www.ft.com/content/552635c5-d2e3-4d32-9e14-982040a5c710) adds that Sheldon cut the copper letters and assisted through installation. Together these sources identify a key hands-on collaborator, but not the full crew or a sole outside fabrication company.
 
 6. **CIA Museum artifact record:** https://www.cia.gov/legacy/museum/artifact/kryptos/  
    Confirms Sanborn as the artist and describes the copper screen, granite elements, pool, and petrified wood.
 
 ## Follow-up questions for the Smithsonian archive
+
+Contact David Sheldon through his [studio contact page](https://www.sheldonstudioworks.com/contact) as a firsthand fabrication witness, asking about his work on copper-letter cutting, other assistants, and any metal/stone contractors or installation subcontractors. No outreach has been sent.
 
 Request the *Kryptos* commission and pre-production files, especially:
 - executed GSA commission/contract and any fabrication or installation subcontract;
