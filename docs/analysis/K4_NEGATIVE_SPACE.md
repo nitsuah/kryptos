@@ -6,6 +6,15 @@
 **Companion page:** [Kryptos State of Research](https://claude.ai/artifact/PBjhWqNYP5zXCdQb9qfMB3), a readable overview with the coverage map and open to-dos. It replaces the earlier briefing pages (K4 Field Notes, Three Open Leads, Three Moves, K4 Ledger Audit), which are kept for history only.
 **Status:** Living document. It records what has *not* been tried, or not tried in a way that settles anything. The machine-readable version is `kryptos.k4.hypothesis_ledger` (`GET /api/k4/ledger`).
 
+## Current K4 stewardship status (verified 2026-10-22)
+
+The original K4 plaintext was accidentally discovered in Jim Sanborn's publicly accessible Smithsonian Archives of American Art papers in September 2025 by Jarett Kobek and Richard Byrne, using previously released clues. This was **discovery of an archival plaintext, not a cryptographic derivation of the key or method**; the plaintext has not been publicly released. The Washington Post's contemporaneous report records the distinction and the November 2025 auction of the method/archive for $962,500: [report (21 Nov 2025)](https://www.washingtonpost.com/entertainment/2025/11/21/kryptos-auction-sale-sanborn-cia/).
+
+On 12 June 2026, Paradigm announced that it had become steward of the K4 secret and deployed an automated answer verifier based on a SHA-256 digest and a cloud HMAC key; Paradigm says neither it nor the public can read the secret through the verifier. See [Project Kryptos (12 Jun 2026)](https://www.paradigm.xyz/writing/kryptos). The [K4 submission site](https://www.paradigm.xyz/kryptos/) is now an official verification route. Its existence does not reveal the cipher method and does not replace reproducible, bounded family tests in this repository.
+
+**Research consequence:** keep distinguishing (1) a recovered plaintext artifact, (2) a candidate plaintext matching the verifier, and (3) a reproducible explanation of how the visible K4 ciphertext was transformed into that plaintext. The public verifier can validate a proposed answer, but a successful cryptanalytic result still needs a derivation that explains the ciphertext under an explicit model. No result in this repository should be promoted merely because it resembles an archived phrase or passes a partial crib check.
+
+
 ---
 
 ## Why this doc exists
