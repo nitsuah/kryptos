@@ -8,6 +8,7 @@ This is the traversal map for humans and AI agents.
 
 - [README.md](../README.md) - Project overview, where K4 stands, quick start
 - [analysis/K4_NEGATIVE_SPACE.md](analysis/K4_NEGATIVE_SPACE.md) - The short answer to "what's been ruled out and what's left"; its machine-readable twin is `kryptos ledger` / `GET /api/k4/ledger`
+- [analysis/KRYPTOS_SCULPTURE_PROVENANCE.md](analysis/KRYPTOS_SCULPTURE_PROVENANCE.md) - Sourced creator/fabrication roles and Smithsonian archive leads for the physical Kryptos sculpture
 - [ROADMAP.md](ROADMAP.md) - Canonical roadmap and grouped strategic priorities
 - [TASKS.md](TASKS.md) - Canonical execution backlog
 - [Contributing](https://github.com/nitsuah/.github/blob/main/CONTRIBUTING.md) - Contribution workflow (nitsuah org-wide)
