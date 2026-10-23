@@ -14,7 +14,7 @@ The original K4 plaintext was found in Jim Sanborn's Smithsonian Archives of Ame
 This changes the stewardship and verification context, **not** the status of the cryptanalytic method: a plaintext recovered from archival papers is not a reproducible derivation from the public ciphertext. Existing elimination results must continue to state exact model/search bounds, and any claimed solve should show a complete transformation that accounts for the ciphertext and all 24 confirmed crib letters.
 
 
-## Status at a glance (2026-09-30)
+## Status at a glance (last full suite run: 2026-09-30)
 
 - **Ledger:** 26 families eliminated over stated ranges, 7 statistical, 7 sampled null, 5 open (`kryptos ledger`, `GET /api/k4/ledger`). Ranges and the ranked open list: [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md).
 - **Established:** a flattening layer (IC 0.0361); no periodic key to period 26 in four families (Vigenère, Beaufort, Variant Beaufort, KRYPTOS-keyed Quagmire III); no sum of two periodic keys with p1 + p2 ≤ 24.
