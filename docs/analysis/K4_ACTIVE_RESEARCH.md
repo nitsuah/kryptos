@@ -7,6 +7,13 @@
 
 This document tracks what is currently known, what has been tested and ruled out, and the run-by-run history of K4 cryptanalysis. The newest material is in the tables near the top; the phase sections further down are a chronological log and are kept as written, with correction notes where later work changed a conclusion.
 
+## 2026-10-22 status correction: plaintext discovery and current verifier
+
+The original K4 plaintext was found in Jim Sanborn's Smithsonian Archives of American Art papers in September 2025, but the finders did not derive the cipher method. The plaintext remains unpublished; the cryptographic method and key were transferred through the November 2025 auction. On 12 June 2026, Paradigm announced that it had become steward of the K4 secret and deployed an automated answer verifier. See [The Washington Post's auction report](https://www.washingtonpost.com/entertainment/2025/11/21/kryptos-auction-sale-sanborn-cia/) and [Paradigm's Project Kryptos update](https://www.paradigm.xyz/writing/kryptos).
+
+This changes the stewardship and verification context, **not** the status of the cryptanalytic method: a plaintext recovered from archival papers is not a reproducible derivation from the public ciphertext. Existing elimination results must continue to state exact model/search bounds, and any claimed solve should show a complete transformation that accounts for the ciphertext and all 24 confirmed crib letters.
+
+
 ## Status at a glance (2026-09-30)
 
 - **Ledger:** 26 families eliminated over stated ranges, 7 statistical, 7 sampled null, 5 open (`kryptos ledger`, `GET /api/k4/ledger`). Ranges and the ranked open list: [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md).
