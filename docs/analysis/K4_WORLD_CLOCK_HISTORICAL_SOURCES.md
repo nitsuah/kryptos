@@ -126,7 +126,7 @@ Do not silently normalize historical spellings, move a city to another zone, fil
 - B.Z. interview with Erich John (2019), including original-count discrepancy: https://www.bz-berlin.de/archiv-artikel/so-tickt-die-weltzeituhr-auf-dem-alexanderplatz
 - Berliner Zeitung, 12 Dec 1997, contemporaneous report of 20 added city names: https://www.berliner-zeitung.de/article/20-staedtenamen-wurden-bei-der-restaurierung-ergaenzt-frisch-poliert-die-weltzeituhr-dreht-sich-bald-7079
 - Berlin State Monument Database, object 09020854: https://denkmaldatenbank.berlin.de/daobj.php?obj_dok_nr=09020854
-- Bildhauerei in Berlin, “Urania-Weltzeituhr”: https://bildhauerei-in-berlin.de/bildwerk/urania-weltzeituhr-7851/ (designer, metalworker, Rathenow steel/clock technology contributions)
+- Bildhauerei in Berlin, “Urania-Weltzeituhr”: https://bildhauerei-in-berlin.de/bildwerk/urania-weltzeituhr-7851/ (designer, metalworker, and participating Rathenow firms; component-level roles remain unassigned)
 - Der Tagesspiegel, “50 Jahre Alex: Die Weltzeituhr kennt jeder, niemand ihren Erfinder” (14 Apr 2019): https://www.tagesspiegel.de/berlin/die-weltzeituhr-kennt-jeder-niemand-ihren-erfinder-6541270.html (reports 1985 engraving/re-engraving and Istanbul's 1997 addition; caption says 147 city names)
 - B.Z., “Fach-Werkstatt in Lichtenberg: Mit Säure und Laser! B.Z.-Besuch bei der Reparatur der Weltzeituhr,” 23 Nov 2024 (reports surviving 1969 Kunsch Metallbau construction documents and lettering samples): https://www.bz-berlin.de/berlin/mitte/weltzeituhr-reparatur
 - Kunsch Metallbau official contact page (published business contact details): https://kunsch-metallbau.de/impressum/
