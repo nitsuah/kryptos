@@ -2,9 +2,18 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Updated:** 2026-09-30 (open list re-ranked)
+**Last Updated:** 2026-10-24 (bounded two-periodic-key claim clarified)
 **Companion page:** [Kryptos State of Research](https://claude.ai/artifact/PBjhWqNYP5zXCdQb9qfMB3), a readable overview with the coverage map and open to-dos. It replaces the earlier briefing pages (K4 Field Notes, Three Open Leads, Three Moves, K4 Ledger Audit), which are kept for history only.
 **Status:** Living document. It records what has *not* been tried, or not tried in a way that settles anything. The machine-readable version is `kryptos.k4.hypothesis_ledger` (`GET /api/k4/ledger`).
+
+## Current K4 stewardship status (verified 2026-10-22)
+
+The original K4 plaintext was accidentally discovered in Jim Sanborn's publicly accessible Smithsonian Archives of American Art papers in September 2025 by Jarett Kobek and Richard Byrne, using previously released clues. This was **discovery of an archival plaintext, not a cryptographic derivation of the key or method**; the plaintext has not been publicly released. The Washington Post's contemporaneous report records the distinction and the November 2025 auction of the method/archive for $962,500: [report (21 Nov 2025)](https://www.washingtonpost.com/entertainment/2025/11/21/kryptos-auction-sale-sanborn-cia/).
+
+On 12 June 2026, Paradigm announced that it had become steward of the K4 secret and deployed an automated answer verifier based on a SHA-256 digest and a cloud HMAC key; Paradigm says neither it nor the public can read the secret through the verifier. See [Project Kryptos (12 Jun 2026)](https://www.paradigm.xyz/writing/kryptos). The [K4 submission site](https://www.paradigm.xyz/kryptos/) is now an official verification route. Its existence does not reveal the cipher method and does not replace reproducible, bounded family tests in this repository.
+
+**Research consequence:** keep distinguishing (1) a recovered plaintext artifact, (2) a candidate plaintext matching the verifier, and (3) a reproducible explanation of how the visible K4 ciphertext was transformed into that plaintext. The public verifier can validate a proposed answer, but a successful cryptanalytic result still needs a derivation that explains the ciphertext under an explicit model. No result in this repository should be promoted merely because it resembles an archived phrase or passes a partial crib check.
+
 
 ---
 
@@ -34,7 +43,6 @@ Reproduce with `kryptos crib-constraints` (writes `K4_CRIB_CONSTRAINTS_NULL.json
 | Quagmire I / II / III, dictionary keyword alphabets | 231,933 alphabets, periods 1–25 | zero survivors |
 | Quagmire IV, Kryptos vocabulary × dictionary | 43 × 231,933, both roles, periods 1–22 | zero survivors |
 | Quagmire IV, dictionary × dictionary | 231,933², about 5.4×10¹⁰ pairs, periods 1–22 | zero survivors except 5 chance pairs at period 16 (only 8 constraints), which decrypt to noise |
-| Sum of two periodic keys, *any* keywords | every (p1, p2) with p1 + p2 ≤ 24 | linear system unsolvable over GF(2)/GF(13); covers PALIMPSEST + ABSCISSA |
 | Ciphertext autokey (+ constant) | lags 1–71, five families | none (lag 72 has two constraints; chance level) |
 | Plaintext autokey (+ constant) | lags 1–11 and 31–51 | none; lags 12, 30, 52 have one crib pair, 13–29 and 53–96 none |
 | Linear key a·i + b; progressive key K[i mod p] + d·⌊i/p⌋ | all a, b; periods 1–26, all d | none |
@@ -55,6 +63,8 @@ Reproduce with `kryptos crib-constraints` (writes `K4_CRIB_CONSTRAINTS_NULL.json
 | Hill 4×4, no transposition | all four alignments | alignments 1–2: no matrix fits; 0 and 3: only non-invertible matrices fit |
 | The solvekryptos.com reconstruction as the plaintext | every family on this page, with all 97 letters known (periods to 48, Hill to 9×9, Quagmire I–IV dictionary, all transposition families) | no family produces K4 from it (see below) |
 | 25-letter and 5–6-letter output ciphers as the last layer | Playfair, Two-Square, Four-Square, 5×5 Bifid, Polybius, ADFGX, ADFGVX; with or without transposition | K4 contains all 26 letters |
+
+**Scope correction:** the broad “sum of two periodic keys for every pair with p1 + p2 ≤ 24” claim is withdrawn. The bounded `T → Q(a)_{CT} → Q(b)_{CT}` scan found no survivor at redundancy `r ≥ 4` for `2 ≤ a < b ≤ 12` with `b % a ≠ 0`, but 17 consistent width-7 period-(11,12) cases at redundancy 2–3 remain underconstrained and open (see the open-model table below and [the external audit](K4_EXTERNAL_ELIMINATION_AUDIT.md)).
 
 Nicodemus (Vigenère by column, then columnar read-out) is the sub-then-transposition case with period = width, so the columnar row covers it.
 
@@ -100,13 +110,14 @@ So either the reconstruction is wrong past the cribs, or K4's method sits outsid
 | 4 | **Other long-key rules** | Recurrence, dial, progressive, phrase and English running keys are covered. Any other rule has to be named before it can be tested. Candidates: the K1–K3 ciphertexts as a running source under transposition, the K0 Morse text, the Cyrillic Projector. | M |
 | 5 | **Hill 6×6 and up** | Too few full crib blocks; needs a transposition hypothesis or partial blocks. | M |
 | 6 | **Per-letter lookup keys** | A steady dial is eliminated; a lookup per letter (Weltzeituhr city or time zone) needs the plate order. Blocked on sourcing #2. | L |
+| 7 | **PK4-style T → Q(a) → Q(b), both keys ciphertext-indexed** | External `stack2ct.py` reports only cases with ≥4 redundant constraints. Independent audit found 17 consistent width-7 period-(11,12) fits at redundancy 2–3, including a concrete crib-matching but gibberish decryption. Not an English candidate, but not an exact elimination under the stated “no consistent configuration” definition; see [external audit](K4_EXTERNAL_ELIMINATION_AUDIT.md). | M |
 
 ### Evidence and sourcing
 
 | # | Gap | Owner |
 |---|-----|-------|
 | 1 | Compass-rose bearing (FOIA, Elonka Dunin, CIA Public Affairs drafts in TASKS). Likely matters after decryption rather than for it (see `docs/sources/SANBORN_QUOTES.md` #14). Routes and dial keys along *any* whole-degree bearing are already eliminated, so the measurement would only narrow other constructions. | you |
-| 2 | Weltzeituhr: the last 16 city plates, plate order, the wind-rose mosaic's bearing (a Berlin contact with a camera) | you |
+| 2 | Weltzeituhr: full pre-1997 face transcription and plate order; PR #273 adds a provisional 1970 partial read, dated 1990 context photos, and leads to the Erich John archive / 1983 public-clocks catalogue. Original-resolution second-reader verification remains outstanding. | you |
 | 3 | Upgrade `SANBORN_QUOTES.md` entries from "reported" to "checked" against primary pages | Claude, when page access allows |
 | 4 | Submission policy for Paradigm's $1 checker (only fully validated candidates) | you |
 
