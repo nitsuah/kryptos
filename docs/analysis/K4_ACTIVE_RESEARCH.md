@@ -17,7 +17,7 @@ This changes the stewardship and verification context, **not** the status of the
 ## Status at a glance (last full suite run: 2026-09-30)
 
 - **Ledger:** 26 families eliminated over stated ranges, 7 statistical, 7 sampled null, 5 open (`kryptos ledger`, `GET /api/k4/ledger`). Ranges and the ranked open list: [K4_NEGATIVE_SPACE.md](K4_NEGATIVE_SPACE.md).
-- **Established:** a flattening layer (IC 0.0361); no periodic key to period 26 in four families (Vigenère, Beaufort, Variant Beaufort, KRYPTOS-keyed Quagmire III); no sum of two periodic keys with p1 + p2 ≤ 24.
+- **Established within stated bounds:** a flattening layer (IC 0.0361); no periodic key to period 26 in four tested families (Vigenère, Beaufort, Variant Beaufort, KRYPTOS-keyed Quagmire III). Do not generalize this to every two-periodic-key model: the audited `T → Q(a)_{CT} → Q(b)_{CT}` family retains 17 consistent width-7 cases at periods (11,12), with redundancy 2–3, within the `p1 + p2 ≤ 24` range. The separate `Q(a)_{PT} → T → Q(b)_{CT}` model was inconsistent across its explicitly documented width 2–7, period 2–8, ST/KA, and sign search.
 - **Not established:** whether there is a transposition, or the layer order.
 - **Open, code:** irregular transpositions, length-changing masking, two non-periodic layers, named running-key sources under transposition, Hill 6×6+.
 - **Open, sourcing:** Weltzeituhr photographs (ring order, date-line plate, mosaic orientation; they unblock per-letter lookup keys), the CIA compass rose's measured bearing, and the three outreach drafts in `docs/TASKS.md`.
