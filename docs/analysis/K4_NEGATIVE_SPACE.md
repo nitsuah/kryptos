@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../../README.md) · [Index](../INDEX.md) · [Features](../FEATURES.md) · [Roadmap](../ROADMAP.md) · [Tasks](../TASKS.md) · [Changelog](../CHANGELOG.md) · [Metrics](../METRICS.md) <!-- nav -->
 
-**Last Updated:** 2026-10-22 (external elimination audit; open list updated)
+**Last Updated:** 2026-10-24 (bounded two-periodic-key claim clarified)
 **Companion page:** [Kryptos State of Research](https://claude.ai/artifact/PBjhWqNYP5zXCdQb9qfMB3), a readable overview with the coverage map and open to-dos. It replaces the earlier briefing pages (K4 Field Notes, Three Open Leads, Three Moves, K4 Ledger Audit), which are kept for history only.
 **Status:** Living document. It records what has *not* been tried, or not tried in a way that settles anything. The machine-readable version is `kryptos.k4.hypothesis_ledger` (`GET /api/k4/ledger`).
 
@@ -43,7 +43,6 @@ Reproduce with `kryptos crib-constraints` (writes `K4_CRIB_CONSTRAINTS_NULL.json
 | Quagmire I / II / III, dictionary keyword alphabets | 231,933 alphabets, periods 1–25 | zero survivors |
 | Quagmire IV, Kryptos vocabulary × dictionary | 43 × 231,933, both roles, periods 1–22 | zero survivors |
 | Quagmire IV, dictionary × dictionary | 231,933², about 5.4×10¹⁰ pairs, periods 1–22 | zero survivors except 5 chance pairs at period 16 (only 8 constraints), which decrypt to noise |
-| Sum of two periodic keys, *any* keywords | every (p1, p2) with p1 + p2 ≤ 24 | linear system unsolvable over GF(2)/GF(13); covers PALIMPSEST + ABSCISSA |
 | Ciphertext autokey (+ constant) | lags 1–71, five families | none (lag 72 has two constraints; chance level) |
 | Plaintext autokey (+ constant) | lags 1–11 and 31–51 | none; lags 12, 30, 52 have one crib pair, 13–29 and 53–96 none |
 | Linear key a·i + b; progressive key K[i mod p] + d·⌊i/p⌋ | all a, b; periods 1–26, all d | none |
@@ -64,6 +63,8 @@ Reproduce with `kryptos crib-constraints` (writes `K4_CRIB_CONSTRAINTS_NULL.json
 | Hill 4×4, no transposition | all four alignments | alignments 1–2: no matrix fits; 0 and 3: only non-invertible matrices fit |
 | The solvekryptos.com reconstruction as the plaintext | every family on this page, with all 97 letters known (periods to 48, Hill to 9×9, Quagmire I–IV dictionary, all transposition families) | no family produces K4 from it (see below) |
 | 25-letter and 5–6-letter output ciphers as the last layer | Playfair, Two-Square, Four-Square, 5×5 Bifid, Polybius, ADFGX, ADFGVX; with or without transposition | K4 contains all 26 letters |
+
+**Scope correction:** the broad “sum of two periodic keys for every pair with p1 + p2 ≤ 24” claim is withdrawn. The bounded `T → Q(a)_{CT} → Q(b)_{CT}` scan found no survivor at redundancy `r ≥ 4` for `2 ≤ a < b ≤ 12` with `b % a ≠ 0`, but 17 consistent width-7 period-(11,12) cases at redundancy 2–3 remain underconstrained and open (see the open-model table below and [the external audit](K4_EXTERNAL_ELIMINATION_AUDIT.md)).
 
 Nicodemus (Vigenère by column, then columnar read-out) is the sub-then-transposition case with period = width, so the columnar row covers it.
 
