@@ -56,10 +56,14 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
 
     app = FastAPI(title="Kryptos API", version="0.1.0")
 
-    # CORS: allow the Netlify-hosted SPA to call this backend cross-origin.
+    # CORS: allow the Cloudflare Pages–hosted SPA to call this backend cross-origin.
     # Configure via KRYPTOS_CORS_ORIGINS (comma-separated); defaults to the
-    # production Netlify site. "*" disables origin checks (dev only).
-    cors_origins = os.environ.get("KRYPTOS_CORS_ORIGINS", "https://kryptos-k4.netlify.app")
+    # production custom domain, Pages preview host, and legacy Netlify origin.
+    # "*" disables origin checks (dev only).
+    cors_origins = os.environ.get(
+        "KRYPTOS_CORS_ORIGINS",
+        "https://kryptos.nitsuah.io,https://kryptos-k4.pages.dev,https://kryptos-k4.netlify.app",
+    )
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[o.strip() for o in cors_origins.split(",") if o.strip()],

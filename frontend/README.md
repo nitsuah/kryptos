@@ -70,11 +70,12 @@ present, so the API and dashboard ship from one container. The dist location is 
 `KRYPTOS_FRONTEND_DIST`, then `<repo>/frontend/dist`, then `<cwd>/frontend/dist`. The root `Dockerfile` builds the SPA in
 a `node:22-alpine` stage and sets `KRYPTOS_FRONTEND_DIST=/app/frontend/dist`.
 
-## Deploy on Netlify
+## Deploy on Cloudflare Pages
 
-The root `netlify.toml` builds from `frontend/` and publishes `frontend/dist/`. Netlify doesn't run the FastAPI process,
-so deploy the backend separately (Render, see `render.yaml`) and set `VITE_API_BASE_URL` to its public origin. Without
-the variable the dashboard calls `/api/*` on its own origin, which is right for the single-container deployment.
+Cloudflare Pages builds from `frontend/` and publishes `frontend/dist/` (custom domain https://kryptos.nitsuah.io,
+Pages host https://kryptos-k4.pages.dev). Pages doesn't run the FastAPI process, so deploy the backend separately
+(Render, see `render.yaml`) and set `VITE_API_BASE_URL` to its public origin. Without the variable the dashboard
+calls `/api/*` on its own origin, which is right for the single-container deployment.
 
 ## Stack
 

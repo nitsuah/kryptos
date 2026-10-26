@@ -5,7 +5,7 @@
 [![CI fast](https://github.com/nitsuah/kryptos/actions/workflows/ci-fast.yml/badge.svg)](https://github.com/nitsuah/kryptos/actions)
 [![CI (smoke)](https://github.com/nitsuah/kryptos/actions/workflows/demo-smoke.yml/badge.svg)](https://github.com/nitsuah/kryptos/actions)
 [![CI (slow)](https://github.com/nitsuah/kryptos/actions/workflows/ci-slow.yml/badge.svg)](https://github.com/nitsuah/kryptos/actions)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/0fb1be42-e131-4cf6-ae74-d139c671e1e3/deploy-status)](https://app.netlify.com/projects/kryptos-k4/deploys)
+[![Frontend](https://img.shields.io/badge/frontend-Cloudflare%20Pages-F38020)](https://kryptos.nitsuah.io)
 
 Inspired by *The Unexplained* with William Shatner, I set out to solve Kryptos using Python.
 
@@ -166,10 +166,10 @@ Test tiers are described in [`tests/README.md`](./tests/README.md); current coun
 
 ## Deployment
 
-- **Frontend:** Netlify, https://kryptos-k4.netlify.app, built from `frontend/` (`netlify.toml`). `VITE_API_BASE_URL`
-  points it at the backend.
+- **Frontend:** Cloudflare Pages, https://kryptos.nitsuah.io (also https://kryptos-k4.pages.dev), built from
+  `frontend/`. `VITE_API_BASE_URL` points it at the backend.
 - **Backend:** Render free-tier Docker service `kryptos-api`, https://kryptos-kg8t.onrender.com (`render.yaml`). CORS is
-  limited to the Netlify origin via `KRYPTOS_CORS_ORIGINS`. The free plan sleeps after about 15 minutes idle, and the
+  limited to the frontend origins via `KRYPTOS_CORS_ORIGINS`. The free plan sleeps after about 15 minutes idle, and the
   first request can take up to a minute.
 - **Single container:** the root `Dockerfile` builds the SPA and serves it from FastAPI alongside `/api/*`.
 - **Optional:** `DATABASE_URL` (Neon/Postgres) enables run history, attack-job persistence and the vault; without it
