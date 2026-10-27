@@ -199,6 +199,9 @@ def test_ops_director_branches_and_demo(tmp_path: Path, monkeypatch: pytest.Monk
     assert _DummyOpenAIClient.last_kwargs["model"] == director.model
     assert _DummyOpenAIClient.last_kwargs["temperature"] == 0.7
     assert _DummyOpenAIClient.last_kwargs["max_tokens"] == 1000
+    msgs = _DummyOpenAIClient.last_kwargs["messages"]
+    assert isinstance(msgs, list) and len(msgs) == 1
+    assert msgs[0]["role"] == "user" and msgs[0]["content"] == "prompt"
 
     director.llm_provider = "anthropic"
     director.llm_client = _DummyAnthropicClient("k")
