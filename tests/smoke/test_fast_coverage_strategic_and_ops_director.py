@@ -115,10 +115,12 @@ def test_strategic_analyzer_branches_and_demo(tmp_path: Path, monkeypatch: pytes
 
 
 class _DummyOpenAIClient:
-    class ChatCompletion:
-        @staticmethod
-        def create(**_kwargs):
-            return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content="ok"))])
+    class chat:
+        class completions:
+            @staticmethod
+            def create(**kwargs):
+                _DummyOpenAIClient.last_kwargs = kwargs
+                return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content="ok"))])
 
 
 class _DummyAnthropicClient:
@@ -194,16 +196,20 @@ def test_ops_director_branches_and_demo(tmp_path: Path, monkeypatch: pytest.Monk
     director.llm_provider = "openai"
     director.llm_client = _DummyOpenAIClient()
     assert director._call_llm("prompt") == "ok"
+    assert _DummyOpenAIClient.last_kwargs["model"] == director.model
+    assert _DummyOpenAIClient.last_kwargs["temperature"] == 0.7
+    assert _DummyOpenAIClient.last_kwargs["max_tokens"] == 1000
 
     director.llm_provider = "anthropic"
     director.llm_client = _DummyAnthropicClient("k")
     assert director._call_llm("prompt") == "ok"
 
     class _BadClient:
-        class ChatCompletion:
-            @staticmethod
-            def create(**_kwargs):
-                raise RuntimeError("boom")
+        class chat:
+            class completions:
+                @staticmethod
+                def create(**_kwargs):
+                    raise RuntimeError("boom")
 
     director.llm_provider = "openai"
     director.llm_client = _BadClient()

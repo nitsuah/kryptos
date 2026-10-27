@@ -287,7 +287,7 @@ class TestLLMIntegration:
                 ),
             ),
         ]
-        mock_client.ChatCompletion.create.return_value = mock_response
+        mock_client.chat.completions.create.return_value = mock_response
 
         # Set the mocked client
         ops_openai.llm_client = mock_client

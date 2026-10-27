@@ -246,8 +246,7 @@ class OpsStrategicDirector:
                 if not api_key:
                     print("Warning: OPENAI_API_KEY not set, falling back to rule-based logic")
                     return None
-                openai.api_key = api_key
-                return openai
+                return openai.OpenAI(api_key=api_key)
             except ImportError:
                 print("Warning: openai package not installed, falling back to rule-based logic")
                 return None
@@ -273,7 +272,7 @@ class OpsStrategicDirector:
 
         try:
             if self.llm_provider == "openai":
-                response = self.llm_client.ChatCompletion.create(
+                response = self.llm_client.chat.completions.create(
                     model=self.model,
                     messages=[{"role": "user", "content": prompt}],
                     temperature=0.7,
