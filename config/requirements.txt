@@ -7,7 +7,7 @@ nltk>=3.10.4
 pyyaml>=6.0.3
 openai>=3.41.0  # Optional: for OpenAI LLM integration
 transformers>=5.22.1  # Optional: for LINGUIST neural validation
-anthropic>=2.1.0  # Optional: Anthropic SDK v2 messages API integration
+anthropic>=2.3.0  # Optional: Anthropic SDK v2 messages API integration
 torch>=2.15.0  # Optional: for LINGUIST neural models; also backs kryptos.rag embeddings
 sentence-transformers>=6.2.0  # Embeddings for kryptos.rag turbovec index (also used for LINGUIST)
 turbovec  # Compressed vector index for kryptos.rag (RAG over artifacts/)
