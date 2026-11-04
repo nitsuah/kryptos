@@ -80,3 +80,12 @@ class TestNihilistRoundtrip:
         formatted = format_ciphertext(ct)
         parsed = parse_ciphertext(formatted)
         assert parsed == ct
+
+class TestParseCiphertext:
+    @pytest.mark.parametrize("text", ["", " \t\n "])
+    def test_empty_or_whitespace_only_returns_empty_list(self, text):
+        assert parse_ciphertext(text) == []
+
+    def test_nonnumeric_token_raises_value_error(self):
+        with pytest.raises(ValueError):
+            parse_ciphertext("11 nope 22")
