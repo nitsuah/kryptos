@@ -79,6 +79,6 @@ calls `/api/*` on its own origin, which is right for the single-container deploy
 
 ## Stack
 
-Vite, React 18 and TypeScript, with no UI framework and no runtime dependencies beyond React. Fonts (Barlow Condensed,
+Vite, React 19 and TypeScript, with no UI framework and no runtime dependencies beyond React. Fonts (Barlow Condensed,
 Share Tech Mono) load from Google Fonts with system fallbacks. Light and dark chassis follow the system setting; the
 ◐ button in the header overrides it (stored in `localStorage`).
