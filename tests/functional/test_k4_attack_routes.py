@@ -121,7 +121,9 @@ def test_run_job_records_error_on_exception(client, monkeypatch):
 
     job = _poll_until_done(client, job_id)
     assert job["status"] == "error"
-    assert job["error"] == "synthetic failure"
+    # Clients get the exception type only; the message/traceback stays in the server log.
+    assert job["error"] == "Attack failed (RuntimeError); see server log"
+    assert "synthetic failure" not in job["error"]
 
 
 # ---------------------------------------------------------------------------

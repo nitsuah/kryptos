@@ -449,7 +449,8 @@ def create_k4_attack_router() -> APIRouter:
                 )
             except Exception as exc:  # noqa: BLE001
                 logger.exception("%s attack job %s failed", req.attack_id, job_id)
-                update_job(job_id, status="error", error=str(exc))
+                # Clients see only the exception type; the traceback is in the server log.
+                update_job(job_id, status="error", error=f"Attack failed ({type(exc).__name__}); see server log")
 
         t = threading.Thread(target=_worker, daemon=True, name=f"k4-{req.attack_id[:6]}-{job_id[:8]}")
         t.start()

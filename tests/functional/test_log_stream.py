@@ -121,3 +121,84 @@ def test_http_stream_backlog(tmp_path):
     assert resp.status_code == 200
     assert resp.headers["content-type"].startswith("text/event-stream")
     assert "data: CAMPAIGN started" in resp.text
+
+
+# --- Public (redacted) vs full view --------------------------------------------
+
+
+def test_redact_public_masks_credentials_and_tracebacks():
+    line = "ERROR x: boom postgresql://user:hunter2@db.example/neondb password=abc\nTraceback (most recent call last):"
+    out = log_stream.redact_public(line)
+    assert "hunter2" not in out
+    assert "abc" not in out
+    assert "Traceback" not in out
+    assert out.endswith("[details withheld]")
+
+
+def test_handler_public_line_hides_traceback_and_exception_text():
+    buf = LogBuffer()
+    handler = SSELogHandler(buf)
+    logger = logging.getLogger("kryptos.test.public")
+    logger.handlers = [handler]
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+
+    try:
+        raise RuntimeError('relation "secret_table" does not exist')
+    except RuntimeError as exc:
+        logger.exception("could not load run (%s)", exc)
+
+    ((_seq, full),) = buf.tail(1)
+    ((_seq, public),) = buf.tail(1, public=True)
+    assert "Traceback" in full and "secret_table" in full
+    assert "Traceback" not in public and "secret_table" not in public
+    assert "<RuntimeError>" in public and public.endswith("[details withheld]")
+
+
+def test_http_stream_anonymous_gets_public_view(tmp_path, monkeypatch):
+    monkeypatch.delenv("KRYPTOS_LOG_TOKEN", raising=False)
+    log_stream.LOG_BUFFER.append("ERROR boom\nTraceback (most recent call last):\n  File site-packages/x.py")
+    client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
+    resp = client.get("/api/stream/logs", params={"follow": "false", "backlog": "1000"})
+    assert resp.status_code == 200
+    assert resp.headers["x-kryptos-log-view"] == "public"
+    assert 'event: meta\ndata: {"view": "public"}' in resp.text
+    assert "Traceback" not in resp.text and "site-packages" not in resp.text
+    assert "data: ERROR boom [details withheld]" in resp.text
+
+
+def test_http_stream_token_unlocks_full_view(tmp_path, monkeypatch):
+    monkeypatch.setenv("KRYPTOS_LOG_TOKEN", "s3cret-token")
+    log_stream.LOG_BUFFER.append("ERROR full\nTraceback (most recent call last):")
+    client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
+
+    bad = client.get("/api/stream/logs", params={"follow": "false", "token": "nope"})
+    assert bad.status_code == 401
+
+    ok = client.get("/api/stream/logs", params={"follow": "false"}, headers={"X-Kryptos-Log-Token": "s3cret-token"})
+    assert ok.status_code == 200
+    assert ok.headers["x-kryptos-log-view"] == "full"
+    assert "Traceback" in ok.text
+
+
+def test_http_stream_public_off_requires_token(tmp_path, monkeypatch):
+    monkeypatch.delenv("KRYPTOS_LOG_TOKEN", raising=False)
+    monkeypatch.setenv("KRYPTOS_LOG_STREAM_PUBLIC", "off")
+    client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
+    assert client.get("/api/stream/logs", params={"follow": "false"}).status_code == 401
+
+
+def test_unhandled_errors_are_generic(tmp_path, monkeypatch):
+    # No SPA mount, so the route added below is reachable even if frontend/dist exists.
+    monkeypatch.setattr("kryptos.api.app._resolve_frontend_dist", lambda: None)
+    app = create_app(index=ArtifactIndex(index_dir=tmp_path / "index"))
+
+    @app.get("/api/__boom")
+    def _boom():
+        raise RuntimeError("psycopg2 relation secret_table does not exist")
+
+    client = TestClient(app, raise_server_exceptions=False)
+    resp = client.get("/api/__boom")
+    assert resp.status_code == 500
+    assert resp.json() == {"detail": "Internal server error"}
+    assert "secret_table" not in resp.text

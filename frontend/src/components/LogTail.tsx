@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { apiPath } from "../api";
 
 type ConnState = "connecting" | "live" | "stopped" | "error";
+type LogView = "public" | "full" | null;
 
 const MAX_LINES = 1000;
 const BACKLOG = 200;
@@ -10,11 +11,29 @@ const BACKLOG = 200;
 // (GET /api/stream/logs, src/kryptos/api/log_stream.py). EventSource auto-
 // reconnects on transient drops; the heartbeat comments the server sends keep
 // idle proxies from closing the stream.
+//
+// Anonymous visitors get the server's redacted public view (one line per
+// record, tracebacks withheld). An operator can unlock the full view by saving
+// the backend's KRYPTOS_LOG_TOKEN in this browser:
+//   localStorage.setItem("kryptos.logToken", "<token>")
+function logStreamUrl(): string {
+  let token: string | null = null;
+  try {
+    token = window.localStorage.getItem("kryptos.logToken");
+  } catch {
+    token = null;
+  }
+  const qs = new URLSearchParams({ backlog: String(BACKLOG), follow: "true" });
+  if (token) qs.set("token", token);
+  return apiPath(`/api/stream/logs?${qs.toString()}`);
+}
+
 export default function LogTail() {
   const [lines, setLines] = useState<string[]>([]);
   const [state, setState] = useState<ConnState>("stopped");
   const [running, setRunning] = useState(true);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [view, setView] = useState<LogView>(null);
   const esRef = useRef<EventSource | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
 
@@ -27,10 +46,18 @@ export default function LogTail() {
     }
 
     setState("connecting");
-    const es = new EventSource(apiPath(`/api/stream/logs?backlog=${BACKLOG}&follow=true`));
+    const es = new EventSource(logStreamUrl());
     esRef.current = es;
 
     es.onopen = () => setState("live");
+    es.addEventListener("meta", (e) => {
+      try {
+        const meta = JSON.parse((e as MessageEvent).data) as { view?: string };
+        setView(meta.view === "full" ? "full" : "public");
+      } catch {
+        setView(null);
+      }
+    });
     es.onmessage = (e) => {
       setLines((prev) => {
         const next = prev.concat(e.data.split("\n"));
@@ -70,6 +97,12 @@ export default function LogTail() {
       <div className="logtail-bar">
         <span className={labelClass}>{label}</span>
         <span className="muted">{lines.length} lines</span>
+        {view === "public" && (
+          <span className="muted" title="Public view: one line per record, tracebacks withheld">
+            redacted
+          </span>
+        )}
+        {view === "full" && <span title="Full view unlocked with the log token">full</span>}
         <label className="logtail-toggle">
           <input type="checkbox" checked={autoScroll} onChange={(e) => setAutoScroll(e.target.checked)} />
           auto-scroll

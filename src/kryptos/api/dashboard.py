@@ -8,6 +8,7 @@ the section decrypt helpers (``kryptos.sections``) and needs no database.
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
@@ -15,6 +16,8 @@ from pydantic import BaseModel, Field
 
 from kryptos import persistence
 from kryptos.sections import SECTIONS
+
+logger = logging.getLogger(__name__)
 
 
 class StatusResponse(BaseModel):
@@ -105,8 +108,13 @@ def create_dashboard_router() -> APIRouter:
             raise
         except NotImplementedError as exc:
             raise HTTPException(status_code=501, detail=str(exc) or "Section decrypt not implemented") from exc
+        except (ValueError, KeyError, TypeError) as exc:
+            # Input problems (bad characters, missing key material): safe to echo the first line.
+            msg = (str(exc).splitlines() or [""])[0][:200]
+            raise HTTPException(status_code=400, detail=f"Decrypt failed: {msg}" if msg else "Decrypt failed") from exc
         except Exception as exc:  # noqa: BLE001
-            raise HTTPException(status_code=400, detail=f"Decrypt failed: {exc}") from exc
+            logger.exception("decrypt failed for section %s", section)
+            raise HTTPException(status_code=400, detail="Decrypt failed") from exc
         return DecryptResponse(section=section, plaintext=str(plaintext))
 
     @router.get("/attack-vectors", response_model=AttackVectorsResponse)
