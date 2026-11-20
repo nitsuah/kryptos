@@ -20,6 +20,14 @@ services:
       # the dashboard DB features. Leave unset for db_enabled:false (graceful).
       # - key: DATABASE_URL
       #   sync: false
+      # Schema: on boot the API applies db_schema.py (CREATE ... IF NOT EXISTS only)
+      # when DATABASE_URL is set. Set KRYPTOS_DB_AUTO_MIGRATE=0 to opt out.
+      # Log stream: anonymous dashboard visitors get a redacted one-line view (no
+      # tracebacks). Set KRYPTOS_LOG_TOKEN to unlock the full view for operators
+      # (browser: localStorage "kryptos.logToken"), or KRYPTOS_LOG_STREAM_PUBLIC=off
+      # to refuse anonymous log access entirely.
+      # - key: KRYPTOS_LOG_TOKEN
+      #   generateValue: true
       # Optional: LLM providers for the ops director. Falls back to rule-based
       # logic when unset.
       # - key: OPENAI_API_KEY

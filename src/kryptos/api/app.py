@@ -2,20 +2,30 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
+import sys
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from dataclasses import asdict
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from kryptos.api.dashboard import create_dashboard_router
 from kryptos.api.k4_attack_routes import create_k4_attack_router
 from kryptos.api.ledger_routes import create_ledger_router
-from kryptos.api.log_stream import install_log_streaming, log_event_stream
+from kryptos.api.log_stream import (
+    install_log_streaming,
+    log_event_stream,
+    log_token,
+    public_log_mode,
+    token_matches,
+)
 from kryptos.api.vault_routes import create_vault_router
 from kryptos.k4.world_clock_hypothesis import analyze_world_clock_hypothesis
 from kryptos.rag.index import ArtifactIndex
@@ -47,6 +57,66 @@ def _resolve_frontend_dist() -> Path | None:
     return None
 
 
+_STDERR_MARKER = "_kryptos_stderr_handler"
+
+
+def _ensure_stderr_logging() -> None:
+    """Send kryptos records (with tracebacks) to stderr so they land in the host's logs.
+
+    Under uvicorn the root logger has no handler, so without this the only copy of a
+    kryptos traceback would be the in-memory SSE buffer. Idempotent.
+    """
+    logger = logging.getLogger("kryptos")
+    if any(getattr(h, _STDERR_MARKER, False) for h in logger.handlers):
+        return
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s"))
+    handler.setLevel(logging.INFO)
+    setattr(handler, _STDERR_MARKER, True)
+    logger.addHandler(handler)
+
+
+def auto_migrate() -> list[str] | None:
+    """Apply the idempotent Neon/Postgres schema at boot.
+
+    Runs when ``DATABASE_URL`` is set unless ``KRYPTOS_DB_AUTO_MIGRATE=0``. Every
+    statement is ``CREATE ... IF NOT EXISTS``, so this only ever adds missing tables
+    and indexes. Failures are logged and never stop the server (the API degrades the
+    same way it does with no database).
+    """
+    if not os.getenv("DATABASE_URL"):
+        return None
+    if (os.getenv("KRYPTOS_DB_AUTO_MIGRATE") or "1").strip().lower() in {"0", "false", "no", "off"}:
+        logger.info("DB auto-migrate disabled (KRYPTOS_DB_AUTO_MIGRATE=0)")
+        return None
+    try:
+        from kryptos.db_schema import init_schema
+
+        tables = init_schema()
+    except Exception:  # noqa: BLE001 - boot must survive an unreachable DB
+        logger.exception("DB auto-migrate failed; continuing without schema changes")
+        return None
+    logger.info("DB auto-migrate ensured %d tables: %s", len(tables), ", ".join(tables))
+    return tables
+
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    _ensure_stderr_logging()
+    auto_migrate()
+    yield
+
+
+def _presented_log_token(request: Request, token: str | None) -> str | None:
+    header = request.headers.get("x-kryptos-log-token")
+    if header:
+        return header.strip()
+    auth = request.headers.get("authorization", "")
+    if auth.lower().startswith("bearer "):
+        return auth[7:].strip()
+    return token.strip() if token else None
+
+
 def create_app(index: ArtifactIndex | None = None) -> FastAPI:
     index = index if index is not None else ArtifactIndex()
     index.load()
@@ -54,7 +124,13 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
     # Capture kryptos log records into the ring buffer the SSE tail streams.
     install_log_streaming()
 
-    app = FastAPI(title="Kryptos API", version="0.1.0")
+    app = FastAPI(title="Kryptos API", version="0.1.0", lifespan=_lifespan)
+
+    @app.exception_handler(Exception)
+    async def _unhandled(request: Request, exc: Exception) -> JSONResponse:
+        # Full details go to the server log only; clients get a generic message.
+        logger.error("Unhandled error on %s %s", request.method, request.url.path, exc_info=exc)
+        return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
     # CORS: allow the Cloudflare Pages–hosted SPA to call this backend cross-origin.
     # Configure via KRYPTOS_CORS_ORIGINS (comma-separated); defaults to the
@@ -109,11 +185,30 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
         request: Request,
         backlog: int = Query(200, ge=0, le=1000),
         follow: bool = Query(True),
+        token: str | None = Query(None, description="Admin log token (EventSource cannot send headers)"),
     ) -> StreamingResponse:
-        stream = log_event_stream(request.is_disconnected, backlog=backlog, follow=follow)
+        # Anonymous visitors get the redacted public view (one line per record, no
+        # tracebacks, credentials masked). KRYPTOS_LOG_TOKEN unlocks the full view.
+        presented = _presented_log_token(request, token)
+        if presented is not None and log_token() is not None and not token_matches(presented):
+            raise HTTPException(status_code=401, detail="Invalid log token")
+        full = token_matches(presented)
+        if not full and public_log_mode() == "off":
+            raise HTTPException(status_code=401, detail="Log stream requires a token")
+        view = "full" if full else "public"
+
+        async def _frames() -> AsyncIterator[str]:
+            # Named event: plain onmessage listeners ignore it; the dashboard uses it
+            # to label the view.
+            yield f"event: meta\ndata: {json.dumps({'view': view})}\n\n"
+            async for frame in log_event_stream(
+                request.is_disconnected, backlog=backlog, follow=follow, public=not full
+            ):
+                yield frame
+
         # X-Accel-Buffering disables proxy buffering so events flush immediately.
-        headers = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
-        return StreamingResponse(stream, media_type="text/event-stream", headers=headers)
+        headers = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "X-Kryptos-Log-View": view}
+        return StreamingResponse(_frames(), media_type="text/event-stream", headers=headers)
 
     # Mount the built SPA LAST so API routes (/api/*, /health) always win.
     # html=True serves index.html for unknown paths (client-side routing).
