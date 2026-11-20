@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- The public `/api/stream/logs` tail now serves anonymous visitors a redacted one-line view (no tracebacks, exception text reduced to its class name, credentials masked). `KRYPTOS_LOG_TOKEN` unlocks the full view; `KRYPTOS_LOG_STREAM_PUBLIC=off` refuses anonymous access. Unhandled API errors return a generic 500 body, and attack-job and decrypt errors no longer echo raw exception text (#309).
+
+### Fixed
+
+- The API now applies the idempotent `db_schema.py` DDL at boot when `DATABASE_URL` is set (`KRYPTOS_DB_AUTO_MIGRATE=0` opts out), so new tables such as `k4_constraint_runs`, `k4_attack_jobs` and `vault_payloads` reach production without a manual `kryptos db-init` (#309).
+
 ### Added
 
 - Added an attributed, provisional 2017 top/bottom Weltzeituhr face transcription with ordered-label helpers and tests. Unknown faces remain unknown, confirmed blanks remain blank, and documentation explicitly separates the 2017 snapshot from the unresolved 1990 state. See `docs/analysis/K4_WORLD_CLOCK_FACE_TRANSCRIPTION.md`.
