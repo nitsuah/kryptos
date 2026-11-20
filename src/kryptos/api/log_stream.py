@@ -33,10 +33,11 @@ _WITHHELD = " [details withheld]"
 
 # scheme://user:password@host -> scheme://***@host
 _URL_CREDS = re.compile(r"([a-zA-Z][a-zA-Z0-9+.-]*://)[^/\s:@]+(?::[^/\s@]*)?@")
-# key=value / key: value pairs whose key looks secret.
+# key=value / key: value pairs whose key looks secret. Keys may be quoted (JSON / dict
+# reprs), and an auth scheme plus its credential ("Bearer abc") is masked as one value.
 _SECRET_KV = re.compile(
-    r"(?i)\b([a-z0-9_]*(?:password|passwd|secret|token|api[_-]?key|authorization|dsn)[a-z0-9_]*)"
-    r"(\s*[=:]\s*)(\"[^\"]*\"|'[^']*'|\S+)"
+    r"(?i)([\"']?)\b([a-z0-9_-]*(?:password|passwd|secret|token|api[_-]?key|authorization|dsn)[a-z0-9_-]*)\1"
+    r"(\s*[=:]\s*)((?:bearer|basic|digest|token)\s+[^\s\"',}]+|\"[^\"]*\"|'[^']*'|[^\s,}]+)"
 )
 
 
@@ -45,7 +46,7 @@ def redact_public(text: str) -> str:
     lines = (text or "").splitlines() or [""]
     first = lines[0]
     first = _URL_CREDS.sub(r"\1***@", first)
-    first = _SECRET_KV.sub(r"\1\2***", first)
+    first = _SECRET_KV.sub(r"\1\2\1\3***", first)
     withheld = len(lines) > 1
     if len(first) > _PUBLIC_MAX_CHARS:
         first = first[:_PUBLIC_MAX_CHARS] + "…"

@@ -21,8 +21,10 @@ def test_runs_init_schema_when_database_url_set(monkeypatch):
 def test_opt_out(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "postgresql://example.invalid/db")
     monkeypatch.setenv("KRYPTOS_DB_AUTO_MIGRATE", "0")
-    monkeypatch.setattr("kryptos.db_schema.init_schema", lambda: (_ for _ in ()).throw(AssertionError("ran")))
+    called = []
+    monkeypatch.setattr("kryptos.db_schema.init_schema", lambda: called.append(1) or [])
     assert app_module.auto_migrate() is None
+    assert called == []
 
 
 def test_failure_never_raises(monkeypatch):

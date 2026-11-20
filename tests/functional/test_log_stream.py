@@ -135,6 +135,36 @@ def test_redact_public_masks_credentials_and_tracebacks():
     assert out.endswith("[details withheld]")
 
 
+def test_redact_public_quoted_keys_and_auth_schemes():
+    cases = [
+        '{"password": "hunter2", "x": 1}',
+        "{'api_key': 'hunter2'}",
+        "Authorization: Bearer hunter2 next",
+        "password=hunter2 ok",
+    ]
+    for case in cases:
+        out = log_stream.redact_public(case)
+        assert "hunter2" not in out, out
+        assert "***" in out
+
+
+def test_http_stream_masks_bearer_in_backlog_and_live(tmp_path, monkeypatch):
+    monkeypatch.delenv("KRYPTOS_LOG_TOKEN", raising=False)
+    log_stream.LOG_BUFFER.append("INFO upstream Authorization: Bearer abc123")
+    client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
+    resp = client.get("/api/stream/logs", params={"follow": "false", "backlog": "1000"})
+    assert "abc123" not in resp.text
+
+    buf = LogBuffer()
+    logger = logging.getLogger("kryptos.test.bearer")
+    logger.handlers = [SSELogHandler(buf)]
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    logger.info("calling with Authorization: Bearer %s", "abc123")
+    ((_seq, public),) = buf.since(0, public=True)
+    assert "abc123" not in public
+
+
 def test_handler_public_line_hides_traceback_and_exception_text():
     buf = LogBuffer()
     handler = SSELogHandler(buf)
