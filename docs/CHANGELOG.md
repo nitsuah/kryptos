@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The frontend ships a favicon, a canonical link, and real `robots.txt` / `sitemap.xml` files instead of returning the SPA shell for them (#311).
 - The API now applies the idempotent `db_schema.py` DDL at boot when `DATABASE_URL` is set (`KRYPTOS_DB_AUTO_MIGRATE=0` opts out), so new tables such as `k4_constraint_runs`, `k4_attack_jobs` and `vault_payloads` reach production without a manual `kryptos db-init` (#309).
 
 ### Added
