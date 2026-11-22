@@ -47,6 +47,7 @@ class _FakeCursor:
                 "verifier": verifier,
                 "max_reads": max_reads,
                 "reads_used": 0,
+                "failed_attempts": 0,
                 "sealed_at": datetime.now(timezone.utc),
                 "expires_at": expires_at,
             }
@@ -54,7 +55,14 @@ class _FakeCursor:
         elif s.startswith("SELECT cipher, max_reads, reads_used"):  # peek
             row = self._store.get(params[0])
             self._result = (
-                (row["cipher"], row["max_reads"], row["reads_used"], row["sealed_at"], row["expires_at"])
+                (
+                    row["cipher"],
+                    row["max_reads"],
+                    row["reads_used"],
+                    row["sealed_at"],
+                    row["expires_at"],
+                    row["failed_attempts"],
+                )
                 if row
                 else None
             )
@@ -65,10 +73,21 @@ class _FakeCursor:
                 if row
                 else None
             )
+        elif s.startswith("UPDATE vault_payloads SET failed_attempts"):
+            row = self._store.get(params[0])
+            if row and row["failed_attempts"] < params[1]:
+                row["failed_attempts"] += 1
+                self._result = (row["failed_attempts"],)
+            else:
+                self._result = None
+        elif s.startswith("UPDATE vault_payloads SET verifier"):
+            self._store[params[1]]["verifier"] = params[0]
+            self._result = None
         elif s.startswith("UPDATE vault_payloads SET reads_used"):
             row = self._store.get(params[0])
             if row and row["reads_used"] < row["max_reads"]:
                 row["reads_used"] += 1
+                row["failed_attempts"] = 0
                 self._result = (row["reads_used"],)
             else:
                 self._result = None
@@ -215,3 +234,58 @@ def test_http_unavailable_503(monkeypatch, tmp_path):
     client = _client(tmp_path)
     resp = client.post("/api/vault/seal", json={"plaintext": "X", "key": "K"})
     assert resp.status_code == 503
+
+
+# --- Verifier, attempt limits, size caps -------------------------------------
+
+
+def test_verifier_is_salted_and_slow_not_plain_hash(fake_vault):
+    a = vault.seal("SAME TEXT", "KEY")["token"]
+    b = vault.seal("SAME TEXT", "KEY")["token"]
+    va, vb = fake_vault[a]["verifier"], fake_vault[b]["verifier"]
+    assert va.startswith("scrypt$") and vb.startswith("scrypt$")
+    assert va != vb  # random salt
+    import hashlib
+
+    assert hashlib.sha256(b"SAME TEXT").hexdigest()[:16] not in va
+
+
+def test_legacy_verifier_still_works_and_is_upgraded(fake_vault):
+    import hashlib
+
+    token = vault.seal("OLD ROW", "KEY", max_reads=2)["token"]
+    fake_vault[token]["verifier"] = hashlib.sha256(b"OLD ROW").hexdigest()[:16]
+    with pytest.raises(vault.VaultWrongKey):
+        vault.unseal(token, "OTHER")
+    assert vault.unseal(token, "KEY")["plaintext"] == "OLD ROW"
+    assert fake_vault[token]["verifier"].startswith("scrypt$")
+
+
+def test_payload_locks_after_failed_attempts(fake_vault):
+    token = vault.seal("SECRET", "RIGHTKEY")["token"]
+    for _ in range(vault.MAX_FAILED_ATTEMPTS):
+        with pytest.raises(vault.VaultWrongKey):
+            vault.unseal(token, "WRONGKEY")
+    # Even the right key is refused once locked.
+    with pytest.raises(vault.VaultGone):
+        vault.unseal(token, "RIGHTKEY")
+    assert vault.peek(token)["status"] == "locked"
+
+
+def test_successful_unseal_resets_failed_attempts(fake_vault):
+    token = vault.seal("SECRET", "RIGHTKEY", max_reads=3)["token"]
+    for _ in range(vault.MAX_FAILED_ATTEMPTS - 1):
+        with pytest.raises(vault.VaultWrongKey):
+            vault.unseal(token, "WRONGKEY")
+    assert vault.unseal(token, "RIGHTKEY")["plaintext"] == "SECRET"
+    assert fake_vault[token]["failed_attempts"] == 0
+
+
+def test_plaintext_and_key_length_caps(fake_vault, tmp_path):
+    with pytest.raises(ValueError):
+        vault.seal("A" * (vault.MAX_PLAINTEXT_CHARS + 1), "KEY")
+    client = _client(tmp_path)
+    too_long = client.post("/api/vault/seal", json={"plaintext": "A" * (vault.MAX_PLAINTEXT_CHARS + 1), "key": "K"})
+    assert too_long.status_code == 422
+    long_key = client.post("/api/vault/seal", json={"plaintext": "X", "key": "K" * (vault.MAX_KEY_CHARS + 1)})
+    assert long_key.status_code == 422
