@@ -230,7 +230,8 @@ def unseal(token: str, key: str) -> dict[str, Any]:
 
             plaintext = vigenere_decrypt(ciphertext, key, preserve_non_alpha=True)
             if verifier is not None and not _verifier_matches(plaintext, verifier):
-                raise VaultWrongKey(f"Key did not decrypt the payload ({MAX_FAILED_ATTEMPTS - attempt[0]} attempts left)")
+                left = MAX_FAILED_ATTEMPTS - attempt[0]
+                raise VaultWrongKey(f"Key did not decrypt the payload ({left} attempts left)")
             if verifier is not None and _is_legacy_verifier(verifier):
                 cur.execute("UPDATE vault_payloads SET verifier = %s WHERE token = %s", (_verifier(plaintext), token))
 
