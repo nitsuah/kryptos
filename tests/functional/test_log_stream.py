@@ -302,3 +302,34 @@ def test_http_stream_cap_returns_429(tmp_path, monkeypatch):
     ok = client.get("/api/stream/logs", params={"follow": "false"}, headers={"X-Kryptos-Log-Token": "s3cret-token"})
     assert ok.status_code == 200
     assert held.open_count == 0
+
+
+def test_stream_slot_released_when_client_aborts_early(tmp_path, monkeypatch):
+    monkeypatch.setenv("KRYPTOS_LOG_TOKEN", "s3cret-token")
+    slots = log_stream.StreamSlots()
+    acquired = []
+    real_acquire = slots.acquire
+    slots.acquire = lambda limit: acquired.append(1) or real_acquire(limit)  # type: ignore[method-assign]
+    monkeypatch.setattr("kryptos.api.app.STREAM_SLOTS", slots)
+    log_stream.LOG_BUFFER.append("line for an aborted stream")
+    client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
+
+    with client.stream(
+        "GET", "/api/stream/logs", params={"follow": "true"}, headers={"X-Kryptos-Log-Token": "s3cret-token"}
+    ) as resp:
+        assert resp.status_code == 200
+        next(resp.iter_lines())  # read the first event, then abandon the open stream
+    assert acquired == [1]
+    assert slots.open_count == 0
+
+
+def test_stream_slot_released_when_generator_is_closed_unstarted():
+    """The response's background hook frees the slot even if the body never ran."""
+    from starlette.background import BackgroundTask
+
+    slots = log_stream.StreamSlots()
+    assert slots.acquire(1)
+    task = BackgroundTask(slots.release)
+    asyncio.run(task())
+    asyncio.run(BackgroundTask(slots.release)())  # releasing twice never goes negative
+    assert slots.open_count == 0

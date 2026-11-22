@@ -35,6 +35,8 @@ services:
       # limiter reads the right-most entry (client-supplied entries sit to its left).
       - key: KRYPTOS_TRUST_PROXY
         value: "1"
+      - key: KRYPTOS_LOG_TOKEN
+        generateValue: true
       # Optional: LLM providers for the ops director. Falls back to rule-based
       # logic when unset.
       # - key: OPENAI_API_KEY
