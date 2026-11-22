@@ -24,8 +24,6 @@ services:
       # when DATABASE_URL is set. Set KRYPTOS_DB_AUTO_MIGRATE=0 to opt out.
       # Log stream: requires KRYPTOS_LOG_TOKEN (browser: localStorage "kryptos.logToken").
       # KRYPTOS_LOG_STREAM_PUBLIC=redacted opts in to an anonymous redacted view.
-      # - key: KRYPTOS_LOG_TOKEN
-      #   generateValue: true
       # Required for attack runs, reindex, decrypt and vault routes: shared API token.
       # The dashboard reads it from localStorage "kryptos.apiToken". Optional tuning:
       # KRYPTOS_RATE_LIMIT_PER_MIN (default 60), KRYPTOS_MAX_ATTACK_JOBS (default 3).
