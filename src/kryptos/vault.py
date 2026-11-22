@@ -16,7 +16,8 @@ Security model (thematic, not a hardened secrets manager):
   Verifiers written by earlier versions (a bare sha256 prefix) are still accepted
   and are upgraded to scrypt on the next successful unseal.
 - Wrong-key attempts are counted per payload and the payload locks after
-  :data:`MAX_FAILED_ATTEMPTS`.
+  :data:`MAX_FAILED_ATTEMPTS`; the lock clears by itself after
+  ``KRYPTOS_VAULT_LOCK_HOURS`` (default 1) without further attempts.
 - The opaque ``token`` (UUIDv4) is the capability. A row self-destructs once
   ``reads_used`` reaches ``max_reads`` or ``expires_at`` passes.
 """
@@ -41,6 +42,7 @@ MAX_READS_CAP = 1000
 MAX_PLAINTEXT_CHARS = 10_000
 MAX_KEY_CHARS = 256
 MAX_FAILED_ATTEMPTS = 5
+DEFAULT_LOCK_HOURS = 1.0
 _SCRYPT_PREFIX = "scrypt$"
 _SCRYPT_N, _SCRYPT_R, _SCRYPT_P = 2**14, 8, 1
 
@@ -70,6 +72,22 @@ def vault_enabled() -> bool:
     from kryptos import persistence
 
     return persistence.db_enabled()
+
+
+def lock_cooldown() -> timedelta:
+    """How long a locked payload stays locked (``KRYPTOS_VAULT_LOCK_HOURS``, default 1)."""
+    try:
+        hours = float(os.getenv("KRYPTOS_VAULT_LOCK_HOURS") or DEFAULT_LOCK_HOURS)
+    except ValueError:
+        hours = DEFAULT_LOCK_HOURS
+    return timedelta(hours=max(0.0, hours))
+
+
+def _validate_key(key: str) -> None:
+    """Raise ValueError for a key the cipher cannot use, before any attempt is counted."""
+    if not key or len(key) > MAX_KEY_CHARS:
+        raise ValueError(f"key must be 1 to {MAX_KEY_CHARS} characters")
+    vigenere_decrypt("A" * len(key), key, preserve_non_alpha=True)
 
 
 def _scrypt(plaintext: str, salt: bytes) -> bytes:
@@ -167,18 +185,18 @@ def peek(token: str) -> dict[str, Any]:
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT cipher, max_reads, reads_used, sealed_at, expires_at, failed_attempts"
+                "SELECT cipher, max_reads, reads_used, sealed_at, expires_at, failed_attempts, last_failed_at"
                 " FROM vault_payloads WHERE token = %s",
                 (token,),
             )
             row = cur.fetchone()
     if row is None:
         raise VaultNotFound(f"No vault payload for token {token}")
-    cipher, max_reads, reads_used, sealed_at, expires_at, failed_attempts = row
+    cipher, max_reads, reads_used, sealed_at, expires_at, failed_attempts, last_failed_at = row
     return {
         "token": token,
         "cipher": cipher,
-        "status": _status(reads_used, max_reads, expires_at, failed_attempts),
+        "status": _status(reads_used, max_reads, expires_at, failed_attempts, last_failed_at),
         "max_reads": max_reads,
         "reads_used": reads_used,
         "reads_remaining": max(0, max_reads - reads_used),
@@ -214,19 +232,24 @@ def unseal(token: str, key: str) -> dict[str, Any]:
             if reads_used >= max_reads:
                 raise VaultGone("Vault payload has no reads remaining")
 
-            if len(key) > MAX_KEY_CHARS:
-                raise ValueError(f"key must be at most {MAX_KEY_CHARS} characters")
+            # A malformed key is rejected before an attempt is reserved.
+            _validate_key(key)
 
             # Reserve a guess before checking the key so parallel attempts cannot
-            # exceed the cap; a correct key resets the counter below.
+            # exceed the cap; a correct key resets the counter below. A lock older
+            # than the cooldown starts a fresh count.
+            now = datetime.now(timezone.utc)
             cur.execute(
-                "UPDATE vault_payloads SET failed_attempts = failed_attempts + 1"
-                " WHERE token = %s AND failed_attempts < %s RETURNING failed_attempts",
-                (token, MAX_FAILED_ATTEMPTS),
+                "UPDATE vault_payloads SET"
+                " failed_attempts = CASE WHEN failed_attempts >= %s THEN 1 ELSE failed_attempts + 1 END,"
+                " last_failed_at = %s"
+                " WHERE token = %s AND (failed_attempts < %s OR last_failed_at IS NULL OR last_failed_at <= %s)"
+                " RETURNING failed_attempts",
+                (MAX_FAILED_ATTEMPTS, now, token, MAX_FAILED_ATTEMPTS, now - lock_cooldown()),
             )
             attempt = cur.fetchone()
             if attempt is None:
-                raise VaultGone("Vault payload is locked after too many failed attempts")
+                raise VaultGone("Vault payload is locked after too many failed attempts; try again later")
 
             plaintext = vigenere_decrypt(ciphertext, key, preserve_non_alpha=True)
             if verifier is not None and not _verifier_matches(plaintext, verifier):
@@ -238,7 +261,7 @@ def unseal(token: str, key: str) -> dict[str, Any]:
             # Atomically claim a read; if another caller raced us to the last
             # read, RETURNING yields nothing and we report the payload as gone.
             cur.execute(
-                "UPDATE vault_payloads SET reads_used = reads_used + 1, failed_attempts = 0"
+                "UPDATE vault_payloads SET reads_used = reads_used + 1, failed_attempts = 0, last_failed_at = NULL"
                 " WHERE token = %s AND reads_used < max_reads RETURNING reads_used",
                 (token,),
             )
@@ -260,10 +283,18 @@ def _is_expired(expires_at: datetime | None) -> bool:
     return expires_at is not None and expires_at <= datetime.now(timezone.utc)
 
 
-def _status(reads_used: int, max_reads: int, expires_at: datetime | None, failed_attempts: int = 0) -> str:
+def _status(
+    reads_used: int,
+    max_reads: int,
+    expires_at: datetime | None,
+    failed_attempts: int = 0,
+    last_failed_at: datetime | None = None,
+) -> str:
     if _is_expired(expires_at):
         return "expired"
-    if failed_attempts >= MAX_FAILED_ATTEMPTS:
+    if failed_attempts >= MAX_FAILED_ATTEMPTS and (
+        last_failed_at is None or last_failed_at > datetime.now(timezone.utc) - lock_cooldown()
+    ):
         return "locked"
     if reads_used >= max_reads:
         return "exhausted"

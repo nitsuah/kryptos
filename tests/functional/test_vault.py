@@ -48,6 +48,7 @@ class _FakeCursor:
                 "max_reads": max_reads,
                 "reads_used": 0,
                 "failed_attempts": 0,
+                "last_failed_at": None,
                 "sealed_at": datetime.now(timezone.utc),
                 "expires_at": expires_at,
             }
@@ -62,6 +63,7 @@ class _FakeCursor:
                     row["sealed_at"],
                     row["expires_at"],
                     row["failed_attempts"],
+                    row["last_failed_at"],
                 )
                 if row
                 else None
@@ -74,9 +76,14 @@ class _FakeCursor:
                 else None
             )
         elif s.startswith("UPDATE vault_payloads SET failed_attempts"):
-            row = self._store.get(params[0])
-            if row and row["failed_attempts"] < params[1]:
-                row["failed_attempts"] += 1
+            cap, now, token, _cap, cutoff = params
+            row = self._store.get(token)
+            unlocked = row and (
+                row["failed_attempts"] < cap or row["last_failed_at"] is None or row["last_failed_at"] <= cutoff
+            )
+            if unlocked:
+                row["failed_attempts"] = 1 if row["failed_attempts"] >= cap else row["failed_attempts"] + 1
+                row["last_failed_at"] = now
                 self._result = (row["failed_attempts"],)
             else:
                 self._result = None
@@ -88,6 +95,7 @@ class _FakeCursor:
             if row and row["reads_used"] < row["max_reads"]:
                 row["reads_used"] += 1
                 row["failed_attempts"] = 0
+                row["last_failed_at"] = None
                 self._result = (row["reads_used"],)
             else:
                 self._result = None
@@ -289,3 +297,31 @@ def test_plaintext_and_key_length_caps(fake_vault, tmp_path):
     assert too_long.status_code == 422
     long_key = client.post("/api/vault/seal", json={"plaintext": "X", "key": "K" * (vault.MAX_KEY_CHARS + 1)})
     assert long_key.status_code == 422
+
+
+def test_lock_clears_after_cooldown(fake_vault):
+    token = vault.seal("SECRET", "RIGHTKEY")["token"]
+    for _ in range(vault.MAX_FAILED_ATTEMPTS):
+        with pytest.raises(vault.VaultWrongKey):
+            vault.unseal(token, "WRONGKEY")
+    with pytest.raises(vault.VaultGone):
+        vault.unseal(token, "RIGHTKEY")
+    # Time passes: the last failure is older than the cooldown.
+    fake_vault[token]["last_failed_at"] = datetime.now(timezone.utc) - vault.lock_cooldown() - timedelta(seconds=1)
+    assert vault.peek(token)["status"] == "sealed"
+    assert vault.unseal(token, "RIGHTKEY")["plaintext"] == "SECRET"
+
+
+def test_lock_cooldown_is_configurable(monkeypatch):
+    monkeypatch.setenv("KRYPTOS_VAULT_LOCK_HOURS", "6")
+    assert vault.lock_cooldown() == timedelta(hours=6)
+    monkeypatch.setenv("KRYPTOS_VAULT_LOCK_HOURS", "junk")
+    assert vault.lock_cooldown() == timedelta(hours=vault.DEFAULT_LOCK_HOURS)
+
+
+def test_malformed_key_does_not_burn_an_attempt(fake_vault):
+    token = vault.seal("SECRET", "RIGHTKEY")["token"]
+    for bad in ("1234", "é" * 3, "K" * (vault.MAX_KEY_CHARS + 1)):
+        with pytest.raises(ValueError):
+            vault.unseal(token, bad)
+    assert fake_vault[token]["failed_attempts"] == 0
