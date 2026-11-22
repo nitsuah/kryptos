@@ -6,8 +6,8 @@ services:
     image: kryptos-dev
     container_name: kryptos-dev
     ports:
-      - "8000:8000"
-    command: python -m kryptos.cli.main serve
+      - "127.0.0.1:8000:8000"
+    command: python -m kryptos.cli.main serve --host 0.0.0.0
     environment:
       - PYTHONUNBUFFERED=1
       - HF_HOME=/tmp/hf_cache

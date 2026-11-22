@@ -4,6 +4,7 @@ import argparse
 import json
 import logging
 import os
+import sys
 from pathlib import Path
 
 from kryptos import autopilot as autopilot_mod
@@ -302,7 +303,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp_keyspace_stats.set_defaults(func=cmd_keyspace_stats)
 
     sp_serve = sub.add_parser("serve", help="Run the Kryptos FastAPI server (turbovec RAG search over artifacts/)")
-    sp_serve.add_argument("--host", type=str, default="0.0.0.0", help="Bind host (default: 0.0.0.0)")
+    sp_serve.add_argument(
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="Bind host (default: 127.0.0.1; a non-loopback host requires KRYPTOS_API_TOKEN)",
+    )
     sp_serve.add_argument(
         "--port", type=str, default=os.environ.get("PORT", "8000"), help="Bind port (default: $PORT or 8000)"
     )
@@ -348,9 +354,29 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _is_loopback_bind(host: str) -> bool:
+    """True for localhost and loopback IP literals; wildcard and other addresses are not loopback."""
+    import ipaddress
+
+    if host.strip().lower() == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host.strip().strip("[]")).is_loopback
+    except ValueError:
+        return False
+
+
 def cmd_serve(args: argparse.Namespace) -> int:
     """Run the Kryptos FastAPI server (turbovec RAG search over artifacts/)."""
     import uvicorn
+
+    if not _is_loopback_bind(args.host) and not (os.environ.get("KRYPTOS_API_TOKEN") or "").strip():
+        print(
+            f"Refusing to bind {args.host}: set KRYPTOS_API_TOKEN to serve on a non-loopback address "
+            "(or use --host 127.0.0.1).",
+            file=sys.stderr,
+        )
+        return 2
 
     uvicorn.run("kryptos.api.app:app", host=args.host, port=args.port, reload=args.reload)
     return 0
