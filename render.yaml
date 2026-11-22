@@ -33,6 +33,10 @@ services:
       # KRYPTOS_RATE_LIMIT_PER_MIN (default 60), KRYPTOS_MAX_ATTACK_JOBS (default 3).
       - key: KRYPTOS_API_TOKEN
         generateValue: true
+      # Render's proxy appends the connecting client address to X-Forwarded-For; the
+      # limiter reads the right-most entry (client-supplied entries sit to its left).
+      - key: KRYPTOS_TRUST_PROXY
+        value: "1"
       # Optional: LLM providers for the ops director. Falls back to rule-based
       # logic when unset.
       # - key: OPENAI_API_KEY

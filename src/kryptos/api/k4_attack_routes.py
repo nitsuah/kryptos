@@ -461,12 +461,12 @@ def create_k4_attack_router() -> APIRouter:
 
         return JobStatusResponse(**get_job(job_id))  # type: ignore[arg-type]
 
-    @router.get("/jobs")
+    @router.get("/jobs", dependencies=[Depends(require_api_token)])
     def recent_jobs(limit: int = 20) -> dict[str, Any]:
         """Recent attack jobs, newest first (in-memory plus persisted when DATABASE_URL is set)."""
         return {"jobs": list_jobs(max(1, min(limit, 200)))}
 
-    @router.get("/jobs/{job_id}", response_model=JobStatusResponse)
+    @router.get("/jobs/{job_id}", response_model=JobStatusResponse, dependencies=[Depends(require_api_token)])
     def job_status(job_id: str) -> JobStatusResponse:
         job = get_job(job_id)
         if job is None:

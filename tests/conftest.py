@@ -15,6 +15,10 @@ def _local_dev_api_defaults(monkeypatch):
         monkeypatch.delenv(var, raising=False)
     monkeypatch.setenv("KRYPTOS_API_AUTH", "off")
     monkeypatch.setenv("KRYPTOS_RATE_LIMIT_PER_MIN", "0")
+    monkeypatch.setenv("KRYPTOS_AUTH_RATE_LIMIT_PER_MIN", "0")
+    monkeypatch.setenv("KRYPTOS_FAILED_AUTH_LIMIT_PER_MIN", "0")
+    monkeypatch.delenv("KRYPTOS_TRUST_PROXY", raising=False)
+    monkeypatch.delenv("KRYPTOS_TRUSTED_PROXY_HOPS", raising=False)
     RATE_LIMITER.reset()
     yield
     RATE_LIMITER.reset()

@@ -61,13 +61,29 @@ def _peer(request: Request) -> str | None:
     return request.client.host if request.client else None
 
 
+def _trusted_hops() -> int:
+    try:
+        return max(1, int(os.getenv("KRYPTOS_TRUSTED_PROXY_HOPS") or "1"))
+    except ValueError:
+        return 1
+
+
 def client_key(request: Request) -> str:
-    """Identify the caller for rate limiting (proxy-aware only when opted in)."""
+    """Identify the caller for rate limiting (proxy-aware only when opted in).
+
+    With ``KRYPTOS_TRUST_PROXY`` set, the client is read from ``X-Forwarded-For``
+    counting from the right: each trusted proxy appends the address it received
+    the request from, so entries added by a client sit to the left of the trusted
+    ones and cannot be forged. ``KRYPTOS_TRUSTED_PROXY_HOPS`` (default 1) is the
+    number of trusted proxies in front of the app; the entry appended by the
+    outermost one is used. On Render a single proxy layer appends the connecting
+    address, so the right-most entry is the real client.
+    """
     if (os.getenv("KRYPTOS_TRUST_PROXY") or "").strip().lower() not in _FALSY:
-        forwarded = request.headers.get("x-forwarded-for", "")
-        last = forwarded.split(",")[-1].strip()
-        if last:
-            return last
+        parts = [p.strip() for p in request.headers.get("x-forwarded-for", "").split(",") if p.strip()]
+        hops = _trusted_hops()
+        if parts:
+            return parts[-hops] if len(parts) >= hops else parts[0]
     return _peer(request) or "unknown"
 
 
@@ -130,29 +146,62 @@ class RateLimiter:
 RATE_LIMITER = RateLimiter()
 
 
-def rate_limit_per_minute() -> int:
+def _env_int(name: str, default: int) -> int:
     try:
-        return int(os.getenv("KRYPTOS_RATE_LIMIT_PER_MIN") or "60")
+        return int(os.getenv(name) or default)
     except ValueError:
-        return 60
+        return default
+
+
+def rate_limit_per_minute() -> int:
+    """Per-minute cap for anonymous callers of public routes (0 disables)."""
+    return _env_int("KRYPTOS_RATE_LIMIT_PER_MIN", 60)
+
+
+def auth_rate_limit_per_minute() -> int:
+    """Per-minute cap for callers that presented a valid token (0 disables)."""
+    return _env_int("KRYPTOS_AUTH_RATE_LIMIT_PER_MIN", 300)
+
+
+def failed_auth_limit_per_minute() -> int:
+    """Per-minute cap on failed token checks per client (0 disables)."""
+    return _env_int("KRYPTOS_FAILED_AUTH_LIMIT_PER_MIN", 10)
+
+
+def _too_many() -> HTTPException:
+    return HTTPException(status_code=429, detail="Too many requests", headers={"Retry-After": "60"})
 
 
 def rate_limit(request: Request) -> None:
-    """Dependency: reject callers over ``KRYPTOS_RATE_LIMIT_PER_MIN`` (0 disables)."""
-    if not RATE_LIMITER.allow(client_key(request), rate_limit_per_minute()):
-        raise HTTPException(status_code=429, detail="Too many requests", headers={"Retry-After": "60"})
+    """Dependency for public routes: anonymous callers share a per-client bucket.
+
+    A request carrying a valid token is not counted here; token-protected routes
+    apply the separate authenticated bucket, so anonymous traffic can never use
+    up an operator's allowance.
+    """
+    if token_ok(_presented_token(request)):
+        return
+    if not RATE_LIMITER.allow(f"anon:{client_key(request)}", rate_limit_per_minute()):
+        raise _too_many()
 
 
 def require_api_token(request: Request) -> None:
-    """Dependency for mutating and expensive routes: rate limit, then token check."""
-    rate_limit(request)
+    """Dependency for mutating and expensive routes.
+
+    The token is checked first. Failures count against a tight per-client limit
+    (and are answered 429 once it is spent); a valid token is then limited by its
+    own, separate bucket.
+    """
+    key = client_key(request)
     if api_token() is not None:
         if not token_ok(_presented_token(request)):
+            if not RATE_LIMITER.allow(f"fail:{key}", failed_auth_limit_per_minute()):
+                raise _too_many()
             raise HTTPException(status_code=401, detail="Invalid or missing API token")
-        return
-    if dev_auth_opt_out() and _local_dev_request(request):
-        return
-    raise HTTPException(status_code=503, detail="API token is not configured")
+    elif not (dev_auth_opt_out() and _local_dev_request(request)):
+        raise HTTPException(status_code=503, detail="API token is not configured")
+    if not RATE_LIMITER.allow(f"auth:{key}", auth_rate_limit_per_minute()):
+        raise _too_many()
 
 
 def max_attack_jobs() -> int:
@@ -165,6 +214,8 @@ def max_attack_jobs() -> int:
 __all__ = [
     "RATE_LIMITER",
     "RateLimiter",
+    "auth_rate_limit_per_minute",
+    "failed_auth_limit_per_minute",
     "api_token",
     "client_key",
     "dev_auth_opt_out",

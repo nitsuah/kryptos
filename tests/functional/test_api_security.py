@@ -20,6 +20,8 @@ PROTECTED = [
     ("post", "/api/vault/seal", {"plaintext": "x", "key": "KEY"}),
     ("post", "/api/vault/unseal", {"token": "t", "key": "KEY"}),
     ("get", "/api/vault/some-token", None),
+    ("get", "/api/k4/attacks/jobs", None),
+    ("get", "/api/k4/attacks/jobs/some-job", None),
 ]
 
 
@@ -99,13 +101,70 @@ def test_rate_limiter_window():
     assert rl.allow("a", 0)  # 0 disables
 
 
-def test_rate_limit_returns_429(client, monkeypatch):
+def test_failed_auth_has_its_own_tight_limit(client, monkeypatch):
     monkeypatch.setenv("KRYPTOS_API_TOKEN", TOKEN)
-    monkeypatch.setenv("KRYPTOS_RATE_LIMIT_PER_MIN", "3")
-    RATE_LIMITER.reset()
+    monkeypatch.setenv("KRYPTOS_FAILED_AUTH_LIMIT_PER_MIN", "3")
     codes = [client.post("/api/rag/reindex").status_code for _ in range(5)]
-    assert codes[:3] == [401, 401, 401]
-    assert codes[3:] == [429, 429]
+    assert codes == [401, 401, 401, 429, 429]
+
+
+def test_junk_traffic_cannot_exhaust_the_operator_bucket(client, monkeypatch):
+    monkeypatch.setenv("KRYPTOS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("KRYPTOS_RATE_LIMIT_PER_MIN", "2")
+    monkeypatch.setenv("KRYPTOS_FAILED_AUTH_LIMIT_PER_MIN", "2")
+    # Anonymous callers burn through both the public and the failed-auth allowance...
+    for _ in range(6):
+        client.get("/api/status")
+        client.post("/api/rag/reindex")
+    assert client.get("/api/status").status_code == 429
+    assert client.post("/api/rag/reindex").status_code == 429
+    # ...yet a request with the right token still goes through.
+    ok = client.post("/api/rag/reindex", headers={"Authorization": f"Bearer {TOKEN}"})
+    assert ok.status_code not in (401, 429, 503)
+
+
+def test_authenticated_bucket_limits_valid_callers(client, monkeypatch):
+    monkeypatch.setenv("KRYPTOS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("KRYPTOS_AUTH_RATE_LIMIT_PER_MIN", "2")
+    h = {"Authorization": f"Bearer {TOKEN}"}
+    codes = [client.post("/api/rag/reindex", headers=h).status_code for _ in range(3)]
+    assert codes[2] == 429 and 429 not in codes[:2]
+
+
+def test_public_routes_are_rate_limited(client, monkeypatch):
+    monkeypatch.setenv("KRYPTOS_RATE_LIMIT_PER_MIN", "2")
+    codes = [client.get("/api/k4/world-clock/hypothesis").status_code for _ in range(3)]
+    assert codes[2] == 429
+
+
+def _req(headers=None, peer="10.0.0.1"):
+    from starlette.requests import Request
+
+    raw = [(k.lower().encode(), v.encode()) for k, v in (headers or {}).items()]
+    return Request({"type": "http", "headers": raw, "client": (peer, 1234)})
+
+
+def test_client_key_ignores_forwarded_for_unless_trusted(monkeypatch):
+    from kryptos.api.security import client_key
+
+    req = _req({"X-Forwarded-For": "1.2.3.4"})
+    assert client_key(req) == "10.0.0.1"
+    monkeypatch.setenv("KRYPTOS_TRUST_PROXY", "1")
+    assert client_key(req) == "1.2.3.4"
+
+
+def test_client_key_uses_right_most_entry_so_spoofing_does_not_help(monkeypatch):
+    from kryptos.api.security import client_key
+
+    monkeypatch.setenv("KRYPTOS_TRUST_PROXY", "1")
+    # The client sent "9.9.9.9"; the trusted proxy appended the real address.
+    assert client_key(_req({"X-Forwarded-For": "9.9.9.9, 203.0.113.7"})) == "203.0.113.7"
+    # Multiple trusted hops: skip the entries appended by inner proxies.
+    monkeypatch.setenv("KRYPTOS_TRUSTED_PROXY_HOPS", "2")
+    assert client_key(_req({"X-Forwarded-For": "9.9.9.9, 203.0.113.7, 10.1.1.1"})) == "203.0.113.7"
+    # Fewer entries than hops falls back to the left-most; no header falls back to the peer.
+    assert client_key(_req({"X-Forwarded-For": "203.0.113.7"})) == "203.0.113.7"
+    assert client_key(_req()) == "10.0.0.1"
 
 
 def test_attack_job_cap(client, monkeypatch):

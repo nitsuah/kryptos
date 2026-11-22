@@ -149,12 +149,15 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.include_router(create_dashboard_router())
+    # Read-only demo data (status, runs, candidates, ledger, frontier list, world-clock
+    # diagnostic) stays public but rate limited; token-protected routes add their own checks.
+    public_limit = [Depends(rate_limit)]
+    app.include_router(create_dashboard_router(), dependencies=public_limit)
     app.include_router(create_vault_router())
-    app.include_router(create_k4_attack_router())
-    app.include_router(create_ledger_router())
+    app.include_router(create_k4_attack_router(), dependencies=public_limit)
+    app.include_router(create_ledger_router(), dependencies=public_limit)
 
-    @app.get("/api/k4/world-clock/hypothesis")
+    @app.get("/api/k4/world-clock/hypothesis", dependencies=public_limit)
     def world_clock_hypothesis() -> dict:
         """Return the deterministic six-segment World Clock diagnostic."""
         return analyze_world_clock_hypothesis()
