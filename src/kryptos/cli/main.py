@@ -372,8 +372,12 @@ def cmd_serve(args: argparse.Namespace) -> int:
 
     if not _is_loopback_bind(args.host) and not (os.environ.get("KRYPTOS_API_TOKEN") or "").strip():
         print(
-            f"Refusing to bind {args.host}: set KRYPTOS_API_TOKEN to serve on a non-loopback address "
-            "(or use --host 127.0.0.1).",
+            f"error: refusing to listen on {args.host} because KRYPTOS_API_TOKEN is not set.
+"
+            "  A non-loopback bind exposes the API to the network and needs a shared token.
+"
+            "  Fix: set KRYPTOS_API_TOKEN (e.g. in .env or the Render dashboard), "
+            "or run with --host 127.0.0.1 for local use.",
             file=sys.stderr,
         )
         return 2

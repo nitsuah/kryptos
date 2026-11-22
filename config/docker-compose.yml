@@ -9,6 +9,9 @@ services:
       - "127.0.0.1:8000:8000"
     command: python -m kryptos.cli.main serve --host 0.0.0.0
     environment:
+      # Required: the server refuses to start on 0.0.0.0 without it. Set it in ../.env
+      # (loaded below) or export it in the shell that runs compose.
+      - KRYPTOS_API_TOKEN
       - PYTHONUNBUFFERED=1
       - HF_HOME=/tmp/hf_cache
     env_file:
