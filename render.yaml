@@ -28,6 +28,15 @@ services:
       # to refuse anonymous log access entirely.
       # - key: KRYPTOS_LOG_TOKEN
       #   generateValue: true
+      # Required for attack runs, reindex, decrypt and vault routes: shared API token.
+      # The dashboard reads it from localStorage "kryptos.apiToken". Optional tuning:
+      # KRYPTOS_RATE_LIMIT_PER_MIN (default 60), KRYPTOS_MAX_ATTACK_JOBS (default 3).
+      - key: KRYPTOS_API_TOKEN
+        generateValue: true
+      # Render's proxy appends the connecting client address to X-Forwarded-For; the
+      # limiter reads the right-most entry (client-supplied entries sit to its left).
+      - key: KRYPTOS_TRUST_PROXY
+        value: "1"
       # Optional: LLM providers for the ops director. Falls back to rule-based
       # logic when unset.
       # - key: OPENAI_API_KEY

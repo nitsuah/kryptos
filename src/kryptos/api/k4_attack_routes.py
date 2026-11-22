@@ -11,11 +11,12 @@ import logging
 import threading
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from kryptos.api.k4_attack_dispatch import run_attack_worker
-from kryptos.api.k4_jobs import active_job, get_job, list_jobs, new_job, update_job
+from kryptos.api.k4_jobs import JobCapReached, active_job, get_job, list_jobs, new_job, update_job
+from kryptos.api.security import max_attack_jobs, require_api_token
 
 logger = logging.getLogger(__name__)
 
@@ -418,7 +419,7 @@ def create_k4_attack_router() -> APIRouter:
     # Heavy scans that write one shared artifact: at most one job at a time.
     _SINGLE_FLIGHT = {"p21_crib_constraints", "p22_frontier_checks"}
 
-    @router.post("/run", response_model=JobStatusResponse)
+    @router.post("/run", response_model=JobStatusResponse, dependencies=[Depends(require_api_token)])
     def run_attack(req: RunAttackRequest) -> JobStatusResponse:
         if req.attack_id not in _RUNNABLE:
             raise HTTPException(
@@ -426,7 +427,10 @@ def create_k4_attack_router() -> APIRouter:
                 detail=f"Attack '{req.attack_id}' is not runnable. Runnable: {sorted(str(x) for x in _RUNNABLE)}",
             )
 
-        job_id = new_job(req.attack_id, exclusive=req.attack_id in _SINGLE_FLIGHT)
+        try:
+            job_id = new_job(req.attack_id, exclusive=req.attack_id in _SINGLE_FLIGHT, max_active=max_attack_jobs())
+        except JobCapReached as exc:
+            raise HTTPException(status_code=429, detail=str(exc), headers={"Retry-After": "30"}) from exc
         if job_id is None:
             raise HTTPException(
                 status_code=409,
@@ -457,12 +461,12 @@ def create_k4_attack_router() -> APIRouter:
 
         return JobStatusResponse(**get_job(job_id))  # type: ignore[arg-type]
 
-    @router.get("/jobs")
+    @router.get("/jobs", dependencies=[Depends(require_api_token)])
     def recent_jobs(limit: int = 20) -> dict[str, Any]:
         """Recent attack jobs, newest first (in-memory plus persisted when DATABASE_URL is set)."""
         return {"jobs": list_jobs(max(1, min(limit, 200)))}
 
-    @router.get("/jobs/{job_id}", response_model=JobStatusResponse)
+    @router.get("/jobs/{job_id}", response_model=JobStatusResponse, dependencies=[Depends(require_api_token)])
     def job_status(job_id: str) -> JobStatusResponse:
         job = get_job(job_id)
         if job is None:

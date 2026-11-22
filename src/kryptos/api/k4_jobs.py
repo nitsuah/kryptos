@@ -38,16 +38,28 @@ def _active_locked(attack_id: str) -> str | None:
     return None
 
 
-def new_job(attack_id: str, exclusive: bool = False) -> str | None:
+class JobCapReached(RuntimeError):
+    """Raised when the number of queued or running jobs is at its cap."""
+
+
+def _active_count_locked() -> int:
+    return sum(1 for j in _JOBS.values() if j["status"] not in _TERMINAL)
+
+
+def new_job(attack_id: str, exclusive: bool = False, max_active: int | None = None) -> str | None:
     """Register a new job in `queued` status and return its id.
 
     With ``exclusive=True`` the check and the insert happen under one lock, and
     None is returned if a job for the same attack is already queued or running.
+    With ``max_active`` set, :class:`JobCapReached` is raised when that many jobs
+    are already queued or running.
     """
     job_id = str(uuid.uuid4())
     with _JOBS_LOCK:
         if exclusive and _active_locked(attack_id) is not None:
             return None
+        if max_active is not None and _active_count_locked() >= max_active:
+            raise JobCapReached(f"At most {max_active} attack jobs may run at once")
         _JOBS[job_id] = {
             "job_id": job_id,
             "attack_id": attack_id,
