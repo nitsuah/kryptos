@@ -61,6 +61,11 @@ def vault_enabled() -> bool:
     return persistence.db_enabled()
 
 
+def token_ref(token: str) -> str:
+    """Short non-reversible reference for log lines; the token itself is never logged."""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()[:8]
+
+
 def _verifier(plaintext: str) -> str:
     return hashlib.sha256(plaintext.encode("utf-8")).hexdigest()[:16]
 
@@ -108,7 +113,7 @@ def seal(
                 " VALUES (%s, %s, %s, %s, %s, 0, %s)",
                 (token, CIPHER_LABEL, ciphertext, _verifier(plaintext), max_reads, expires_at),
             )
-    logger.info("Sealed vault payload %s (max_reads=%s, ttl=%ss)", token, max_reads, ttl_seconds)
+    logger.info("Sealed vault payload ref=%s (max_reads=%s, ttl=%ss)", token_ref(token), max_reads, ttl_seconds)
     return {
         "token": token,
         "cipher": CIPHER_LABEL,
@@ -187,7 +192,7 @@ def unseal(token: str, key: str) -> dict[str, Any]:
                 raise VaultGone("Vault payload has no reads remaining")
             new_reads_used = updated[0]
 
-    logger.info("Unsealed vault payload %s (read %s/%s)", token, new_reads_used, max_reads)
+    logger.info("Unsealed vault payload ref=%s (read %s/%s)", token_ref(token), new_reads_used, max_reads)
     return {
         "token": token,
         "plaintext": plaintext,
