@@ -11,10 +11,11 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from kryptos import persistence
+from kryptos.api.security import require_api_token
 from kryptos.sections import SECTIONS
 
 logger = logging.getLogger(__name__)
@@ -88,7 +89,7 @@ def create_dashboard_router() -> APIRouter:
         rows = persistence.fetch_top_candidates(limit=limit)
         return CandidatesResponse(db_enabled=persistence.db_enabled(), count=len(rows), candidates=rows)
 
-    @router.post("/decrypt", response_model=DecryptResponse)
+    @router.post("/decrypt", response_model=DecryptResponse, dependencies=[Depends(require_api_token)])
     def decrypt(req: DecryptRequest) -> DecryptResponse:
         section = req.section.upper()
         if section not in SECTIONS:

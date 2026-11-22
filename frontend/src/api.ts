@@ -260,8 +260,19 @@ export class ApiError extends Error {
   }
 }
 
+// Mutating routes need the backend's KRYPTOS_API_TOKEN. Save it in this browser:
+//   localStorage.setItem("kryptos.apiToken", "<token>")
+function authHeaders(): Record<string, string> {
+  try {
+    const token = window.localStorage.getItem("kryptos.apiToken");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  } catch {
+    return {};
+  }
+}
+
 async function getJSON<T>(path: string): Promise<T> {
-  const resp = await fetch(apiPath(path));
+  const resp = await fetch(apiPath(path), { headers: authHeaders() });
   if (!resp.ok) {
     throw new ApiError(resp.status, await resp.text());
   }
@@ -271,7 +282,7 @@ async function getJSON<T>(path: string): Promise<T> {
 async function postJSON<T>(path: string, body: unknown): Promise<T> {
   const resp = await fetch(apiPath(path), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(body),
   });
   if (!resp.ok) {

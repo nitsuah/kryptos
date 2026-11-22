@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from dataclasses import asdict
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -26,6 +26,7 @@ from kryptos.api.log_stream import (
     public_log_mode,
     token_matches,
 )
+from kryptos.api.security import rate_limit, require_api_token
 from kryptos.api.vault_routes import create_vault_router
 from kryptos.k4.world_clock_hypothesis import analyze_world_clock_hypothesis
 from kryptos.rag.index import ArtifactIndex
@@ -166,11 +167,11 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
     def rag_status() -> dict:
         return index.status()
 
-    @app.post("/api/rag/reindex")
+    @app.post("/api/rag/reindex", dependencies=[Depends(require_api_token)])
     def rag_reindex() -> dict:
         return index.build()
 
-    @app.get("/api/rag/search")
+    @app.get("/api/rag/search", dependencies=[Depends(rate_limit)])
     def rag_search(q: str = Query(..., min_length=1), k: int = Query(10, ge=1, le=50)) -> dict:
         if not index.is_loaded:
             raise HTTPException(

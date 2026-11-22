@@ -7,10 +7,11 @@ map to HTTP status: not found -> 404, expired/exhausted -> 410, wrong key -> 403
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel, Field
 
 from kryptos import vault
+from kryptos.api.security import require_api_token
 
 
 class SealRequest(BaseModel):
@@ -51,7 +52,7 @@ class PeekResponse(BaseModel):
 
 
 def create_vault_router() -> APIRouter:
-    router = APIRouter(prefix="/api/vault", tags=["vault"])
+    router = APIRouter(prefix="/api/vault", tags=["vault"], dependencies=[Depends(require_api_token)])
 
     @router.post("/seal", response_model=SealResponse)
     def seal(req: SealRequest) -> SealResponse:
