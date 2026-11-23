@@ -7,9 +7,10 @@ records emitted from worker threads need no asyncio/thread coordination — the
 generator just reads the latest sequence numbers on each tick.
 
 Every record is stored twice: the full formatted line (with tracebacks) and a
-*public* line that is safe for anonymous dashboard visitors. The public line is
-the first line of the message only, with exception arguments reduced to their
-class name, URL credentials masked, and tracebacks withheld. The full view is
+*public* line for the optional anonymous view (``KRYPTOS_LOG_STREAM_PUBLIC=redacted``,
+off by default). The public line is the first line of the message only, with
+exception arguments reduced to their class name, URL credentials and bare UUIDs
+masked, and tracebacks withheld; vault records are never shown in it. The full view is
 only served to callers presenting ``KRYPTOS_LOG_TOKEN``; full details also go
 to the server's stderr (Render logs), never to anonymous clients.
 """
@@ -33,6 +34,10 @@ _WITHHELD = " [details withheld]"
 
 # scheme://user:password@host -> scheme://***@host
 _URL_CREDS = re.compile(r"([a-zA-Z][a-zA-Z0-9+.-]*://)[^/\s:@]+(?::[^/\s@]*)?@")
+# Bare UUIDs (capability tokens, job ids) are never shown in the public view.
+_UUID = re.compile(r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b")
+# Loggers whose records never appear in the public view at all.
+_PUBLIC_HIDDEN_LOGGERS = ("kryptos.vault",)
 # key=value / key: value pairs whose key looks secret. Keys may be quoted (JSON / dict
 # reprs), and an auth scheme plus its credential ("Bearer abc") is masked as one value.
 _SECRET_KV = re.compile(
@@ -47,6 +52,7 @@ def redact_public(text: str) -> str:
     first = lines[0]
     first = _URL_CREDS.sub(r"\1***@", first)
     first = _SECRET_KV.sub(r"\1\2\1\3***", first)
+    first = _UUID.sub("<id>", first)
     withheld = len(lines) > 1
     if len(first) > _PUBLIC_MAX_CHARS:
         first = first[:_PUBLIC_MAX_CHARS] + "…"
@@ -58,13 +64,16 @@ class LogBuffer:
     """Bounded ring of formatted log lines, each tagged with a monotonic seq."""
 
     def __init__(self, capacity: int = DEFAULT_CAPACITY) -> None:
-        self._buf: deque[tuple[int, str, str]] = deque(maxlen=capacity)
+        self._buf: deque[tuple[int, str, str | None]] = deque(maxlen=capacity)
         self._seq = 0
         self._lock = threading.Lock()
 
-    def append(self, line: str, public: str | None = None) -> int:
-        """Store ``line`` (full view) plus its public form (redacted if not given)."""
-        public_line = redact_public(line) if public is None else public
+    def append(self, line: str, public: str | None = None, hide_public: bool = False) -> int:
+        """Store ``line`` (full view) plus its public form (redacted if not given).
+
+        With ``hide_public`` the record is kept for the full view only.
+        """
+        public_line = None if hide_public else (redact_public(line) if public is None else public)
         with self._lock:
             self._seq += 1
             self._buf.append((self._seq, line, public_line))
@@ -75,21 +84,25 @@ class LogBuffer:
             return self._seq
 
     @staticmethod
-    def _pick(entry: tuple[int, str, str], public: bool) -> tuple[int, str]:
+    def _pick(entry: tuple[int, str, str | None], public: bool) -> tuple[int, str]:
         seq, full, pub = entry
-        return (seq, pub if public else full)
+        return (seq, pub if public and pub is not None else full)
+
+    @staticmethod
+    def _visible(entries: list[tuple[int, str, str | None]], public: bool) -> list[tuple[int, str, str | None]]:
+        return [e for e in entries if e[2] is not None] if public else entries
 
     def tail(self, count: int, public: bool = False) -> list[tuple[int, str]]:
         """Return up to ``count`` most-recent entries (oldest first)."""
         with self._lock:
-            items = list(self._buf)
+            items = self._visible(list(self._buf), public)
         items = items[-count:] if count > 0 else []
         return [self._pick(e, public) for e in items]
 
     def since(self, seq: int, public: bool = False) -> list[tuple[int, str]]:
         """Return entries with sequence strictly greater than ``seq``."""
         with self._lock:
-            return [self._pick(e, public) for e in self._buf if e[0] > seq]
+            return [self._pick(e, public) for e in self._visible(list(self._buf), public) if e[0] > seq]
 
 
 # Process-wide buffer shared by the handler and the endpoint.
@@ -107,7 +120,11 @@ class SSELogHandler(logging.Handler):
 
     def emit(self, record: logging.LogRecord) -> None:
         try:
-            self.buffer.append(self.format(record), self.format_public(record))
+            self.buffer.append(
+                self.format(record),
+                self.format_public(record),
+                hide_public=record.name.startswith(_PUBLIC_HIDDEN_LOGGERS),
+            )
         except Exception:  # noqa: BLE001 - logging must never raise
             self.handleError(record)
 
@@ -136,9 +153,9 @@ def log_token() -> str | None:
 
 
 def public_log_mode() -> str:
-    """``redacted`` (default) serves anonymous visitors the public view; ``off`` refuses them."""
-    mode = (os.getenv("KRYPTOS_LOG_STREAM_PUBLIC") or "redacted").strip().lower()
-    return "off" if mode in {"off", "0", "false", "no", "disabled"} else "redacted"
+    """``off`` (default) refuses anonymous visitors; ``redacted`` opts in to the redacted public view."""
+    mode = (os.getenv("KRYPTOS_LOG_STREAM_PUBLIC") or "off").strip().lower()
+    return "redacted" if mode in {"redacted", "public", "on", "1", "true", "yes"} else "off"
 
 
 def token_matches(presented: str | None) -> bool:
@@ -146,6 +163,40 @@ def token_matches(presented: str | None) -> bool:
     if not expected or not presented:
         return False
     return hmac.compare_digest(presented.encode(), expected.encode())
+
+
+class StreamSlots:
+    """Caps the number of concurrently open log streams."""
+
+    def __init__(self) -> None:
+        self._open = 0
+        self._lock = threading.Lock()
+
+    def acquire(self, limit: int) -> bool:
+        with self._lock:
+            if self._open >= limit:
+                return False
+            self._open += 1
+            return True
+
+    def release(self) -> None:
+        with self._lock:
+            self._open = max(0, self._open - 1)
+
+    @property
+    def open_count(self) -> int:
+        with self._lock:
+            return self._open
+
+
+STREAM_SLOTS = StreamSlots()
+
+
+def max_log_streams() -> int:
+    try:
+        return max(1, int(os.getenv("KRYPTOS_MAX_LOG_STREAMS") or "5"))
+    except ValueError:
+        return 5
 
 
 def install_log_streaming(logger_name: str = "kryptos", buffer: LogBuffer | None = None) -> SSELogHandler:
@@ -220,6 +271,9 @@ async def log_event_stream(
 
 
 __all__ = [
+    "STREAM_SLOTS",
+    "StreamSlots",
+    "max_log_streams",
     "LogBuffer",
     "LOG_BUFFER",
     "SSELogHandler",

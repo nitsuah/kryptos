@@ -118,6 +118,8 @@ SCHEMA_STATEMENTS: dict[str, str] = {
             sealed_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
             expires_at  TIMESTAMPTZ
         );
+        ALTER TABLE vault_payloads ADD COLUMN IF NOT EXISTS failed_attempts INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE vault_payloads ADD COLUMN IF NOT EXISTS last_failed_at TIMESTAMPTZ;
         CREATE INDEX IF NOT EXISTS idx_vault_expires ON vault_payloads (expires_at);
     """,
 }

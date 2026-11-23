@@ -15,8 +15,10 @@ from kryptos.api.security import require_api_token
 
 
 class SealRequest(BaseModel):
-    plaintext: str = Field(..., min_length=1, description="Secret to seal")
-    key: str = Field(..., min_length=1, description="Keyed-alphabet Vigenère key")
+    plaintext: str = Field(..., min_length=1, max_length=vault.MAX_PLAINTEXT_CHARS, description="Secret to seal")
+    key: str = Field(
+        ..., min_length=1, max_length=vault.MAX_KEY_CHARS, description="Keyed-alphabet Vigenère key"
+    )
     ttl_seconds: int = Field(86400, ge=0, le=vault.MAX_TTL_SECONDS, description="Lifetime in seconds; 0 = no expiry")
     max_reads: int = Field(1, ge=1, le=vault.MAX_READS_CAP, description="Server-enforced read limit")
 
@@ -29,8 +31,8 @@ class SealResponse(BaseModel):
 
 
 class UnsealRequest(BaseModel):
-    token: str = Field(..., min_length=1)
-    key: str = Field(..., min_length=1)
+    token: str = Field(..., min_length=1, max_length=64)
+    key: str = Field(..., min_length=1, max_length=vault.MAX_KEY_CHARS)
 
 
 class UnsealResponse(BaseModel):
@@ -81,7 +83,7 @@ def create_vault_router() -> APIRouter:
         return UnsealResponse(**result)
 
     @router.get("/{token}", response_model=PeekResponse)
-    def peek(token: str = Path(..., min_length=1)) -> PeekResponse:
+    def peek(token: str = Path(..., min_length=1, max_length=64)) -> PeekResponse:
         try:
             result = vault.peek(token)
         except vault.VaultUnavailable as exc:
