@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     image: kryptos-dev
     container_name: kryptos-dev
+    # Loopback-only publishing needs Docker Engine 28.0 or later; on older engines,
+    # block port 8000 with a host firewall rule or upgrade before relying on it.
     ports:
       - "127.0.0.1:8000:8000"
     command: python -m kryptos.cli.main serve --host 0.0.0.0
