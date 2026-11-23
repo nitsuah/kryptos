@@ -4,6 +4,7 @@ import argparse
 import json
 import logging
 import os
+import sys
 from pathlib import Path
 
 from kryptos import autopilot as autopilot_mod
@@ -302,7 +303,12 @@ def build_parser() -> argparse.ArgumentParser:
     sp_keyspace_stats.set_defaults(func=cmd_keyspace_stats)
 
     sp_serve = sub.add_parser("serve", help="Run the Kryptos FastAPI server (turbovec RAG search over artifacts/)")
-    sp_serve.add_argument("--host", type=str, default="0.0.0.0", help="Bind host (default: 0.0.0.0)")
+    sp_serve.add_argument(
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="Bind host (default: 127.0.0.1; a non-loopback host requires KRYPTOS_API_TOKEN)",
+    )
     sp_serve.add_argument(
         "--port", type=str, default=os.environ.get("PORT", "8000"), help="Bind port (default: $PORT or 8000)"
     )
@@ -348,9 +354,32 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _is_loopback_bind(host: str) -> bool:
+    """True for localhost and loopback IP literals; wildcard and other addresses are not loopback."""
+    import ipaddress
+
+    if host.strip().lower() == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host.strip().strip("[]")).is_loopback
+    except ValueError:
+        return False
+
+
 def cmd_serve(args: argparse.Namespace) -> int:
     """Run the Kryptos FastAPI server (turbovec RAG search over artifacts/)."""
     import uvicorn
+
+    if not _is_loopback_bind(args.host) and not (os.environ.get("KRYPTOS_API_TOKEN") or "").strip():
+        print(
+            f"error: refusing to listen on {args.host} because KRYPTOS_API_TOKEN is not set.\n"
+            "  A non-loopback bind exposes the API to the network and needs a shared token.\n"
+            "  Fix: export KRYPTOS_API_TOKEN in this shell (Compose reads it from .env; "
+            "on Render set it in the dashboard), "
+            "or run with --host 127.0.0.1 for local use.",
+            file=sys.stderr,
+        )
+        return 2
 
     uvicorn.run("kryptos.api.app:app", host=args.host, port=args.port, reload=args.reload)
     return 0

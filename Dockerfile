@@ -79,4 +79,5 @@ USER appuser
 #   CMD curl --fail http://localhost:5000/health || exit 1 # TODO: Adjust health check URL
 
 # Start the application (serve subcommand runs the FastAPI server)
-CMD ["python", "-m", "kryptos.cli.main", "serve"]
+# Bind all interfaces inside the container only; the host publishes the port on loopback.
+CMD ["python", "-m", "kryptos.cli.main", "serve", "--host", "0.0.0.0"]
