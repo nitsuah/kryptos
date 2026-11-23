@@ -374,7 +374,8 @@ def cmd_serve(args: argparse.Namespace) -> int:
         print(
             f"error: refusing to listen on {args.host} because KRYPTOS_API_TOKEN is not set.\n"
             "  A non-loopback bind exposes the API to the network and needs a shared token.\n"
-            "  Fix: set KRYPTOS_API_TOKEN (e.g. in .env or the Render dashboard), "
+            "  Fix: export KRYPTOS_API_TOKEN in this shell (Compose reads it from .env; "
+            "on Render set it in the dashboard), "
             "or run with --host 127.0.0.1 for local use.",
             file=sys.stderr,
         )
