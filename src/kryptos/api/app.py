@@ -89,16 +89,24 @@ def auto_migrate() -> list[str] | None:
     same way it does with no database).
     """
     if not os.getenv("DATABASE_URL"):
+        logger.warning("DB auto-migrate skipped: DATABASE_URL is not set (database features and the vault are off)")
         return None
     if (os.getenv("KRYPTOS_DB_AUTO_MIGRATE") or "1").strip().lower() in {"0", "false", "no", "off"}:
-        logger.info("DB auto-migrate disabled (KRYPTOS_DB_AUTO_MIGRATE=0)")
+        logger.warning(
+            "DB auto-migrate skipped: KRYPTOS_DB_AUTO_MIGRATE is off. Run `kryptos db-init` after upgrades "
+            "or vault and job features may fail on missing columns"
+        )
         return None
     try:
         from kryptos.db_schema import init_schema
 
         tables = init_schema()
     except Exception:  # noqa: BLE001 - boot must survive an unreachable DB
-        logger.exception("DB auto-migrate failed; continuing without schema changes")
+        logger.error(
+            "DB auto-migrate FAILED: schema changes were NOT applied; features that need new columns "
+            "(for example the vault) may error until `kryptos db-init` succeeds",
+            exc_info=True,
+        )
         return None
     logger.info("DB auto-migrate ensured %d tables: %s", len(tables), ", ".join(tables))
     return tables
