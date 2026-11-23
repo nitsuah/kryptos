@@ -10,31 +10,31 @@ export default function CipherMatrix() {
 
   return (
     <div className="cipher-matrix">
-      <div className="cm-grid" role="list" aria-label="K4 ciphertext, 97 letters">
+      <ul className="cm-grid" role="list" aria-label="K4 ciphertext, 97 letters">
         {K4.split("").map((ch, i) => {
           const c = cribAt(i);
           return (
-            <button
-              type="button"
-              role="listitem"
-              key={i}
-              className={`cm-cell${c ? ` crib tone-${c.tone}` : ""}${focus === i ? " focus" : ""}`}
-              onMouseEnter={() => setFocus(i)}
-              onFocus={() => setFocus(i)}
-              onClick={() => setFocus(i)}
-              aria-label={`position ${i}: ${ch}${c ? `, plaintext ${c.plain[i - c.start]} (${c.label})` : ""}`}
-            >
-              <span className="cm-ch">{ch}</span>
-              <span className="cm-plain" aria-hidden="true">
-                {c ? c.plain[i - c.start] : ""}
-              </span>
-              <span className="cm-idx" aria-hidden="true">
-                {i}
-              </span>
-            </button>
+            <li key={i} className="cm-item">
+              <button
+                type="button"
+                className={`cm-cell${c ? ` crib tone-${c.tone}` : ""}${focus === i ? " focus" : ""}`}
+                onMouseEnter={() => setFocus(i)}
+                onFocus={() => setFocus(i)}
+                onClick={() => setFocus(i)}
+                aria-label={`position ${i}: ${ch}${c ? `, plaintext ${c.plain[i - c.start]} (${c.label})` : ""}`}
+              >
+                <span className="cm-ch">{ch}</span>
+                <span className="cm-plain" aria-hidden="true">
+                  {c ? c.plain[i - c.start] : ""}
+                </span>
+                <span className="cm-idx" aria-hidden="true">
+                  {i}
+                </span>
+              </button>
+            </li>
           );
         })}
-      </div>
+      </ul>
       <div className="cm-readout" aria-live="polite">
         {focus === null ? (
           <span className="muted">Hover or tap a letter.</span>

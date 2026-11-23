@@ -1527,6 +1527,18 @@ code {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(1.6rem, 1fr));
   gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cm-item {
+  display: flex;
+}
+
+.screen .cm-item > .cm-cell {
+  flex: 1;
+  min-width: 0;
 }
 
 .screen .cm-cell {
