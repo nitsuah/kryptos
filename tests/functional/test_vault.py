@@ -325,3 +325,12 @@ def test_malformed_key_does_not_burn_an_attempt(fake_vault):
         with pytest.raises(ValueError):
             vault.unseal(token, bad)
     assert fake_vault[token]["failed_attempts"] == 0
+
+
+def test_vault_logs_never_contain_the_token(fake_vault, caplog):
+    with caplog.at_level("INFO", logger="kryptos.vault"):
+        sealed = vault.seal("ATTACK AT DAWN", "KRYPTOS")
+        vault.unseal(sealed["token"], "KRYPTOS")
+    assert caplog.records
+    assert all(sealed["token"] not in r.getMessage() for r in caplog.records)
+    assert any(vault.token_ref(sealed["token"]) in r.getMessage() for r in caplog.records)
