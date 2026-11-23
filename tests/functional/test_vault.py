@@ -215,3 +215,12 @@ def test_http_unavailable_503(monkeypatch, tmp_path):
     client = _client(tmp_path)
     resp = client.post("/api/vault/seal", json={"plaintext": "X", "key": "K"})
     assert resp.status_code == 503
+
+
+def test_vault_logs_never_contain_the_token(fake_vault, caplog):
+    with caplog.at_level("INFO", logger="kryptos.vault"):
+        sealed = vault.seal("ATTACK AT DAWN", "KRYPTOS")
+        vault.unseal(sealed["token"], "KRYPTOS")
+    assert caplog.records
+    assert all(sealed["token"] not in r.getMessage() for r in caplog.records)
+    assert any(vault.token_ref(sealed["token"]) in r.getMessage() for r in caplog.records)

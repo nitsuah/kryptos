@@ -112,12 +112,17 @@ def test_stream_stops_on_disconnect():
 # --- HTTP layer ---------------------------------------------------------------
 
 
-def test_http_stream_backlog(tmp_path):
+def test_http_stream_backlog(tmp_path, monkeypatch):
     # The endpoint uses the module-global LOG_BUFFER; seed it then read backlog.
+    monkeypatch.setenv("KRYPTOS_LOG_TOKEN", "s3cret-token")
     log_stream.LOG_BUFFER.append("CAMPAIGN started")
     client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
 
-    resp = client.get("/api/stream/logs", params={"follow": "false", "backlog": "1000"})
+    resp = client.get(
+        "/api/stream/logs",
+        params={"follow": "false", "backlog": "1000"},
+        headers={"X-Kryptos-Log-Token": "s3cret-token"},
+    )
     assert resp.status_code == 200
     assert resp.headers["content-type"].startswith("text/event-stream")
     assert "data: CAMPAIGN started" in resp.text
@@ -185,8 +190,16 @@ def test_handler_public_line_hides_traceback_and_exception_text():
     assert "<RuntimeError>" in public and public.endswith("[details withheld]")
 
 
+def test_http_stream_anonymous_refused_by_default(tmp_path, monkeypatch):
+    monkeypatch.delenv("KRYPTOS_LOG_TOKEN", raising=False)
+    monkeypatch.delenv("KRYPTOS_LOG_STREAM_PUBLIC", raising=False)
+    client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
+    assert client.get("/api/stream/logs", params={"follow": "false"}).status_code == 401
+
+
 def test_http_stream_anonymous_gets_public_view(tmp_path, monkeypatch):
     monkeypatch.delenv("KRYPTOS_LOG_TOKEN", raising=False)
+    monkeypatch.setenv("KRYPTOS_LOG_STREAM_PUBLIC", "redacted")
     log_stream.LOG_BUFFER.append("ERROR boom\nTraceback (most recent call last):\n  File site-packages/x.py")
     client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
     resp = client.get("/api/stream/logs", params={"follow": "false", "backlog": "1000"})
@@ -232,3 +245,91 @@ def test_unhandled_errors_are_generic(tmp_path, monkeypatch):
     assert resp.status_code == 500
     assert resp.json() == {"detail": "Internal server error"}
     assert "secret_table" not in resp.text
+
+
+def test_redact_public_masks_bare_uuids():
+    out = log_stream.redact_public("Sealed 3f2b8c1e-9d4a-4b7e-8c21-5a6d7e8f9a0b ok")
+    assert "3f2b8c1e" not in out and "<id>" in out
+
+
+def test_vault_records_are_hidden_from_public_view():
+    buf = LogBuffer()
+    handler = SSELogHandler(buf)
+    vault_logger = logging.getLogger("kryptos.vault")
+    other = logging.getLogger("kryptos.other_public_test")
+    for lg in (vault_logger, other):
+        lg.addHandler(handler)
+        lg.setLevel(logging.INFO)
+    try:
+        vault_logger.info("Sealed vault payload ref=abcd1234")
+        other.info("regular line")
+    finally:
+        vault_logger.removeHandler(handler)
+        other.removeHandler(handler)
+    public = [line for _s, line in buf.tail(10, public=True)]
+    full = [line for _s, line in buf.tail(10)]
+    assert any("regular line" in ln for ln in public)
+    assert not any("vault" in ln.lower() for ln in public)
+    assert any("Sealed vault payload" in ln for ln in full)
+    assert not any("Sealed vault payload" in ln for _s, ln in buf.since(0, public=True))
+
+
+def test_public_mode_defaults_to_off(monkeypatch):
+    monkeypatch.delenv("KRYPTOS_LOG_STREAM_PUBLIC", raising=False)
+    assert log_stream.public_log_mode() == "off"
+    monkeypatch.setenv("KRYPTOS_LOG_STREAM_PUBLIC", "redacted")
+    assert log_stream.public_log_mode() == "redacted"
+
+
+def test_stream_slots_cap_and_release():
+    slots = log_stream.StreamSlots()
+    assert slots.acquire(2) and slots.acquire(2)
+    assert not slots.acquire(2)
+    slots.release()
+    assert slots.acquire(2)
+
+
+def test_http_stream_cap_returns_429(tmp_path, monkeypatch):
+    monkeypatch.setenv("KRYPTOS_LOG_TOKEN", "s3cret-token")
+    monkeypatch.setenv("KRYPTOS_MAX_LOG_STREAMS", "1")
+    held = log_stream.StreamSlots()
+    monkeypatch.setattr("kryptos.api.app.STREAM_SLOTS", held)
+    assert held.acquire(1)
+    client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
+    resp = client.get("/api/stream/logs", params={"follow": "false"}, headers={"X-Kryptos-Log-Token": "s3cret-token"})
+    assert resp.status_code == 429
+    held.release()
+    ok = client.get("/api/stream/logs", params={"follow": "false"}, headers={"X-Kryptos-Log-Token": "s3cret-token"})
+    assert ok.status_code == 200
+    assert held.open_count == 0
+
+
+def test_stream_slot_released_when_client_aborts_early(tmp_path, monkeypatch):
+    monkeypatch.setenv("KRYPTOS_LOG_TOKEN", "s3cret-token")
+    slots = log_stream.StreamSlots()
+    acquired = []
+    real_acquire = slots.acquire
+    slots.acquire = lambda limit: acquired.append(1) or real_acquire(limit)  # type: ignore[method-assign]
+    monkeypatch.setattr("kryptos.api.app.STREAM_SLOTS", slots)
+    log_stream.LOG_BUFFER.append("line for an aborted stream")
+    client = TestClient(create_app(index=ArtifactIndex(index_dir=tmp_path / "index")))
+
+    with client.stream(
+        "GET", "/api/stream/logs", params={"follow": "true"}, headers={"X-Kryptos-Log-Token": "s3cret-token"}
+    ) as resp:
+        assert resp.status_code == 200
+        next(resp.iter_lines())  # read the first event, then abandon the open stream
+    assert acquired == [1]
+    assert slots.open_count == 0
+
+
+def test_stream_slot_released_when_generator_is_closed_unstarted():
+    """The response's background hook frees the slot even if the body never ran."""
+    from starlette.background import BackgroundTask
+
+    slots = log_stream.StreamSlots()
+    assert slots.acquire(1)
+    task = BackgroundTask(slots.release)
+    asyncio.run(task())
+    asyncio.run(BackgroundTask(slots.release)())  # releasing twice never goes negative
+    assert slots.open_count == 0

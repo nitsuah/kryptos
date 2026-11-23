@@ -15,14 +15,17 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.background import BackgroundTask
 
 from kryptos.api.dashboard import create_dashboard_router
 from kryptos.api.k4_attack_routes import create_k4_attack_router
 from kryptos.api.ledger_routes import create_ledger_router
 from kryptos.api.log_stream import (
+    STREAM_SLOTS,
     install_log_streaming,
     log_event_stream,
     log_token,
+    max_log_streams,
     public_log_mode,
     token_matches,
 )
@@ -191,8 +194,8 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
         follow: bool = Query(True),
         token: str | None = Query(None, description="Admin log token (EventSource cannot send headers)"),
     ) -> StreamingResponse:
-        # Anonymous visitors get the redacted public view (one line per record, no
-        # tracebacks, credentials masked). KRYPTOS_LOG_TOKEN unlocks the full view.
+        # KRYPTOS_LOG_TOKEN is required. Only when KRYPTOS_LOG_STREAM_PUBLIC=redacted
+        # do anonymous visitors get the redacted public view (no vault records).
         presented = _presented_log_token(request, token)
         if presented is not None and log_token() is not None and not token_matches(presented):
             raise HTTPException(status_code=401, detail="Invalid log token")
@@ -201,7 +204,24 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
             raise HTTPException(status_code=401, detail="Log stream requires a token")
         view = "full" if full else "public"
 
+        if not STREAM_SLOTS.acquire(max_log_streams()):
+            raise HTTPException(status_code=429, detail="Too many open log streams", headers={"Retry-After": "30"})
+        released = False
+
+        def _release() -> None:
+            nonlocal released
+            if not released:
+                released = True
+                STREAM_SLOTS.release()
+
         async def _frames() -> AsyncIterator[str]:
+            try:
+                async for frame in _frames_inner():
+                    yield frame
+            finally:
+                _release()
+
+        async def _frames_inner() -> AsyncIterator[str]:
             # Named event: plain onmessage listeners ignore it; the dashboard uses it
             # to label the view.
             yield f"event: meta\ndata: {json.dumps({'view': view})}\n\n"
@@ -212,7 +232,9 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
 
         # X-Accel-Buffering disables proxy buffering so events flush immediately.
         headers = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no", "X-Kryptos-Log-View": view}
-        return StreamingResponse(_frames(), media_type="text/event-stream", headers=headers)
+        return StreamingResponse(
+            _frames(), media_type="text/event-stream", headers=headers, background=BackgroundTask(_release)
+        )
 
     # Mount the built SPA LAST so API routes (/api/*, /health) always win.
     # html=True serves index.html for unknown paths (client-side routing).
