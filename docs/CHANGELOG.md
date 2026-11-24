@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Cloudflare Pages edge config** — `frontend/public/_headers` adds HSTS and `X-Content-Type-Options` everywhere and serves hashed `/assets/*` as `public, max-age=31536000, immutable`; `frontend/public/404.html` makes unknown paths a real 404 instead of the SPA shell; `frontend/functions/api/[[path]].js` answers same-origin `/api/*` with a JSON 404 naming the missing `VITE_API_BASE_URL` instead of `index.html`. Config checks in `tests/smoke/test_pages_config.py` (#309, #314).
+
 - Added an attributed, provisional 2017 top/bottom Weltzeituhr face transcription with ordered-label helpers and tests. Unknown faces remain unknown, confirmed blanks remain blank, and documentation explicitly separates the 2017 snapshot from the unresolved 1990 state. See `docs/analysis/K4_WORLD_CLOCK_FACE_TRANSCRIPTION.md`.
 - Removed the duplicate first-letter lookup transform from the Open5 stream defaults so the same candidate stream is not counted twice.
 - Bounded keyed-columnar frontier for long World Clock city-derived keywords and city+K1/K2-key combinations (widths 15–26), with exact crib constraints, both layer orders, underconstraint reporting, and a planted positive-control test. See `docs/analysis/K4_KEYED_COLUMNAR_FRONTIER.md`.

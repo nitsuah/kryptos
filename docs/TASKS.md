@@ -2,7 +2,7 @@
 
 > 🧭 [kryptos](../README.md) · [Index](./INDEX.md) · [Features](./FEATURES.md) · [Roadmap](./ROADMAP.md) · **Tasks** · [Changelog](./CHANGELOG.md) · [Metrics](./METRICS.md) <!-- nav -->
 
-Last Updated: 2026-10-09
+Last Updated: 2026-11-24
 
 ---
 
@@ -41,6 +41,9 @@ right tier (see `docs/GOVERN.md`).
 
 ### Platform
 
+- [ ] **Retire Netlify leftovers** — delete `netlify.toml` and the `kryptos-k4.netlify.app` CORS entries (`render.yaml`, `app.py`) once the Netlify site is cancelled.
+  - Priority: P3
+  - Type: Owner + code
 - [ ] **"Try a hypothesis" endpoint** — `POST /api/k4/hypothesis` taking a family and parameters and returning the crib verdict and a decryption; a dashboard module on top.
   - Priority: P3
   - Type: Code
