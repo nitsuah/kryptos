@@ -6,3 +6,5 @@ dist/
 *_NULL.json
 *_EUREKA.md
 K4_BREAKTHROUGH_SNAPSHOT.md
+playwright-report/
+test-results/
