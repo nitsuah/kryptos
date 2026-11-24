@@ -83,10 +83,11 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
 
   const statusPendingRef = useRef(false);
   const coldStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialRequestSettledRef = useRef(false);
 
   const refreshStatus = useCallback(() => {
     statusPendingRef.current = true;
-    if (coldStartTimerRef.current === null) {
+    if (!initialRequestSettledRef.current && coldStartTimerRef.current === null) {
       coldStartTimerRef.current = setTimeout(() => {
         setColdStart(true);
       }, 3000);
@@ -100,6 +101,9 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
       .catch((e) => setStatusError(message(e)))
       .finally(() => {
         statusPendingRef.current = false;
+        if (!initialRequestSettledRef.current) {
+          initialRequestSettledRef.current = true;
+        }
         if (coldStartTimerRef.current !== null) {
           clearTimeout(coldStartTimerRef.current);
           coldStartTimerRef.current = null;

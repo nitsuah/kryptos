@@ -2188,7 +2188,8 @@ code {
     transition: none !important;
   }
 
-  .live-dot {
+  .live-dot,
+  .coldstart-banner {
     animation: none;
   }
 }
