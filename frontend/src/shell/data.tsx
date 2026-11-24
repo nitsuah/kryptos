@@ -11,6 +11,7 @@ export interface DashboardData {
   status: StatusResponse | null;
   statusError: string | null;
   online: boolean;
+  coldStart: boolean;
   ledger: LedgerResponse | null;
   ledgerError: string | null;
   vectors: FrontierVector[];
@@ -72,6 +73,7 @@ function usePoll(fn: () => void, ms: number) {
 export function DashboardDataProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<StatusResponse | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
+  const [coldStart, setColdStart] = useState(false);
   const [ledger, setLedger] = useState<LedgerResponse | null>(null);
   const [ledgerError, setLedgerError] = useState<string | null>(null);
   const [vectors, setVectors] = useState<FrontierVector[]>([]);
@@ -79,14 +81,35 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
   const [jobs, setJobs] = useState<JobStatus[]>([]);
   const [jobsError, setJobsError] = useState<string | null>(null);
 
+  const statusPendingRef = useRef(false);
+  const coldStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialRequestSettledRef = useRef(false);
+
   const refreshStatus = useCallback(() => {
+    statusPendingRef.current = true;
+    if (!initialRequestSettledRef.current && coldStartTimerRef.current === null) {
+      coldStartTimerRef.current = setTimeout(() => {
+        setColdStart(true);
+      }, 3000);
+    }
     api
       .status()
       .then((s) => {
         setStatus(s);
         setStatusError(null);
       })
-      .catch((e) => setStatusError(message(e)));
+      .catch((e) => setStatusError(message(e)))
+      .finally(() => {
+        statusPendingRef.current = false;
+        if (!initialRequestSettledRef.current) {
+          initialRequestSettledRef.current = true;
+        }
+        if (coldStartTimerRef.current !== null) {
+          clearTimeout(coldStartTimerRef.current);
+          coldStartTimerRef.current = null;
+        }
+        setColdStart(false);
+      });
   }, []);
 
   const refreshLedger = useCallback(() => {
@@ -146,6 +169,7 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
     status,
     statusError,
     online: status !== null && statusError === null,
+    coldStart,
     ledger,
     ledgerError,
     vectors,

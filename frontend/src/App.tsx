@@ -187,6 +187,7 @@ function Shell() {
   const [active, setActive] = useState(indexFromHash);
   const [theme, cycleTheme] = useThemePref();
   const utc = useUtc();
+  const coldStart = data.coldStart;
   const stageRef = useRef<HTMLDivElement | null>(null);
   const swipe = useRef<{ x: number; y: number; id: number } | null>(null);
 
@@ -287,6 +288,12 @@ function Shell() {
             </button>
           </div>
         </header>
+
+        {coldStart && (
+          <div className="coldstart-banner" role="status" aria-live="polite">
+            Waking the server… (free instance cold start)
+          </div>
+        )}
 
         <main
           className="stage"

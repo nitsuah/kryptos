@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Cold-start banner: shows "Waking the server… (free instance cold start)" with `role="status"` when the first `/api/status` request exceeds 3000 ms; clears on first success; keeps existing offline UI on failure.
+
 ### Security
 
 - Mutating and compute-heavy API routes (attack runs, RAG reindex, ad-hoc decrypt, all vault routes) now require `KRYPTOS_API_TOKEN` (`Authorization: Bearer` or `X-Kryptos-Token`; this includes attack job output), are rate limited with separate buckets for anonymous callers (`KRYPTOS_RATE_LIMIT_PER_MIN`, default 60), failed token checks (`KRYPTOS_FAILED_AUTH_LIMIT_PER_MIN`, default 10) and valid callers (`KRYPTOS_AUTH_RATE_LIMIT_PER_MIN`, default 300); `KRYPTOS_TRUST_PROXY=1` reads the client from the right-most `X-Forwarded-For` entry and attack jobs are capped (`KRYPTOS_MAX_ATTACK_JOBS`, default 3). With no token the routes are closed; `KRYPTOS_API_AUTH=off` opts out for loopback requests outside production only. The dashboard reads the token from `localStorage["kryptos.apiToken"]`.
