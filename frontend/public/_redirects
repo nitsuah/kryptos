@@ -1,5 +1,0 @@
-# The dashboard navigates by URL hash, so every real path is "/". With
-# public/404.html present, Pages answers unknown paths with a 404 instead of
-# the SPA shell. If VITE_API_BASE_URL is ever unset, same-origin /api calls
-# are proxied to the API rather than answered with HTML.
-/api/* https://kryptos-kg8t.onrender.com/api/:splat 200

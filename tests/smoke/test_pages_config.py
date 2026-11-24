@@ -30,12 +30,11 @@ def test_hashed_assets_are_immutable():
     assert "Cache-Control: public, max-age=31536000, immutable" in blocks["/assets/*"]
 
 
-def test_unknown_paths_404_and_api_is_proxied():
+def test_unknown_paths_404_and_api_fails_loudly():
     assert (PUBLIC / "404.html").is_file()
-    rules = [
-        line.split()
-        for line in (PUBLIC / "_redirects").read_text(encoding="utf-8").splitlines()
-        if line.strip() and not line.startswith("#")
-    ]
-    assert ["/api/*", "https://kryptos-kg8t.onrender.com/api/:splat", "200"] in rules
-    assert not any(r[0] == "/*" for r in rules), "a catch-all rewrite would bring back SPA 200s"
+    # Pages cannot proxy to an external host with a _redirects 200 rule, and a
+    # catch-all rewrite would bring back SPA 200s for unknown paths.
+    assert not (PUBLIC / "_redirects").exists()
+    fn = PUBLIC.parent / "functions" / "api" / "[[path]].js"
+    text = fn.read_text(encoding="utf-8")
+    assert "status: 404" in text and "application/json" in text
