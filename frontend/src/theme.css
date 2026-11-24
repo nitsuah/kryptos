@@ -1431,6 +1431,31 @@ code {
   border-radius: var(--radius);
 }
 
+.coldstart-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--warning);
+  color: var(--caution-ink);
+  text-align: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--caution-ink);
+  box-shadow: var(--shadow);
+  animation: coldstart-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes coldstart-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 .json-details > summary {
   cursor: pointer;
   color: var(--text-muted);
