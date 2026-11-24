@@ -89,3 +89,27 @@ jobs:
       - name: Typecheck + build
         working-directory: frontend
         run: npm run build
+
+  # Browser journeys with every /api call stubbed; no backend needed. Runs in the
+  # pinned Playwright image (keep the tag in step with @playwright/test in
+  # frontend/package.json).
+  frontend-e2e:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.65.1-jammy
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Journeys (builds and previews the production bundle)
+        working-directory: frontend
+        run: npm run test:e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-e2e-report
+          path: |
+            frontend/playwright-report/
+            frontend/test-results/
+          retention-days: 7
