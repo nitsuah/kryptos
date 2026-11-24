@@ -10,7 +10,11 @@ export function onRequest({ request }) {
     }),
     {
       status: 404,
-      headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+      headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store",
+        // Pages does not apply _headers to Function responses.
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "x-content-type-options": "nosniff",
+      },
     },
   );
 }
