@@ -252,6 +252,22 @@ export interface WorldClockHypothesisResponse {
   limitations: string[];
 }
 
+export type HypothesisFamily = "vigenere" | "beaufort";
+
+export interface CheckHypothesisRequest {
+  family: HypothesisFamily;
+  key: string;
+}
+
+export interface CheckHypothesisResponse {
+  family: HypothesisFamily;
+  key: string;
+  plaintext: string;
+  crib_verdict: Record<string, boolean>;
+  hit_count: number;
+  all_cribs_match: boolean;
+}
+
 export class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -318,5 +334,7 @@ export const api = {
   jobs: (limit = 20) => getJSON<JobsResponse>(`/api/k4/attacks/jobs?limit=${limit}`),
   ledger: () => getJSON<LedgerResponse>("/api/k4/ledger"),
   worldClockHypothesis: () => getJSON<WorldClockHypothesisResponse>("/api/k4/world-clock/hypothesis"),
+  checkHypothesis: (req: CheckHypothesisRequest) =>
+    postJSON<CheckHypothesisResponse>("/api/k4/hypothesis", req),
   health: () => getJSON<{ status: string }>("/health"),
 };
