@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added direct edge-case tests for K4 segmentation helpers (#337).
 - Added rate-limited `POST /api/k4/hypothesis` for keyed Vigenère and Beaufort checks against K4 (#334).
 
 - Added a pure K4 hypothesis checker for keyed Vigenère and Beaufort decryption with positional crib verdicts (#333).
