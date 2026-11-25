@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from kryptos.ciphers import beaufort_decrypt, vigenere_decrypt
+
 from .keystream_validator import K4_CRIBS
 from .physical_grid import K4
 
