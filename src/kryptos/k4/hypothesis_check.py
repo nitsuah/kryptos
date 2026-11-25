@@ -9,7 +9,6 @@ from .physical_grid import K4
 
 
 def crib_verdict(plaintext: str) -> dict[str, bool]:
-    """Return whether each confirmed K4 crib matches at its 0-based position."""
     normalized = "".join(char for char in plaintext.upper() if char.isalpha())
     return {
         label: normalized[start : start + len(word)] == word
@@ -18,7 +17,6 @@ def crib_verdict(plaintext: str) -> dict[str, bool]:
 
 
 def check_hypothesis(family: str, key: str) -> dict[str, object]:
-    """Decrypt K4 with one supported family and report all positional crib hits."""
     normalized_family = family.lower()
     if normalized_family not in {"vigenere", "beaufort"}:
         raise ValueError(f"Unknown family: {normalized_family}")
