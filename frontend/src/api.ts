@@ -254,12 +254,7 @@ export interface WorldClockHypothesisResponse {
 
 export type HypothesisFamily = "vigenere" | "beaufort";
 
-export interface CheckHypothesisRequest {
-  family: HypothesisFamily;
-  key: string;
-}
-
-export interface CheckHypothesisResponse {
+export interface HypothesisResponse {
   family: HypothesisFamily;
   key: string;
   plaintext: string;
@@ -334,7 +329,7 @@ export const api = {
   jobs: (limit = 20) => getJSON<JobsResponse>(`/api/k4/attacks/jobs?limit=${limit}`),
   ledger: () => getJSON<LedgerResponse>("/api/k4/ledger"),
   worldClockHypothesis: () => getJSON<WorldClockHypothesisResponse>("/api/k4/world-clock/hypothesis"),
-  checkHypothesis: (req: CheckHypothesisRequest) =>
-    postJSON<CheckHypothesisResponse>("/api/k4/hypothesis", req),
+  checkHypothesis: (family: HypothesisFamily, key: string) =>
+    postJSON<HypothesisResponse>("/api/k4/hypothesis", { family, key }),
   health: () => getJSON<{ status: string }>("/health"),
 };
