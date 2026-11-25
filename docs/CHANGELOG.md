@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added rate-limited `POST /api/k4/hypothesis` for keyed Vigenère and Beaufort checks against K4 (#334).
+
 - Added a pure K4 hypothesis checker for keyed Vigenère and Beaufort decryption with positional crib verdicts (#333).
 
 - Dashboard browser journeys (#328): `frontend/e2e/journeys.spec.ts` + `frontend/playwright.config.ts` (`npm run test:e2e`) cover the K4 grid (97 cell buttons, 24 labelled known-plaintext cells), module deep links (`#k4 #ledger #attacks #lab #system`, legacy aliases) and the next arrow, and the API-down state, with all `/api` calls stubbed through `page.route()`. A new `frontend-e2e` job in `ci-fast.yml` runs them in the Playwright 1.65.1 image.
