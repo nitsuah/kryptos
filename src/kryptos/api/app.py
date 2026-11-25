@@ -10,11 +10,13 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from pathlib import Path
+from typing import Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field, field_validator
 from starlette.background import BackgroundTask
 
 from kryptos.api.dashboard import create_dashboard_router
@@ -31,10 +33,21 @@ from kryptos.api.log_stream import (
 )
 from kryptos.api.security import rate_limit, require_api_token
 from kryptos.api.vault_routes import create_vault_router
+from kryptos.k4.hypothesis_check import check_hypothesis
 from kryptos.k4.world_clock_hypothesis import analyze_world_clock_hypothesis
 from kryptos.rag.index import ArtifactIndex
 
 logger = logging.getLogger(__name__)
+
+
+class HypothesisRequest(BaseModel):
+    family: Literal["vigenere", "beaufort"]
+    key: str = Field(..., min_length=1, max_length=64)
+
+    @field_validator("family", mode="before")
+    @classmethod
+    def normalize_family(cls, value: object) -> object:
+        return value.lower() if isinstance(value, str) else value
 
 
 def _resolve_frontend_dist() -> Path | None:
@@ -172,6 +185,14 @@ def create_app(index: ArtifactIndex | None = None) -> FastAPI:
     def world_clock_hypothesis() -> dict:
         """Return the deterministic six-segment World Clock diagnostic."""
         return analyze_world_clock_hypothesis()
+
+    @app.post("/api/k4/hypothesis", dependencies=public_limit)
+    def k4_hypothesis(req: HypothesisRequest) -> dict:
+        """Evaluate a keyed Vigenere or Beaufort hypothesis against K4."""
+        try:
+            return check_hypothesis(req.family, req.key)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     @app.get("/health")
     def health() -> dict:
