@@ -44,7 +44,7 @@ right tier (see `docs/GOVERN.md`).
 - [ ] **Retire Netlify leftovers** — delete `netlify.toml` and the `kryptos-k4.netlify.app` CORS entries (`render.yaml`, `app.py`) once the Netlify site is cancelled.
   - Priority: P3
   - Type: Owner + code
-- [ ] **"Try a hypothesis" endpoint** — `POST /api/k4/hypothesis` taking a family and parameters and returning the crib verdict and a decryption; a dashboard module on top.
+- [ ] **"Try a hypothesis" dashboard module** — the rate-limited `POST /api/k4/hypothesis` endpoint is implemented by #334; only the UI module remains.
   - Priority: P3
   - Type: Code
 - [ ] **Candidate submission gate** — before any $1 Paradigm guess, run every crib and ledger check and require the candidate to reproduce from its stated method. Also needs a written policy from the owner.
