@@ -48,6 +48,7 @@ right tier (see `docs/GOVERN.md`).
   - Priority: P3
   - Type: Code
 - [ ] **Candidate submission gate** — before any $1 Paradigm guess, run every crib and ledger check and require the candidate to reproduce from its stated method. Also needs a written policy from the owner.
+  - Done: length, crib and reproduction checks (#346). Remaining: ledger checks and the owner policy.
   - Priority: P3
   - Type: Code + policy
 - [ ] **Re-score stored candidates** — anything in `candidates` ranked before 2026-09-28 used the placeholder n-gram tables.

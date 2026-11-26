@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Candidate gate: pure length, crib and reproduction checks for K4 hypotheses (#346).
+
 - Added direct edge-case tests for K4 segmentation helpers (#337).
 
 - Added a typed frontend client for `POST /api/k4/hypothesis` (#338).
