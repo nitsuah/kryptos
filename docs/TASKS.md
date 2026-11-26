@@ -52,6 +52,7 @@ right tier (see `docs/GOVERN.md`).
   - Priority: P3
   - Type: Code + policy
 - [ ] **Re-score stored candidates** — anything in `candidates` ranked before 2026-09-28 used the placeholder n-gram tables.
+  - Done: dry-run script (#347). Remaining: run it against the live database.
   - Priority: P3
   - Type: Code
 

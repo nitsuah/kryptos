@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Candidate gate: pure length, crib and reproduction checks for K4 hypotheses (#346).
+- Added `kryptos.k4.rescore_candidates` to re-score pre-2026-09-28 candidates with real n-gram tables (#347).
 
 - Added direct edge-case tests for K4 segmentation helpers (#337).
 
