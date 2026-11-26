@@ -310,7 +310,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Bind host (default: 127.0.0.1; a non-loopback host requires KRYPTOS_API_TOKEN)",
     )
     sp_serve.add_argument(
-        "--port", type=str, default=os.environ.get("PORT", "8000"), help="Bind port (default: $PORT or 8000)"
+        "--port", type=int, default=int(os.environ.get("PORT", "8000")), help="Bind port (default: $PORT or 8000)"
     )
     sp_serve.add_argument("--reload", action="store_true", help="Enable auto-reload (development)")
     sp_serve.set_defaults(func=cmd_serve)

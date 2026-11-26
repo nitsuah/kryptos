@@ -50,3 +50,11 @@ def test_non_loopback_with_token_is_allowed(monkeypatch, fake_uvicorn):
     monkeypatch.setenv("KRYPTOS_API_TOKEN", "unit-test-token")
     assert main(["serve", "--host", "0.0.0.0"]) == 0
     assert fake_uvicorn[0]["host"] == "0.0.0.0"
+
+
+def test_port_from_env_is_an_int(monkeypatch, fake_uvicorn):
+    # Render sets PORT; uvicorn logs it with %d, so a str port raises a logging error on boot.
+    monkeypatch.setenv("PORT", "10000")
+    monkeypatch.delenv("KRYPTOS_API_TOKEN", raising=False)
+    assert main(["serve"]) == 0
+    assert fake_uvicorn[0]["port"] == 10000
