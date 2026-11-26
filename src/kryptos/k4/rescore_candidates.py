@@ -12,7 +12,7 @@ CUTOFF = "2026-09-28"
 
 
 def rescore_rows(
-    rows: list[tuple[int, float, str]],
+    rows: list[tuple[int, float | None, str]],
     scorer: Callable[[str], float] = combined_plaintext_score,
 ) -> list[dict]:
     """Rescore a list of (id, old_score, text) rows.
@@ -78,7 +78,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Read {len(results)} candidate(s) created before {CUTOFF}")
     if results:
         for r in results[: args.top]:
-            print(f"  id={r['id']} old={r['old_score']:.3f} new={r['new_score']:.3f}")
+            old = r['old_score']
+            old_str = f"{old:.3f}" if old is not None else "N/A"
+            print(f"  id={r['id']} old={old_str} new={r['new_score']:.3f}")
     if not args.apply:
         print("dry run, nothing written")
     return 0
