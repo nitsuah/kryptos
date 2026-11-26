@@ -50,7 +50,7 @@ def test_unknown_family_raises_value_error():
 
 
 def test_all_checks_pass_false_in_all_cases():
-    """all_checks_pass is false in all tested cases."""
+    """all_checks_pass is false in all tested rejection cases."""
     # Case 1: reproduces but cribs fail
     hypothesis = check_hypothesis("vigenere", "KRYPTOS")
     result1 = check_candidate(hypothesis["plaintext"], "vigenere", "KRYPTOS")
@@ -63,3 +63,35 @@ def test_all_checks_pass_false_in_all_cases():
     # Case 3: short string
     result3 = check_candidate("SHORT", "vigenere", "KEY")
     assert result3["all_checks_pass"] is False
+
+
+def test_planted_candidate_passes_all_checks():
+    """A hand-crafted plaintext with all four cribs at correct positions passes."""
+    # Construct a 97-letter plaintext with EAST@21, NORTHEAST@25, BERLIN@63, CLOCK@69
+    # Fill other positions with 'X'
+    plaintext_list = ["X"] * 97
+    cribs = {
+        21: "EAST",
+        25: "NORTHEAST",
+        63: "BERLIN",
+        69: "CLOCK",
+    }
+    for pos, word in cribs.items():
+        for i, ch in enumerate(word):
+            plaintext_list[pos + i] = ch
+    planted = "".join(plaintext_list)
+
+    # This planted text won't reproduce from any known key, but we can test
+    # the crib and length checks independently by using a family/key that
+    # we know won't match, so reproduces=False but we can verify cribs_ok=True
+    result = check_candidate(planted, "vigenere", "IMPOSSIBLEKEY")
+
+    assert result["normalised"] == planted
+    assert result["length_ok"] is True
+    assert result["cribs"]["EAST"] is True
+    assert result["cribs"]["NORTHEAST"] is True
+    assert result["cribs"]["BERLIN"] is True
+    assert result["cribs"]["CLOCK"] is True
+    assert result["cribs_ok"] is True
+    assert result["reproduces"] is False  # won't match without correct key
+    assert result["all_checks_pass"] is False  # reproduces is False

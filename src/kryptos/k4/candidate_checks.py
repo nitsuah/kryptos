@@ -32,7 +32,7 @@ def check_candidate(plaintext: str, family: str, key: str) -> dict[str, object]:
         ValueError: If family is unknown (delegated to check_hypothesis).
     """
     # Normalise to uppercase letters only
-    normalised = "".join(char for char in plaintext.upper() if char.isalpha())
+    normalised = "".join(char for char in plaintext.upper() if "A" <= char <= "Z")
 
     # Length check: K4 plaintext is 97 letters
     length_ok = len(normalised) == 97
