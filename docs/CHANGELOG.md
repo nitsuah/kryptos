@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Direct tests for `kryptos.spy.aggregate.aggregate_phrases` in `tests/functional/test_spy_aggregate.py` (#339).
 - Added direct edge-case tests for K4 segmentation helpers (#337).
 
 - Added a typed frontend client for `POST /api/k4/hypothesis` (#338).
