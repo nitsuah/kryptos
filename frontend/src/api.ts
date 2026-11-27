@@ -313,9 +313,17 @@ async function postJSON<T>(path: string, body: unknown): Promise<T> {
 // may run with auth switched off, so they are always tried.
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
 
+export function isLocalHost(): boolean {
+  return LOCAL_HOSTS.includes(window.location.hostname);
+}
+
+export function hasOperatorToken(): boolean {
+  return Boolean(authHeaders().Authorization);
+}
+
 export function isReadOnly(): boolean {
-  if (LOCAL_HOSTS.includes(window.location.hostname)) return false;
-  return !authHeaders().Authorization;
+  if (isLocalHost()) return false;
+  return !hasOperatorToken();
 }
 
 export const READ_ONLY_REASON = "Operator only: this needs the server's API token.";
