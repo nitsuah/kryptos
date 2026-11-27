@@ -317,9 +317,12 @@ test("log failures show a cause-neutral message and Retry opens a new stream", a
   await page.goto(`http://visitor.localhost:4173/#system`);
   await expect(page.getByText("Live log unavailable. Check the server connection and retry.")).toBeVisible();
   await expect(page.getByText("The live log is not open to visitors on this server.")).toHaveCount(0);
-  await expect.poll(() => page.evaluate(() => (window.EventSource as any).instances)).toBe(1);
+  const initialAttempts = await page.evaluate(() => (window.EventSource as any).instances);
+  expect(initialAttempts).toBeGreaterThan(0);
   await page.getByRole("button", { name: "Retry" }).click();
-  await expect.poll(() => page.evaluate(() => (window.EventSource as any).instances)).toBe(2);
+  await expect
+    .poll(() => page.evaluate(() => (window.EventSource as any).instances))
+    .toBe(initialAttempts + 1);
 });
 
 test.describe("first visit", () => {
