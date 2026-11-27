@@ -55,10 +55,15 @@ const activeModule = (page: Page) => page.locator("section.face.is-active");
 test("visitor K3 decrypt panel displays the length validation error", async ({ page }) => {
   await stubApi(page);
   await page.goto("http://visitor.localhost:4173/#lab");
-  await page.getByRole("group", { name: "Section" }).getByRole("button", { name: "K3" }).click();
-  await page.getByLabel("Ciphertext").fill("A");
-  await page.getByRole("button", { name: "Execute" }).click();
-  await expect(page.locator(".result.error")).toContainText(
+  const decryptForm = page
+    .locator("form")
+    .filter({
+      has: page.locator('textarea[placeholder^="EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ"]'),
+    });
+  await decryptForm.locator("select").selectOption("K3");
+  await decryptForm.locator("textarea").fill("A");
+  await decryptForm.getByRole("button", { name: "Execute" }).click();
+  await expect(decryptForm.locator(".result.error")).toContainText(
     "K3 ciphertext must be 336 chars (got 1)",
   );
 });
