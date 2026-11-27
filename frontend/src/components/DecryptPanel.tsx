@@ -4,9 +4,6 @@ import { decodeK3, decodeVigenere } from "../cipher";
 import FormField from "./FormField";
 
 const SECTIONS = ["K1", "K2", "K3", "K4"];
-// The server's transposition accepts exactly this many letters.
-const K3_LENGTH = 336;
-
 export default function DecryptPanel() {
   const [section, setSection] = useState("K1");
   const [ciphertext, setCiphertext] = useState("");
