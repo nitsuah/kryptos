@@ -27,10 +27,6 @@ export default function DecryptPanel() {
     try {
       if (useBrowserDecoder) {
         if (keyRequired && !/[A-Za-z]/.test(key)) throw new Error(`${section} requires a key`);
-        const k3Length = ciphertext.replace(/\s/g, "").replace(/^\?/, "").length;
-        if (!keyRequired && k3Length !== K3_LENGTH) {
-          throw new Error(`K3 ciphertext must be ${K3_LENGTH} chars (got ${k3Length})`);
-        }
         setPlaintext(keyRequired ? decodeVigenere(ciphertext, key) : decodeK3(ciphertext));
         return;
       }
