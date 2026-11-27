@@ -67,8 +67,18 @@ export default function AttackRunPanel({ vector, onJobChange }: Props) {
   const startPolling = (jobId: string) => {
     stopPolling();
     pollRef.current = setInterval(async () => {
+      if (isReadOnly()) {
+        stopPolling();
+        setJob(null);
+        return;
+      }
       try {
         const status = await api.jobStatus(jobId);
+        if (isReadOnly()) {
+          stopPolling();
+          setJob(null);
+          return;
+        }
         setJob(status);
         if (status.status !== "running" && status.status !== "queued") {
           stopPolling();
