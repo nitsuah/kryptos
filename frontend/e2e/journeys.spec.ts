@@ -346,3 +346,29 @@ test.describe("first visit", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
   });
 });
+
+test.describe("status key", () => {
+  for (const hash of ["k4", "ledger"]) {
+    test(`on #${hash} it opens from the keyboard and defines every term`, async ({ page }) => {
+      await stubApi(page);
+      await page.goto(`/#${hash}`);
+      const key = page.locator("section.face.is-active details.status-key");
+      await expect(key.locator("dl")).toBeHidden();
+      await key.locator("summary").press("Enter");
+      await expect(key.locator("dt")).toHaveText([
+        "Eliminated",
+        "Statistical",
+        "Sampled null",
+        "Open",
+        "Null",
+        "Crib",
+      ]);
+      for (const definition of await key.locator("dd").all()) {
+        await expect(definition).toBeVisible();
+        await expect(definition).not.toBeEmpty();
+      }
+      await key.locator("summary").click();
+      await expect(key.locator("dl")).toBeHidden();
+    });
+  }
+});
