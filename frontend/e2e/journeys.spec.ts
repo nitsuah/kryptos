@@ -149,6 +149,31 @@ test.describe("API availability", () => {
     expect(errors).toEqual([]);
   });
 
+  test("System and Ledger defer API errors during the wake window", async ({ page }) => {
+    await stubApiDown(page);
+    await page.clock.install();
+    await page.goto("/#system");
+
+    const connection = page.locator(".sys-conn");
+    await expect(connection.getByText("waking")).toBeVisible();
+    await expect(connection.getByText(/\/api\/status failed/)).toHaveCount(0);
+
+    await page.evaluate(() => {
+      window.location.hash = "#ledger";
+    });
+    await expect(page.getByText("Loading ledger…")).toBeVisible();
+    await expect(page.getByText(/Ledger unavailable/)).toHaveCount(0);
+
+    await page.clock.fastForward(90_000);
+    await expect(page.getByText(/Ledger unavailable/)).toBeVisible();
+
+    await page.evaluate(() => {
+      window.location.hash = "#system";
+    });
+    await expect(connection.getByText("unreachable")).toBeVisible();
+    await expect(connection.getByText(/\/api\/status failed/)).toBeVisible();
+  });
+
   test("a 503 from the API is also treated as unreachable", async ({ page }) => {
     await page.route("**/api/**", (route) => route.fulfill({ status: 503, body: "upstream down" }));
     await page.clock.install();
