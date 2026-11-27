@@ -1,0 +1,838 @@
+{
+  "product": "kryptos",
+  "live": "https://kryptos.nitsuah.io/",
+  "page": null,
+  "pagesDir": null,
+  "features": [
+    {
+      "id": "vigen-re-cipher",
+      "title": "Vigenère Cipher",
+      "category": "Cipher Implementations",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "hill-cipher-2-2-to-5-5",
+      "title": "Hill Cipher (2×2 to 5×5)",
+      "category": "Cipher Implementations",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "columnar-route-transposition",
+      "title": "Columnar & Route Transposition",
+      "category": "Cipher Implementations",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "double-rotational-transposition",
+      "title": "Double Rotational Transposition",
+      "category": "Cipher Implementations",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "beaufort-cipher",
+      "title": "Beaufort Cipher",
+      "category": "Cipher Implementations",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "adfgvx-nihilist",
+      "title": "ADFGVX & Nihilist",
+      "category": "Cipher Implementations",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "keyed-alphabet-realignment",
+      "title": "Keyed Alphabet Realignment",
+      "category": "Cipher Implementations",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "frequency-n-gram-analysis",
+      "title": "Frequency & N-gram Analysis",
+      "category": "Scoring & Analysis",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "calibrated-english-score",
+      "title": "Calibrated English score",
+      "category": "Scoring & Analysis",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "dictionary-linguistic-metrics",
+      "title": "Dictionary & Linguistic Metrics",
+      "category": "Scoring & Analysis",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "crib-based-pattern-scoring",
+      "title": "Crib-Based & Pattern Scoring",
+      "category": "Scoring & Analysis",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "composite-multi-stage-scoring",
+      "title": "Composite & Multi-Stage Scoring",
+      "category": "Scoring & Analysis",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "simulated-annealing-genetic-algorithms",
+      "title": "Simulated Annealing & Genetic Algorithms",
+      "category": "Search & Optimization",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "exhaustive-adaptive-search",
+      "title": "Exhaustive & Adaptive Search",
+      "category": "Search & Optimization",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "constraint-multi-start-optimization",
+      "title": "Constraint & Multi-Start Optimization",
+      "category": "Search & Optimization",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "composite-chain-execution",
+      "title": "Composite Chain Execution",
+      "category": "Search & Optimization",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "search-space-fuzzy-dedup",
+      "title": "Search-Space Fuzzy Dedup",
+      "category": "Search & Optimization",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "hill-constraint-assembly",
+      "title": "Hill Constraint & Assembly",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "transposition-adaptive-multi-crib",
+      "title": "Transposition Adaptive & Multi-Crib",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "masking-null-removal",
+      "title": "Masking/Null-Removal",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "berlin-clock-hypothesis",
+      "title": "Berlin Clock Hypothesis",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "composite-parameter-sweep",
+      "title": "Composite Parameter Sweep",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "instructional-scorer",
+      "title": "Instructional Scorer",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "inverse-transposition-sweep",
+      "title": "Inverse Transposition Sweep",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "keystream-validator",
+      "title": "Keystream Validator",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "eureka-capture-protocol",
+      "title": "Eureka Capture Protocol",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "specialized-k4-modules-keyed-alphabet-realignment",
+      "title": "Keyed Alphabet Realignment",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "quagmire-i-iv-solver-sweep",
+      "title": "Quagmire I–IV Solver + Sweep",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "physical-grid-tableau-walk",
+      "title": "Physical-Grid Tableau Walk",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "berlin-clock-attack-suite",
+      "title": "Berlin Clock Attack Suite",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "beaufort-k4-sweep",
+      "title": "Beaufort K4 Sweep",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "crib-constraint-engine-p21",
+      "title": "Crib-Constraint Engine (P21)",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "structural-checks",
+      "title": "Structural Checks",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "ic-profile",
+      "title": "IC Profile",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "frontier-checks-p22",
+      "title": "Frontier Checks (P22)",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "hypothesis-ledger",
+      "title": "Hypothesis Ledger",
+      "category": "Specialized K4 Modules",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "modular-stage-system",
+      "title": "Modular Stage System",
+      "category": "Pipeline Architecture",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "composite-multi-stage-fusion",
+      "title": "Composite & Multi-Stage Fusion",
+      "category": "Pipeline Architecture",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "profiling-provenance",
+      "title": "Profiling & Provenance",
+      "category": "Pipeline Architecture",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "spy-linguist-ops-q-agents",
+      "title": "SPY, LINGUIST, OPS, Q Agents",
+      "category": "Intelligence Agents & Coordination",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "k123-analyzer-web-intelligence",
+      "title": "K123 Analyzer & Web Intelligence",
+      "category": "Intelligence Agents & Coordination",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "attack-generation-campaign-orchestration",
+      "title": "Attack Generation & Campaign Orchestration",
+      "category": "Intelligence Agents & Coordination",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "autonomous-solving-loop",
+      "title": "Autonomous Solving Loop",
+      "category": "Intelligence Agents & Coordination",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "attack-provenance-logging",
+      "title": "Attack Provenance Logging",
+      "category": "Research Integrity & Coverage",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "search-space-attempt-persistence",
+      "title": "Search Space & Attempt Persistence",
+      "category": "Research Integrity & Coverage",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "transformation-trace",
+      "title": "Transformation Trace",
+      "category": "Research Integrity & Coverage",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "coverage-tracking",
+      "title": "Coverage Tracking",
+      "category": "Research Integrity & Coverage",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "candidate-reports-heatmaps",
+      "title": "Candidate Reports & Heatmaps",
+      "category": "Reporting & Artifacts",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "performance-profiling",
+      "title": "Performance Profiling",
+      "category": "Reporting & Artifacts",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "validation-reports",
+      "title": "Validation Reports",
+      "category": "Reporting & Artifacts",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "kryptos-db",
+      "title": "`kryptos.db`",
+      "category": "Neon PostgreSQL Integration",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "opsdecisions",
+      "title": "`ops_decisions`",
+      "category": "Neon PostgreSQL Integration",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "discoveredcribs",
+      "title": "`discovered_cribs`",
+      "category": "Neon PostgreSQL Integration",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "strategykb",
+      "title": "`strategy_kb`",
+      "category": "Neon PostgreSQL Integration",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "sanborntimeline",
+      "title": "`sanborn_timeline`",
+      "category": "Neon PostgreSQL Integration",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "k4researchfindings",
+      "title": "`k4_research_findings`",
+      "category": "Neon PostgreSQL Integration",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "k4keystream",
+      "title": "`k4_keystream`",
+      "category": "Neon PostgreSQL Integration",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "sourcechunks",
+      "title": "`source_chunks`",
+      "category": "Neon PostgreSQL Integration",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "kryptos-serve",
+      "title": "`kryptos serve`",
+      "category": "RAG & Semantic Search (turbovec)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "turbovec-backed-index",
+      "title": "turbovec-backed index",
+      "category": "RAG & Semantic Search (turbovec)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "sentence-transformers-embeddings",
+      "title": "`sentence-transformers` embeddings",
+      "category": "RAG & Semantic Search (turbovec)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "endpoints",
+      "title": "Endpoints",
+      "category": "RAG & Semantic Search (turbovec)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "on-demand-indexing",
+      "title": "On-demand indexing",
+      "category": "RAG & Semantic Search (turbovec)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "one-screen-no-page-scrolling",
+      "title": "One screen, no page scrolling",
+      "category": "React SPA (single page, Ghost in the Shell style)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "modules",
+      "title": "Modules",
+      "category": "React SPA (single page, Ghost in the Shell style)",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "responsive",
+      "title": "Responsive",
+      "category": "React SPA (single page, Ghost in the Shell style)",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "single-container-delivery",
+      "title": "Single-container delivery",
+      "category": "React SPA (single page, Ghost in the Shell style)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "stack",
+      "title": "Stack",
+      "category": "React SPA (single page, Ghost in the Shell style)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "dashboard-endpoints",
+      "title": "Dashboard endpoints",
+      "category": "HTTP API (FastAPI)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "vault-endpoints",
+      "title": "Vault endpoints",
+      "category": "HTTP API (FastAPI)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "rag-endpoints",
+      "title": "RAG endpoints",
+      "category": "HTTP API (FastAPI)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "sse-log-tail",
+      "title": "SSE log tail",
+      "category": "HTTP API (FastAPI)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "k4-hypothesis-ledger",
+      "title": "K4 hypothesis ledger",
+      "category": "HTTP API (FastAPI)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "k4-attack-jobs",
+      "title": "K4 attack jobs",
+      "category": "HTTP API (FastAPI)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "health",
+      "title": "Health",
+      "category": "HTTP API (FastAPI)",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "campaignruns-candidates-tables",
+      "title": "`campaign_runs` + `candidates` tables",
+      "category": "Persistence",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "vaultpayloads-table",
+      "title": "`vault_payloads` table",
+      "category": "Persistence",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "strategykb-write-path",
+      "title": "`strategy_kb` write path",
+      "category": "Persistence",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "cli-interface",
+      "title": "CLI Interface",
+      "category": "Development Tools",
+      "screenshots": [],
+      "spots": []
+    },
+    {
+      "id": "optional-cipher-flag",
+      "title": "Optional `--cipher` flag",
+      "category": "Development Tools",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "example-demos",
+      "title": "Example Demos",
+      "category": "Development Tools",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "config-system",
+      "title": "Config System",
+      "category": "Development Tools",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "pre-commit-hooks",
+      "title": "Pre-commit Hooks",
+      "category": "Development Tools",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "performance-benchmarks",
+      "title": "Performance Benchmarks",
+      "category": "Development Tools",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "test-tier-structure",
+      "title": "Test Tier Structure",
+      "category": "Development Tools",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "k1-k2-vigen-re",
+      "title": "K1/K2 Vigenère",
+      "category": "Test Coverage & Reliability",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "k3-transposition",
+      "title": "K3 Transposition",
+      "category": "Test Coverage & Reliability",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "test-suite",
+      "title": "Test Suite",
+      "category": "Test Coverage & Reliability",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "phase-1-14-prior-vectors",
+      "title": "Phase 1 — 14 prior vectors",
+      "category": "Attack Phases",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "phase-2-p1-p7-frontier-attacks",
+      "title": "Phase 2 — P1–P7 frontier attacks",
+      "category": "Attack Phases",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "phase-3-p11-p20",
+      "title": "Phase 3 — P11–P20",
+      "category": "Attack Phases",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "phase-4-dashboard-tooling",
+      "title": "Phase 4 — Dashboard & tooling",
+      "category": "Attack Phases",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "phase-6-physical-geometric-pivot",
+      "title": "Phase 6 — Physical/Geometric Pivot",
+      "category": "Attack Phases",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "phase-7-shape-changing-transposition-shadow-hypothesis",
+      "title": "Phase 7 — Shape-changing transposition + shadow hypothesis",
+      "category": "Attack Phases",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "phase-8-follow-ups-2026-09-03",
+      "title": "Phase 8 follow-ups (2026-09-03)",
+      "category": "Attack Phases",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "negative-space-passes-2026-09-27-09-28",
+      "title": "Negative-space passes (2026-09-27 → 09-28)",
+      "category": "Attack Phases",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "english-n-gram-tables",
+      "title": "English N-gram Tables",
+      "category": "Linguistic Data",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "english-dictionary",
+      "title": "English Dictionary",
+      "category": "Linguistic Data",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "fallback-distributions",
+      "title": "Fallback Distributions",
+      "category": "Linguistic Data",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "centralized-config",
+      "title": "Centralized Config",
+      "category": "Configuration & Setup",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "artifact-management",
+      "title": "Artifact Management",
+      "category": "Configuration & Setup",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "requirements-management",
+      "title": "Requirements Management",
+      "category": "Configuration & Setup",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    },
+    {
+      "id": "pypi-packaging",
+      "title": "PyPI Packaging",
+      "category": "Configuration & Setup",
+      "screenshots": [],
+      "spots": [],
+      "visual": "none"
+    }
+  ],
+  "spots": [],
+  "reels": [
+    {
+      "id": "hero",
+      "spots": [],
+      "published": null
+    }
+  ],
+  "brand": {
+    "source": null,
+    "derived": [],
+    "manual": []
+  }
+}
