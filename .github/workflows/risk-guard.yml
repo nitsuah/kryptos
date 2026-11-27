@@ -2,7 +2,10 @@ name: Risk guard
 
 # The pull_request job is a bootstrap check loaded from the PR branch and is not trusted.
 # After this workflow reaches main, pull_request_target loads the base-branch version.
+# The bootstrap and trusted jobs both call the pinned risk-guard.yml reusable workflow.
 # This Actions check is a compatibility fallback, not a spoof-resistant security boundary.
+# Enable the App job only after configuring BOTH RISK_GUARD_APP_CLIENT_ID and
+# RISK_GUARD_APP_PRIVATE_KEY; either setting alone is insufficient.
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited, labeled, unlabeled]
