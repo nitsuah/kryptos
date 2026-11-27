@@ -285,17 +285,20 @@ test.describe("visitors", () => {
   });
 });
 
-test("operator log failures show a generic message and can retry", async ({ page }) => {
+test("log failures show a cause-neutral message and Retry opens a new stream", async ({ page }) => {
   await stubApi(page);
   await page.addInitScript(() => {
-    localStorage.setItem("kryptos.apiToken", "test-token");
+    localStorage.removeItem("kryptos.apiToken");
+    localStorage.setItem("kryptos.logToken", "test-log-token");
     class FailingEventSource {
       static CLOSED = 2;
+      static instances = 0;
       readyState = 0;
       onerror: ((event: Event) => void) | null = null;
       onmessage: ((event: MessageEvent) => void) | null = null;
       onopen: ((event: Event) => void) | null = null;
       constructor() {
+        FailingEventSource.instances += 1;
         setTimeout(() => this.onerror?.(new Event("error")), 0);
         setTimeout(() => this.onerror?.(new Event("error")), 1);
         setTimeout(() => this.onerror?.(new Event("error")), 2);
@@ -314,8 +317,9 @@ test("operator log failures show a generic message and can retry", async ({ page
   await page.goto(`http://visitor.localhost:4173/#system`);
   await expect(page.getByText("Live log unavailable. Check the server connection and retry.")).toBeVisible();
   await expect(page.getByText("The live log is not open to visitors on this server.")).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => (window.EventSource as any).instances)).toBe(1);
   await page.getByRole("button", { name: "Retry" }).click();
-  await expect(page.getByRole("button", { name: "Retry" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => (window.EventSource as any).instances)).toBe(2);
 });
 
 test.describe("first visit", () => {
