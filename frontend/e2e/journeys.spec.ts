@@ -240,6 +240,39 @@ test.describe("visitors", () => {
   });
 });
 
+test("operator log failures show a generic message and can retry", async ({ page }) => {
+  await stubApi(page);
+  await page.addInitScript(() => {
+    localStorage.setItem("kryptos.apiToken", "test-token");
+    class FailingEventSource {
+      static CLOSED = 2;
+      readyState = 0;
+      onerror: ((event: Event) => void) | null = null;
+      onmessage: ((event: MessageEvent) => void) | null = null;
+      onopen: ((event: Event) => void) | null = null;
+      constructor() {
+        setTimeout(() => this.onerror?.(new Event("error")), 0);
+        setTimeout(() => this.onerror?.(new Event("error")), 1);
+        setTimeout(() => this.onerror?.(new Event("error")), 2);
+      }
+      addEventListener() {}
+      close() {
+        this.readyState = FailingEventSource.CLOSED;
+      }
+    }
+    Object.defineProperty(window, "EventSource", {
+      configurable: true,
+      value: FailingEventSource,
+    });
+  });
+
+  await page.goto(`${VISITOR}/#system`);
+  await expect(page.getByText("Live log unavailable. Check the server connection and retry.")).toBeVisible();
+  await expect(page.getByText("The live log is not open to visitors on this server.")).toHaveCount(0);
+  await page.getByRole("button", { name: "Retry" }).click();
+  await expect(page.getByRole("button", { name: "Retry" })).toBeVisible();
+});
+
 test.describe("first visit", () => {
   test("the card explains Kryptos, closes with Esc and reopens from ?", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
