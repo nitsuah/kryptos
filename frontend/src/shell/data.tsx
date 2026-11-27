@@ -5,13 +5,15 @@
 // status) is still fetched inside the module that shows it.
 
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { FrontierVector, JobStatus, LedgerResponse, StatusResponse, api } from "../api";
+import { FrontierVector, JobStatus, LedgerResponse, StatusResponse, api, isReadOnly } from "../api";
 
 export interface DashboardData {
   status: StatusResponse | null;
   statusError: string | null;
   online: boolean;
   coldStart: boolean;
+  /** No answer yet and still inside the wake window: hold the error wording. */
+  waking: boolean;
   ledger: LedgerResponse | null;
   ledgerError: string | null;
   vectors: FrontierVector[];
@@ -29,6 +31,8 @@ const STATUS_MS = 10_000;
 const LEDGER_MS = 60_000;
 const JOBS_IDLE_MS = 20_000;
 const JOBS_ACTIVE_MS = 3_000;
+// A sleeping free instance usually answers within a minute.
+const WAKE_TIMEOUT_MS = 90_000;
 // The attack registry is static; it is only re-fetched until the first load succeeds.
 const VECTORS_RETRY_MS = 20_000;
 
@@ -81,36 +85,31 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
   const [jobs, setJobs] = useState<JobStatus[]>([]);
   const [jobsError, setJobsError] = useState<string | null>(null);
 
-  const statusPendingRef = useRef(false);
-  const coldStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const initialRequestSettledRef = useRef(false);
+  const [wakeTimedOut, setWakeTimedOut] = useState(false);
 
   const refreshStatus = useCallback(() => {
-    statusPendingRef.current = true;
-    if (!initialRequestSettledRef.current && coldStartTimerRef.current === null) {
-      coldStartTimerRef.current = setTimeout(() => {
-        setColdStart(true);
-      }, 3000);
-    }
     api
       .status()
       .then((s) => {
         setStatus(s);
         setStatusError(null);
       })
-      .catch((e) => setStatusError(message(e)))
-      .finally(() => {
-        statusPendingRef.current = false;
-        if (!initialRequestSettledRef.current) {
-          initialRequestSettledRef.current = true;
-        }
-        if (coldStartTimerRef.current !== null) {
-          clearTimeout(coldStartTimerRef.current);
-          coldStartTimerRef.current = null;
-        }
-        setColdStart(false);
-      });
+      .catch((e) => setStatusError(message(e)));
   }, []);
+
+  const answered = status !== null;
+  const waking = !answered && !wakeTimedOut;
+
+  // The banner appears if the first answer takes more than 3 s.
+  useEffect(() => {
+    if (answered) return;
+    const show = setTimeout(() => setColdStart(true), 3000);
+    const giveUp = setTimeout(() => setWakeTimedOut(true), WAKE_TIMEOUT_MS);
+    return () => {
+      clearTimeout(show);
+      clearTimeout(giveUp);
+    };
+  }, [answered]);
 
   const refreshLedger = useCallback(() => {
     api
@@ -123,13 +122,21 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshJobs = useCallback(() => {
+    if (isReadOnly()) {
+      setJobs([]);
+      setJobsError(null);
+      return;
+    }
     api
       .jobs(25)
       .then((r) => {
+        if (isReadOnly()) return;
         setJobs(r.jobs);
         setJobsError(null);
       })
-      .catch((e) => setJobsError(message(e)));
+      .catch((e) => {
+        if (!isReadOnly()) setJobsError(message(e));
+      });
   }, []);
 
   const refreshVectors = useCallback(() => {
@@ -158,6 +165,16 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
     prevActive.current = activeCount;
   }, [activeCount, refreshLedger]);
 
+  // Load the rest as soon as a waking server answers.
+  const wasAnswered = useRef(false);
+  useEffect(() => {
+    if (!answered || wasAnswered.current) return;
+    wasAnswered.current = true;
+    refreshLedger();
+    refreshJobs();
+    refreshVectors();
+  }, [answered, refreshLedger, refreshJobs, refreshVectors]);
+
   usePoll(refreshStatus, STATUS_MS);
   usePoll(refreshLedger, LEDGER_MS);
   usePoll(refreshJobs, activeCount > 0 ? JOBS_ACTIVE_MS : JOBS_IDLE_MS);
@@ -169,7 +186,8 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
     status,
     statusError,
     online: status !== null && statusError === null,
-    coldStart,
+    coldStart: coldStart && waking,
+    waking,
     ledger,
     ledgerError,
     vectors,

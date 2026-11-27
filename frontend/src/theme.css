@@ -705,7 +705,7 @@ code {
 }
 
 .frame-serial {
-  font-size: 10.5px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   color: var(--ink-muted);
 }
@@ -831,7 +831,7 @@ code {
 .caution-file {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
 }
 
 /* ---------- dock ---------- */
@@ -1432,11 +1432,8 @@ code {
 }
 
 .coldstart-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  flex: none;
+  order: -1;
   padding: 8px 12px;
   background: var(--warning);
   color: var(--caution-ink);
@@ -1602,14 +1599,14 @@ code {
   position: absolute;
   top: 1px;
   left: 3px;
-  font-size: 8.5px;
+  font-size: 11px;
 }
 
 .cm-idx {
   position: absolute;
   bottom: 1px;
   right: 3px;
-  font-size: 7.5px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
@@ -1698,7 +1695,7 @@ code {
 
 .tg-caption {
   font-family: var(--display);
-  font-size: 7px;
+  font-size: 11px;
   letter-spacing: 0.24em;
   fill: var(--text-muted);
 }
@@ -1837,7 +1834,7 @@ code {
 .wc-city {
   font-family: var(--display);
   font-weight: 600;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.04em;
   fill: var(--ink);
 }
@@ -2139,8 +2136,7 @@ code {
     width: 70px;
   }
 
-  .hud-clock small,
-  .dock-title {
+  .hud-clock small {
     display: none;
   }
 
@@ -2165,10 +2161,6 @@ code {
   .hud {
     padding-top: 4px;
     padding-bottom: 4px;
-  }
-
-  .dock-title {
-    display: none;
   }
 
   .tier-gauge svg {
@@ -2221,7 +2213,7 @@ code {
 .wc-segment-index {
   color: var(--orange);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.04em;
 }
 
@@ -2243,7 +2235,7 @@ code {
   border: 1px solid var(--border);
   background: var(--pane);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
 }
 
 .wc-research-stats b {
@@ -2278,7 +2270,7 @@ code {
 .wc-segment > b {
   color: var(--text-muted);
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 400;
 }
 
@@ -2288,7 +2280,7 @@ code {
   overflow-wrap: anywhere;
   color: var(--text);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.45;
   letter-spacing: 0.02em;
 }
@@ -2329,7 +2321,7 @@ code {
 .wc-model-note {
   color: var(--ink-muted);
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.025em;
   text-align: center;
 }
@@ -2346,7 +2338,112 @@ code {
   align-self: flex-start;
   color: var(--highlight);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.dock-btn {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+@media (max-width: 719px) {
+  .frame-blurb {
+    white-space: normal;
+  }
+
+  .dock-btn {
+    padding-left: 2px;
+    padding-right: 2px;
+    letter-spacing: 0.02em;
+  }
+}
+
+.status-key summary {
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.status-key dl {
+  max-height: 180px;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.status-key dt {
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.welcome-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.welcome {
+  width: min(460px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 18px;
+  background: var(--paper);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  line-height: 1.5;
+}
+
+.welcome ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.welcome li {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+}
+
+/* Five full module names must fit a 320px phone. */
+@media (max-width: 719px) {
+  .dock {
+    gap: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .dock-ring {
+    gap: 2px;
+  }
+
+  .dock-hint {
+    display: none;
+  }
+}
+
+/* The header still fits with the "?" button beside the theme button. */
+@media (max-width: 480px) {
+  .hud {
+    gap: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .hud-left,
+  .hud-right {
+    gap: 6px;
+  }
+}
+
+/* The waking banner takes its own row above the header. */
+.shell:has(> .coldstart-banner) {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
 }

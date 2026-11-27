@@ -37,7 +37,7 @@ export const MODULES: ModuleDef[] = [
       ["Open", n(d.ledger?.counts.open)],
     ],
     alert: (d) =>
-      d.online ? null : (
+      d.online || d.waking ? null : (
         <>
           The API is not answering{d.statusError ? `: ${d.statusError}` : "."} Live data returns when it does.
         </>
@@ -104,7 +104,7 @@ export const MODULES: ModuleDef[] = [
     blurb: "API and database, run history, live log, geometric pivot",
     Component: System,
     preview: (d) => [
-      ["API", d.online ? "online" : "offline"],
+      ["API", d.online ? "online" : d.waking ? "waking" : "offline"],
       ["Database", d.status ? (d.status.db_enabled ? "connected" : "none") : "–"],
     ],
     alert: (d) =>

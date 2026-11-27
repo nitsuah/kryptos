@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SECTION_DATA, decodeK3, decodeVigenere } from "../cipher";
-import { ApiError, api } from "../api";
+import { ApiError, api, isReadOnly } from "../api";
 import SubstitutionAnimator from "./SubstitutionAnimator";
 import GridStages from "./GridStages";
 
@@ -49,9 +49,12 @@ export default function Decoder() {
             </button>
           ))}
         </div>
-        <button type="button" onClick={verify}>
+        <button type="button" onClick={verify} disabled={isReadOnly()}>
           Verify vs backend
         </button>
+        {isReadOnly() && (
+          <span className="muted small">Operator only. The decoding shown here runs in your browser.</span>
+        )}
         {check && <span className="muted small">{check}</span>}
       </div>
       <p className="muted">{data.note}</p>

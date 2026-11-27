@@ -82,7 +82,7 @@ function RunHistory({ dbEnabled, runCount }: { dbEnabled: boolean; runCount?: nu
 }
 
 export default function System() {
-  const { status, statusError, online } = useDashboard();
+  const { status, statusError, online, waking } = useDashboard();
   const base = apiPath("") || window.location.origin;
   const counts = status?.table_counts ?? {};
   const names = Array.from(new Set([...Object.keys(counts), ...Object.keys(TABLES)])).sort();
@@ -95,7 +95,7 @@ export default function System() {
         <dl className="kv">
           <dt>API</dt>
           <dd>
-            <span className={`dot ${online ? "green" : "red"}`} aria-hidden="true" /> {online ? "reachable" : "unreachable"}
+            <span className={`dot ${online ? "green" : "red"}`} aria-hidden="true" /> {waking ? "waking" : online ? "reachable" : "unreachable"}
           </dd>
           <dt>Base</dt>
           <dd>
@@ -107,7 +107,7 @@ export default function System() {
             {status === null ? "unknown" : db ? "Neon connected" : "not configured"}
           </dd>
         </dl>
-        {statusError && <div className="result error">/api/status failed: {statusError}</div>}
+        {statusError && !waking && <div className="result error">/api/status failed: {statusError}</div>}
         <div className="scroll-y">
           <table>
             <thead>

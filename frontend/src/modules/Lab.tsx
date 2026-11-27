@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { READ_ONLY_REASON, isReadOnly } from "../api";
 import Decoder from "../components/Decoder";
 import DecryptPanel from "../components/DecryptPanel";
 import { PeekPanel, SealPanel, UnsealPanel } from "../components/VaultForms";
@@ -33,6 +34,7 @@ export default function Lab() {
               onClick={() => setTool(t.id)}
             >
               {t.label}
+              {t.id !== "decrypt" && <small> (operator)</small>}
             </button>
           ))}
         </div>
@@ -43,9 +45,10 @@ export default function Lab() {
               <DecryptPanel />
             </div>
           )}
-          {tool === "seal" && <SealPanel />}
-          {tool === "unseal" && <UnsealPanel />}
-          {tool === "check" && <PeekPanel />}
+          {tool !== "decrypt" && isReadOnly() && <p className="muted">{READ_ONLY_REASON}</p>}
+          {tool === "seal" && !isReadOnly() && <SealPanel />}
+          {tool === "unseal" && !isReadOnly() && <UnsealPanel />}
+          {tool === "check" && !isReadOnly() && <PeekPanel />}
         </div>
         {tool !== "decrypt" && (
           <p className="muted small">

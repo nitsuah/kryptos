@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { LEDGER_TIERS, LedgerEntry, LedgerTier } from "../api";
+import StatusKey from "../components/StatusKey";
 import TierGauge from "../components/TierGauge";
 import { TIER_HINT, TIER_LABEL } from "../k4";
 import { useDashboard } from "../shell/data";
@@ -8,7 +9,7 @@ import { useDashboard } from "../shell/data";
 // list on the left (filter by tier or text), the selected family's scope,
 // evidence, module and test on the right.
 export default function Ledger() {
-  const { ledger, ledgerError, refreshLedger } = useDashboard();
+  const { ledger, ledgerError, refreshLedger, waking } = useDashboard();
   const [tier, setTier] = useState<LedgerTier | "all">("all");
   const [q, setQ] = useState("");
   const [selId, setSelId] = useState<string | null>(null);
@@ -28,7 +29,7 @@ export default function Ledger() {
   if (!ledger) {
     return (
       <div className="pane">
-        {ledgerError ? (
+        {ledgerError && !waking ? (
           <div className="result error">
             Ledger unavailable: {ledgerError}{" "}
             <button type="button" onClick={refreshLedger}>
@@ -71,6 +72,7 @@ export default function Ledger() {
             aria-label="Search the ledger"
           />
         </div>
+        <StatusKey />
         <ul className="rows" aria-label="Hypothesis families">
           {entries.length === 0 && <li className="muted">No entries match.</li>}
           {entries.map((e) => (

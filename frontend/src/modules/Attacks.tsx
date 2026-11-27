@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FrontierVector, JobStatus } from "../api";
+import { FrontierVector, JobStatus, isReadOnly } from "../api";
 import AttackRunPanel from "../components/AttackRunPanel";
 import { useDashboard } from "../shell/data";
 
@@ -104,6 +104,14 @@ export default function Attacks() {
             ) : (
               <li className="muted">Loading the attack registry…</li>
             ))}
+          {vectors.length > 0 && rows.length === 0 && (
+            <li className="muted">
+              No attacks match.{" "}
+              <button type="button" className="link-button" onClick={() => setQ("")}>
+                clear search
+              </button>
+            </li>
+          )}
           {rows.map((v) => (
             <li key={v.id}>
               <button
@@ -149,12 +157,16 @@ export default function Attacks() {
       <section className="pane attacks-jobs">
         <h3>
           Recent jobs
-          <button type="button" className="link-button" onClick={refreshJobs}>
-            refresh
-          </button>
+          {!isReadOnly() && (
+            <button type="button" className="link-button" onClick={refreshJobs}>
+              refresh
+            </button>
+          )}
         </h3>
         {jobsError && <div className="result error">Jobs unavailable: {jobsError}</div>}
-        {jobs.length === 0 && !jobsError ? (
+        {isReadOnly() ? (
+          <p className="muted small">Read-only view. Job history and running attacks are operator only.</p>
+        ) : jobs.length === 0 && !jobsError ? (
           <p className="muted small">
             No jobs yet.
             {status && !status.db_enabled && " Without DATABASE_URL, job history lives in memory until restart."}
