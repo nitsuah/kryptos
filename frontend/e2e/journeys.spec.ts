@@ -19,7 +19,9 @@ const LEDGER = {
 
 /** Healthy API: status, ledger, jobs and frontier answer; anything else is a 404. */
 // The first-visit card would sit over the dashboard.
-test.beforeEach(async ({ page }) => {
+// The first-visit tests skip this, so only one script ever touches the flag.
+test.beforeEach(async ({ page }, testInfo) => {
+  if (testInfo.titlePath.includes("first visit")) return;
   await page.addInitScript(() => localStorage.setItem("kryptos-welcome-seen", "1"));
 });
 
@@ -199,12 +201,16 @@ test.describe("visitors", () => {
     await page.getByRole("button", { name: "Execute" }).click();
     await expect(page.locator(".lab-tools .result.plaintext")).toHaveText("BETWEENSUBTLESHADINGANDTHEABSENC");
     expect(called).not.toContain("/api/decrypt");
+
+    await page.locator(".lab-tools select").selectOption("K3");
+    await page.locator("textarea").fill("A");
+    await page.getByRole("button", { name: "Execute" }).click();
+    await expect(page.locator(".lab-tools .result.error")).toContainText("must be 336 chars");
   });
 });
 
 test.describe("first visit", () => {
   test("the card explains Kryptos, closes with Esc and reopens from ?", async ({ page }) => {
-    await page.addInitScript(() => localStorage.removeItem("kryptos-welcome-seen"));
     await page.setViewportSize({ width: 375, height: 812 });
     await stubApi(page);
     await page.goto("/#k4");

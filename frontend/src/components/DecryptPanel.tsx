@@ -4,6 +4,8 @@ import { decodeK3, decodeVigenere } from "../cipher";
 import FormField from "./FormField";
 
 const SECTIONS = ["K1", "K2", "K3", "K4"];
+// The server's transposition accepts exactly this many letters.
+const K3_LENGTH = 336;
 
 export default function DecryptPanel() {
   const [section, setSection] = useState("K1");
@@ -26,6 +28,10 @@ export default function DecryptPanel() {
     try {
       if (local) {
         if (keyRequired && !/[A-Za-z]/.test(key)) throw new Error(`${section} requires a key`);
+        const k3Length = ciphertext.replace(/\s/g, "").replace(/^\?/, "").length;
+        if (!keyRequired && k3Length !== K3_LENGTH) {
+          throw new Error(`K3 ciphertext must be ${K3_LENGTH} chars (got ${k3Length})`);
+        }
         setPlaintext(keyRequired ? decodeVigenere(ciphertext, key) : decodeK3(ciphertext));
         return;
       }

@@ -35,6 +35,7 @@ export default function LogTail() {
   const [lines, setLines] = useState<string[]>([]);
   const [state, setState] = useState<ConnState>("stopped");
   const [running, setRunning] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   const [autoScroll, setAutoScroll] = useState(true);
   const [view, setView] = useState<LogView>(null);
   const esRef = useRef<EventSource | null>(null);
@@ -86,7 +87,7 @@ export default function LogTail() {
       es.close();
       esRef.current = null;
     };
-  }, [running]);
+  }, [running, attempt]);
 
   // Pin to the newest line as it arrives, unless the user opted out.
   useEffect(() => {
@@ -125,9 +126,15 @@ export default function LogTail() {
         <button type="button" onClick={() => setLines([])} disabled={lines.length === 0}>
           Clear
         </button>
-        <button type="button" onClick={() => setRunning((r) => !r)} disabled={state === "unavailable"}>
-          {running ? "Pause" : "Resume"}
-        </button>
+        {state === "unavailable" ? (
+          <button type="button" onClick={() => setAttempt((a) => a + 1)}>
+            Retry
+          </button>
+        ) : (
+          <button type="button" onClick={() => setRunning((r) => !r)}>
+            {running ? "Pause" : "Resume"}
+          </button>
+        )}
       </div>
       <div className="logtail-body" ref={bodyRef}>
         {lines.length === 0 ? (
