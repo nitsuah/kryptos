@@ -10,10 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- **Live site review (#359):** a first-visit card explains Kryptos and K4 (reopen with **?**); a sleeping server shows one waking state before any error; visitors without a token get a read-only view that skips operator routes, decrypts K1 to K3 in the browser and says why other controls are off; added a status key, an empty search state in Attacks (#362), a final live-log state, full module names, 44px dock targets, a wrapping module subtitle and an 11px text floor.
-
 ### Added
 
 - Candidate gate: pure length, crib and reproduction checks for K4 hypotheses (#346).
