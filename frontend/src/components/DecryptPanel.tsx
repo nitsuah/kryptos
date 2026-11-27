@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { ApiError, api, isReadOnly } from "../api";
+import { ApiError, api, hasOperatorToken, isLocalHost, isReadOnly } from "../api";
 import { decodeK3, decodeVigenere } from "../cipher";
 import FormField from "./FormField";
 
@@ -17,8 +17,10 @@ export default function DecryptPanel() {
 
   const keyRequired = section === "K1" || section === "K2";
   // Visitors decode solved sections here in the browser; K4 needs the server.
-  const local = isReadOnly();
-  const blocked = local && section === "K4";
+  const readOnly = isReadOnly();
+  const unauthenticatedLocal = isLocalHost() && !hasOperatorToken();
+  const useBrowserDecoder = readOnly || (unauthenticatedLocal && section !== "K4");
+  const blocked = readOnly && section === "K4";
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -26,7 +28,7 @@ export default function DecryptPanel() {
     setError(null);
     setPlaintext(null);
     try {
-      if (local) {
+      if (useBrowserDecoder) {
         if (keyRequired && !/[A-Za-z]/.test(key)) throw new Error(`${section} requires a key`);
         const k3Length = ciphertext.replace(/\s/g, "").replace(/^\?/, "").length;
         if (!keyRequired && k3Length !== K3_LENGTH) {
@@ -73,7 +75,7 @@ export default function DecryptPanel() {
           placeholder="EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ..."
         />
       </FormField>
-      {local && (
+      {useBrowserDecoder && (
         <p className="muted small">
           {blocked
             ? "K4 is unsolved, and decrypting it on the server is operator only."
