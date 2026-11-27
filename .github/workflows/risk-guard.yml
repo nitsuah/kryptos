@@ -2,7 +2,7 @@ name: Risk guard
 
 # The pull_request job is a bootstrap check loaded from the PR branch and is not trusted.
 # After this workflow reaches main, pull_request_target loads the base-branch version.
-# Branch protection should require "Trusted guard / Risk guard", not the bootstrap check.
+# This Actions check is a compatibility fallback, not a spoof-resistant security boundary.
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited, labeled, unlabeled]
