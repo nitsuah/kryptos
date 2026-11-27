@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added `promo/spots.json`: one id per FEATURES.md entry, with the seven user-visible ones left to capture and the rest marked `"visual": "none"` (#360).
+
 ### Added
 
 - Candidate gate: pure length, crib and reproduction checks for K4 hypotheses (#346).
