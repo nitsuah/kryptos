@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { LEDGER_TIERS, LedgerEntry, LedgerTier } from "../api";
+import StatusKey from "../components/StatusKey";
 import TierGauge from "../components/TierGauge";
 import { TIER_HINT, TIER_LABEL } from "../k4";
 import { useDashboard } from "../shell/data";
@@ -71,6 +72,7 @@ export default function Ledger() {
             aria-label="Search the ledger"
           />
         </div>
+        <StatusKey />
         <ul className="rows" aria-label="Hypothesis families">
           {entries.length === 0 && <li className="muted">No entries match.</li>}
           {entries.map((e) => (

@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { apiPath } from "../api";
 
-type ConnState = "connecting" | "live" | "stopped" | "error";
+type ConnState = "connecting" | "live" | "stopped" | "error" | "unavailable";
+
+// After this many failed attempts in a row, stop retrying and say why.
+const MAX_FAILURES = 3;
 type LogView = "public" | "full" | null;
 
 const MAX_LINES = 1000;
@@ -49,7 +52,11 @@ export default function LogTail() {
     const es = new EventSource(logStreamUrl());
     esRef.current = es;
 
-    es.onopen = () => setState("live");
+    let failures = 0;
+    es.onopen = () => {
+      failures = 0;
+      setState("live");
+    };
     es.addEventListener("meta", (e) => {
       try {
         const meta = JSON.parse((e as MessageEvent).data) as { view?: string };
@@ -65,8 +72,14 @@ export default function LogTail() {
       });
     };
     es.onerror = () => {
-      // EventSource retries on its own; surface the gap but keep the connection.
-      setState("error");
+      // EventSource retries on its own, except after a refused request.
+      failures += 1;
+      if (failures >= MAX_FAILURES || es.readyState === EventSource.CLOSED) {
+        es.close();
+        setState("unavailable");
+      } else {
+        setState("error");
+      }
     };
 
     return () => {
@@ -89,6 +102,8 @@ export default function LogTail() {
         ? "○ connecting…"
         : state === "error"
           ? "● reconnecting…"
+          : state === "unavailable"
+          ? "○ unavailable"
           : "○ stopped";
   const labelClass = state === "error" ? "error" : state === "live" ? "" : "muted";
 
@@ -110,13 +125,17 @@ export default function LogTail() {
         <button type="button" onClick={() => setLines([])} disabled={lines.length === 0}>
           Clear
         </button>
-        <button type="button" onClick={() => setRunning((r) => !r)}>
+        <button type="button" onClick={() => setRunning((r) => !r)} disabled={state === "unavailable"}>
           {running ? "Pause" : "Resume"}
         </button>
       </div>
       <div className="logtail-body" ref={bodyRef}>
         {lines.length === 0 ? (
-          <div className="muted">No log lines yet.</div>
+          <div className="muted">
+            {state === "unavailable"
+              ? "The live log is not open to visitors on this server, or the server cannot be reached."
+              : "No log lines yet."}
+          </div>
         ) : (
           lines.map((line, i) => (
             <div key={i} className="logtail-line">

@@ -111,15 +111,15 @@ export function Rings({ turn }: { turn: number }) {
 }
 
 // "ONLINE" / "OFFLINE" set along an arc, as on the reference panels.
-export function OnlineArc({ online }: { online: boolean }) {
+export function OnlineArc({ online, waking = false }: { online: boolean; waking?: boolean }) {
   return (
-    <svg className={`online-arc ${online ? "on" : "off"}`} viewBox="0 0 140 44" role="img" aria-label={online ? "API online" : "API offline"}>
+    <svg className={`online-arc ${online ? "on" : "off"}`} viewBox="0 0 140 44" role="img" aria-label={online ? "API online" : waking ? "API waking" : "API offline"}>
       <defs>
         <path id="online-arc-path" d="M 8 40 Q 70 -6 132 40" />
       </defs>
       <text>
         <textPath href="#online-arc-path" startOffset="50%" textAnchor="middle">
-          {online ? "ONLINE" : "OFFLINE"}
+          {online ? "ONLINE" : waking ? "WAKING" : "OFFLINE"}
         </textPath>
       </text>
     </svg>

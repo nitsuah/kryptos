@@ -18,6 +18,11 @@ const LEDGER = {
 };
 
 /** Healthy API: status, ledger, jobs and frontier answer; anything else is a 404. */
+// The first-visit card would sit over the dashboard.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("kryptos-welcome-seen", "1"));
+});
+
 async function stubApi(page: Page): Promise<void> {
   await page.route("**/api/**", (route) => {
     const path = new URL(route.request().url()).pathname;
@@ -117,7 +122,22 @@ test.describe("API availability", () => {
   test("an unreachable API shows the unreachable state, not stale ONLINE", async ({ page }) => {
     const errors = trackPageErrors(page);
     await stubApiDown(page);
+    await page.clock.install();
     await page.goto("/#k4");
+
+    // Inside the wake window there is one calm state and no error wording.
+    await expect(page.getByRole("img", { name: "API waking" })).toBeVisible();
+    await page.clock.fastForward(4_000);
+    await expect(page.getByRole("status").filter({ hasText: "Waking the server" })).toBeVisible();
+    await expect(page.getByText("The API is not answering")).toHaveCount(0);
+    // The banner pushes the header down without stretching it or the stage.
+    const banner = (await page.locator(".coldstart-banner").boundingBox())!;
+    const hud = (await page.locator(".hud").boundingBox())!;
+    const stage = (await page.locator(".stage").boundingBox())!;
+    expect(hud.y).toBeGreaterThanOrEqual(banner.y + banner.height - 1);
+    expect(hud.height).toBeLessThan(120);
+    expect(stage.height).toBeGreaterThan(300);
+    await page.clock.fastForward(90_000);
 
     await expect(page.getByRole("img", { name: "API offline" })).toBeVisible();
     await expect(page.getByRole("img", { name: "API online" })).toHaveCount(0);
@@ -129,7 +149,78 @@ test.describe("API availability", () => {
 
   test("a 503 from the API is also treated as unreachable", async ({ page }) => {
     await page.route("**/api/**", (route) => route.fulfill({ status: 503, body: "upstream down" }));
+    await page.clock.install();
     await page.goto("/#system");
+    await expect(page.getByRole("img", { name: "API waking" })).toBeVisible();
+    await page.clock.fastForward(91_000);
     await expect(page.getByRole("img", { name: "API offline" })).toBeVisible();
+  });
+});
+
+const VECTOR = {
+  id: "p1",
+  priority: 1,
+  name: "P1 — Example vector",
+  status: "untested",
+  description: "An example.",
+  layer_count: 1,
+  combo_estimate: null,
+  runnable: true,
+};
+
+test.describe("visitors", () => {
+  // Any host that is not local counts as a visitor's view.
+  const VISITOR = "http://visitor.localhost:4173";
+
+  test("operator routes are not called and the controls say why", async ({ page }) => {
+    await stubApi(page);
+    await page.route("**/api/k4/attacks/frontier", (r) => r.fulfill({ json: { vectors: [VECTOR] } }));
+    const called: string[] = [];
+    page.on("request", (r) => called.push(new URL(r.url()).pathname));
+    await page.goto(`${VISITOR}/#attacks`);
+    await expect(page.getByText("Read-only view")).toBeVisible();
+    await expect(page.getByRole("button", { name: /Run Attack/ })).toBeDisabled();
+    expect(called.filter((p) => p.startsWith("/api/k4/attacks/jobs"))).toEqual([]);
+
+    await page.getByRole("searchbox", { name: "Search attacks" }).fill("zzzz");
+    await expect(page.getByText("No attacks match.")).toBeVisible();
+    await page.getByRole("button", { name: "clear search" }).click();
+    await expect(page.getByRole("button", { name: /Example vector/ })).toBeVisible();
+  });
+
+  test("solved sections decrypt in the browser", async ({ page }) => {
+    await stubApi(page);
+    const called: string[] = [];
+    page.on("request", (r) => called.push(new URL(r.url()).pathname));
+    await page.goto(`${VISITOR}/#lab`);
+    await expect(page.getByRole("button", { name: "Verify vs backend" })).toBeDisabled();
+    await page.getByPlaceholder("PALIMPSEST").fill("PALIMPSEST");
+    await page.locator("textarea").fill("EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ");
+    await page.getByRole("button", { name: "Execute" }).click();
+    await expect(page.locator(".lab-tools .result.plaintext")).toHaveText("BETWEENSUBTLESHADINGANDTHEABSENC");
+    expect(called).not.toContain("/api/decrypt");
+  });
+});
+
+test.describe("first visit", () => {
+  test("the card explains Kryptos, closes with Esc and reopens from ?", async ({ page }) => {
+    await page.addInitScript(() => localStorage.removeItem("kryptos-welcome-seen"));
+    await page.setViewportSize({ width: 375, height: 812 });
+    await stubApi(page);
+    await page.goto("/#k4");
+    const card = page.getByRole("dialog", { name: "What is Kryptos?" });
+    await expect(card).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(card).toHaveCount(0);
+    await page.getByRole("button", { name: "What is Kryptos?" }).click();
+    await card.getByRole("button", { name: "Watch K1 decode" }).click();
+    await expect(page).toHaveURL(/#lab$/);
+    await expect(page.locator(".dock-btn .dock-title").first()).toBeVisible();
+    for (const box of await page.locator(".dock-btn").all()) {
+      const size = await box.boundingBox();
+      expect(size!.height).toBeGreaterThanOrEqual(44);
+      expect(size!.width).toBeGreaterThanOrEqual(44);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
   });
 });

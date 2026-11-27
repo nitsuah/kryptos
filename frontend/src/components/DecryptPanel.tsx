@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
-import { ApiError, api } from "../api";
+import { ApiError, api, isReadOnly } from "../api";
+import { decodeK3, decodeVigenere } from "../cipher";
 import FormField from "./FormField";
 
 const SECTIONS = ["K1", "K2", "K3", "K4"];
@@ -13,6 +14,9 @@ export default function DecryptPanel() {
   const [busy, setBusy] = useState(false);
 
   const keyRequired = section === "K1" || section === "K2";
+  // Visitors decode solved sections here in the browser; K4 needs the server.
+  const local = isReadOnly();
+  const blocked = local && section === "K4";
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -20,6 +24,11 @@ export default function DecryptPanel() {
     setError(null);
     setPlaintext(null);
     try {
+      if (local) {
+        if (keyRequired && !/[A-Za-z]/.test(key)) throw new Error(`${section} requires a key`);
+        setPlaintext(keyRequired ? decodeVigenere(ciphertext, key) : decodeK3(ciphertext));
+        return;
+      }
       const resp = await api.decrypt(section, ciphertext.trim(), key.trim() || undefined);
       setPlaintext(resp.plaintext);
     } catch (err) {
@@ -58,7 +67,14 @@ export default function DecryptPanel() {
           placeholder="EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ..."
         />
       </FormField>
-      <button type="submit" disabled={busy || ciphertext.trim().length === 0}>
+      {local && (
+        <p className="muted small">
+          {blocked
+            ? "K4 is unsolved, and decrypting it on the server is operator only."
+            : "K1 to K3 are decrypted in your browser."}
+        </p>
+      )}
+      <button type="submit" disabled={busy || blocked || ciphertext.trim().length === 0}>
         {busy ? "Decrypting…" : "Execute"}
       </button>
       {error && <div className="result error">{error}</div>}

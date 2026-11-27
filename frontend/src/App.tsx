@@ -15,6 +15,7 @@ import { MODULES, ModuleDef } from "./modules/registry";
 import { DashboardData, DashboardDataProvider, useDashboard } from "./shell/data";
 import { Barcode, Caution, Glyph, OnlineArc, Rings, serial } from "./shell/deco";
 import { NavContext } from "./shell/nav";
+import Welcome from "./shell/Welcome";
 import { LEDGER_TIERS } from "./api";
 import { TIER_LABEL } from "./k4";
 
@@ -182,11 +183,34 @@ function Face({ mod, index, data }: { mod: ModuleDef; index: number; data: Dashb
   );
 }
 
+const WELCOME_KEY = "kryptos-welcome-seen";
+
+function useWelcome(): [boolean, () => void, () => void] {
+  const [open, setOpen] = useState(() => {
+    try {
+      return localStorage.getItem(WELCOME_KEY) === null;
+    } catch {
+      return false;
+    }
+  });
+  const show = useCallback(() => setOpen(true), []);
+  const hide = useCallback(() => {
+    setOpen(false);
+    try {
+      localStorage.setItem(WELCOME_KEY, "1");
+    } catch {
+      /* storage unavailable: it shows again next visit */
+    }
+  }, []);
+  return [open, show, hide];
+}
+
 function Shell() {
   const data = useDashboard();
   const [active, setActive] = useState(indexFromHash);
   const [theme, cycleTheme] = useThemePref();
   const utc = useUtc();
+  const [welcome, showWelcome, hideWelcome] = useWelcome();
   const coldStart = data.coldStart;
   const stageRef = useRef<HTMLDivElement | null>(null);
   const swipe = useRef<{ x: number; y: number; id: number } | null>(null);
@@ -259,6 +283,11 @@ function Shell() {
   return (
     <NavContext.Provider value={nav}>
       <div className="shell">
+        {coldStart && (
+          <div className="coldstart-banner" role="status" aria-live="polite">
+            Waking the server (free instance, up to a minute). The ciphertext grid already works.
+          </div>
+        )}
         <header className="hud">
           <div className="hud-left">
             <RingDial active={active} onPick={go} />
@@ -273,10 +302,13 @@ function Shell() {
             <span className="hud-level">SECTION K4</span>
           </div>
           <div className="hud-right">
-            <OnlineArc online={data.online} />
+            <OnlineArc online={data.online} waking={data.waking} />
             <span className="hud-clock" aria-label="UTC time">
               {utc} <small>UTC</small>
             </span>
+            <button type="button" className="theme-btn" onClick={showWelcome} aria-label="What is Kryptos?" title="What is Kryptos?">
+              ?
+            </button>
             <button
               type="button"
               className="theme-btn"
@@ -288,12 +320,6 @@ function Shell() {
             </button>
           </div>
         </header>
-
-        {coldStart && (
-          <div className="coldstart-banner" role="status" aria-live="polite">
-            Waking the server… (free instance cold start)
-          </div>
-        )}
 
         <main
           className="stage"
@@ -357,6 +383,16 @@ function Shell() {
             ← → or swipe
           </span>
         </nav>
+
+        {welcome && (
+          <Welcome
+            onClose={hideWelcome}
+            onStart={(id) => {
+              hideWelcome();
+              nav.go(id);
+            }}
+          />
+        )}
 
         <div className="sr-only" aria-live="polite">
           {mod.title} module, {active + 1} of {N}

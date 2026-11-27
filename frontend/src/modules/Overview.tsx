@@ -1,3 +1,4 @@
+import StatusKey from "../components/StatusKey";
 import CipherMatrix from "../components/CipherMatrix";
 import TierGauge from "../components/TierGauge";
 import WorldClock from "../components/WorldClock";
@@ -7,7 +8,7 @@ import { useNav } from "../shell/nav";
 // K4 at a glance: the ciphertext with its four cribs, the ledger's totals,
 // what is still open, and the World Clock that BERLIN CLOCK refers to.
 export default function Overview() {
-  const { ledger, ledgerError } = useDashboard();
+  const { ledger, ledgerError, waking } = useDashboard();
   const nav = useNav();
   const open = ledger?.entries.filter((e) => e.tier === "open") ?? [];
   const run = ledger?.latest_run;
@@ -21,11 +22,12 @@ export default function Overview() {
 
       <section className="pane ov-ledger">
         <h3>Hypothesis ledger</h3>
-        {ledgerError && !ledger ? (
+        {ledgerError && !ledger && !waking ? (
           <div className="result error">Ledger unavailable: {ledgerError}</div>
         ) : (
           <TierGauge counts={ledger?.counts ?? null} size={112} onSelect={() => nav.go("ledger")} />
         )}
+        <StatusKey />
         <p className="muted small">
           {run?.timestamp
             ? `Latest crib-constraint run ${run.timestamp.replace("T", " ").slice(0, 16)} UTC.`

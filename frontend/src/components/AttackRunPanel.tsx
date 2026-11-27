@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { api, FrontierVector, JobStatus, AttackCandidate } from "../api";
+import { api, FrontierVector, JobStatus, AttackCandidate, isReadOnly, READ_ONLY_REASON } from "../api";
 
 interface Props {
   vector: FrontierVector;
@@ -139,7 +139,7 @@ export default function AttackRunPanel({ vector, onJobChange }: Props) {
         <button
           className="small-button"
           onClick={handleRun}
-          disabled={isRunning || launching || !vector.runnable}
+          disabled={isRunning || launching || !vector.runnable || isReadOnly()}
           style={{ minWidth: "120px" }}
         >
           {launching ? "Launching…" : isRunning ? "Running…" : "▶ Run Attack"}
@@ -150,6 +150,8 @@ export default function AttackRunPanel({ vector, onJobChange }: Props) {
           </span>
         )}
       </div>
+
+      {isReadOnly() && <p className="muted small">{READ_ONLY_REASON}</p>}
 
       {/* Progress bar */}
       {job && (job.status === "running" || job.status === "queued") && (
