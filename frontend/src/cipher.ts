@@ -93,6 +93,9 @@ export interface K3Stage {
  */
 export function k3Stages(ciphertext: string): K3Stage[] {
   const clean = ciphertext.replace(/\s/g, "").replace(/^\?/, "");
+  if (clean.length !== 336) {
+    throw new Error(`K3 ciphertext must be 336 chars (got ${clean.length})`);
+  }
   const m1 = toGrid(clean, 24);
   const m2 = rotateRight(m1);
   const t1 = gridToText(m2);
