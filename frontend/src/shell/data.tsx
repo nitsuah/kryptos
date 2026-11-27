@@ -124,15 +124,19 @@ export function DashboardDataProvider({ children }: { children: ReactNode }) {
   const refreshJobs = useCallback(() => {
     if (isReadOnly()) {
       setJobs([]);
+      setJobsError(null);
       return;
     }
     api
       .jobs(25)
       .then((r) => {
+        if (isReadOnly()) return;
         setJobs(r.jobs);
         setJobsError(null);
       })
-      .catch((e) => setJobsError(message(e)));
+      .catch((e) => {
+        if (!isReadOnly()) setJobsError(message(e));
+      });
   }, []);
 
   const refreshVectors = useCallback(() => {
