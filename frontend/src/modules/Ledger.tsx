@@ -9,7 +9,7 @@ import { useDashboard } from "../shell/data";
 // list on the left (filter by tier or text), the selected family's scope,
 // evidence, module and test on the right.
 export default function Ledger() {
-  const { ledger, ledgerError, refreshLedger } = useDashboard();
+  const { ledger, ledgerError, refreshLedger, waking } = useDashboard();
   const [tier, setTier] = useState<LedgerTier | "all">("all");
   const [q, setQ] = useState("");
   const [selId, setSelId] = useState<string | null>(null);
@@ -29,7 +29,7 @@ export default function Ledger() {
   if (!ledger) {
     return (
       <div className="pane">
-        {ledgerError ? (
+        {ledgerError && !waking ? (
           <div className="result error">
             Ledger unavailable: {ledgerError}{" "}
             <button type="button" onClick={refreshLedger}>
