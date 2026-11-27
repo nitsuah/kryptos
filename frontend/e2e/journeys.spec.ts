@@ -55,7 +55,7 @@ const activeModule = (page: Page) => page.locator("section.face.is-active");
 test("visitor K3 decrypt panel displays the length validation error", async ({ page }) => {
   await stubApi(page);
   await page.goto("http://visitor.localhost:4173/#lab");
-  await page.getByLabel("Section").selectOption("K3");
+  await page.getByRole("group", { name: "Section" }).getByRole("button", { name: "K3" }).click();
   await page.getByLabel("Ciphertext").fill("A");
   await page.getByRole("button", { name: "Execute" }).click();
   await expect(page.locator(".result.error")).toContainText(
