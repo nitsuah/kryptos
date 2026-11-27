@@ -311,7 +311,7 @@ async function postJSON<T>(path: string, body: unknown): Promise<T> {
 // Public hosts need the saved token for operator routes, so a visitor without
 // one gets a read-only dashboard and those routes are not called. Local servers
 // may run with auth switched off, so they are always tried.
-const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
+const LOCAL_HOSTS = ["localhost", "127.0.0.1", "::1"];
 
 export function isLocalHost(): boolean {
   return LOCAL_HOSTS.includes(window.location.hostname);
