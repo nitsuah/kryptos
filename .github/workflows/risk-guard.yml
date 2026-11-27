@@ -1,0 +1,43 @@
+name: Risk guard
+
+# The pull_request job is a bootstrap check loaded from the PR branch and is not trusted.
+# After this workflow reaches main, pull_request_target loads the base-branch version.
+# The bootstrap and trusted jobs both call the pinned risk-guard.yml reusable workflow.
+# This Actions check is a compatibility fallback, not a spoof-resistant security boundary.
+# Enable the App job only after configuring BOTH RISK_GUARD_APP_CLIENT_ID and
+# RISK_GUARD_APP_PRIVATE_KEY; either setting alone is insufficient.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  bootstrap:
+    name: Bootstrap (untrusted)
+    if: github.event_name == 'pull_request'
+    uses: nitsuah/.github/.github/workflows/risk-guard.yml@c34db982a42a41ee0c05579183186145dc6d1dd7 # main
+    permissions:
+      contents: read
+      pull-requests: read
+
+  guard:
+    name: Trusted guard
+    if: github.event_name == 'pull_request_target'
+    uses: nitsuah/.github/.github/workflows/risk-guard.yml@c34db982a42a41ee0c05579183186145dc6d1dd7 # main
+    permissions:
+      contents: read
+      pull-requests: read
+
+  app:
+    name: App-backed guard (opt-in)
+    if: github.event_name == 'pull_request_target' && vars.RISK_GUARD_APP_CLIENT_ID != ''
+    uses: nitsuah/.github/.github/workflows/risk-guard-app.yml@c34db982a42a41ee0c05579183186145dc6d1dd7
+    with:
+      app_client_id: ${{ vars.RISK_GUARD_APP_CLIENT_ID }}
+    secrets:
+      RISK_GUARD_APP_PRIVATE_KEY: ${{ secrets.RISK_GUARD_APP_PRIVATE_KEY }}
