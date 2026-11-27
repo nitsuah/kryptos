@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { k3Stages, SECTION_DATA } from "../src/cipher";
 
 // Every /api call is stubbed with page.route(), so these journeys never need the
 // FastAPI backend and never depend on live data. Shapes follow src/api.ts.
@@ -50,6 +51,11 @@ function trackPageErrors(page: Page): string[] {
 }
 
 const activeModule = (page: Page) => page.locator("section.face.is-active");
+
+test("K3 stage builder rejects incomplete ciphertext before grid padding", () => {
+  expect(() => k3Stages("A")).toThrow(/K3 ciphertext must be 336 chars/);
+  expect(k3Stages(SECTION_DATA.K3.cipher)).toHaveLength(4);
+});
 
 test.describe("K4 grid", () => {
   test("renders 97 cell buttons and labels the 24 known-plaintext cells", async ({ page }) => {
