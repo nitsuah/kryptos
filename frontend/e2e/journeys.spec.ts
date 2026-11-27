@@ -68,6 +68,35 @@ test("visitor K3 decrypt panel displays the length validation error", async ({ p
   );
 });
 
+test("unauthenticated localhost uses browser K1-K3 while keeping K4 server-backed", async ({ page }) => {
+  await stubApi(page);
+  let decryptRequests = 0;
+  await page.route("**/api/decrypt", async (route) => {
+    decryptRequests += 1;
+    await route.fulfill({ status: 401, body: "operator token required" });
+  });
+  await page.goto("http://localhost:4173/#lab");
+
+  const decryptForm = page
+    .locator("form")
+    .filter({
+      has: page.locator('textarea[placeholder^="EMUFPHZLRFAXYUSDJKZLDKRNSHGNFIVJ"]'),
+    });
+  await decryptForm.locator("select").selectOption("K3");
+  await decryptForm.locator("textarea").fill("A");
+  await decryptForm.getByRole("button", { name: "Execute" }).click();
+  await expect(decryptForm.locator(".result.error")).toContainText(
+    "K3 ciphertext must be 336 chars (got 1)",
+  );
+  expect(decryptRequests).toBe(0);
+
+  await decryptForm.locator("select").selectOption("K4");
+  await decryptForm.locator("textarea").fill("unsolved ciphertext");
+  await decryptForm.getByRole("button", { name: "Execute" }).click();
+  await expect.poll(() => decryptRequests).toBe(1);
+  await expect(decryptForm.locator(".result.error")).toContainText("[401]");
+});
+
 test("K3 stage builder rejects incomplete ciphertext before grid padding", () => {
   expect(() => k3Stages("A")).toThrow(/K3 ciphertext must be 336 chars/);
   expect(k3Stages(SECTION_DATA.K3.cipher)).toHaveLength(4);
