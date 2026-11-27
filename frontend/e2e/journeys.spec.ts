@@ -266,7 +266,7 @@ test("operator log failures show a generic message and can retry", async ({ page
     });
   });
 
-  await page.goto(`${VISITOR}/#system`);
+  await page.goto(`http://visitor.localhost:4173/#system`);
   await expect(page.getByText("Live log unavailable. Check the server connection and retry.")).toBeVisible();
   await expect(page.getByText("The live log is not open to visitors on this server.")).toHaveCount(0);
   await page.getByRole("button", { name: "Retry" }).click();
