@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { apiPath } from "../api";
+import { apiPath, isReadOnly } from "../api";
 
 type ConnState = "connecting" | "live" | "stopped" | "error" | "unavailable";
 
@@ -140,7 +140,9 @@ export default function LogTail() {
         {lines.length === 0 ? (
           <div className="muted">
             {state === "unavailable"
-              ? "The live log is not open to visitors on this server, or the server cannot be reached."
+              ? isReadOnly()
+                ? "The live log is not open to visitors on this server."
+                : "Live log unavailable. Check the server connection and retry."
               : "No log lines yet."}
           </div>
         ) : (
